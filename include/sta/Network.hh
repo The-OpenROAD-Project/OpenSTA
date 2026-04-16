@@ -29,11 +29,11 @@
 #include <string>
 #include <string_view>
 
-#include "StringUtil.hh"
 #include "LibertyClass.hh"
-#include "VertexId.hh"
 #include "NetworkClass.hh"
 #include "StaState.hh"
+#include "StringUtil.hh"
+#include "VertexId.hh"
 
 namespace sta {
 
@@ -93,8 +93,8 @@ using NetDrvrPinsMap = std::map<const Net*, PinSet*>;
 class Network : public StaState
 {
 public:
-  Network();
-  virtual ~Network();
+  Network() = default;
+  ~Network() override;
   virtual void clear();
 
   // Linking the hierarchy creates the instance/pin/net network hierarchy.
@@ -446,7 +446,7 @@ protected:
   void findInstancesMatching1(const Instance *context,
                               size_t context_name_length,
                               const PatternMatch *pattern,
-                              InstanceSeq &insts) const;
+                              InstanceSeq &matches) const;
   void findInstancesHierMatching1(const Instance *instance,
                                   const PatternMatch *pattern,
                                   InstanceSeq &matches) const;
@@ -475,7 +475,7 @@ protected:
                                     const PatternMatch *pattern,
                                     // Return value.
                                     PinSeq &matches) const;
-  void findInstPinsHierMatching(const Instance *parent,
+  void findInstPinsHierMatching(const Instance *instance,
                                 const PatternMatch *pattern,
                                 // Return value.
                                 PinSeq &matches) const;
@@ -490,9 +490,9 @@ protected:
   // nets may be connected across hierarchy levels.
   void clearNetDrvrPinMap();
 
-  LibertyLibrary *default_liberty_;
-  char divider_;
-  char escape_;
+  LibertyLibrary *default_liberty_{nullptr};
+  char divider_{'/'};
+  char escape_{'\\'};
   NetDrvrPinsMap net_drvr_pin_map_;
 };
 
@@ -500,8 +500,8 @@ protected:
 class NetworkEdit : public Network
 {
 public:
-  NetworkEdit();
-  virtual bool isEditable() const { return true; }
+  NetworkEdit() = default;
+  bool isEditable() const override { return true; }
   virtual Instance *makeInstance(LibertyCell *cell,
                                  std::string_view name,
                                  Instance *parent) = 0;
@@ -533,7 +533,6 @@ public:
 class NetworkReader : public NetworkEdit
 {
 public:
-  NetworkReader() {}
   // Called before reading a netlist to delete any previously linked network.
   virtual void readNetlistBefore() = 0;
   virtual void setLinkFunc(LinkNetworkFunc link) = 0;
@@ -599,8 +598,7 @@ linkReaderNetwork(Cell *top_cell,
 class ConstantPinIterator
 {
 public:
-  ConstantPinIterator() {}
-  virtual ~ConstantPinIterator() {}
+  virtual ~ConstantPinIterator() = default;
   virtual bool hasNext() = 0;
   virtual void next(const Pin *&pin,
                     LogicValue &value) = 0;
@@ -613,16 +611,15 @@ public:
   NetworkConstantPinIterator(const Network *network,
                               NetSet &zero_nets,
                               NetSet &one_nets);
-  virtual ~NetworkConstantPinIterator() {}
-  virtual bool hasNext();
-  virtual void next(const Pin *&pin, LogicValue &value);
+  bool hasNext() override;
+  void next(const Pin *&pin, LogicValue &value) override;
 
 private:
   void findConstantPins(NetSet &nets,
                         PinSet &pins);
 
   const Network *network_;
-  PinSet constant_pins_[2];
+  PinSet constant_pins_[2]{PinSet(network_), PinSet(network_)};
   LogicValue value_;
   PinSet::iterator pin_iter_;
 };
@@ -631,8 +628,7 @@ private:
 class HierPinThruVisitor
 {
 public:
-  HierPinThruVisitor() {}
-  virtual ~HierPinThruVisitor() {}
+  virtual ~HierPinThruVisitor() = default;
   virtual void visit(const Pin *drvr,
                      const Pin *load) = 0;
 };
@@ -640,7 +636,7 @@ public:
 class PinVisitor
 {
 public:
-  virtual ~PinVisitor() {}
+  virtual ~PinVisitor() = default;
   virtual void operator()(const Pin *pin) = 0;
 };
 
@@ -652,7 +648,7 @@ public:
                    PinSeq &loads,
                    PinSeq &drvrs,
                    const Network *network);
-  virtual void operator()(const Pin *pin);
+  void operator()(const Pin *pin) override;
 
 protected:
   const Pin *drvr_pin_;
@@ -675,4 +671,4 @@ visitDrvrLoadsThruNet(const Net *net,
 char
 logicValueString(LogicValue value);
 
-} // namespace
+} // namespace sta

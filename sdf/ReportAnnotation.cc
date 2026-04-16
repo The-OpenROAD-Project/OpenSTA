@@ -26,15 +26,15 @@
 
 #include <string_view>
 
-#include "StringUtil.hh"
-#include "Report.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
 #include "Graph.hh"
 #include "GraphCmp.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Report.hh"
 #include "Sdc.hh"
+#include "StringUtil.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
 
 namespace sta {
 
@@ -126,16 +126,16 @@ void
 reportAnnotatedDelay(const Scene *scene,
                      bool report_cells,
                      bool report_nets,
-                     bool from_in_ports,
-                     bool to_out_ports,
+                     bool report_in_ports,
+                     bool report_out_ports,
                      int max_lines,
                      bool report_annotated,
                      bool report_unannotated,
                      bool report_constant_arcs,
                      StaState *sta)
 {
-  ReportAnnotated report(scene, report_cells, report_nets, from_in_ports,
-                         to_out_ports, max_lines, report_annotated,
+  ReportAnnotated report(scene, report_cells, report_nets, report_in_ports,
+                         report_out_ports, max_lines, report_annotated,
                          report_unannotated, report_constant_arcs, sta);
   report.reportDelayAnnotation();
 }

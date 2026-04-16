@@ -24,13 +24,13 @@
 
 #include "ParallelDelayCalc.hh"
 
-#include "TimingArc.hh"
-#include "Scene.hh"
-#include "Network.hh"
 #include "Graph.hh"
-#include "Sdc.hh"
-#include "Liberty.hh"
 #include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "TimingArc.hh"
 
 namespace sta {
 
@@ -118,4 +118,4 @@ ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
   return dcalc_results;
 }
 
-} // namespace
+} // namespace sta

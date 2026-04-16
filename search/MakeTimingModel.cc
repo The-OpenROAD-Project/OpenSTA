@@ -26,29 +26,43 @@
 #include "MakeTimingModelPvt.hh"
 
 #include <algorithm>
-#include <cmath>
+#include <cstddef>
 #include <map>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
+#include "ArcDelayCalc.hh"
+#include "ClkDelays.hh"
+#include "Clock.hh"
+#include "ContainerHelpers.hh"
 #include "Debug.hh"
-#include "Units.hh"
-#include "Transition.hh"
-#include "Liberty.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "liberty/LibertyBuilder.hh"
-#include "Network.hh"
-#include "PortDirection.hh"
-#include "Scene.hh"
-#include "GraphDelayCalc.hh"
-#include "Sdc.hh"
-#include "StaState.hh"
+#include "Delay.hh"
 #include "Graph.hh"
+#include "GraphClass.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "Path.hh"
 #include "PathEnd.hh"
+#include "PortDirection.hh"
+#include "RiseFallMinMax.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
 #include "Search.hh"
 #include "Sta.hh"
+#include "StaState.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
+#include "Units.hh"
 #include "VisitPathEnds.hh"
-#include "ArcDelayCalc.hh"
-#include "ClkLatency.hh"
+#include "liberty/LibertyBuilder.hh"
 
 namespace sta {
 
@@ -73,13 +87,10 @@ MakeTimingModel::MakeTimingModel(std::string_view lib_name,
   cell_name_(cell_name),
   filename_(filename),
   scene_(scene),
-  cell_(nullptr),
   min_max_(MinMax::max()),
   lib_builder_(new LibertyBuilder(debug_,
                                   report_)),
-  tbl_template_index_(1),
   sdc_(scene->sdc()),
-  sdc_backup_(nullptr),
   sta_(sta)
 {
   scenes_.insert(scene_);
@@ -232,20 +243,18 @@ class MakeEndTimingArcs : public PathEndVisitor
 public:
   MakeEndTimingArcs(Sta *sta);
   MakeEndTimingArcs(const MakeEndTimingArcs &) = default;
-  ~MakeEndTimingArcs() override {}
   PathEndVisitor *copy() const override;
   void visit(PathEnd *path_end) override;
   void setInputRf(const RiseFall *input_rf);
   const ClockEdgeDelays &margins() const { return margins_; }
 
 private:
-  const RiseFall *input_rf_;
+  const RiseFall *input_rf_{nullptr};
   ClockEdgeDelays margins_;
   Sta *sta_;
 };
 
 MakeEndTimingArcs::MakeEndTimingArcs(Sta *sta) :
-  input_rf_(nullptr),
   sta_(sta)
 {
 }
@@ -673,8 +682,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                 const FloatSeq &drvr_axis_values = drvr_load_axis->values();
                 FloatSeq *load_values = new FloatSeq;
                 FloatSeq *slew_values = new FloatSeq;
-                for (size_t i = 0; i < drvr_axis_values.size(); i++) {
-                  float load_cap = drvr_axis_values[i];
+                for (float load_cap : drvr_axis_values) {
                   // get slew from driver input pin
                   float gate_delay, gate_slew;
                   drvr_gate_model->gateDelay(pvt, in_slew1, load_cap,
@@ -723,7 +731,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
 
 TableTemplate *
 MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
-                                     TableAxisPtr load_axis)
+                                     const TableAxisPtr &load_axis)
 {
   TableTemplate *model_template = findKey(template_map_, drvr_template);
   if (model_template == nullptr) {

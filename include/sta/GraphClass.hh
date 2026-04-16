@@ -25,13 +25,13 @@
 #pragma once
 
 #include <limits>
-#include <vector>
 #include <set>
+#include <vector>
 
-#include "ObjectId.hh"
-#include "MinMax.hh"
-#include "Transition.hh"
 #include "Delay.hh"
+#include "MinMax.hh"
+#include "ObjectId.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -76,4 +76,4 @@ static constexpr int slew_annotated_bits = MinMax::index_count * RiseFall::index
 // Bit shifts used to mark vertices in a Bfs queue.
 enum class BfsIndex { dcalc, arrival, required, other, bits };
 
-} // namespace
+} // namespace sta

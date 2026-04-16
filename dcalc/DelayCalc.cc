@@ -27,18 +27,18 @@
 #include <map>
 #include <string>
 
-#include "ContainerHelpers.hh"
-#include "StringUtil.hh"
-#include "UnitDelayCalc.hh"
-#include "LumpedCapDelayCalc.hh"
-#include "DmpDelayCalc.hh"
 #include "ArnoldiDelayCalc.hh"
 #include "CcsCeffDelayCalc.hh"
+#include "ContainerHelpers.hh"
+#include "DmpDelayCalc.hh"
+#include "LumpedCapDelayCalc.hh"
 #include "PrimaDelayCalc.hh"
+#include "StringUtil.hh"
+#include "UnitDelayCalc.hh"
 
 namespace sta {
 
-typedef std::map<std::string, MakeArcDelayCalc, std::less<>> DelayCalcMap;
+using DelayCalcMap = std::map<std::string, MakeArcDelayCalc, std::less<>>;
 
 static DelayCalcMap delay_calcs;
 
@@ -93,4 +93,4 @@ delayCalcNames()
   return names;
 }
 
-} // namespace
+} // namespace sta

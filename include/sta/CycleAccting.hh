@@ -27,9 +27,9 @@
 #include <unordered_set>
 
 #include "MinMax.hh"
-#include "TimingRole.hh"
-#include "StaState.hh"
 #include "SdcClass.hh"
+#include "StaState.hh"
+#include "TimingRole.hh"
 
 namespace sta {
 
@@ -127,7 +127,7 @@ private:
   int src_cycle_[TimingRole::index_max + 1];
   // Target clock cycle offset.
   int tgt_cycle_[TimingRole::index_max + 1];
-  bool max_cycles_exceeded_;
+  bool max_cycles_exceeded_{false};
 };
 
-} // namespace
+} // namespace sta

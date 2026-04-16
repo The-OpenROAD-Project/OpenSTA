@@ -45,7 +45,7 @@ public:
   static PortDirection *unknown() { return unknown_; }
   static PortDirection *find(const char *dir_name);
   std::string_view name() const { return name_; }
-  int index() const { return index_; }
+  size_t index() const { return index_; }
   bool isInput() const { return this == input_; }
   // Input or bidirect.
   bool isAnyInput() const;
@@ -66,10 +66,10 @@ public:
 
 private:
   PortDirection(const char *name,
-                int index);
+                size_t index);
 
   const char *name_;
-  int index_;
+  size_t index_;
 
   static PortDirection *input_;
   static PortDirection *output_;
@@ -82,4 +82,4 @@ private:
   static PortDirection *unknown_;
 };
 
-} // namespace
+} // namespace sta

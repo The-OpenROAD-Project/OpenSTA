@@ -82,6 +82,7 @@ static int
 encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
 static int
 encapSeekProc(ClientData instanceData,
+              // NOLINTNEXTLINE(google-runtime-int)  // Tcl_DriverSeekProc offset
               long offset,
               int seekMode,
               int *errorCodePtr);
@@ -90,43 +91,36 @@ encapSeekProc(ClientData instanceData,
 }  // extern "C"
 
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_5,
+  .typeName = "file",
+  .version = TCL_CHANNEL_VERSION_5,
 #if TCL_MAJOR_VERSION < 9
-  encapCloseProc,
+  .closeProc = encapCloseProc,
 #else
-  nullptr,  // closeProc unused
+  .closeProc = nullptr,  // closeProc unused
 #endif
-  encapInputProc,
-  encapOutputProc,
+  .inputProc = encapInputProc,
+  .outputProc = encapOutputProc,
 #if TCL_MAJOR_VERSION < 9
-  encapSeekProc,
+  .seekProc = encapSeekProc,
 #else
-  nullptr,  // seekProc unused
+  .seekProc = nullptr,  // seekProc unused
 #endif
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  encapClose2Proc,
-  encapBlockModeProc,
-  nullptr,  // flushProc
-  nullptr,  // handlerProc
-  nullptr,  // wideSeekProc
-  nullptr,  // threadActionProc
-  nullptr   // truncateProc
+  .setOptionProc = encapSetOptionProc,
+  .getOptionProc = encapGetOptionProc,
+  .watchProc = encapWatchProc,
+  .getHandleProc = encapGetHandleProc,
+  .close2Proc = encapClose2Proc,
+  .blockModeProc = encapBlockModeProc,
+  .flushProc = nullptr,
+  .handlerProc = nullptr,
+  .wideSeekProc = nullptr,
+  .threadActionProc = nullptr,
+  .truncateProc = nullptr,
 };
 
 ////////////////////////////////////////////////////////////////
 
-ReportTcl::ReportTcl() :
-  Report(), interp_(nullptr),
-  tcl_stdout_(nullptr),
-  tcl_stderr_(nullptr),
-  tcl_encap_stdout_(nullptr),
-  tcl_encap_stderr_(nullptr)
-{
-}
+ReportTcl::ReportTcl() = default;
 
 ReportTcl::~ReportTcl()
 {
@@ -324,6 +318,7 @@ encapCloseProc(ClientData instanceData,
 
 static int
 encapSeekProc(ClientData,
+              // NOLINTNEXTLINE(google-runtime-int)  // Tcl_DriverSeekProc offset
               long,
               int,
               int *)

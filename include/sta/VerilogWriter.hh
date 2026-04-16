@@ -34,4 +34,4 @@ writeVerilog(const char *filename,
              CellSeq *remove_cells,
              Network *network);
 
-} // namespace
+} // namespace sta

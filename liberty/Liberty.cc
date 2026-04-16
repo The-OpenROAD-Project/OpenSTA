@@ -24,29 +24,39 @@
 
 #include "Liberty.hh"
 
+#include <cstddef>
+#include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
+
+#include "ConcreteLibrary.hh"
 #include "ContainerHelpers.hh"
-#include "Format.hh"
-#include "Mutex.hh"
-#include "EnumNameMap.hh"
-#include "Report.hh"
 #include "Debug.hh"
+#include "Delay.hh"
+#include "EnumNameMap.hh"
 #include "Error.hh"
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
-#include "Units.hh"
-#include "Transition.hh"
-#include "TimingRole.hh"
+#include "Format.hh"
 #include "FuncExpr.hh"
+#include "InternalPower.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Mutex.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "ObjectId.hh"
+#include "PatternMatch.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Scene.hh"
+#include "Sequential.hh"
 #include "TableModel.hh"
 #include "TimingArc.hh"
-#include "InternalPower.hh"
-#include "LeakagePower.hh"
-#include "Sequential.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
+#include "Units.hh"
 #include "Wireload.hh"
-#include "EquivCells.hh"
-#include "Network.hh"
-#include "PortDirection.hh"
-#include "Scene.hh"
 
 namespace sta {
 
@@ -65,45 +75,12 @@ deleteLiberty()
 LibertyLibrary::LibertyLibrary(std::string_view name,
                                std::string_view filename) :
   ConcreteLibrary(name, filename, true),
-  units_(new Units()),
-  delay_model_type_(DelayModelType::table), // default
-  nominal_process_(0.0),
-  nominal_voltage_(0.0),
-  nominal_temperature_(0.0),
-  scale_factors_(nullptr),
-  default_input_pin_cap_(0.0),
-  default_output_pin_cap_(0.0),
-  default_bidirect_pin_cap_(0.0),
-  default_fanout_load_(0.0),
-  default_fanout_load_exists_(false),
-  default_max_cap_(0.0),
-  default_max_cap_exists_(false),
-  default_max_fanout_(0.0),
-  default_max_fanout_exists_(false),
-  default_max_slew_(0.0),
-  default_max_slew_exists_(false),
-  slew_derate_from_library_(1.0),
-  default_wire_load_(nullptr),
-  default_wire_load_mode_(WireloadMode::unknown),
-  default_wire_load_selection_(nullptr),
-  default_operating_conditions_(nullptr),
-  ocv_arc_depth_(0.0),
-  default_ocv_derate_(nullptr),
-  buffers_(nullptr),
-  inverters_(nullptr)
+  units_(new Units())
 {
   // Scalar templates are builtin.
   for (int i = 0; i != table_template_type_count; i++) {
     TableTemplateType type = static_cast<TableTemplateType>(i);
     makeTableTemplate("scalar", type);
-  }
-
-  for (auto rf_index : RiseFall::rangeIndex()) {
-    wire_slew_degradation_tbls_[rf_index] = nullptr;
-    input_threshold_[rf_index] = input_threshold_default_;
-    output_threshold_[rf_index] = output_threshold_default_;
-    slew_lower_threshold_[rf_index] = slew_lower_threshold_default_;
-    slew_upper_threshold_[rf_index] = slew_upper_threshold_default_;
   }
 }
 
@@ -204,10 +181,10 @@ LibertyLibrary::busDcls() const
 
 TableTemplate *
 LibertyLibrary::makeTableTemplate(std::string_view name,
-                                    TableTemplateType type)
+                                  TableTemplateType type)
 {
   std::string key(name);
-  auto [it, inserted] = template_maps_[int(type)].try_emplace(std::move(key),
+  auto [it, inserted] = template_maps_[static_cast<size_t>(type)].try_emplace(std::move(key),
                                                              std::string(name),
                                                              type);
   return &it->second;
@@ -217,15 +194,15 @@ TableTemplate *
 LibertyLibrary::findTableTemplate(std::string_view name,
                                   TableTemplateType type)
 {
-  return findStringValuePtr(template_maps_[int(type)], name);
+  return findStringValuePtr(template_maps_[static_cast<size_t>(type)], name);
 }
 
 TableTemplateSeq
 LibertyLibrary::tableTemplates() const
 {
   TableTemplateSeq tbl_templates;
-  for (int type = 0; type < table_template_type_count; type++) {
-    for (auto &[key, tbl_template] : template_maps_[type])
+  for (const auto & template_map : template_maps_) {
+    for (auto &[key, tbl_template] : template_map)
       tbl_templates.push_back(const_cast<TableTemplate *>(&tbl_template));
   }
   return tbl_templates;
@@ -235,7 +212,7 @@ TableTemplateSeq
 LibertyLibrary::tableTemplates(TableTemplateType type) const
 {
   TableTemplateSeq tbl_templates;
-  for (auto &[key, tbl_template] : template_maps_[int(type)])
+  for (auto &[key, tbl_template] : template_maps_[static_cast<size_t>(type)])
     tbl_templates.push_back(const_cast<TableTemplate *>(&tbl_template));
   return tbl_templates;
 }
@@ -538,7 +515,7 @@ LibertyLibrary::defaultBidirectPinRes(const RiseFall *rf,
                                       float &res,
                                       bool &exists) const
 {
-  return default_inout_pin_res_.value(rf, res, exists);
+  default_inout_pin_res_.value(rf, res, exists);
 }
 
 void
@@ -730,7 +707,7 @@ LibertyLibrary::makeScaledCell(std::string_view name,
 
 void
 LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
-                             int ap_index,
+                             size_t lib_ap_index,
                              Network *network,
                              Report *report)
 {
@@ -739,7 +716,7 @@ LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
     LibertyCell *cell = cell_iter.next();
     LibertyCell *link_cell = network->findLibertyCell(cell->name());
     if (link_cell)
-      makeSceneMap(link_cell, cell, ap_index, report);
+      makeSceneMap(link_cell, cell, lib_ap_index, report);
   }
 }
 
@@ -748,21 +725,21 @@ LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
 void
 LibertyLibrary::makeSceneMap(LibertyCell *link_cell,
                              LibertyCell *scene_cell,
-                             int ap_index,
+                             size_t lib_ap_index,
                              Report *report)
 {
-  link_cell->setSceneCell(scene_cell, ap_index);
-  makeSceneMap(link_cell, scene_cell, true, ap_index, report);
+  link_cell->setSceneCell(scene_cell, lib_ap_index);
+  makeSceneMap(link_cell, scene_cell, true, lib_ap_index, report);
   // Check for brain damage in the other direction.
-  makeSceneMap(scene_cell, link_cell, false, ap_index, report);
+  makeSceneMap(scene_cell, link_cell, false, lib_ap_index, report);
 }
 
 void
 LibertyLibrary::makeSceneMap(LibertyCell *cell1,
-                              LibertyCell *cell2,
-                              bool link,
-                              int ap_index,
-                              Report *report)
+                             LibertyCell *cell2,
+                             bool link,
+                             size_t lib_ap_index,
+                             Report *report)
 {
   LibertyCellPortBitIterator port_iter1(cell1);
   while (port_iter1.hasNext()) {
@@ -770,7 +747,7 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
     LibertyPort *port2 = cell2->findLibertyPort(port1->name());
     if (port2) {
       if (link)
-        port1->setScenePort(port2, ap_index);
+        port1->setScenePort(port2, lib_ap_index);
     }
     else
       report->warn(1110, "cell {}/{} port {} not found in cell {}/{}.",
@@ -794,7 +771,7 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
           TimingArc *arc1 = *arc_itr1;
           TimingArc *arc2 = *arc_itr2;
           if (TimingArc::equiv(arc1, arc2))
-            arc1->setSceneArc(arc2, ap_index);
+            arc1->setSceneArc(arc2, lib_ap_index);
         }
       }
     }
@@ -905,7 +882,7 @@ LibertyLibrary::findDriverWaveform(std::string_view name)
 
 DriverWaveform *
 LibertyLibrary::makeDriverWaveform(std::string_view name,
-                                   TablePtr waveforms)
+                                   const TablePtr &waveforms)
 {
   std::string key(name);
   auto [it, inserted] = driver_waveform_map_.try_emplace(std::move(key),
@@ -939,30 +916,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
                          std::string_view name,
                          std::string_view filename) :
   ConcreteCell(name, filename, true, library),
-  liberty_library_(library),
-  area_(0.0),
-  dont_use_(false),
-  is_macro_(false),
-  is_memory_(false),
-  is_pad_(false),
-  is_clock_cell_(false),
-  is_level_shifter_(false),
-  level_shifter_type_(LevelShifterType::HL_LH),
-  is_isolation_cell_(false),
-  always_on_(false),
-  switch_cell_type_(SwitchCellType::fine_grain),
-  interface_timing_(false),
-  clock_gate_type_(ClockGateType::none),
-  has_infered_reg_timing_arcs_(false),
-  statetable_(nullptr),
-  scale_factors_(nullptr),
-  test_cell_(nullptr),
-  ocv_arc_depth_(0.0),
-  ocv_derate_(nullptr),
-  leakage_power_(0.0),
-  leakage_power_exists_(false),
-  has_internal_ports_(false),
-  have_voltage_waveforms_(false)
+  liberty_library_(library)
 {
   liberty_cell_ = this;
 }
@@ -1248,7 +1202,7 @@ LibertyCell::makeTimingArcSet(LibertyPort *from,
 {
   size_t set_index = timing_arc_sets_.size();
   TimingArcSet *arc_set = new TimingArcSet(this, from, to, related_out, role,
-                                           attrs, set_index);
+                                           std::move(attrs), set_index);
   timing_arc_sets_.push_back(arc_set);
   return arc_set;
 }
@@ -1314,7 +1268,7 @@ LibertyCell::finish(bool infer_latches,
 void
 LibertyCell::findDefaultCondArcs()
 {
-  for (auto [port_pair, sets] : port_timing_arc_set_map_) {
+  for (auto &[port_pair, sets] : port_timing_arc_set_map_) {
     bool has_cond_arcs = false;
     for (auto set : sets) {
       if (set->cond()) {
@@ -1323,7 +1277,7 @@ LibertyCell::findDefaultCondArcs()
       }
     }
     if (has_cond_arcs) {
-      for (auto set : sets) {
+      for (auto &set : sets) {
         if (!set->cond())
           set->setIsCondDefault(true);
       }
@@ -1566,21 +1520,21 @@ LibertyCell::sceneCell(const Scene *scene,
 }
 
 LibertyCell *
-LibertyCell::sceneCell(int ap_index)
+LibertyCell::sceneCell(size_t lib_ap_index)
 {
   if (scene_cells_.empty())
     return this;
-  else if (ap_index < static_cast<int>(scene_cells_.size()))
-    return scene_cells_[ap_index];
+  else if (lib_ap_index < scene_cells_.size())
+    return scene_cells_[lib_ap_index];
   else
     return nullptr;
 }
 
 bool
 LibertyCell::checkSceneCell(const Scene *scene,
-                             const MinMax *min_max) const
+                            const MinMax *min_max) const
 {
-  unsigned lib_index = scene->libertyIndex(min_max);
+  size_t lib_index = scene->libertyIndex(min_max);
   return scene_cells_.empty()
     || (lib_index < scene_cells_.size()
         && scene_cells_[lib_index]);
@@ -1588,11 +1542,11 @@ LibertyCell::checkSceneCell(const Scene *scene,
 
 void
 LibertyCell::setSceneCell(LibertyCell *scene_cell,
-                           int ap_index)
+                          size_t lib_ap_index)
 {
-  if (ap_index >= static_cast<int>(scene_cells_.size()))
-    scene_cells_.resize(ap_index + 1);
-  scene_cells_[ap_index] = scene_cell;
+  if (lib_ap_index >= scene_cells_.size())
+    scene_cells_.resize(lib_ap_index + 1);
+  scene_cells_[lib_ap_index] = scene_cell;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1872,19 +1826,19 @@ LibertyCell::latchEnable(const TimingArcSet *d_to_q_set,
                          // Return values.
                          const LibertyPort *&enable_port,
                          const FuncExpr *&enable_func,
-                         const RiseFall *&enable_edge) const
+                         const RiseFall *&enable_rf) const
 {
   auto it = latch_d_to_q_map_.find(d_to_q_set);
   if (it != latch_d_to_q_map_.end()) {
     const LatchEnable &latch_enable = latch_enables_[it->second];
     enable_port = latch_enable.enable();
     enable_func = latch_enable.enableFunc();
-    enable_edge = latch_enable.enableEdge();
+    enable_rf = latch_enable.enableEdge();
   }
   else {
     enable_port = nullptr;
     enable_func = nullptr;
-    enable_edge = nullptr;
+    enable_rf = nullptr;
   }
 }
 
@@ -1997,41 +1951,9 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   ConcretePort(name, is_bus, from_index, to_index,
                is_bundle, members, cell),
   liberty_cell_(cell),
-  bus_dcl_(bus_dcl),
-  pwr_gnd_type_(PwrGndType::none),
-  scan_signal_type_(ScanSignalType::none),
-  function_(nullptr),
-  tristate_enable_(nullptr),
-  scaled_ports_(nullptr),
-  fanout_load_(0.0),
-  fanout_load_exists_(false),
-  min_period_(0.0),
-  pulse_clk_trigger_(nullptr),
-  pulse_clk_sense_(nullptr),
-  related_ground_port_(nullptr),
-  related_power_port_(nullptr),
-  receiver_model_(nullptr),
-  driver_waveform_{nullptr, nullptr},
-  min_pulse_width_exists_(false),
-  min_period_exists_(false),
-  is_clk_(false),
-  is_reg_clk_(false),
-  is_reg_output_(false),
-  is_latch_data_(false),
-  is_check_clk_(false),
-  is_clk_gate_clk_(false),
-  is_clk_gate_enable_(false),
-  is_clk_gate_out_(false),
-  is_pll_feedback_(false),
-  isolation_cell_data_(false),
-  isolation_cell_enable_(false),
-  level_shifter_data_(false),
-  is_switch_(false),
-  is_pad_(false)
+  bus_dcl_(bus_dcl)
 {
   liberty_port_ = this;
-  min_pulse_width_[RiseFall::riseIndex()] = 0.0;
-  min_pulse_width_[RiseFall::fallIndex()] = 0.0;
 }
 
 LibertyPort::~LibertyPort()
@@ -2039,14 +1961,6 @@ LibertyPort::~LibertyPort()
   delete function_;
   delete tristate_enable_;
   delete scaled_ports_;
-}
-
-void
-LibertyPort::setDirection(PortDirection *dir)
-{
-  ConcretePort::setDirection(dir);
-  if (dir->isInternal())
-    liberty_cell_->setHasInternalPorts(true);
 }
 
 void
@@ -2128,12 +2042,6 @@ LibertyPort *
 LibertyPort::findLibertyBusBit(int index) const
 {
   return static_cast<LibertyPort*>(findBusBit(index));
-}
-
-LibertyPort *
-LibertyPort::bundlePort() const
-{
-  return static_cast<LibertyPort*>(bundle_port_);
 }
 
 void
@@ -2306,7 +2214,7 @@ LibertyPort::setFunction(FuncExpr *func)
     int bit_offset = 0;
     while (member_iter.hasNext()) {
       LibertyPort *port_bit = member_iter.next();
-      FuncExpr *sub_expr = (func) ? func->bitSubExpr(bit_offset) : nullptr;
+      FuncExpr *sub_expr = func ? func->bitSubExpr(bit_offset) : nullptr;
       port_bit->setFunction(sub_expr);
       bit_offset++;
     }
@@ -2321,8 +2229,9 @@ LibertyPort::setTristateEnable(FuncExpr *enable)
     LibertyPortMemberIterator member_iter(this);
     while (member_iter.hasNext()) {
       LibertyPort *port_bit = member_iter.next();
-      FuncExpr *sub_expr =
-        (enable) ? enable->bitSubExpr(port_bit->busBitIndex()) : nullptr;
+      FuncExpr *sub_expr = enable
+        ? enable->bitSubExpr(port_bit->busBitIndex())
+        : nullptr;
       port_bit->setTristateEnable(sub_expr);
     }
   }
@@ -2351,7 +2260,7 @@ LibertyPort::capacitanceLimit(const MinMax *min_max,
                               float &limit,
                               bool &exists) const
 {
-  return cap_limit_.value(min_max, limit, exists);
+  cap_limit_.value(min_max, limit, exists);
 }
 
 void
@@ -2385,7 +2294,7 @@ LibertyPort::fanoutLimit(const MinMax *min_max,
                          float &limit,
                          bool &exists) const
 {
-  return fanout_limit_.value(min_max, limit, exists);
+  fanout_limit_.value(min_max, limit, exists);
 }
 
 void
@@ -2613,34 +2522,34 @@ LibertyPort::scenePort(const Scene *scene,
 }
 
 LibertyPort *
-LibertyPort::scenePort(int ap_index)
+LibertyPort::scenePort(size_t lib_ap_index)
 {
   if (scene_ports_.empty())
     return this;
-  else if (ap_index < static_cast<int>(scene_ports_.size()))
-    return scene_ports_[ap_index];
+  else if (lib_ap_index < scene_ports_.size())
+    return scene_ports_[lib_ap_index];
   else
     return nullptr;
 }
 
 const LibertyPort *
-LibertyPort::scenePort(int ap_index) const
+LibertyPort::scenePort(size_t lib_ap_index) const
 {
   if (scene_ports_.empty())
     return this;
-  else if (ap_index < static_cast<int>(scene_ports_.size()))
-    return scene_ports_[ap_index];
+  else if (lib_ap_index < scene_ports_.size())
+    return scene_ports_[lib_ap_index];
   else
     return nullptr;
 }
 
 void
 LibertyPort::setScenePort(LibertyPort *scene_port,
-                           int ap_index)
+                          size_t lib_ap_index)
 {
-  if (ap_index >= static_cast<int>(scene_ports_.size()))
-    scene_ports_.resize(ap_index + 1);
-  scene_ports_[ap_index] = scene_port;
+  if (lib_ap_index >= scene_ports_.size())
+    scene_ports_.resize(lib_ap_index + 1);
+  scene_ports_[lib_ap_index] = scene_port;
 }
 
 void
@@ -2658,7 +2567,7 @@ LibertyPort::setRelatedPowerPort(LibertyPort *related_power_port)
 void
 LibertyPort::setReceiverModel(ReceiverModelPtr receiver_model)
 {
-  receiver_model_ = receiver_model;
+  receiver_model_ = std::move(receiver_model);
 }
 
 std::string
@@ -2667,8 +2576,7 @@ portLibertyToSta(std::string_view port_name)
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
   std::string sta_name;
-  for (size_t i = 0; i < port_name.size(); i++) {
-    char ch = port_name[i];
+  for (char ch : port_name) {
     if (ch == bus_brkt_left
         || ch == bus_brkt_right)
       sta_name += '\\';
@@ -2866,8 +2774,7 @@ ModeDef::findValueDef(std::string_view value) const
 ////////////////////////////////////////////////////////////////
 
 ModeValueDef::ModeValueDef(std::string_view value) :
-  value_(value),
-  cond_(nullptr)
+  value_(value)
 {
 }
 
@@ -2899,21 +2806,14 @@ ModeValueDef::setSdfCond(std::string sdf_cond)
 ////////////////////////////////////////////////////////////////
 
 TableTemplate::TableTemplate(std::string_view name) :
-  name_(name),
-  type_(TableTemplateType::delay),
-  axis1_(nullptr),
-  axis2_(nullptr),
-  axis3_(nullptr)
+  name_(name)
 {
 }
 
 TableTemplate::TableTemplate(std::string_view name,
                              TableTemplateType type) :
   name_(name),
-  type_(type),
-  axis1_(nullptr),
-  axis2_(nullptr),
-  axis3_(nullptr)
+  type_(type)
 {
 }
 
@@ -2922,10 +2822,9 @@ TableTemplate::TableTemplate(std::string_view name,
                              TableAxisPtr axis2,
                              TableAxisPtr axis3) :
   name_(name),
-  type_(TableTemplateType::delay),
-  axis1_(axis1),
-  axis2_(axis2),
-  axis3_(axis3)
+  axis1_(std::move(axis1)),
+  axis2_(std::move(axis2)),
+  axis3_(std::move(axis3))
 {
 }
 
@@ -2938,19 +2837,19 @@ TableTemplate::setName(std::string_view name)
 void
 TableTemplate::setAxis1(TableAxisPtr axis)
 {
-  axis1_ = axis;
+  axis1_ = std::move(axis);
 }
 
 void
 TableTemplate::setAxis2(TableAxisPtr axis)
 {
-  axis2_ = axis;
+  axis2_ = std::move(axis);
 }
 
 void
 TableTemplate::setAxis3(TableAxisPtr axis)
 {
-  axis3_ = axis;
+  axis3_ = std::move(axis);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2984,9 +2883,7 @@ Pvt::setTemperature(float temp)
 
 OperatingConditions::OperatingConditions(std::string_view name) :
   Pvt(0.0, 0.0, 0.0),
-  name_(name),
-  // Default wireload tree.
-  wire_load_tree_(WireloadTree::unknown)
+  name_(name)
 {
 }
 
@@ -3081,11 +2978,10 @@ scaleFactorPvtName(ScaleFactorPvt pvt)
 ScaleFactors::ScaleFactors(std::string_view name) :
   name_(name)
 {
-  for (int type = 0; type < scale_factor_type_count; type++) {
-    for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
-      for (auto rf_index : RiseFall::rangeIndex()) {
-        scales_[type][pvt][rf_index] = 0.0;
-      }
+  for (auto &type_factors : scales_) {
+    for (auto pvt_factors : type_factors) {
+      for (size_t rf_index : RiseFall::rangeIndex())
+        pvt_factors[rf_index] = 0.0;
     }
   }
 }
@@ -3096,7 +2992,7 @@ ScaleFactors::setScale(ScaleFactorType type,
                        const RiseFall *rf,
                        float scale)
 {
-  scales_[int(type)][int(pvt)][rf->index()] = scale;
+  scales_[static_cast<size_t>(type)][static_cast<size_t>(pvt)][rf->index()] = scale;
 }
 
 void
@@ -3104,7 +3000,7 @@ ScaleFactors::setScale(ScaleFactorType type,
                        ScaleFactorPvt pvt,
                        float scale)
 {
-  scales_[int(type)][int(pvt)][0] = scale;
+  scales_[static_cast<size_t>(type)][static_cast<size_t>(pvt)][0] = scale;
 }
 
 float
@@ -3112,7 +3008,7 @@ ScaleFactors::scale(ScaleFactorType type,
                     ScaleFactorPvt pvt,
                     const RiseFall *rf)
 {
-  return scales_[int(type)][int(pvt)][rf->index()];
+  return scales_[static_cast<size_t>(type)][static_cast<size_t>(pvt)][rf->index()];
 }
 
 float
@@ -3120,14 +3016,14 @@ ScaleFactors::scale(ScaleFactorType type,
                     ScaleFactorPvt pvt,
                     int rf_index)
 {
-  return scales_[int(type)][int(pvt)][rf_index];
+  return scales_[static_cast<size_t>(type)][static_cast<size_t>(pvt)][rf_index];
 }
 
 float
 ScaleFactors::scale(ScaleFactorType type,
                     ScaleFactorPvt pvt)
 {
-  return scales_[int(type)][int(pvt)][0];
+  return scales_[static_cast<size_t>(type)][static_cast<size_t>(pvt)][0];
 }
 
 void
@@ -3135,13 +3031,13 @@ ScaleFactors::report(Report *report)
 {
   std::string line = "          ";
   for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
-    ScaleFactorPvt pvt = (ScaleFactorPvt) pvt_index;
+    ScaleFactorPvt pvt = static_cast<ScaleFactorPvt>(pvt_index);
     line += sta::format("{:>10}", scaleFactorPvtName(pvt));
   }
   report->reportLine(line);
 
   for (int type_index = 0; type_index < scale_factor_type_count; type_index++) {
-    ScaleFactorType type = (ScaleFactorType) type_index;
+    ScaleFactorType type = static_cast<ScaleFactorType>(type_index);
     std::string line = sta::format("{:>10}", scaleFactorTypeName(type));
     for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
       if (scaleFactorTypeRiseFallSuffix(type)
@@ -3172,16 +3068,6 @@ TestCell::TestCell(LibertyLibrary *library,
 OcvDerate::OcvDerate(std::string_view name) :
   name_(name)
 {
-  for (auto el_index : EarlyLate::rangeIndex()) {
-    for (auto rf_index : RiseFall::rangeIndex()) {
-      derate_[rf_index][el_index][int(PathType::clk)] = nullptr;
-      derate_[rf_index][el_index][int(PathType::data)] = nullptr;
-    }
-  }
-}
-
-OcvDerate::~OcvDerate()
-{
 }
 
 const Table *
@@ -3189,7 +3075,7 @@ OcvDerate::derateTable(const RiseFall *rf,
                        const EarlyLate *early_late,
                        PathType path_type)
 {
-  return derate_[rf->index()][early_late->index()][int(path_type)].get();
+  return derate_[rf->index()][early_late->index()][static_cast<size_t>(path_type)].get();
 }
 
 void
@@ -3198,7 +3084,8 @@ OcvDerate::setDerateTable(const RiseFall *rf,
                           const PathType path_type,
                           TablePtr derate)
 {
-  derate_[rf->index()][early_late->index()][int(path_type)] = derate;
+  derate_[rf->index()][early_late->index()][static_cast<size_t>(path_type)]
+    = std::move(derate);
 }
 
-} // namespace
+} // namespace sta

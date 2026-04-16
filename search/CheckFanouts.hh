@@ -24,13 +24,16 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
+#include "BoundedHeap.hh"
 #include "MinMax.hh"
+#include "Mode.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "Sta.hh"
-#include "BoundedHeap.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -122,5 +125,5 @@ protected:
   FanoutCheckHeap heap_;
 };
 
-} // namespace
+} // namespace sta
 

@@ -28,11 +28,11 @@
 
 %{
 
-#include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
+#include "DelayCalc.hh"
+#include "Sta.hh"
 #include "dcalc/ArcDcalcWaveforms.hh"
 #include "dcalc/PrimaDelayCalc.hh"
-#include "Sta.hh"
 
 %}
 

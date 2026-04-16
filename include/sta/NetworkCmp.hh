@@ -91,4 +91,4 @@ NetSeq
 sortByPathName(NetSet *set,
                const Network *network);
 
-} // namespace
+} // namespace sta

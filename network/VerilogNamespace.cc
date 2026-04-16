@@ -26,8 +26,8 @@
 
 #include <cctype>
 
-#include "StringUtil.hh"
 #include "ParseBus.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -38,7 +38,7 @@ staToVerilog(std::string_view sta_name);
 static std::string
 staToVerilog2(std::string_view sta_name);
 static std::string
-verilogToSta(const std::string_view verilog_name);
+verilogToSta(std::string_view verilog_name);
 
 std::string
 cellVerilogName(std::string_view sta_name)
@@ -219,4 +219,4 @@ verilogToSta(std::string_view verilog_name)
     return std::string(verilog_name);
 }
 
-} // namespace
+} // namespace sta

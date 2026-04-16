@@ -24,16 +24,16 @@
 
 #include "CycleAccting.hh"
 
-#include <cmath> // ceil
 #include <algorithm> // max
+#include <cmath> // ceil
 
+#include "Clock.hh"
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Fuzzy.hh"
-#include "Units.hh"
-#include "TimingRole.hh"
-#include "Clock.hh"
 #include "Sdc.hh"
+#include "TimingRole.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -110,8 +110,7 @@ CycleAcctings::reportClkToClkMaxCycleWarnings(Report *report)
 CycleAccting::CycleAccting(const ClockEdge *src,
                            const ClockEdge *tgt) :
   src_(src),
-  tgt_(tgt),
-  max_cycles_exceeded_(false)
+  tgt_(tgt)
 {
   for (int i = 0; i <= TimingRole::index_max; i++) {
     delay_[i] = MinMax::min()->initValue();
@@ -429,4 +428,4 @@ CycleAcctingEqual::operator()(const CycleAccting *acct1,
     && acct1->target() == acct2->target();
 }
 
-} // namespace
+} // namespace sta

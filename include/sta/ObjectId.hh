@@ -40,4 +40,4 @@ static constexpr BlockIdx block_idx_null = 0;
 static constexpr ObjectId object_id_null = 0;
 static constexpr ObjectIdx object_idx_null = 0;
 
-} // Namespace
+} // namespace sta

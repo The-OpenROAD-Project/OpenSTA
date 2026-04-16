@@ -29,7 +29,7 @@
 namespace sta {
 
 std::pair<double, bool>
-findRoot(FindRootFunc func,
+findRoot(const FindRootFunc &func,
          double x1,
          double x2,
          double x_tol,
@@ -42,7 +42,7 @@ findRoot(FindRootFunc func,
 }
 
 std::pair<double, bool>
-findRoot(FindRootFunc func,
+findRoot(const FindRootFunc &func,
          double x1,
          double y1,
          double x2,
@@ -98,4 +98,4 @@ findRoot(FindRootFunc func,
   return {root, true};
 }
 
-} // namespace
+} // namespace sta

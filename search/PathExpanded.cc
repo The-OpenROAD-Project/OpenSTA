@@ -24,15 +24,15 @@
 
 #include "PathExpanded.hh"
 
-#include "TimingRole.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
 #include "Clock.hh"
-#include "Search.hh"
-#include "Path.hh"
-#include "Latches.hh"
 #include "Genclks.hh"
+#include "Latches.hh"
 #include "Mode.hh"
+#include "Network.hh"
+#include "Path.hh"
+#include "PortDirection.hh"
+#include "Search.hh"
+#include "TimingRole.hh"
 
 namespace sta {
 
@@ -236,4 +236,4 @@ PathExpanded::latchPaths(// Return values.
   }
 }
 
-} // namespace
+} // namespace sta

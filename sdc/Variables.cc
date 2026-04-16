@@ -26,24 +26,6 @@
 
 namespace sta {
 
-Variables::Variables() :
-  crpr_enabled_(true),
-  crpr_mode_(CrprMode::same_pin),
-  propagate_gated_clock_enable_(true),
-  preset_clr_arcs_enabled_(false),
-  cond_default_arcs_enabled_(true),
-  bidirect_inst_paths_enabled_(false),
-  recovery_removal_checks_enabled_(true),
-  gated_clk_checks_enabled_(true),
-  clk_thru_tristate_enabled_(false),
-  dynamic_loop_breaking_(false),
-  propagate_all_clks_(false),
-  use_default_arrival_clock_(false),
-  pocv_mode_(PocvMode::scalar),
-  pocv_quantile_(3.0)
-{
-}
-
 void
 Variables::setCrprEnabled(bool enabled)
 {
@@ -136,4 +118,4 @@ Variables::setPocvQuantile(float quantile)
   pocv_quantile_ = quantile;
 }
 
-} // namespace
+} // namespace sta

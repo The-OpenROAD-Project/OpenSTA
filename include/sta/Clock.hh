@@ -27,11 +27,11 @@
 #include <map>
 #include <string>
 
+#include "GraphClass.hh"
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
 #include "SdcClass.hh"
 #include "SdcCmdComment.hh"
-#include "GraphClass.hh"
 
 namespace sta {
 
@@ -82,11 +82,11 @@ public:
   void removeSlew();
   const RiseFallMinMax &slews() const { return slews_; }
   void setSlewLimit(const RiseFallBoth *rf,
-                    const PathClkOrData clk_data,
+                    PathClkOrData clk_data,
                     const MinMax *min_max,
                     float slew);
   void slewLimit(const RiseFall *rf,
-                 const PathClkOrData clk_data,
+                 PathClkOrData clk_data,
                  const MinMax *min_max,
                  // Return values.
                  float &slew,
@@ -170,31 +170,31 @@ protected:
 
   std::string name_;
   PinSet pins_;
-  bool add_to_pins_;
+  bool add_to_pins_{false};
   // Hierarchical pins in pins_ become driver pins through the pin.
   PinSet leaf_pins_;
-  float period_;
-  FloatSeq *waveform_;
-  bool waveform_valid_;
+  float period_{0.0};
+  FloatSeq *waveform_{nullptr};
+  bool waveform_valid_{false};
   const int index_;
-  ClockEdge **clk_edges_;
-  bool is_propagated_;
+  ClockEdge **clk_edges_{nullptr};
+  bool is_propagated_{false};
   RiseFallMinMax slews_;
   RiseFallMinMax slew_limits_[path_clk_or_data_count];
-  ClockUncertainties *uncertainties_;
-  bool is_generated_;
+  ClockUncertainties *uncertainties_{nullptr};
+  bool is_generated_{false};
   // Generated clock variables.
-  Pin *src_pin_;
-  Clock *master_clk_;
+  Pin *src_pin_{nullptr};
+  Clock *master_clk_{nullptr};
   // True if the master clock is infered rather than specified by command.
-  bool master_clk_infered_;
-  int divide_by_;
-  int multiply_by_;
-  float duty_cycle_;
-  bool invert_;
-  bool combinational_;
-  IntSeq *edges_;
-  FloatSeq *edge_shifts_;
+  bool master_clk_infered_{false};
+  int divide_by_{0};
+  int multiply_by_{0};
+  float duty_cycle_{0};
+  bool invert_{false};
+  bool combinational_{false};
+  IntSeq *edges_{nullptr};
+  FloatSeq *edge_shifts_{nullptr};
 
 private:
   friend class Sdc;
@@ -205,7 +205,6 @@ class ClockEdge
 {
 public:
   Clock *clock() const { return clock_; }
-  ~ClockEdge();
   const RiseFall *transition() const { return rf_; }
   float time() const { return time_; }
   const std::string &name() const { return name_; }
@@ -223,7 +222,7 @@ private:
   Clock *clock_;
   const RiseFall *rf_;
   std::string name_;
-  float time_;
+  float time_{0.0};
   int index_;
 };
 
@@ -291,4 +290,4 @@ int
 compare(const ClockSet *set1,
         const ClockSet *set2);
 
-} // namespace
+} // namespace sta

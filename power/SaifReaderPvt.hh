@@ -26,14 +26,13 @@
 
 #include <array>
 #include <cstdint>
-#include <vector>
-#include <string>
 #include <set>
-#include <array>
+#include <string>
+#include <vector>
 
-#include "Zlib.hh"
 #include "NetworkClass.hh"
 #include "StaState.hh"
+#include "Zlib.hh"
 
 // Header for SaifReader.cc to communicate with SaifLex.cc, SaifParse.cc
 
@@ -73,16 +72,16 @@ private:
   const char *filename_;
   const char *scope_;           // Divider delimited scope to begin annotation.
 
-  char divider_;
-  char escape_;
-  double timescale_;
-  int64_t duration_;
+  char divider_ = '/';
+  char escape_ = '\\';
+  double timescale_ = 1.0E-9;  // default units of ns
+  int64_t duration_ = 0;
 
   std::vector<std::string> saif_scope_;   // Scope during parsing.
-  size_t in_scope_level_;
+  size_t in_scope_level_ = 0;
   std::vector<Instance*> path_;      // Path within scope.
   std::set<const Pin*> annotated_pins_;
   Power *power_;
 };
 
-} // namespace
+} // namespace sta

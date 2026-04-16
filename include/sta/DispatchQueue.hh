@@ -5,23 +5,23 @@
 
 #pragma once
 
-#include <thread>
-#include <functional>
-#include <vector>
-#include <cstdint>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <atomic>
+#include <condition_variable>
+#include <cstdint>
+#include <functional>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
 
 namespace sta {
 
 class DispatchQueue
 {
-  typedef std::function<void(int thread)> fp_t;
+  using fp_t = std::function<void(int thread)>;
 
 public:
-  DispatchQueue(size_t thread_cnt);
+  DispatchQueue(size_t thread_count);
   ~DispatchQueue();
   void setThreadCount(size_t thread_count);
   size_t getThreadCount() const;
@@ -49,4 +49,4 @@ private:
   bool quit_ = false;
 };
 
-} // namespace
+} // namespace sta

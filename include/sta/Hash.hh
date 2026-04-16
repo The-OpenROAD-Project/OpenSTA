@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <string_view>
 
 namespace sta {
@@ -67,4 +67,4 @@ hashString(std::string_view str);
   #define hashPtr(ptr) (reinterpret_cast<intptr_t>(ptr) >> 2)
 #endif
 
-} // namespace
+} // namespace sta

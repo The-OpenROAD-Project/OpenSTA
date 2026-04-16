@@ -103,7 +103,6 @@ private:
 class LibertyAttrValue
 {
 public:
-  LibertyAttrValue() {}
   LibertyAttrValue(float value);
   LibertyAttrValue(std::string &&value);
   bool isString() const;
@@ -123,8 +122,8 @@ private:
 class LibertyGroup
 {
 public:
-  LibertyGroup(const std::string type,
-               const LibertyAttrValueSeq params,
+  LibertyGroup(std::string type,
+               LibertyAttrValueSeq params,
                int line);
   ~LibertyGroup();
   void clear();
@@ -191,7 +190,7 @@ class LibertySimpleAttr
 {
 public:
   LibertySimpleAttr(std::string &&name,
-                    const LibertyAttrValue value,
+                    LibertyAttrValue value,
                     int line);
   const std::string &name() const { return name_; }
   const LibertyAttrValue &value() const { return value_; };
@@ -210,7 +209,7 @@ class LibertyComplexAttr
 {
 public:
   LibertyComplexAttr(std::string &&name,
-                     const LibertyAttrValueSeq values,
+                     LibertyAttrValueSeq values,
                      int line);
   ~LibertyComplexAttr();
   const std::string &name() const { return name_; }
@@ -269,8 +268,6 @@ private:
 class LibertyGroupVisitor
 {
 public:
-  LibertyGroupVisitor() {}
-  virtual ~LibertyGroupVisitor() {}
   virtual void begin(const LibertyGroup *group,
                      LibertyGroup *parent_group) = 0;
   virtual void end(const LibertyGroup *group,
@@ -284,4 +281,4 @@ void
 parseLibertyFile(std::string_view filename,
                  LibertyGroupVisitor *library_visitor,
                  Report *report);
-} // namespace
+} // namespace sta

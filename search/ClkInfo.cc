@@ -26,13 +26,13 @@
 
 #include <functional>
 
-#include "Units.hh"
-#include "Network.hh"
 #include "Graph.hh"
-#include "Sdc.hh"
+#include "Network.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
 #include "Search.hh"
 #include "Tag.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -65,10 +65,6 @@ ClkInfo::ClkInfo(Scene *scene,
   min_max_index_(min_max->index())
 {
   findHash(sta);
-}
-
-ClkInfo::~ClkInfo()
-{
 }
 
 void
@@ -377,4 +373,4 @@ ClkInfo::cmp(const ClkInfo *clk_info1,
     return 0;
 }
 
-} // namespace
+} // namespace sta

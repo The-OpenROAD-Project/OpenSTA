@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,13 +25,13 @@
 #pragma once
 
 #include <algorithm>
+#include <cctype>
 #include <cstdarg>
 #include <cstring>
+#include <set>
 #include <string>
 #include <string_view>
-#include <strings.h> // for strncasecmp
 #include <vector>
-#include <set>
 
 #include "Machine.hh" // __attribute__
 
@@ -64,6 +64,13 @@ stringBeginEq(const char *str1,
   return strncmp(str1, str2, strlen(str2)) == 0;
 }
 
+inline bool
+charEqual(unsigned char c1,
+          unsigned char c2)
+{
+  return std::tolower(c1) == std::tolower(c2);
+}
+
 // Case insensitive compare the beginning of str1 to str2.
 inline bool
 stringBeginEqual(std::string_view str,
@@ -71,7 +78,7 @@ stringBeginEqual(std::string_view str,
 {
   if (str.size() < prefix.size())
     return false;
-  return strncasecmp(str.data(), prefix.data(), prefix.size()) == 0;
+  return std::ranges::equal(str.substr(0, prefix.size()), prefix, charEqual);
 }
 
 // Case insensitive compare.
@@ -79,19 +86,7 @@ inline bool
 stringEqual(std::string_view s1,
             std::string_view s2)
 {
-  return std::ranges::equal(s1, s2, [](unsigned char c1, unsigned char c2) {
-    return std::tolower(c1) == std::tolower(c2);
-  });
-}
-
-void
-stringDeleteCheck(const char *str);
-
-// Delete for strings allocated with new char[].
-inline void
-stringDelete(const char *str)
-{
-  delete [] str;
+  return std::ranges::equal(s1, s2, charEqual);
 }
 
 std::pair<float, bool>
@@ -114,4 +109,4 @@ StringSeq
 parseTokens(const std::string &text,
             std::string_view delims = " \t");
 
-} // namespace
+} // namespace sta

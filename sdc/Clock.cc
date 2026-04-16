@@ -25,17 +25,18 @@
 #include "Clock.hh"
 
 #include <algorithm>
+#include <cstdlib>
 
 #include "ContainerHelpers.hh"
 #include "Error.hh"
 #include "Format.hh"
-#include "StringUtil.hh"
-#include "MinMax.hh"
-#include "Transition.hh"
-#include "TimingRole.hh"
-#include "Network.hh"
 #include "Graph.hh"
+#include "MinMax.hh"
+#include "Network.hh"
 #include "Sdc.hh"
+#include "StringUtil.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -47,26 +48,8 @@ Clock::Clock(std::string_view name,
              const Network *network) :
   name_(name),
   pins_(network),
-  add_to_pins_(false),
   leaf_pins_(network),
-  period_(0.0),
-  waveform_(nullptr),
-  waveform_valid_(false),
-  index_(index),
-  clk_edges_(nullptr),
-  is_propagated_(false),
-  uncertainties_(nullptr),
-  is_generated_(false),
-  src_pin_(nullptr),
-  master_clk_(nullptr),
-  master_clk_infered_(false),
-  divide_by_(0),
-  multiply_by_(0),
-  duty_cycle_(0),
-  invert_(false),
-  combinational_(false),
-  edges_(nullptr),
-  edge_shifts_(nullptr)
+  index_(index)
 {
   makeClkEdges();
 }
@@ -87,7 +70,7 @@ Clock::initClk(PinSet *pins,
   waveform_valid_ = true;
   period_ = period;
   setClkEdgeTimes();
-  setComment(std::move(comment));
+  setComment(comment);
 }
 
 bool
@@ -244,22 +227,22 @@ Clock::removeSlew()
 
 void
 Clock::setSlewLimit(const RiseFallBoth *rf,
-                    const PathClkOrData clk_data,
+                    PathClkOrData clk_data,
                     const MinMax *min_max,
                     float slew)
 {
-  slew_limits_[int(clk_data)].setValue(rf, min_max, slew);
+  slew_limits_[static_cast<size_t>(clk_data)].setValue(rf, min_max, slew);
 }
 
 void
 Clock::slewLimit(const RiseFall *rf,
-                 const PathClkOrData clk_data,
+                 PathClkOrData clk_data,
                  const MinMax *min_max,
                  // Return values.
                  float &slew,
                  bool &exists) const
 {
-  slew_limits_[int(clk_data)].value(rf, min_max, slew, exists);
+  slew_limits_[static_cast<size_t>(clk_data)].value(rf, min_max, slew, exists);
 }
 
 void
@@ -343,7 +326,7 @@ Clock::initGeneratedClk(PinSet *pins,
   invert_ = invert;
   combinational_ = combinational;
   is_propagated_ = is_propagated;
-  setComment(std::move(comment));
+  setComment(comment);
 
   delete edges_;
   if (edges
@@ -451,25 +434,29 @@ Clock::generateEdgesClk(const Clock *src_clk)
   if (edges_->size() == 3) {
     const FloatSeq *src_wave = src_clk->waveform();
     size_t src_size = src_wave->size();
+    int src_size_int = static_cast<int>(src_size);
     float src_period = src_clk->period();
 
     int edge0_1 = (*edges_)[0] - 1;
-    float rise = (*src_wave)[edge0_1 % src_size]
-      + (edge0_1 / src_size) * src_period;
+    div_t edge0_div = std::div(edge0_1, src_size_int);
+    float rise = (*src_wave)[edge0_div.rem]
+      + static_cast<float>(edge0_div.quot) * src_period;
     if (edge_shifts_)
       rise += (*edge_shifts_)[0];
     waveform_->push_back(rise);
 
     int edge1_1 = (*edges_)[1] - 1;
-    float fall = (*src_wave)[edge1_1 % src_size]
-      + (edge1_1 / src_size) * src_period;
+    div_t edge1_div = std::div(edge1_1, src_size_int);
+    float fall = (*src_wave)[edge1_div.rem]
+      + static_cast<float>(edge1_div.quot) * src_period;
     if (edge_shifts_)
       fall += (*edge_shifts_)[1];
     waveform_->push_back(fall);
 
     int edge2_1 = (*edges_)[2] - 1;
-    period_ = (*src_wave)[edge2_1 % src_size]
-      + (edge2_1 / src_size) * src_period - rise;
+    div_t edge2_div = std::div(edge2_1, src_size_int);
+    period_ = (*src_wave)[edge2_div.rem]
+      + static_cast<float>(edge2_div.quot) * src_period - rise;
     if (edge_shifts_)
       period_ += (*edge_shifts_)[2];
   }
@@ -522,7 +509,7 @@ Clock::isDivideByOneCombinational() const
   return combinational_
     && divide_by_ == 1
     && multiply_by_ == 0
-    && edge_shifts_ == 0;
+    && edge_shifts_ == nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -532,12 +519,7 @@ ClockEdge::ClockEdge(Clock *clock,
   clock_(clock),
   rf_(rf),
   name_(sta::format("{} {}", clock_->name(), rf_->shortName())),
-  time_(0.0),
   index_(clock_->index() * RiseFall::index_count + rf_->index())
-{
-}
-
-ClockEdge::~ClockEdge()
 {
 }
 
@@ -714,4 +696,4 @@ compare(const ClockSet *set1,
   return sta::compare(set1, set2, ClockIndexLess());
 }
 
-} // namespace
+} // namespace sta

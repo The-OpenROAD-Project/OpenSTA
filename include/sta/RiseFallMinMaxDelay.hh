@@ -24,9 +24,9 @@
 
 #pragma once
 
+#include "Delay.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
-#include "Delay.hh"
 
 namespace sta {
 
@@ -49,4 +49,4 @@ private:
   bool exists_[RiseFall::index_count][MinMax::index_count];
 };
 
-} // namespace
+} // namespace sta

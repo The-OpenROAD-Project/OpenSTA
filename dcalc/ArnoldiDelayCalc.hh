@@ -32,4 +32,4 @@ class StaState;
 ArcDelayCalc *
 makeArnoldiDelayCalc(StaState *sta);
 
-} // namespace
+} // namespace sta

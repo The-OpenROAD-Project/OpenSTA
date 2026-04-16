@@ -51,5 +51,5 @@ protected:
                          const StaState *sta);
 };
 
-} // namespace
+} // namespace sta
 

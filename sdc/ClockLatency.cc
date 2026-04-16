@@ -87,4 +87,4 @@ ClockLatency::delays()
   return &delays_;
 }
 
-} // namespace
+} // namespace sta

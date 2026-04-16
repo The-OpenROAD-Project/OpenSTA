@@ -24,22 +24,28 @@
 
 #include "CheckMinPulseWidths.hh"
 
+#include <cstddef>
+#include <string>
+
+#include "ClkInfo.hh"
+#include "Clock.hh"
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
-#include "TimingRole.hh"
+#include "Delay.hh"
+#include "Graph.hh"
+#include "GraphClass.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "Graph.hh"
-#include "Clock.hh"
-#include "Sdc.hh"
-#include "GraphDelayCalc.hh"
-#include "ClkInfo.hh"
-#include "Tag.hh"
+#include "NetworkClass.hh"
 #include "Path.hh"
-#include "Scene.hh"
-#include "SearchPred.hh"
 #include "PathEnd.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
 #include "Search.hh"
+#include "SearchClass.hh"
+#include "SearchPred.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
 #include "search/Crpr.hh"
 
 namespace sta {
@@ -130,7 +136,7 @@ CheckMinPulseWidths::checkVertex(Vertex *vertex,
     if (isClkEnd(path_vertex, mode)
         && path->isClock(search)
         && !path->tag(sta_)->clkInfo()->isGenClkSrcPath()
-        && scene_set.find(path->scene(sta_)) != scene_set.end()
+        && scene_set.contains(path->scene(sta_))
         && path->minMax(sta_) == min_max) {
       float min_width;
       bool exists;
@@ -386,4 +392,4 @@ MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck &check1,
                 < check2.openPath()->rfIndex(sta_))));
 }
 
-} // namespace
+} // namespace sta

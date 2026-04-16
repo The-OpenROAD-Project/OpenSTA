@@ -47,8 +47,7 @@ public:
 class HpinDrvrLoadVisitor
 {
 public:
-  HpinDrvrLoadVisitor() {}
-  virtual ~HpinDrvrLoadVisitor() {}
+  virtual ~HpinDrvrLoadVisitor() = default;
   virtual void visit(HpinDrvrLoad *drvr_load) = 0;
 };
 
@@ -76,4 +75,4 @@ private:
   PinSet *hpins_to_load_;
 };
 
-} // namespace
+} // namespace sta

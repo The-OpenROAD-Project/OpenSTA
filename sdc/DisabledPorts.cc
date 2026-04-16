@@ -26,20 +26,12 @@
 
 #include <algorithm>
 
-#include "StringUtil.hh"
-#include "TimingRole.hh"
 #include "Liberty.hh"
 #include "Network.hh"
+#include "StringUtil.hh"
+#include "TimingRole.hh"
 
 namespace sta {
-
-DisabledPorts::DisabledPorts() :
-  all_(false),
-  from_(nullptr),
-  to_(nullptr),
-  from_to_(nullptr)
-{
-}
 
 DisabledPorts::~DisabledPorts()
 {
@@ -122,9 +114,7 @@ DisabledPorts::isDisabled(LibertyPort *from,
 ////////////////////////////////////////////////////////////////
 
 DisabledCellPorts::DisabledCellPorts(LibertyCell *cell) :
-  DisabledPorts(),
-  cell_(cell),
-  arc_sets_(nullptr)
+  cell_(cell)
 {
 }
 
@@ -159,14 +149,9 @@ DisabledCellPorts::isDisabled(TimingArcSet *arc_set) const
 class DisabledCellPortsLess
 {
 public:
-  DisabledCellPortsLess();
   bool operator()(const DisabledCellPorts *disable1,
                   const DisabledCellPorts *disable2);
 };
-
-DisabledCellPortsLess::DisabledCellPortsLess()
-{
-}
 
 bool
 DisabledCellPortsLess::operator()(const DisabledCellPorts *disable1,
@@ -190,7 +175,6 @@ sortByName(const DisabledCellPortsMap *cell_map)
 ////////////////////////////////////////////////////////////////
 
 DisabledInstancePorts::DisabledInstancePorts(Instance *inst) :
-  DisabledPorts(),
   inst_(inst)
 {
 }
@@ -263,4 +247,4 @@ sortByName(const LibertyPortPairSet *set)
   return pairs;
 }
 
-}
+} // namespace sta

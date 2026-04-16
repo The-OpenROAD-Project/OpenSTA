@@ -48,9 +48,7 @@ public:
                  std::string_view filename,
                  LibertyParser *reader,
                  Report *report);
-  virtual ~LibertyScanner() {}
-
-  virtual int lex(LibertyParse::semantic_type *const yylval,
+  virtual int lex(LibertyParse::semantic_type *yylval,
                   LibertyParse::location_type *yylloc);
   // YY_DECL defined in LibertyLex.ll
   // Method body created by flex in LibertyLex.cc
@@ -71,7 +69,7 @@ private:
 
   // Previous lex state for include files.
   std::string filename_prev_;
-  std::istream *stream_prev_;
+  std::istream *stream_prev_{nullptr};
 };
 
-} // namespace
+} // namespace sta

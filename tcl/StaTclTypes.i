@@ -258,7 +258,7 @@ setPtrTclList(SET_TYPE *set,
 
 ////////////////////////////////////////////////////////////////
 
-} // namespace
+} // namespace sta
 
 using namespace sta;
 

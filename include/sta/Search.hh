@@ -24,23 +24,23 @@
 
 #pragma once
 
-#include <mutex>
 #include <atomic>
+#include <mutex>
 #include <unordered_set>
 
-#include "MinMax.hh"
-#include "Transition.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
 #include "Delay.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
+#include "Path.hh"
 #include "SdcClass.hh"
-#include "StaState.hh"
 #include "SearchClass.hh"
 #include "SearchPred.hh"
-#include "VertexVisitor.hh"
-#include "Path.hh"
+#include "StaState.hh"
 #include "StringUtil.hh"
+#include "Transition.hh"
+#include "VertexVisitor.hh"
 
 namespace sta {
 
@@ -76,8 +76,8 @@ class Search : public StaState
 {
 public:
   Search(StaState *sta);
-  virtual ~Search();
-  virtual void copyState(const StaState *sta);
+  ~Search() override;
+  void copyState(const StaState *sta) override;
   // Reset to virgin state.
   void clear();
   // When enabled, non-critical path arrivals are pruned to improve
@@ -265,7 +265,7 @@ public:
                        const Mode *mode,
                        TagGroupBldr *tag_bldr);
   void setVertexArrivals(Vertex *vertex,
-                         TagGroupBldr *group_bldr);
+                         TagGroupBldr *tag_bldr);
   void tnsInvalid(Vertex *vertex);
   [[nodiscard]] bool arrivalsChanged(Vertex *vertex,
                                      TagGroupBldr *tag_bldr);
@@ -314,7 +314,7 @@ public:
   Tag *findTag(Scene *scene,
                const RiseFall *rf,
                const MinMax *min_max,
-               const ClkInfo *tag_clk,
+               const ClkInfo *clk_info,
                bool is_clk,
                InputDelay *input_delay,
                bool is_segment_start,
@@ -541,7 +541,7 @@ protected:
   void deletePaths();
   // Delete with incremental tns/wns update.
   void deletePathsIncr(Vertex *vertex);
-  TagGroup *findTagGroup(TagGroupBldr *group_bldr);
+  TagGroup *findTagGroup(TagGroupBldr *tag_bldr);
   void deleteFilterTags();
   void deleteFilterTagGroups();
   void deleteFilterClkInfos();
@@ -582,9 +582,9 @@ protected:
   ////////////////////////////////////////////////////////////////
 
   // findPathEnds arg.
-  bool unconstrained_paths_;
-  bool crpr_path_pruning_enabled_;
-  bool crpr_approx_missing_requireds_;
+  bool unconstrained_paths_{false};
+  bool crpr_path_pruning_enabled_{true};
+  bool crpr_approx_missing_requireds_{true};
 
   // Search predicates.
   SearchPred *search_thru_;
@@ -592,9 +592,9 @@ protected:
   EvalPred *eval_pred_;
 
   // Some arrivals exist.
-  bool arrivals_exist_;
+  bool arrivals_exist_{false};
   // Arrivals at start points have been initialized.
-  bool arrivals_seeded_;
+  bool arrivals_seeded_{false};
   // Vertices with invalid arrival times to update and search from.
   VertexSet invalid_arrivals_;
   std::mutex invalid_arrivals_lock_;
@@ -602,14 +602,14 @@ protected:
   ArrivalVisitor *arrival_visitor_;
 
   // Some requireds exist.
-  bool requireds_exist_;
+  bool requireds_exist_{false};
   // Requireds have been seeded by searching arrivals to all endpoints.
-  bool requireds_seeded_;
+  bool requireds_seeded_{false};
   // Vertices with invalid required times to update and search from.
   VertexSet invalid_requireds_;
   BfsBkwdIterator *required_iter_;
 
-  bool tns_exists_;
+  bool tns_exists_{false};
   // Endpoint vertices with slacks that have changed since tns was found.
   VertexSet invalid_tns_;
   // Indexed by path_ap->index().
@@ -619,19 +619,19 @@ protected:
   std::mutex tns_lock_;
 
   // Indexed by path_ap->index().
-  WorstSlacks *worst_slacks_;
+  WorstSlacks *worst_slacks_{nullptr};
 
   // Use pointer to clk_info set so Tag.hh does not need to be included.
   ClkInfoSet *clk_info_set_;
   std::mutex clk_info_lock_;
 
   // Entries in tags_ may be missing where previous filter tags were deleted.
-  TagIndex tag_capacity_;
+  TagIndex tag_capacity_{128};
   std::atomic<Tag **> tags_;
   // Use pointer to tag set so Tag.hh does not need to be included.
   TagSet *tag_set_;
   std::vector<Tag **> tags_prev_;
-  TagIndex tag_next_;
+  TagIndex tag_next_{0};
   std::mutex tag_lock_;
 
   // Capacity of tag_groups_.
@@ -639,7 +639,7 @@ protected:
   std::atomic<TagGroup **> tag_groups_;
   TagGroupSet *tag_group_set_;
   std::vector<TagGroup **> tag_groups_prev_;
-  TagGroupIndex tag_group_next_;
+  TagGroupIndex tag_group_next_{0};
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;
   std::mutex tag_group_lock_;
@@ -652,18 +652,18 @@ protected:
   std::mutex pending_clk_endpoints_lock_;
 
   VertexSet endpoints_;
-  bool endpoints_initialized_;
+  bool endpoints_initialized_{false};
   VertexSet invalid_endpoints_;
 
-  bool have_filter_;
-  ExceptionFrom *filter_from_;
-  ExceptionThruSeq *filter_thrus_;
-  ExceptionTo *filter_to_;
+  bool have_filter_{false};
+  ExceptionFrom *filter_from_{nullptr};
+  ExceptionThruSeq *filter_thrus_{nullptr};
+  ExceptionTo *filter_to_{nullptr};
   VertexSet filtered_arrivals_;
   std::mutex filtered_arrivals_lock_;
 
-  bool found_downstream_clk_pins_;
-  bool postpone_latch_outputs_;
+  bool found_downstream_clk_pins_{false};
+  bool postpone_latch_outputs_{false};
   std::vector<Path*> enum_paths_;
 
   VisitPathEnds *visit_path_ends_;
@@ -691,12 +691,13 @@ public:
   using SearchPred::searchTo;
 
 protected:
-  bool search_thru_latches_;
+  bool search_thru_latches_{true};
 };
 
 // Class for visiting fanin/fanout paths of a vertex.
 // This used by forward/backward search to find arrival/required path times.
-class PathVisitor : public VertexVisitor, public StaState
+class PathVisitor : public VertexVisitor,
+                    public StaState
 {
 public:
   // Uses search->evalPred() for search predicate.
@@ -704,9 +705,24 @@ public:
   PathVisitor(SearchPred *pred,
               bool make_tag_cache,
               const StaState *sta);
-  virtual ~PathVisitor();
+  ~PathVisitor() override;
   virtual void visitFaninPaths(Vertex *to_vertex);
   virtual void visitFanoutPaths(Vertex *from_vertex);
+  // Return false to stop visiting.
+  virtual bool visitFromToPath(const Pin *from_pin,
+                               Vertex *from_vertex,
+                               const RiseFall *from_rf,
+                               Tag *from_tag,
+                               Path *from_path,
+                               const Arrival &from_arrival,
+                               Edge *edge,
+                               TimingArc *arc,
+                               ArcDelay arc_delay,
+                               Vertex *to_vertex,
+                               const RiseFall *to_rf,
+                               Tag *to_tag,
+                               Arrival &to_arrival,
+                               const MinMax *min_max) = 0;
 
 protected:
   // Return false to stop visiting.
@@ -738,21 +754,6 @@ protected:
                              Vertex *to_vertex,
                              const RiseFall *to_rf,
                              const MinMax *min_max);
-  // Return false to stop visiting.
-  virtual bool visitFromToPath(const Pin *from_pin,
-                               Vertex *from_vertex,
-                               const RiseFall *from_rf,
-                               Tag *from_tag,
-                               Path *from_path,
-                               const Arrival &from_arrival,
-                               Edge *edge,
-                               TimingArc *arc,
-                               ArcDelay arc_delay,
-                               Vertex *to_vertex,
-                               const RiseFall *to_rf,
-                               Tag *to_tag,
-                               Arrival &to_arrival,
-                               const MinMax *min_max) = 0;
 
   SearchPred *pred_;
   TagSet *tag_cache_;
@@ -764,29 +765,29 @@ class ArrivalVisitor : public PathVisitor
 {
 public:
   ArrivalVisitor(const StaState *sta);
-  virtual ~ArrivalVisitor();
+  ~ArrivalVisitor() override;
   // Initialize the visitor.
   void init(bool always_to_endpoints,
             bool clks_only,
             SearchPred *pred);
-  void copyState(const StaState *sta);
-  virtual void visit(Vertex *vertex);
-  virtual VertexVisitor *copy() const;
+  void copyState(const StaState *sta) override;
+  void visit(Vertex *vertex) override;
+  VertexVisitor *copy() const override;
   // Return false to stop visiting.
-  virtual bool visitFromToPath(const Pin *from_pin,
-                               Vertex *from_vertex,
-                               const RiseFall *from_rf,
-                               Tag *from_tag,
-                               Path *from_path,
-                               const Arrival &from_arrival,
-                               Edge *edge,
-                               TimingArc *arc,
-                               ArcDelay arc_delay,
-                               Vertex *to_vertex,
-                               const RiseFall *to_rf,
-                               Tag *to_tag,
-                               Arrival &to_arrival,
-                               const MinMax *min_max);
+  bool visitFromToPath(const Pin *from_pin,
+                       Vertex *from_vertex,
+                       const RiseFall *from_rf,
+                       Tag *from_tag,
+                       Path *from_path,
+                       const Arrival &from_arrival,
+                       Edge *edge,
+                       TimingArc *arc,
+                       ArcDelay arc_delay,
+                       Vertex *to_vertex,
+                       const RiseFall *to_rf,
+                       Tag *to_tag,
+                       Arrival &to_arrival,
+                       const MinMax *min_max) override;
   void setAlwaysToEndpoints(bool to_endpoints);
   TagGroupBldr *tagBldr() const { return tag_bldr_; }
 
@@ -814,7 +815,6 @@ protected:
 class RequiredCmp
 {
 public:
-  RequiredCmp();
   void requiredsInit(Vertex *vertex,
                      const StaState *sta);
   void requiredSet(size_t path_index,
@@ -827,8 +827,8 @@ public:
   Required required(size_t path_index);
 
 protected:
-  ArrivalSeq requireds_;
-  bool have_requireds_;
+  ArrivalSeq requireds_{10};
+  bool have_requireds_{false};
 };
 
 // Visitor called during backward search to record a
@@ -837,31 +837,31 @@ class RequiredVisitor : public PathVisitor
 {
 public:
   RequiredVisitor(const StaState *sta);
-  virtual ~RequiredVisitor();
-  virtual VertexVisitor *copy() const;
-  virtual void visit(Vertex *vertex);
+  ~RequiredVisitor() override;
+  VertexVisitor *copy() const override;
+  void visit(Vertex *vertex) override;
+  // Return false to stop visiting.
+  bool visitFromToPath(const Pin *from_pin,
+                       Vertex *from_vertex,
+                       const RiseFall *from_rf,
+                       Tag *from_tag,
+                       Path *from_path,
+                       const Arrival &from_arrival,
+                       Edge *edge,
+                       TimingArc *arc,
+                       ArcDelay arc_delay,
+                       Vertex *to_vertex,
+                       const RiseFall *to_rf,
+                       Tag *to_tag,
+                       Arrival &to_arrival,
+                       const MinMax *min_max) override;
 
 protected:
   RequiredVisitor(bool make_tag_cache,
                   const StaState *sta);
-  // Return false to stop visiting.
-  virtual bool visitFromToPath(const Pin *from_pin,
-                               Vertex *from_vertex,
-                               const RiseFall *from_rf,
-                               Tag *from_tag,
-                               Path *from_path,
-                               const Arrival &from_arrival,
-                               Edge *edge,
-                               TimingArc *arc,
-                               ArcDelay arc_delay,
-                               Vertex *to_vertex,
-                               const RiseFall *to_rf,
-                               Tag *to_tag,
-                               Arrival &to_arrival,
-                               const MinMax *min_max);
 
   RequiredCmp *required_cmp_;
   VisitPathEnds *visit_path_ends_;
 };
 
-} // namespace
+} // namespace sta

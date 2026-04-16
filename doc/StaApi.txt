@@ -108,9 +108,6 @@ in a class derived from Sta. Because the components refer to each
 other, Sta::updateComponentsState() must be called to notify the
 components if any of them are changed after creation. 
 
-The file liberty/LibertyExt.cc contains an example that shows how the
-liberty reader is replaced with a custom one on the Sta object.
-
 Units
 -----
 
@@ -291,7 +288,7 @@ in this arc set:
   S r -> Z f
 
 The liberty file reader can be customized to read attributes that are
-not used by the STA. See liberty/LibertyExt.cc for an example.
+not used by the STA.
 
 Graph
 -----

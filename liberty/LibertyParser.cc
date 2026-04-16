@@ -24,17 +24,20 @@
 
 #include "LibertyParser.hh"
 
-#include <cstdio>
 #include <cstring>
+#include <istream>
 #include <regex>
 #include <string>
+#include <string_view>
+#include <utility>
 
 #include "ContainerHelpers.hh"
-#include "Zlib.hh"
-#include "Report.hh"
 #include "Error.hh"
-#include "StringUtil.hh"
+#include "LibertyParse.hh"
 #include "LibertyScanner.hh"
+#include "Report.hh"
+#include "StringUtil.hh"
+#include "util/gzstream.hh"
 
 namespace sta {
 
@@ -235,8 +238,7 @@ LibertyScanner::LibertyScanner(std::istream *stream,
   stream_(stream),
   filename_(filename),
   reader_(reader),
-  report_(report),
-  stream_prev_(nullptr)
+  report_(report)
 {
 }
 
@@ -427,7 +429,7 @@ const LibertyGroup *
 LibertyGroup::findSubgroup(std::string_view type) const
 {
   const LibertyGroupSeq &groups = findSubgroups(type);
-  if (groups.size() >= 1)
+  if (!groups.empty())
     return groups[0];
   else
     return nullptr;
@@ -453,7 +455,7 @@ const LibertyComplexAttr *
 LibertyGroup::findComplexAttr(std::string_view attr_name) const
 {
   const LibertyComplexAttrSeq &attrs = findComplexAttrs(attr_name);
-  if (attrs.size() >= 1)
+  if (!attrs.empty())
     return attrs[0];
   else
     return nullptr;
@@ -518,7 +520,7 @@ LibertyGroup::findAttrInt(std::string_view attr_name,
 ////////////////////////////////////////////////////////////////
 
 LibertySimpleAttr::LibertySimpleAttr(std::string &&name,
-                                     const LibertyAttrValue value,
+                                     LibertyAttrValue value,
                                      int line) :
   name_(std::move(name)),
   line_(line),
@@ -529,7 +531,7 @@ LibertySimpleAttr::LibertySimpleAttr(std::string &&name,
 ////////////////////////////////////////////////////////////////
 
 LibertyComplexAttr::LibertyComplexAttr(std::string &&name,
-                                       const LibertyAttrValueSeq values,
+                                       LibertyAttrValueSeq values,
                                        int line) :
   name_(std::move(name)),
   values_(std::move(values)),
@@ -542,7 +544,7 @@ LibertyComplexAttr::~LibertyComplexAttr() { deleteContents(values_); }
 const LibertyAttrValue *
 LibertyComplexAttr::firstValue() const
 {
-  if (values_.size() > 0)
+  if (!values_.empty())
     return values_[0];
   else
     return nullptr;

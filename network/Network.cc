@@ -29,21 +29,14 @@
 #include <set>
 
 #include "ContainerHelpers.hh"
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
 #include "Liberty.hh"
+#include "ParseBus.hh"
+#include "PatternMatch.hh"
 #include "PortDirection.hh"
 #include "Scene.hh"
-#include "ParseBus.hh"
+#include "StringUtil.hh"
 
 namespace sta {
-
-Network::Network() :
-  default_liberty_(nullptr),
-  divider_('/'),
-  escape_('\\')
-{
-}
 
 Network::~Network()
 {
@@ -264,7 +257,7 @@ Network::pathName(const Instance *instance) const
   InstanceSeq inst_path;
   path(instance, inst_path);
   std::string path_name;
-  while (inst_path.size()) {
+  while (!inst_path.empty()) {
     const Instance *inst = inst_path.back();
     path_name += name(inst);
     inst_path.pop_back();
@@ -1184,7 +1177,7 @@ Network::setPathEscape(char escape)
 
 ////////////////////////////////////////////////////////////////
 
-typedef std::vector<InstanceChildIterator *> InstanceChildIteratorSeq; 
+using InstanceChildIteratorSeq = std::vector<InstanceChildIterator *>;
 
 class LeafInstanceIterator1 : public LeafInstanceIterator
 {
@@ -1200,15 +1193,14 @@ private:
   const Network *network_;
   InstanceChildIteratorSeq pending_child_iters_;
   InstanceChildIterator *child_iter_;
-  Instance *next_;
+  Instance *next_{nullptr};
 
 };
 
 LeafInstanceIterator1::LeafInstanceIterator1(const Instance *inst,
                                              const Network *network) :
   network_(network),
-  child_iter_(network->childIterator(inst)),
-  next_(nullptr)
+  child_iter_(network->childIterator(inst))
 {
   pending_child_iters_.reserve(8);
   nextInst();
@@ -1632,7 +1624,6 @@ Network::pathNameLast(std::string_view path_name,
   char divider = pathDivider();
 
   size_t div_pos = path_name.rfind(divider);
-  size_t path_end = path_name.size();
   while (div_pos > 0) {
     if (div_pos == std::string_view::npos)
       return;
@@ -1642,16 +1633,8 @@ Network::pathNameLast(std::string_view path_name,
       last = path_name.substr(div_pos + 1);
       return;
     }
-    path_end = div_pos - 1;
-    div_pos = path_name.rfind(divider, path_end);
+    div_pos = path_name.rfind(divider, div_pos - 1);
   }
-}
-
-////////////////////////////////////////////////////////////////
-
-NetworkEdit::NetworkEdit() :
-  Network()
-{
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1661,8 +1644,7 @@ NetworkConstantPinIterator(const Network *network,
                            NetSet &zero_nets,
                            NetSet &one_nets) :
   ConstantPinIterator(),
-  network_(network),
-  constant_pins_{PinSet(network), PinSet(network)}
+  network_(network)
 {
   findConstantPins(zero_nets, constant_pins_[0]);
   findConstantPins(one_nets, constant_pins_[1]);
@@ -1687,7 +1669,7 @@ NetworkConstantPinIterator::findConstantPins(NetSet &nets,
 bool
 NetworkConstantPinIterator::hasNext()
 {
-  if (pin_iter_ != constant_pins_[(int)value_].end())
+  if (pin_iter_ != constant_pins_[static_cast<int>(value_)].end())
     return true;
   else if (value_ == LogicValue::zero) {
     value_ = LogicValue::one;
@@ -1818,8 +1800,8 @@ visitPinsBelowNet1(const Pin *hpin,
 }
 
 static void
-visitDrvrLoads(PinSet drvrs,
-               PinSet loads,
+visitDrvrLoads(PinSet &drvrs,
+               PinSet &loads,
                HierPinThruVisitor *visitor)
 {
   for (const Pin *drvr : drvrs) {
@@ -1921,8 +1903,8 @@ visitDrvrLoadsThruNet(const Net *net,
 char
 logicValueString(LogicValue value)
 {
-  static char str[] = "01X^v";
-  return str[int(value)];
+  static char names[] = "01X^v";
+  return names[static_cast<int>(value)];
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2040,4 +2022,4 @@ NetSet::NetSet(const Network *network) :
 {
 }
 
-} // namespace
+} // namespace sta

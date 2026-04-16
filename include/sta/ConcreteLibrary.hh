@@ -25,12 +25,12 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <string_view>
 #include <vector>
-#include <map>
 
-#include "StringUtil.hh"
 #include "NetworkClass.hh"
+#include "StringUtil.hh"
 
 // The classes defined in this file are a contrete implementation of
 // the library API.  They can be used by a reader to construct classes
@@ -84,8 +84,8 @@ protected:
   ObjectId id_;
   std::string filename_;
   bool is_liberty_;
-  char bus_brkt_left_;
-  char bus_brkt_right_;
+  char bus_brkt_left_{'['};
+  char bus_brkt_right_{']'};
   ConcreteCellMap cell_map_;
 
 private:
@@ -127,12 +127,12 @@ public:
   ConcretePort *makeBundlePort(std::string_view name,
                                ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
-  void groupBusPorts(const char bus_brkt_left,
-                     const char bus_brkt_right,
-                     std::function<bool(std::string_view)> port_msb_first);
+  void groupBusPorts(char bus_brkt_left,
+                     char bus_brkt_right,
+                     const std::function<bool(std::string_view)> &port_msb_first);
   size_t portCount() const;
   void setName(std::string_view name);
-  void addPort(ConcretePort *port);
+  virtual void addPort(ConcretePort *port);
   void addPortBit(ConcretePort *port);
 
 protected:
@@ -149,7 +149,7 @@ protected:
                        int from_index,
                        int to_index);
   // Bus port bit (internal to makeBusPortBits).
-  ConcretePort *makePort(std::string bit_name,
+  ConcretePort *makePort(std::string_view bit_name,
                          int bit_index);
   void makeBusPortBit(ConcretePort *bus_port,
                       std::string_view bus_name,
@@ -160,14 +160,14 @@ protected:
   // Filename is optional.
   std::string filename_;
   ConcreteLibrary *library_;
-  LibertyCell *liberty_cell_;
+  LibertyCell *liberty_cell_{nullptr};
   // External application cell.
-  void *ext_cell_;
+  void *ext_cell_{nullptr};
   // Non-bus and bus ports (but no expanded bus bit ports).
   ConcretePortSeq ports_;
   ConcretePortMap port_map_;
   // Port bit count (expanded buses).
-  int port_bit_count_;
+  int port_bit_count_{0};
   bool is_leaf_;
   AttributeMap attribute_map_;
 
@@ -242,10 +242,10 @@ protected:
   ObjectId id_;
   ConcreteCell *cell_;
   PortDirection *direction_;
-  LibertyPort *liberty_port_;
+  LibertyPort *liberty_port_{nullptr};
   // External application port.
-  void *ext_port_;
-  int pin_index_;
+  void *ext_port_{nullptr};
+  int pin_index_{-1};
   bool is_bundle_;
   bool is_bus_;
   int from_index_;
@@ -253,7 +253,7 @@ protected:
   // Expanded bus bit ports (ordered by from_index_ to to_index_)
   // or bundle member ports.
   ConcretePortSeq *member_ports_;
-  ConcretePort *bundle_port_;
+  ConcretePort *bundle_port_{nullptr};
 
 private:
   friend class ConcreteCell;
@@ -271,8 +271,8 @@ private:
 
   const ConcretePortSeq &ports_;
   ConcretePortSeq::const_iterator port_iter_;
-  ConcretePortMemberIterator *member_iter_;
-  ConcretePort *next_;
+  ConcretePortMemberIterator *member_iter_{nullptr};
+  ConcretePort *next_{nullptr};
 };
 
-} // Namespace
+} // namespace sta

@@ -34,4 +34,4 @@ makeDmpCeffElmoreDelayCalc(StaState *sta);
 ArcDelayCalc *
 makeDmpCeffTwoPoleDelayCalc(StaState *sta);
 
-} // namespace
+} // namespace sta

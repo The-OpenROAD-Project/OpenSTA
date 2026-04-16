@@ -36,4 +36,4 @@ readLibertyFile(std::string_view filename,
                 bool infer_latches,
                 Network *network);
 
-} // namespace
+} // namespace sta

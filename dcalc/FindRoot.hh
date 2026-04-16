@@ -36,7 +36,7 @@ using FindRootFunc = const std::function<void (double x,
 
 // first: root estimate; second: true if the search failed.
 std::pair<double, bool>
-findRoot(FindRootFunc func,
+findRoot(const FindRootFunc &func,
          double x1,
          double x2,
          double x_tol,
@@ -44,7 +44,7 @@ findRoot(FindRootFunc func,
 
 // first: root estimate; second: true if the search failed.
 std::pair<double, bool>
-findRoot(FindRootFunc func,
+findRoot(const FindRootFunc &func,
          double x1,
          double y1,
          double x2,
@@ -52,4 +52,4 @@ findRoot(FindRootFunc func,
          double x_tol,
          int max_iter);
 
-} // namespace
+} // namespace sta

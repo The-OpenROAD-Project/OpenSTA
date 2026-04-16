@@ -25,8 +25,8 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "Iterator.hh"
 
@@ -52,12 +52,12 @@ public:
   static const MinMax *max() { return &max_; }
   static const EarlyLate *early() { return &min_; }
   static const EarlyLate *late() { return &max_; }
-  static int minIndex() { return min_.index_; }
-  static int earlyIndex() { return min_.index_; }
-  static int maxIndex() { return max_.index_; }
-  static int lateIndex() { return max_.index_; }
+  static size_t minIndex() { return min_.index_; }
+  static size_t earlyIndex() { return min_.index_; }
+  static size_t maxIndex() { return max_.index_; }
+  static size_t lateIndex() { return max_.index_; }
   const std::string &to_string() const { return name_; }
-  int index() const { return index_; }
+  size_t index() const { return index_; }
   float initValue() const { return init_value_; }
   int initValueInt() const { return init_value_int_; }
   // Max value1 > value2, Min value1 < value2.
@@ -72,18 +72,18 @@ public:
   // for (auto min_max : MinMax::range()) {}
   static const std::array<const MinMax*, 2> &range() { return range_; }
   // for (auto mm_index : MinMax::rangeIndex()) {}
-  static const std::array<int, 2> &rangeIndex() { return range_index_; }
+  static const std::array<size_t, 2> &rangeIndex() { return range_index_; }
   // Find MinMax from name.
-  static const MinMax *find(const char *min_max);
+  static const MinMax *find(std::string_view min_max);
   // Find MinMax from index.
-  static const MinMax *find(int index);
-  static const int index_max = 1;
-  static const int index_count = 2;
-  static const int index_bit_count = 1;
+  static const MinMax *find(size_t index);
+  static const size_t index_max = 1;
+  static const size_t  index_count = 2;
+  static const size_t  index_bit_count = 1;
 
 private:
-  MinMax(const char *name,
-         int index,
+  MinMax(std::string_view name,
+         size_t index,
          float init_value,
          int init_value_int,
          bool (*compare)(float value1,
@@ -99,7 +99,7 @@ private:
   static const MinMax min_;
   static const MinMax max_;
   static const std::array<const MinMax*, 2> range_;
-  static const std::array<int, 2> range_index_;
+  static const std::array<size_t, 2> range_index_;
 };
 
 // Min/Max/All, where "All" means use both min and max.
@@ -114,7 +114,7 @@ public:
   static const MinMaxAll *all() { return &all_; }
   static const MinMaxAll *minMax() { return &all_; }
   const std::string &to_string() const { return name_; }
-  int index() const { return index_; }
+  size_t index() const { return index_; }
   const MinMax *asMinMax() const;
   bool matches(const MinMax *min_max) const;
   bool matches(const MinMaxAll *min_max) const;
@@ -122,22 +122,22 @@ public:
   // for (const auto min_max : min_max->range()) {}
   const std::vector<const MinMax*> &range() const { return range_; }
   // for (const auto mm_index : min_max->rangeIndex()) {}
-  const std::vector<int> &rangeIndex() const { return range_index_; }
+  const std::vector<size_t> &rangeIndex() const { return range_index_; }
 
 private:
-  MinMaxAll(const char *name,
-            int index,
-            std::vector<const MinMax*> range,
-            std::vector<int> range_index);
+  MinMaxAll(std::string_view name,
+            size_t index,
+            const std::vector<const MinMax*> &range,
+            const std::vector<size_t> &range_index);
 
   const std::string name_;
-  int index_;
+  size_t index_;
   const std::vector<const MinMax*> range_;
-  const std::vector<int> range_index_;
+  const std::vector<size_t> range_index_;
 
   static const MinMaxAll min_;
   static const MinMaxAll max_;
   static const MinMaxAll all_;
 };
 
-} // namespace
+} // namespace sta

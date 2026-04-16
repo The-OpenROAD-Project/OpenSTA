@@ -77,4 +77,4 @@ PinPairSet::PinPairSet(const Network *network) :
 {
 }
 
-} // namespace
+} // namespace sta

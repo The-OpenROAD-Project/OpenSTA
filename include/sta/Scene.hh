@@ -24,9 +24,9 @@
 
 #pragma once
 
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #include "GraphClass.hh"
 #include "SearchClass.hh"
@@ -76,7 +76,7 @@ public:
   DcalcAPIndex checkClkSlewIndex(const MinMax *min_max) const;
 
   const LibertySeq &libertyLibraries(const MinMax *min_max) const;
-  int libertyIndex(const MinMax *min_max) const;
+  size_t libertyIndex(const MinMax *min_max) const;
   void addLiberty(LibertyLibrary *lib,
                   const MinMax *min_max);
 
@@ -95,4 +95,4 @@ protected:
   friend class Scenes;
 };
 
-} // namespace
+} // namespace sta

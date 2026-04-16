@@ -40,7 +40,7 @@ using sta::FuncExpr;
 #undef YY_DECL
 #define YY_DECL \
 int \
-sta::LibExprScanner::lex(sta::LibExprParse::semantic_type *const yylval)
+sta::LibExprScanner::lex(sta::LibExprParse::semantic_type *yylval)
 
 typedef sta::LibExprParse::token token;
 

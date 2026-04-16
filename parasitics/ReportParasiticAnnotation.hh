@@ -36,4 +36,4 @@ reportParasiticAnnotation(Parasitics *parasitics,
                           const Scene *scene,
                           StaState *sta);
 
-} // namespace
+} // namespace sta

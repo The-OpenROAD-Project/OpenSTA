@@ -27,15 +27,17 @@
 %include "std_string.i" 
 
 %{
+#include "Sdc.hh"
+
 #include <vector>
 
-#include "Sdc.hh"
-#include "Wireload.hh"
 #include "Clock.hh"
+#include "FilterObjects.hh"
 #include "PortDelay.hh"
 #include "Property.hh"
-#include "FilterObjects.hh"
+#include "SdcClass.hh"
 #include "Sta.hh"
+#include "Wireload.hh"
 
 using namespace sta;
 
@@ -1076,7 +1078,7 @@ set_drive_cell_cmd(LibertyLibrary *library,
 {
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->cmdSdc();
-  float from_slews[RiseFall::index_count];
+  DriveCellSlews from_slews;
   from_slews[RiseFall::riseIndex()] = from_slew_rise;
   from_slews[RiseFall::fallIndex()] = from_slew_fall;
   sta->setDriveCell(library, cell, port, from_port, from_slews,

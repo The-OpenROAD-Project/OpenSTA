@@ -28,11 +28,11 @@
 #include <map>
 #include <vector>
 
-#include "StaState.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
-#include "SdcClass.hh"
 #include "ParasiticsClass.hh"
+#include "SdcClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -52,7 +52,6 @@ class Parasitics : public StaState
 {
 public:
   Parasitics(StaState *sta);
-  virtual ~Parasitics() {}
   virtual const std::string &name() const = 0;
   virtual const std::string &filename() const = 0;
   virtual bool haveParasitics() = 0;
@@ -165,12 +164,12 @@ public:
   // Parasitic network component builders.
   virtual ParasiticNode *findParasiticNode(Parasitic *parasitic,
                                            const Net *net,
-                                           int id,
+                                           uint32_t id,
                                            const Network *network) const = 0;
   // Make a subnode of the parasitic network net.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
                                              const Net *net,
-                                             int id,
+                                             uint32_t id,
                                              const Network *network) = 0;
   // Find the parasitic node connected to pin.
   virtual ParasiticNode *findParasiticNode(const Parasitic *parasitic,
@@ -196,11 +195,11 @@ public:
 
   // Coupling capacitor between parasitic nodes on a net.
   virtual void makeCapacitor(Parasitic *parasitic,
-                             size_t id,
+                             uint32_t id,
                              float cap,
                              ParasiticNode *node1,
                              ParasiticNode *node2) = 0;
-  virtual size_t id(const ParasiticCapacitor *capacitor) const = 0;
+  virtual uint32_t id(const ParasiticCapacitor *capacitor) const = 0;
   virtual float value(const ParasiticCapacitor *capacitor) const = 0;
   virtual ParasiticNode *node1(const ParasiticCapacitor *capacitor) const = 0;
   virtual ParasiticNode *node2(const ParasiticCapacitor *capacitor) const = 0;
@@ -208,15 +207,15 @@ public:
                                    ParasiticNode *node) const;
 
   virtual void makeResistor(Parasitic *parasitic,
-                            size_t id,
+                            uint32_t id,
                             float res,
                             ParasiticNode *node1,
                             ParasiticNode *node2) = 0;
-  virtual size_t id(const ParasiticResistor *resistor) const = 0;
+  virtual uint32_t id(const ParasiticResistor *resistor) const = 0;
   virtual float value(const ParasiticResistor *resistor) const = 0;
   virtual ParasiticNode *node1(const ParasiticResistor *resistor) const = 0;
   virtual ParasiticNode *node2(const ParasiticResistor *resistor) const = 0;
-  virtual ParasiticNode *otherNode(const ParasiticResistor *capacitor,
+  virtual ParasiticNode *otherNode(const ParasiticResistor *resistor,
                                    ParasiticNode *node) const;
 
   // Iteration over resistors connected to a nodes.
@@ -288,7 +287,7 @@ protected:
 
   const Net *findParasiticNet(const Pin *pin) const;
 
-  float coupling_cap_factor_;
+  float coupling_cap_factor_ {1.0};
 };
 
 class ParasiticNodeLess
@@ -304,4 +303,4 @@ private:
   const Network *network_;
 };
 
-} // namespace
+} // namespace sta

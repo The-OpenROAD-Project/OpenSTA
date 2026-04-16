@@ -36,4 +36,4 @@ readVcdActivities(std::string_view filename,
                   std::string_view mode_name,
                   Sta *sta);
 
-} // namespace
+} // namespace sta

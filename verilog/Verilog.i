@@ -25,8 +25,8 @@
 %module verilog
 
 %{
-#include "VerilogWriter.hh"
 #include "Sta.hh"
+#include "VerilogWriter.hh"
 %}
 
 %inline %{

@@ -28,9 +28,9 @@
 
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
-#include "Report.hh"
-#include "Mutex.hh"
 #include "Graph.hh"
+#include "Mutex.hh"
+#include "Report.hh"
 #include "Scene.hh"
 #include "Search.hh"
 
@@ -96,12 +96,9 @@ WorstSlacks::worstSlackNotifyBefore(Vertex *vertex)
 WorstSlack::WorstSlack(StaState *sta) :
   StaState(sta),
   slack_init_(MinMax::min()->initValue()),
-  worst_vertex_(nullptr),
   worst_slack_(slack_init_),
   slack_threshold_(slack_init_),
-  queue_(new VertexSet(VertexIdLess(graph_))),
-  min_queue_size_(10),
-  max_queue_size_(20)
+  queue_(new VertexSet(VertexIdLess(graph_)))
 {
 }
 
@@ -110,12 +107,9 @@ WorstSlack::~WorstSlack() { delete queue_; }
 WorstSlack::WorstSlack(const WorstSlack &worst_slack) :
   StaState(worst_slack),
   slack_init_(MinMax::min()->initValue()),
-  worst_vertex_(nullptr),
   worst_slack_(slack_init_),
   slack_threshold_(slack_init_),
-  queue_(new VertexSet(VertexIdLess(graph_))),
-  min_queue_size_(10),
-  max_queue_size_(20)
+  queue_(new VertexSet(VertexIdLess(graph_)))
 {
 }
 
@@ -168,7 +162,7 @@ WorstSlack::initQueue(PathAPIndex path_ap_index)
         setWorstSlack(vertex, slack);
       if (delayLessEqual(slack, slack_threshold_, this))
         queue_->insert(vertex);
-      int queue_size = queue_->size();
+      size_t queue_size = queue_->size();
       if (queue_size >= max_queue_size_)
         sortQueue(path_ap_index);
     }
@@ -181,7 +175,7 @@ WorstSlack::initQueue(PathAPIndex path_ap_index)
 void
 WorstSlack::sortQueue(PathAPIndex path_ap_index)
 {
-  if (queue_->size() > 0) {
+  if (!queue_->empty()) {
     debugPrint(debug_, "wns", 3, "sort queue");
 
     VertexSeq vertices;
@@ -191,8 +185,8 @@ WorstSlack::sortQueue(PathAPIndex path_ap_index)
     WnsSlackLess slack_less(path_ap_index, this);
     sort(vertices, slack_less);
 
-    int vertex_count = vertices.size();
-    int threshold_index = std::min(min_queue_size_, vertex_count - 1);
+    size_t vertex_count = vertices.size();
+    size_t threshold_index = std::min(min_queue_size_, vertex_count - 1);
     Vertex *threshold_vertex = vertices[threshold_index];
     slack_threshold_ = search_->wnsSlack(threshold_vertex, path_ap_index);
     debugPrint(debug_, "wns", 3, "threshold {}",

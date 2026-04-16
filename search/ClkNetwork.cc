@@ -24,22 +24,21 @@
 
 #include "ClkNetwork.hh"
 
-#include "Debug.hh"
-#include "Network.hh"
-#include "Graph.hh"
 #include "Bfs.hh"
-#include "Sdc.hh"
+#include "Debug.hh"
+#include "Graph.hh"
 #include "Mode.hh"
-#include "SearchPred.hh"
+#include "Network.hh"
+#include "Sdc.hh"
 #include "Search.hh"
+#include "SearchPred.hh"
 
 namespace sta {
 
 ClkNetwork::ClkNetwork(Mode *mode,
                        StaState *sta) :
   StaState(sta),
-  mode_(mode),
-  clk_pins_valid_(false)
+  mode_(mode)
 {
 }
 
@@ -264,4 +263,4 @@ ClkNetwork::idealClkSlew(const Pin *pin,
     return 0.0;
 }
 
-} // namespace
+} // namespace sta

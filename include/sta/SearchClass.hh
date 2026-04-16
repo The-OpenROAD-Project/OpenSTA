@@ -25,14 +25,14 @@
 #pragma once
 
 #include <limits>
-#include <vector>
 #include <map>
+#include <vector>
 
-#include "VectorMap.hh"
-#include "MinMaxValues.hh"
 #include "Delay.hh"
-#include "NetworkClass.hh"
 #include "GraphClass.hh"
+#include "MinMaxValues.hh"
+#include "NetworkClass.hh"
+#include "VectorMap.hh"
 
 namespace sta {
 
@@ -129,4 +129,4 @@ static const int path_ap_index_bit_count = 8;
 // One path analysis point per scene min/max.
 static const int scene_count_max = (1 << path_ap_index_bit_count) / 2;
 
-} // namespace
+} // namespace sta

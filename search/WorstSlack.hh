@@ -27,8 +27,9 @@
 #include <mutex>
 #include <vector>
 
-#include "MinMax.hh"
+#include "Delay.hh"
 #include "GraphClass.hh"
+#include "MinMax.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
 
@@ -79,7 +80,7 @@ class WorstSlack : public StaState
 {
 public:
   WorstSlack(StaState *sta);
-  ~WorstSlack();
+  ~WorstSlack() override;
   WorstSlack(const WorstSlack &);
   void worstSlack(PathAPIndex path_ap_index,
                   // Return values.
@@ -102,16 +103,16 @@ protected:
   Slack slack_init_;
   // Vertex with the worst slack.
   // When nullptr the worst slack is unknown but in the queue.
-  Vertex *worst_vertex_;
+  Vertex *worst_vertex_{nullptr};
   Slack worst_slack_;
   Slack slack_threshold_;
   // Vertices with slack < threshold_
   VertexSet *queue_;
   // Queue is sorted and pruned to min_queue_size_ vertices when it
   // reaches max_queue_size_.
-  int min_queue_size_;
-  int max_queue_size_;
+  size_t min_queue_size_{10};
+  size_t max_queue_size_{20};
   std::mutex lock_;
 };
 
-} // namespace
+} // namespace sta

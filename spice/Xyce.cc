@@ -77,4 +77,4 @@ readXyceCsv(const char *csv_filename,
     throw FileNotReadable(csv_filename);
 }
 
-} // namespace
+} // namespace sta

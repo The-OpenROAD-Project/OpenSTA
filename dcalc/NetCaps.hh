@@ -30,7 +30,7 @@ namespace sta {
 class NetCaps
 {
 public:
-  NetCaps();
+  NetCaps() = default;
   NetCaps(float pin_cap,
           float wire_cap,
           float fanout,
@@ -51,4 +51,4 @@ private:
   bool has_net_load_;
 };
 
-} // namespace
+} // namespace sta

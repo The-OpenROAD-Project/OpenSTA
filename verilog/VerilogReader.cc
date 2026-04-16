@@ -24,30 +24,31 @@
 
 #include "VerilogReader.hh"
 
+#include <cstdint>
 #include <cstdlib>
 #include <string>
 #include <string_view>
 
 #include "ContainerHelpers.hh"
-#include "Zlib.hh"
 #include "Debug.hh"
-#include "Report.hh"
 #include "Error.hh"
-#include "Stats.hh"
 #include "Liberty.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
-#include "VerilogNamespace.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Stats.hh"
 #include "StringUtil.hh"
+#include "VerilogNamespace.hh"
+#include "Zlib.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "verilog/VerilogScanner.hh"
 
 namespace sta {
 
-using VerilogConstant10 = unsigned long long;
+using VerilogConstant10 = std::uint64_t;
 
 static std::string
-verilogBusBitName(const std::string &bus_name,
+verilogBusBitName(std::string_view bus_name,
                   int index);
 static int
 hierarchyLevel(Net *net,
@@ -111,8 +112,6 @@ VerilogReader::VerilogReader(NetworkReader *network) :
   report_(network->report()),
   debug_(network->debug()),
   network_(network),
-  library_(nullptr),
-  black_box_index_(0),
   zero_net_name_("zero_"),
   one_net_name_("one_")
 {
@@ -168,13 +167,13 @@ VerilogReader::module(Cell *cell)
 }
 
 void
-VerilogReader::makeModule(std::string &&module_vname,
+VerilogReader::makeModule(std::string_view module_vname,
                           VerilogNetSeq *ports,
                           VerilogStmtSeq *stmts,
                           VerilogAttrStmtSeq *attr_stmts,
                           int line)
 {
-  const std::string module_name = moduleVerilogToSta(std::move(module_vname));
+  const std::string module_name = moduleVerilogToSta(module_vname);
   Cell *cell = network_->findCell(library_, module_name);
   if (cell) {
     VerilogModule *module = module_map_[cell];
@@ -199,7 +198,7 @@ VerilogReader::makeModule(std::string &&module_vname,
 }
 
 void
-VerilogReader::makeModule(std::string &&module_vname,
+VerilogReader::makeModule(std::string_view module_vname,
                           VerilogStmtSeq *port_dcls,
                           VerilogStmtSeq *stmts,
                           VerilogAttrStmtSeq *attr_stmts,
@@ -219,7 +218,7 @@ VerilogReader::makeModule(std::string &&module_vname,
     }
   }
   delete port_dcls;
-  makeModule(std::move(module_vname), ports, stmts, attr_stmts, line);
+  makeModule(module_vname, ports, stmts, attr_stmts, line);
 }
 
 void
@@ -371,9 +370,9 @@ VerilogReader::makeDclBus(PortDirection *dir,
 }
 
 VerilogDclArg *
-VerilogReader::makeDclArg(std::string &&net_vname)
+VerilogReader::makeDclArg(std::string_view net_vname)
 {
-  const std::string net_name = netVerilogToSta(std::move(net_vname));
+  const std::string net_name = netVerilogToSta(net_vname);
   VerilogDclArg *dcl = new VerilogDclArg(net_name);
   return dcl;
 }
@@ -385,36 +384,36 @@ VerilogReader::makeDclArg(VerilogAssign *assign)
 }
 
 VerilogNetPartSelect *
-VerilogReader::makeNetPartSelect(std::string &&net_vname,
+VerilogReader::makeNetPartSelect(std::string_view net_vname,
                                  int from_index,
                                  int to_index)
 {
-  const std::string net_name = netVerilogToSta(std::move(net_vname));
+  const std::string net_name = netVerilogToSta(net_vname);
   VerilogNetPartSelect *select =
       new VerilogNetPartSelect(net_name, from_index, to_index);
   return select;
 }
 
 VerilogNetConstant *
-VerilogReader::makeNetConstant(std::string &&constant,
+VerilogReader::makeNetConstant(std::string_view constant,
                                int line)
 {
-  return new VerilogNetConstant(std::move(constant), this, line);
+  return new VerilogNetConstant(constant, this, line);
 }
 
 VerilogNetScalar *
-VerilogReader::makeNetScalar(std::string &&net_vname)
+VerilogReader::makeNetScalar(std::string_view net_vname)
 {
-  const std::string net_name = netVerilogToSta(std::move(net_vname));
+  const std::string net_name = netVerilogToSta(net_vname);
   VerilogNetScalar *scalar = new VerilogNetScalar(net_name);
   return scalar;
 }
 
 VerilogNetBitSelect *
-VerilogReader::makeNetBitSelect(std::string &&net_vname,
+VerilogReader::makeNetBitSelect(std::string_view net_vname,
                                 int index)
 {
-  const std::string net_name = netVerilogToSta(std::move(net_vname));
+  const std::string net_name = netVerilogToSta(net_vname);
   VerilogNetBitSelect *select = new VerilogNetBitSelect(net_name, index);
   return select;
 }
@@ -428,14 +427,14 @@ VerilogReader::makeAssign(VerilogNet *lhs,
 }
 
 VerilogInst *
-VerilogReader::makeModuleInst(std::string &&module_vname,
-                              std::string &&inst_vname,
+VerilogReader::makeModuleInst(std::string_view module_vname,
+                              std::string_view inst_vname,
                               VerilogNetSeq *pins,
                               VerilogAttrStmtSeq *attr_stmts,
-                              const int line)
+                              int line)
 {
-  const std::string module_name = moduleVerilogToSta(std::move(module_vname));
-  const std::string inst_name = instanceVerilogToSta(std::move(inst_vname));
+  const std::string module_name = moduleVerilogToSta(module_vname);
+  const std::string inst_name = instanceVerilogToSta(inst_vname);
   Cell *cell = network_->findAnyCell(module_name);
   LibertyCell *liberty_cell = nullptr;
   if (cell)
@@ -443,7 +442,7 @@ VerilogReader::makeModuleInst(std::string &&module_vname,
   // Instances of liberty with scalar ports are special cased
   // to reduce the memory footprint of the verilog parser.
   if (liberty_cell && hasScalarNamedPortRefs(liberty_cell, pins)) {
-    const int port_count = liberty_cell->portBitCount();
+    int port_count = liberty_cell->portBitCount();
     StringSeq net_names(port_count);
     for (VerilogNet *vnet : *pins) {
       VerilogNetPortRefScalarNet *vpin =
@@ -476,7 +475,7 @@ bool
 VerilogReader::hasScalarNamedPortRefs(LibertyCell *liberty_cell,
                                       VerilogNetSeq *pins)
 {
-  if (pins && pins->size() > 0 && (*pins)[0]->isNamedPortRef()) {
+  if (pins && !pins->empty() && (*pins)[0]->isNamedPortRef()) {
     for (VerilogNet *vpin : *pins) {
       std::string_view port_name = vpin->name();
       LibertyPort *port = liberty_cell->findLibertyPort(port_name);
@@ -494,62 +493,62 @@ VerilogReader::hasScalarNamedPortRefs(LibertyCell *liberty_cell,
 }
 
 VerilogNetPortRef *
-VerilogReader::makeNetNamedPortRefScalarNet(std::string &&port_vname)
+VerilogReader::makeNetNamedPortRefScalarNet(std::string_view port_vname)
 {
-  const std::string port_name = portVerilogToSta(std::move(port_vname));
+  const std::string port_name = portVerilogToSta(port_vname);
   VerilogNetPortRef *ref = new VerilogNetPortRefScalarNet(port_name);
   return ref;
 }
 
 VerilogNetPortRef *
-VerilogReader::makeNetNamedPortRefScalarNet(std::string &&port_vname,
-                                            std::string &&net_vname)
+VerilogReader::makeNetNamedPortRefScalarNet(std::string_view port_vname,
+                                            std::string_view net_vname)
 {
-  const std::string port_name = portVerilogToSta(std::move(port_vname));
-  const std::string net_name = netVerilogToSta(std::move(net_vname));
+  const std::string port_name = portVerilogToSta(port_vname);
+  const std::string net_name = netVerilogToSta(net_vname);
   VerilogNetPortRef *ref = new VerilogNetPortRefScalarNet(port_name, net_name);
   return ref;
 }
 
 VerilogNetPortRef *
-VerilogReader::makeNetNamedPortRefBitSelect(std::string &&port_vname,
-                                            std::string &&bus_vname,
+VerilogReader::makeNetNamedPortRefBitSelect(std::string_view port_vname,
+                                            std::string_view bus_vname,
                                             int index)
 {
-  const std::string bus_name = portVerilogToSta(std::move(bus_vname));
+  const std::string bus_name = portVerilogToSta(bus_vname);
   const std::string net_name = verilogBusBitName(bus_name, index);
-  const std::string port_name = portVerilogToSta(std::move(port_vname));
+  const std::string port_name = portVerilogToSta(port_vname);
   VerilogNetPortRef *ref =
       new VerilogNetPortRefScalarNet(port_name, net_name);
   return ref;
 }
 
 VerilogNetPortRef *
-VerilogReader::makeNetNamedPortRefScalar(std::string &&port_vname,
+VerilogReader::makeNetNamedPortRefScalar(std::string_view port_vname,
                                          VerilogNet *net)
 {
-  const std::string port_name = portVerilogToSta(std::move(port_vname));
+  const std::string port_name = portVerilogToSta(port_vname);
   VerilogNetPortRef *ref = new VerilogNetPortRefScalar(port_name, net);
   return ref;
 }
 
 VerilogNetPortRef *
-VerilogReader::makeNetNamedPortRefBit(std::string &&port_vname,
+VerilogReader::makeNetNamedPortRefBit(std::string_view port_vname,
                                       int index,
                                       VerilogNet *net)
 {
-  const std::string port_name = portVerilogToSta(std::move(port_vname));
+  const std::string port_name = portVerilogToSta(port_vname);
   VerilogNetPortRef *ref = new VerilogNetPortRefBit(port_name, index, net);
   return ref;
 }
 
 VerilogNetPortRef *
-VerilogReader::makeNetNamedPortRefPart(std::string &&port_vname,
+VerilogReader::makeNetNamedPortRefPart(std::string_view port_vname,
                                        int from_index,
                                        int to_index,
                                        VerilogNet *net)
 {
-  const std::string port_name = portVerilogToSta(std::move(port_vname));
+  const std::string port_name = portVerilogToSta(port_vname);
   VerilogNetPortRef *ref =
       new VerilogNetPortRefPart(port_name, from_index, to_index, net);
   return ref;
@@ -563,11 +562,11 @@ VerilogReader::makeNetConcat(VerilogNetSeq *nets)
 
 ////////////////////////////////////////////////////////////////
 
-VerilogModule::VerilogModule(const std::string &name,
+VerilogModule::VerilogModule(std::string_view name,
                              VerilogNetSeq *ports,
                              VerilogStmtSeq *stmts,
                              VerilogAttrStmtSeq *attr_stmts,
-                             const std::string &filename,
+                             std::string_view filename,
                              int line,
                              VerilogReader *reader) :
   VerilogStmt(line),
@@ -679,9 +678,9 @@ VerilogStmt::VerilogStmt(int line) :
 {
 }
 
-VerilogInst::VerilogInst(const std::string &inst_name,
+VerilogInst::VerilogInst(std::string_view inst_name,
                          VerilogAttrStmtSeq *attr_stmts,
-                         const int line) :
+                         int line) :
   VerilogStmt(line),
   inst_name_(inst_name),
   attr_stmts_(attr_stmts)
@@ -700,8 +699,8 @@ VerilogInst::setInstanceName(const std::string &inst_name)
   inst_name_ = inst_name;
 }
 
-VerilogModuleInst::VerilogModuleInst(const std::string &module_name,
-                                     const std::string &inst_name,
+VerilogModuleInst::VerilogModuleInst(std::string_view module_name,
+                                     std::string_view inst_name,
                                      VerilogNetSeq *pins,
                                      VerilogAttrStmtSeq *attr_stmts,
                                      int line) :
@@ -724,23 +723,21 @@ VerilogModuleInst::~VerilogModuleInst()
 bool
 VerilogModuleInst::hasPins()
 {
-  return pins_ && pins_->size() > 0;
+  return pins_ && !pins_->empty();
 }
 
 bool
 VerilogModuleInst::namedPins()
 {
-  return pins_ && pins_->size() > 0 && (*pins_)[0]->isNamedPortRef();
+  return pins_ && !pins_->empty() && (*pins_)[0]->isNamedPortRef();
 }
 
 VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
-                                       const std::string &inst_name,
+                                       std::string_view inst_name,
                                        const StringSeq &net_names,
                                        VerilogAttrStmtSeq *attr_stmts,
-                                       const int line) :
-  VerilogInst(inst_name,
-              attr_stmts,
-              line),
+                                       int line) :
+  VerilogInst(inst_name, attr_stmts, line),
   cell_(cell),
   net_names_(net_names)
 {
@@ -795,10 +792,7 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
                              VerilogDclArgSeq *args,
                              VerilogAttrStmtSeq *attr_stmts,
                              int line) :
-  VerilogDcl(dir,
-             args,
-             attr_stmts,
-             line),
+  VerilogDcl(dir, args, attr_stmts, line),
   from_index_(from_index),
   to_index_(to_index)
 {
@@ -810,10 +804,7 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
                              VerilogDclArg *arg,
                              VerilogAttrStmtSeq *attr_stmts,
                              int line) :
-  VerilogDcl(dir,
-             arg,
-             attr_stmts,
-             line),
+  VerilogDcl(dir, arg, attr_stmts, line),
   from_index_(from_index),
   to_index_(to_index)
 {
@@ -825,7 +816,7 @@ VerilogDclBus::size() const
   return std::abs(to_index_ - from_index_) + 1;
 }
 
-VerilogDclArg::VerilogDclArg(const std::string &net_name) :
+VerilogDclArg::VerilogDclArg(std::string_view net_name) :
   net_name_(net_name),
   assign_(nullptr)
 {
@@ -887,12 +878,11 @@ public:
 
 protected:
   std::string name_;
-  bool has_next_;
+  bool has_next_{true};
 };
 
 VerilogOneNetNameIterator::VerilogOneNetNameIterator(const std::string &name) :
-  name_(name),
-  has_next_(true)
+  name_(name)
 {
 }
 
@@ -912,7 +902,7 @@ VerilogOneNetNameIterator::next()
 class VerilogBusNetNameIterator : public VerilogNetNameIterator
 {
 public:
-  VerilogBusNetNameIterator(const std::string bus_name,
+  VerilogBusNetNameIterator(std::string_view bus_name,
                             int from_index,
                             int to_index);
   bool hasNext() override;
@@ -926,7 +916,7 @@ protected:
   std::string bit_name_;
 };
 
-VerilogBusNetNameIterator::VerilogBusNetNameIterator(const std::string bus_name,
+VerilogBusNetNameIterator::VerilogBusNetNameIterator(std::string_view bus_name,
                                                      int from_index,
                                                      int to_index) :
   bus_name_(bus_name),
@@ -955,7 +945,7 @@ VerilogBusNetNameIterator::next()
 }
 
 static std::string
-verilogBusBitName(const std::string &bus_name,
+verilogBusBitName(std::string_view bus_name,
                   int index)
 {
   return sta::format("{}[{}]", bus_name, index);
@@ -1015,7 +1005,7 @@ private:
   VerilogReader *reader_;
   VerilogNetSeq *nets_;
   VerilogNetSeq::iterator net_iter_;
-  VerilogNetNameIterator *net_name_iter_;
+  VerilogNetNameIterator *net_name_iter_{nullptr};
 };
 
 VerilogNetConcatNameIterator::VerilogNetConcatNameIterator(VerilogNetSeq *nets,
@@ -1024,8 +1014,7 @@ VerilogNetConcatNameIterator::VerilogNetConcatNameIterator(VerilogNetSeq *nets,
   module_(module),
   reader_(reader),
   nets_(nets),
-  net_iter_(nets->begin()),
-  net_name_iter_(nullptr)
+  net_iter_(nets->begin())
 {
   if (net_iter_ != nets_->end()) {
     VerilogNet *net = *net_iter_++;
@@ -1066,15 +1055,13 @@ VerilogNetConcatNameIterator::next()
 
 const std::string VerilogNetUnnamed::null_;
 
-VerilogNetNamed::VerilogNetNamed(const std::string &name) :
+VerilogNetNamed::VerilogNetNamed(std::string_view name) :
   VerilogNet(),
   name_(name)
 {
 }
 
-VerilogNetNamed::~VerilogNetNamed() {}
-
-VerilogNetScalar::VerilogNetScalar(const std::string &name) :
+VerilogNetScalar::VerilogNetScalar(std::string_view name) :
   VerilogNetNamed(name)
 {
 }
@@ -1119,7 +1106,7 @@ VerilogNetScalar::nameIterator(VerilogModule *module,
   return verilogNetScalarNameIterator(name_, module);
 }
 
-VerilogNetBitSelect::VerilogNetBitSelect(const std::string &name,
+VerilogNetBitSelect::VerilogNetBitSelect(std::string_view name,
                                          int index) :
   VerilogNetNamed(verilogBusBitName(name,
                                     index)),
@@ -1140,7 +1127,7 @@ VerilogNetBitSelect::nameIterator(VerilogModule *,
   return new VerilogOneNetNameIterator(name_);
 }
 
-VerilogNetPartSelect::VerilogNetPartSelect(const std::string &name,
+VerilogNetPartSelect::VerilogNetPartSelect(std::string_view name,
                                            int from_index,
                                            int to_index) :
   VerilogNetNamed(name),
@@ -1165,7 +1152,7 @@ VerilogNetPartSelect::nameIterator(VerilogModule *,
   return new VerilogBusNetNameIterator(name_, from_index_, to_index_);
 }
 
-VerilogNetConstant::VerilogNetConstant(std::string constant,
+VerilogNetConstant::VerilogNetConstant(std::string_view constant,
                                        VerilogReader *reader,
                                        int line)
 {
@@ -1173,13 +1160,13 @@ VerilogNetConstant::VerilogNetConstant(std::string constant,
 }
 
 void
-VerilogNetConstant::parseConstant(const std::string &constant,
+VerilogNetConstant::parseConstant(std::string_view constant,
                                   VerilogReader *reader,
                                   int line)
 {
   // Find constant size.
   size_t csize_end = constant.find('\'');
-  std::string csize = constant.substr(0, csize_end);
+  std::string csize(constant.substr(0, csize_end));
 
   // Read the constant size.
   size_t size = std::stol(csize);
@@ -1214,7 +1201,7 @@ VerilogNetConstant::parseConstant(const std::string &constant,
 }
 
 void
-VerilogNetConstant::parseConstant(const std::string &constant,
+VerilogNetConstant::parseConstant(std::string_view constant,
                                   size_t base_idx,
                                   int base,
                                   int digit_bit_count)
@@ -1243,30 +1230,31 @@ VerilogNetConstant::parseConstant(const std::string &constant,
 }
 
 void
-VerilogNetConstant::parseConstant10(const std::string &constant,
-                                    size_t base_idx,
-                                    VerilogReader *reader,
-                                    int line)
+VerilogNetConstant::parseConstant10(std::string_view constant,
+                                      size_t base_idx,
+                                      VerilogReader *reader,
+                                      int line)
 {
   // Copy the constant skipping underscores.
-  std::string tmp;
+  std::string constant1;
   for (size_t i = base_idx + 1; i < constant.size(); i++) {
     char ch = constant.at(i);
     if (ch != '_')
-      tmp += ch;
+      constant1 += ch;
   }
 
   size_t size = value_->size();
-  size_t length = tmp.size();
+  size_t length = constant1.size();
   const std::string &constant10_max = reader->constant10Max();
   size_t max_length = constant10_max.size();
-  if (length > max_length || (length == max_length && tmp > constant10_max))
+  if (length > max_length
+      || (length == max_length && constant1 > constant10_max))
     reader->warn(1397, reader->filename(), line,
                  "base 10 constant greater than {} not supported.",
                  constant10_max);
   else {
     size_t *end = nullptr;
-    VerilogConstant10 value = std::stoull(tmp, end, 10);
+    VerilogConstant10 value = std::stoull(constant1, end, 10);
     VerilogConstant10 mask = 1;
     for (size_t bit = 0; bit < size; bit++) {
       (*value_)[bit] = (value & mask) != 0;
@@ -1318,18 +1306,18 @@ VerilogNetConcat::nameIterator(VerilogModule *module,
   return new VerilogNetConcatNameIterator(nets_, module, reader);
 }
 
-VerilogNetPortRef::VerilogNetPortRef(const std::string &name) :
+VerilogNetPortRef::VerilogNetPortRef(std::string_view name) :
   VerilogNetScalar(name)
 {
 }
 
-VerilogNetPortRefScalarNet::VerilogNetPortRefScalarNet(const std::string &name) :
+VerilogNetPortRefScalarNet::VerilogNetPortRefScalarNet(std::string_view name) :
   VerilogNetPortRef(name)
 {
 }
 
-VerilogNetPortRefScalarNet::VerilogNetPortRefScalarNet(const std::string &name,
-                                                       const std::string &net_name) :
+VerilogNetPortRefScalarNet::VerilogNetPortRefScalarNet(std::string_view name,
+                                                       std::string_view net_name) :
   VerilogNetPortRef(name),
   net_name_(net_name)
 {
@@ -1356,7 +1344,7 @@ VerilogNetPortRefScalarNet::nameIterator(VerilogModule *module,
   return verilogNetScalarNameIterator(net_name_, module);
 }
 
-VerilogNetPortRefScalar::VerilogNetPortRefScalar(const std::string &name,
+VerilogNetPortRefScalar::VerilogNetPortRefScalar(std::string_view name,
                                                  VerilogNet *net) :
   VerilogNetPortRef(name),
   net_(net)
@@ -1384,7 +1372,7 @@ VerilogNetPortRefScalar::nameIterator(VerilogModule *module,
     return new VerilogNullNetNameIterator();
 }
 
-VerilogNetPortRefBit::VerilogNetPortRefBit(const std::string &name,
+VerilogNetPortRefBit::VerilogNetPortRefBit(std::string_view name,
                                            int index,
                                            VerilogNet *net) :
   VerilogNetPortRefScalar(name,
@@ -1394,13 +1382,11 @@ VerilogNetPortRefBit::VerilogNetPortRefBit(const std::string &name,
 {
 }
 
-VerilogNetPortRefPart::VerilogNetPortRefPart(const std::string &name,
+VerilogNetPortRefPart::VerilogNetPortRefPart(std::string_view name,
                                              int from_index,
                                              int to_index,
                                              VerilogNet *net) :
-  VerilogNetPortRefBit(name,
-                       from_index,
-                       net),
+  VerilogNetPortRefBit(name, from_index, net),
   to_index_(to_index)
 {
 }
@@ -1411,23 +1397,11 @@ VerilogNetPortRefPart::name() const
   return name_;
 }
 
-VerilogAttrEntry::VerilogAttrEntry(const std::string &key,
-                                   const std::string &value) :
+VerilogAttrEntry::VerilogAttrEntry(std::string_view key,
+                                   std::string_view value) :
   key_(key),
   value_(value)
 {
-}
-
-std::string
-VerilogAttrEntry::key()
-{
-  return key_;
-}
-
-std::string
-VerilogAttrEntry::value()
-{
-  return value_;
 }
 
 VerilogAttrStmt::VerilogAttrStmt(VerilogAttrEntrySeq *attrs) :

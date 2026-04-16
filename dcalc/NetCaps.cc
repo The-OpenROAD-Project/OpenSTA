@@ -26,10 +26,6 @@
 
 namespace sta {
 
-NetCaps::NetCaps()
-{
-}
-
 NetCaps::NetCaps(float pin_cap,
                  float wire_cap,
                  float fanout,
@@ -53,4 +49,4 @@ NetCaps::init(float pin_cap,
   has_net_load_ = has_net_load;
 }
 
-} // namespace
+} // namespace sta

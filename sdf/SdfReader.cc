@@ -24,24 +24,24 @@
 
 #include "sdf/SdfReader.hh"
 
-#include <cstdarg>
 #include <cctype>
+#include <cstdarg>
 #include <string>
 #include <utility>
 
 #include "ContainerHelpers.hh"
-#include "Zlib.hh"
-#include "Error.hh"
 #include "Debug.hh"
-#include "Stats.hh"
-#include "Report.hh"
-#include "MinMax.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
-#include "SdcNetwork.hh"
+#include "Error.hh"
 #include "Graph.hh"
+#include "MinMax.hh"
+#include "Network.hh"
+#include "Report.hh"
 #include "Scene.hh"
 #include "Sdc.hh"
+#include "SdcNetwork.hh"
+#include "Stats.hh"
+#include "TimingArc.hh"
+#include "Zlib.hh"
 #include "sdf/SdfReaderPvt.hh"
 #include "sdf/SdfScanner.hh"
 
@@ -107,20 +107,12 @@ SdfReader::SdfReader(std::string_view filename,
   StaState(sta),
   filename_(filename),
   path_(path),
-  triple_min_index_(0),
-  triple_max_index_(2),
   arc_delay_min_index_(arc_min_index),
   arc_delay_max_index_(arc_max_index),
   analysis_type_(analysis_type),
   unescaped_dividers_(unescaped_dividers),
   is_incremental_only_(is_incremental_only),
-  cond_use_(cond_use),
-  divider_('/'),
-  escape_('\\'),
-  instance_(nullptr),
-  in_timing_check_(false),
-  in_incremental_(false),
-  timescale_(1.0E-9F)  // default units of ns
+  cond_use_(cond_use)
 {
   if (unescaped_dividers)
     network_ = makeSdcNetwork(network_);
@@ -747,7 +739,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 void
 SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
                                    TimingArc *arc,
-                                   float *value,
+                                   const float *value,
                                    int triple_index,
                                    int arc_delay_index,
                                    const MinMax *min_max)
@@ -819,11 +811,11 @@ SdfReader::makeCondPortSpec(std::string_view cond_port)
   // Search from end to find port name because condition may contain spaces.
   std::string cond_port1(cond_port);
   trimRight(cond_port1);
-  auto port_idx = cond_port1.find_last_of(" ");
-  if (port_idx != cond_port1.npos) {
+  auto port_idx = cond_port1.find_last_of(' ');
+  if (port_idx != std::string::npos) {
     std::string port1 = cond_port1.substr(port_idx + 1);
-    size_t cond_end = cond_port1.find_last_not_of(" ", port_idx);
-    if (cond_end != cond_port1.npos) {
+    size_t cond_end = cond_port1.find_last_not_of(' ', port_idx);
+    if (cond_end != std::string::npos) {
       std::string cond1 = cond_port1.substr(0, cond_end + 1);
       return new SdfPortSpec(Transition::riseFall(), port1, cond1);
     }
@@ -847,7 +839,7 @@ SdfReader::deleteTripleSeq(SdfTripleSeq *triples)
 SdfTriple *
 SdfReader::makeTriple()
 {
-  return new SdfTriple(0, 0, 0);
+  return new SdfTriple(nullptr, nullptr, nullptr);
 }
 
 SdfTriple *

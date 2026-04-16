@@ -59,7 +59,7 @@ private:
   const LibertyCell *cell_;
   std::string_view error_msg_;
   Report *report_;
-  FuncExpr *result_;
+  FuncExpr *result_{nullptr};
 };
 
-} // namespace
+} // namespace sta

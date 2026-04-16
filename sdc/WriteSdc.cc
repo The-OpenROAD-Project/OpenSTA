@@ -26,47 +26,47 @@
 
 #include <algorithm>
 #include <ctime>
-#include <vector>
 #include <set>
 #include <string>
 #include <string_view>
+#include <vector>
 
-#include "ContainerHelpers.hh"
-#include "Format.hh"
-#include "Zlib.hh"
-#include "Report.hh"
-#include "Error.hh"
-#include "Units.hh"
-#include "Transition.hh"
-#include "Liberty.hh"
-#include "Wireload.hh"
-#include "Network.hh"
-#include "PortDirection.hh"
-#include "NetworkCmp.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
-#include "RiseFallValues.hh"
-#include "PortDelay.hh"
-#include "ExceptionPath.hh"
-#include "PortExtCap.hh"
-#include "DisabledPorts.hh"
 #include "ClockGroups.hh"
 #include "ClockInsertion.hh"
 #include "ClockLatency.hh"
-#include "InputDrive.hh"
+#include "ContainerHelpers.hh"
 #include "DataCheck.hh"
 #include "DeratingFactors.hh"
-#include "Sdc.hh"
+#include "DisabledPorts.hh"
+#include "Error.hh"
+#include "ExceptionPath.hh"
+#include "Format.hh"
 #include "Fuzzy.hh"
-#include "StaState.hh"
+#include "Graph.hh"
+#include "GraphCmp.hh"
+#include "InputDrive.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "NetworkCmp.hh"
+#include "PortDelay.hh"
+#include "PortDirection.hh"
+#include "PortExtCap.hh"
+#include "Report.hh"
+#include "RiseFallValues.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
+#include "StaState.hh"
+#include "Transition.hh"
+#include "Units.hh"
 #include "Variables.hh"
+#include "Wireload.hh"
 #include "WriteSdcPvt.hh"
+#include "Zlib.hh"
 
 namespace sta {
 
-typedef std::set<ClockSense*> ClockSenseSet;
-typedef std::vector<ClockSense*> ClockSenseSeq;
+using ClockSenseSet = std::set<ClockSense*>;
+using ClockSenseSeq = std::vector<ClockSense*>;
 
 static std::string_view
 transRiseFallFlag(const RiseFall *rf);
@@ -88,8 +88,8 @@ timingDerateTypeKeyword(TimingDerateType type);
 class WriteSdcObject
 {
 public:
-  WriteSdcObject() {}
-  virtual ~WriteSdcObject() {}
+  WriteSdcObject() = default;
+  virtual ~WriteSdcObject() = default;
   virtual void write() const = 0;
 };
 
@@ -98,7 +98,7 @@ class WriteGetPort : public WriteSdcObject
 public:
   WriteGetPort(const Port *port,
                const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const Port *port_;
@@ -125,7 +125,7 @@ public:
                        bool map_hpin_to_drvr,
                        const Clock *clk,
                        const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const Pin *pin_;
@@ -159,7 +159,7 @@ public:
   WriteGetPin(const Pin *pin,
               bool map_hpin_to_drvr,
               const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const Pin *pin_;
@@ -187,7 +187,7 @@ class WriteGetNet : public WriteSdcObject
 public:
   WriteGetNet(const Net *net,
               const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const Net *net_;
@@ -212,7 +212,7 @@ class WriteGetInstance : public WriteSdcObject
 public:
   WriteGetInstance(const Instance *inst,
                    const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const Instance *inst_;
@@ -237,7 +237,7 @@ class WriteGetLibCell : public WriteSdcObject
 public:
   WriteGetLibCell(const LibertyCell *cell,
                   const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const LibertyCell *cell_;
@@ -262,7 +262,7 @@ class WriteGetClock : public WriteSdcObject
 public:
   WriteGetClock(const Clock *clk,
                 const WriteSdc *writer);
-  virtual void write() const;
+  void write() const override;
 
 private:
   const Clock *clk_;
@@ -318,10 +318,6 @@ WriteSdc::WriteSdc(const Sdc *sdc,
   top_instance_(instance == sdc_network_->topInstance()),
   instance_name_length_(sdc_network_->pathName(instance).size()),
   cell_(sdc_network_->cell(instance))
-{
-}
-
-WriteSdc::~WriteSdc()
 {
 }
 
@@ -1666,7 +1662,7 @@ WriteSdc::writeDrivingCell(Port *port,
   const LibertyCell *cell = drive_cell->cell();
   const LibertyPort *from_port = drive_cell->fromPort();
   const LibertyPort *to_port = drive_cell->toPort();
-  float *from_slews = drive_cell->fromSlews();
+  const DriveCellSlews &from_slews = drive_cell->fromSlews();
   const LibertyLibrary *lib = drive_cell->library();
   sta::print(stream_, "set_driving_cell");
   if (rf)
@@ -1888,7 +1884,7 @@ WriteSdc::writeDerating(DeratingFactorsGlobal *factors) const
       }
     }
     else {
-      for (int type_index = 0;
+      for (size_t type_index = 0;
            type_index < timing_derate_type_count;
            type_index++) {
         TimingDerateType type = static_cast<TimingDerateType>(type_index);
@@ -1935,7 +1931,7 @@ WriteSdc::writeDerating(DeratingFactors *factors,
     }
   }
   else {
-    for (int clk_data_index = 0;
+    for (size_t clk_data_index = 0;
          clk_data_index < path_clk_or_data_count;
          clk_data_index++) {
       PathClkOrData clk_data = static_cast<PathClkOrData>(clk_data_index);
@@ -2855,9 +2851,9 @@ setupHoldFlag(const MinMax *min_max)
 void
 WriteSdc::writeCmdComment(SdcCmdComment *cmd) const
 {
-  const std::string comment = cmd->comment();
+  const std::string &comment = cmd->comment();
   if (!comment.empty())
     sta::print(stream_, " -comment {{{}}}", comment);
 }
 
-} // namespace
+} // namespace sta

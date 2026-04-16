@@ -59,9 +59,9 @@ protected:
 
   const Pin *pin_;
   const ClockEdge *clk_edge_;
-  bool source_latency_included_;
-  bool network_latency_included_;
-  const Pin *ref_pin_;
+  bool source_latency_included_{false};
+  bool network_latency_included_{false};
+  const Pin *ref_pin_{nullptr};
   RiseFallMinMax delays_;
   PinSet leaf_pins_;
 };
@@ -108,4 +108,4 @@ private:
   const Network *network_;
 };
 
-} // namespace
+} // namespace sta

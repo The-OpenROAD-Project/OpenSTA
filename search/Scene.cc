@@ -25,9 +25,9 @@
 #include "Scene.hh"
 
 #include "ContainerHelpers.hh"
+#include "Mode.hh"
 #include "Parasitics.hh"
 #include "Sdc.hh"
-#include "Mode.hh"
 
 namespace sta {
 
@@ -134,7 +134,7 @@ Scene::libertyLibraries(const MinMax *min_max) const
   return liberty_[min_max->index()];
 }
 
-int
+size_t
 Scene::libertyIndex(const MinMax *min_max) const
 {
   return index_ * MinMax::index_count + min_max->index();
@@ -184,4 +184,4 @@ Scene::modesSorted(const SceneSeq &scenes)
   return modes;
 }  
 
-} // namespace
+} // namespace sta

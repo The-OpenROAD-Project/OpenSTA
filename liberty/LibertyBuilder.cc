@@ -24,14 +24,21 @@
 
 #include "LibertyBuilder.hh"
 
-#include "PortDirection.hh"
-#include "TimingRole.hh"
+#include <string>
+#include <string_view>
+#include <utility>
+
+#include "ConcreteLibrary.hh"
 #include "FuncExpr.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
+#include "PortDirection.hh"
+#include "Transition.hh"
+#include "Sequential.hh"
+#include "TableModel.hh"
 #include "TimingArc.hh"
 #include "TimingModel.hh"
-#include "TableModel.hh"
-#include "Sequential.hh"
-#include "Liberty.hh"
+#include "TimingRole.hh"
 
 namespace sta {
 
@@ -114,10 +121,10 @@ LibertyBuilder::makeBusPortBit(ConcreteLibrary *library,
 
 LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
-                         std::string bit_name,
+                         std::string_view bit_name,
                          int bit_index)
 {
-  LibertyPort *port = new LibertyPort(cell, std::move(bit_name), false, nullptr,
+  LibertyPort *port = new LibertyPort(cell, bit_name, false, nullptr,
                                       bit_index, bit_index, false, nullptr);
   return port;
 }
@@ -141,8 +148,7 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
                                LibertyPort *from_port,
                                LibertyPort *to_port,
                                LibertyPort *related_out,
-                               TimingArcAttrsPtr attrs,
-                               int /* line */)
+                               const TimingArcAttrsPtr &attrs)
 {
   FuncExpr *to_func = to_port->function();
   Sequential *seq = (to_func && to_func->port())
@@ -300,7 +306,7 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
                                       bool to_rise,
                                       bool to_fall,
-                                      TimingArcAttrsPtr attrs)
+                                      const TimingArcAttrsPtr &attrs)
 {
   FuncExpr *func = to_port->function();
   FuncExpr *enable = to_port->tristateEnable();
@@ -384,7 +390,7 @@ LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
                                   LibertyPort *from_port,
                                   LibertyPort *to_port,
                                   TimingSense sense,
-                                  TimingArcAttrsPtr attrs)
+                                  const TimingArcAttrsPtr &attrs)
 {
   TimingArcSet *arc_set = cell->makeTimingArcSet(from_port, to_port, nullptr,
                                                  TimingRole::latchDtoQ(),
@@ -414,7 +420,7 @@ LibertyBuilder::makeRegLatchArcs(LibertyCell *cell,
                                  LibertyPort *from_port,
                                  LibertyPort *to_port,
                                  const RiseFall *from_rf,
-                                 TimingArcAttrsPtr attrs)
+                                 const TimingArcAttrsPtr &attrs)
 {
   FuncExpr *to_func = to_port->function();
   if (to_func) {
@@ -453,7 +459,7 @@ LibertyBuilder::makeFromTransitionArcs(LibertyCell *cell,
                                        LibertyPort *related_out,
                                        const RiseFall *from_rf,
                                        const TimingRole *role,
-                                       TimingArcAttrsPtr attrs)
+                                       const TimingArcAttrsPtr &attrs)
 {
   TimingArcSet *arc_set = cell->makeTimingArcSet(from_port, to_port,
                                                  related_out, role, attrs);
@@ -470,7 +476,7 @@ LibertyBuilder::makePresetClrArcs(LibertyCell *cell,
                                   LibertyPort *from_port,
                                   LibertyPort *to_port,
                                   const RiseFall *to_rf,
-                                  TimingArcAttrsPtr attrs)
+                                  const TimingArcAttrsPtr &attrs)
 {
   TimingArcSet *arc_set = nullptr;
   TimingModel *model = attrs->model(to_rf);
@@ -506,7 +512,7 @@ LibertyBuilder::makeTristateEnableArcs(LibertyCell *cell,
                                        LibertyPort *to_port,
                                        bool to_rise,
                                        bool to_fall,
-                                       TimingArcAttrsPtr attrs)
+                                       const TimingArcAttrsPtr &attrs)
 {
   TimingArcSet *arc_set = cell->makeTimingArcSet(from_port, to_port, nullptr,
                                                  TimingRole::tristateEnable(),
@@ -577,7 +583,7 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
                                         LibertyPort *to_port,
                                         bool to_rise,
                                         bool to_fall,
-                                        TimingArcAttrsPtr attrs)
+                                        const TimingArcAttrsPtr &attrs)
 {
   TimingArcSet *arc_set = cell->makeTimingArcSet(from_port, to_port, nullptr,
                                                  TimingRole::tristateDisable(),
@@ -646,7 +652,7 @@ TimingArcSet *
 LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
                                       const TimingRole *role,
-                                      TimingArcAttrsPtr attrs)
+                                      const TimingArcAttrsPtr &attrs)
 {
   TimingArcSet *arc_set = cell->makeTimingArcSet(nullptr, to_port, nullptr,
                                                  role, attrs);
@@ -680,7 +686,7 @@ LibertyBuilder::makeMinPulseWidthArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
                                       LibertyPort *related_out,
                                       const TimingRole *role,
-                                      TimingArcAttrsPtr attrs)
+                                      const TimingArcAttrsPtr &attrs)
 {
   if (from_port == nullptr)
     from_port = to_port;
@@ -715,4 +721,4 @@ LibertyBuilder::makeTimingArc(TimingArcSet *set,
   return new TimingArc(set, from_rf, to_rf, model);
 }
 
-} // namespace
+} // namespace sta

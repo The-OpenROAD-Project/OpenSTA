@@ -68,4 +68,4 @@ public:
                   const PinPair &pair2) const;
 };
 
-} // namespace
+} // namespace sta
