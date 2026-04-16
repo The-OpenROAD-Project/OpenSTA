@@ -22,7 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module util
 %include <std_string.i>
 
 %{
@@ -40,16 +39,9 @@ using namespace sta;
 
 %}
 
-////////////////////////////////////////////////////////////////
-//
-// Empty class definitions to make swig happy.
-// Private constructor/destructor so swig doesn't emit them.
-//
-////////////////////////////////////////////////////////////////
-
 %inline %{
 
-float float_inf = INF;
+const float float_inf = INF;
 
 const char *
 version()
@@ -544,11 +536,3 @@ fuzzy_equal(float value1,
 }
 
 %} // inline
-
-////////////////////////////////////////////////////////////////
-//
-// Object Methods
-//
-////////////////////////////////////////////////////////////////
-
-

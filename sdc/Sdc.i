@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module sdc
-
 %include "std_string.i" 
 
 %{
