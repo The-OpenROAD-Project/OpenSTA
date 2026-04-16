@@ -2978,11 +2978,10 @@ scaleFactorPvtName(ScaleFactorPvt pvt)
 ScaleFactors::ScaleFactors(std::string_view name) :
   name_(name)
 {
-  for (auto &scale : scales_) {
-    for (size_t pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
-      for (size_t rf_index : RiseFall::rangeIndex()) {
-        scale[pvt][rf_index] = 0.0;
-      }
+  for (auto &type_factors : scales_) {
+    for (auto pvt_factors : type_factors) {
+      for (size_t rf_index : RiseFall::rangeIndex())
+        pvt_factors[rf_index] = 0.0;
     }
   }
 }

@@ -41,8 +41,8 @@ tclListStringSeq(Tcl_Obj *const source,
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
     for (int i = 0; i < argc; i++) {
       Tcl_Size length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      seq.push_back(str);
+      const char *arg = Tcl_GetStringFromObj(argv[i], &length);
+      seq.emplace_back(arg);
     }
   }
   return seq;
@@ -59,8 +59,8 @@ tclListStringSeqPtr(Tcl_Obj *const source,
     StringSeq *seq = new StringSeq;
     for (int i = 0; i < argc; i++) {
       Tcl_Size length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      seq->push_back(str);
+      const char *arg = Tcl_GetStringFromObj(argv[i], &length);
+      seq->emplace_back(arg);
     }
     return seq;
   }
@@ -79,8 +79,8 @@ tclListStringSet(Tcl_Obj *const source,
     StringSet *set = new StringSet;
     for (int i = 0; i < argc; i++) {
       Tcl_Size length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      set->insert(str);
+      const char *arg = Tcl_GetStringFromObj(argv[i], &length);
+      set->insert(arg);
     }
     return set;
   }
@@ -99,42 +99,6 @@ tclArgError(Tcl_Interp *interp,
     Sta::sta()->report()->error(id, msg, arg);
   } catch (const std::exception &e) {
     Tcl_SetResult(interp, const_cast<char*>(e.what()), TCL_VOLATILE);
-  }
-}
-
-void
-objectListNext(const char *list,
-               const char *type,
-               // Return values.
-               bool &type_match,
-               const char *&next)
-{
-  // Default return values (failure).
-  type_match = false;
-  next = nullptr;
-  // _hexaddress_p_type
-  const char *s = list;
-  char ch = *s++;
-  if (ch == '_') {
-    while (*s && isxdigit(*s))
-      s++;
-    if ((s - list - 1) == sizeof(void*) * 2
-        && *s && *s++ == '_'
-        && *s && *s++ == 'p'
-        && *s && *s++ == '_') {
-      const char *t = type;
-      while (*s && *s != ' ') {
-        if (*s != *t)
-          return;
-        s++;
-        t++;
-      }
-      type_match = true;
-      if (*s)
-        next = s + 1;
-      else
-        next = nullptr;
-    }
   }
 }
 

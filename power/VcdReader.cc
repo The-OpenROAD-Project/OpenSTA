@@ -48,7 +48,6 @@ namespace sta {
 class VcdCount
 {
 public:
-  VcdCount();
   double transitionCount() const { return transition_count_; }
   VcdTime highTime(VcdTime time_max) const;
   void incrCounts(VcdTime time,
@@ -65,10 +64,6 @@ private:
   VcdTime high_time_ = 0;
   double transition_count_ = 0;
 };
-
-VcdCount::VcdCount()
-{
-}
 
 void
 VcdCount::addPin(const Pin *pin)

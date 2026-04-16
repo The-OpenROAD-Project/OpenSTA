@@ -263,23 +263,6 @@ object_type(const char *obj)
   return &obj[1 + sizeof(void*) * 2 + 3];
 }
 
-bool
-is_object_list(const char *list,
-               const char *type)
-{
-  const char *s = list;
-  while (s) {
-    bool type_match;
-    const char *next;
-    objectListNext(s, type, type_match, next);
-    if (type_match)
-      s = next;
-    else
-      return false;
-  }
-  return true;
-}
-
 ////////////////////////////////////////////////////////////////
 //
 // Units
