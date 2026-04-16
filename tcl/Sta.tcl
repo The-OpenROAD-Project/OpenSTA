@@ -47,7 +47,7 @@ proc define_scene { args } {
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
   } else {
-    set mode_name [sta::cmd_mode_name]
+    set mode_name [cmd_mode_name]
   }
 
   set liberty_min_files {}

@@ -70,4 +70,3 @@ report_object_full_names [get_clocks -filter is_virtual==true *]
 report_object_full_names [get_cells -filter {name =~ .1} *]
 
 puts [sta::filter_expr_to_postfix "direction == input && name =~ clk* && is_clock"]
-
