@@ -987,10 +987,14 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew,
                           load_cap, parasitic);
   bool arg_fail = checkArgs(dcalc_args, scene, min_max);
-  if (arg_fail)
+  if (arg_fail) {
+    const RiseFall *rf = arc->toEdge()->asRiseFall();
+    const Parasitic *reduced = table_dcalc_->findParasitic(drvr_pin, rf,
+                                                           scene, min_max);
     return table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
-                                         parasitic, load_pin_index_map, scene,
+                                         reduced, load_pin_index_map, scene,
                                          min_max, digits);
+  }
   else {
     GateTimingModel *model = arc->gateModel(scene, min_max);
     // Delay calc to find ceff.
