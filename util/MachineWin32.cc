@@ -24,6 +24,7 @@
 
 #include "Machine.hh"
 
+#include <cstdarg>
 #include <cstdio>
 #include <windows.h> // GetSystemInfo
 

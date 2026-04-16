@@ -222,7 +222,6 @@ set(STA_SOURCE
   util/Error.cc
   util/Fuzzy.cc
   util/Hash.cc
-  util/Machine.cc
   util/MinMax.cc
   util/PatternMatch.cc
   util/Report.cc
@@ -238,6 +237,16 @@ set(STA_SOURCE
   verilog/VerilogReader.cc
   verilog/VerilogWriter.cc
   )
+
+if(APPLE)
+  list(APPEND STA_SOURCE util/MachineApple.cc)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list(APPEND STA_SOURCE util/MachineLinux.cc)
+elseif(WIN32)
+  list(APPEND STA_SOURCE util/MachineWin32.cc)
+else()
+  list(APPEND STA_SOURCE util/MachineUnknown.cc)
+endif()
 
 # Source files.
 set(STA_TCL_FILES
