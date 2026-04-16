@@ -42,50 +42,54 @@ Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
+Pi model C2=6.70 Rpi=2.42 C1=7.27, Ceff=10.50
 P = 1.00 V = 0.77 T = 0.00
 ------- input_net_transition = 50.73
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.50
+|        5.76     11.52
 v      --------------------
-40.00 | 35.12     50.39
-80.00 | 40.08     55.44
-Table value = 39.70
+40.00 | 27.29     35.12
+80.00 | 32.30     40.08
+Table value = 35.06
 PVT scale factor = 1.00
-Delay = 39.70
+Delay = 35.06
 
 ------- input_net_transition = 50.73
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.50
+|        5.76     11.52
 v      --------------------
-40.00 | 37.28     71.28
-80.00 | 38.13     71.69
-Table value = 44.70
+40.00 | 20.70     37.28
+80.00 | 21.40     38.13
+Table value = 34.55
 PVT scale factor = 1.00
-Slew = 44.70
+Slew = 34.55
+Driver waveform slew = 47.36
 
 .............................................
 
 A v -> Y v
+Pi model C2=6.70 Rpi=2.42 C1=7.27, Ceff=10.09
 P = 1.00 V = 0.77 T = 0.00
 ------- input_net_transition = 48.72
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.09
+|        5.76     11.52
 v      --------------------
-40.00 | 36.17     49.65
-80.00 | 43.28     56.72
-Table value = 40.58
+40.00 | 29.18     36.17
+80.00 | 36.09     43.28
+Table value = 35.97
 PVT scale factor = 1.00
-Delay = 40.58
+Delay = 35.97
 
 ------- input_net_transition = 48.72
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.09
+|        5.76     11.52
 v      --------------------
-40.00 | 31.72     59.66
-80.00 | 32.63     60.23
-Table value = 37.84
+40.00 | 18.15     31.72
+80.00 | 19.36     32.63
+Table value = 28.57
 PVT scale factor = 1.00
-Slew = 37.84
+Slew = 28.57
+Driver waveform slew = 40.66
 
 .............................................
 

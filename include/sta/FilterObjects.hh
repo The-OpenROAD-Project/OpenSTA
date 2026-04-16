@@ -28,6 +28,7 @@
 #include <string_view>
 #include <vector>
 
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StringUtil.hh"

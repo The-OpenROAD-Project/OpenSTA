@@ -100,6 +100,10 @@ public:
                               const Scene *scene,
                               const MinMax *min_max,
                               int digits) override;
+  bool checkArgs(ArcDcalcArgSeq &dcalc_args,
+                 const Scene *scene,
+                 const MinMax *min_max);
+  std::string failureReason();
 
   // Record waveform for drvr/load pin.
   void watchPin(const Pin *pin) override;
@@ -252,6 +256,9 @@ protected:
 
   // Delay calculator to use when ccs waveforms are missing from liberty.
   ArcDelayCalc *table_dcalc_;
+
+  const char *failure_reason_;
+  ArcDcalcArg *failure_arg_;
 
   using ArcDelayCalc::reduceParasitic;
 };

@@ -1362,50 +1362,54 @@ Cell: BUFx2_ASAP7_75t_R
 Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
+Pi model C2=6.70 Rpi=2.42 C1=7.27, Ceff=10.50
 P = 1.00 V = 0.77 T = 0.00
 ------- input_net_transition = 50.73
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.50
+|        5.76     11.52
 v      --------------------
-40.00 | 35.12     50.39
-80.00 | 40.08     55.44
-Table value = 39.70
+40.00 | 27.29     35.12
+80.00 | 32.30     40.08
+Table value = 35.06
 PVT scale factor = 1.00
-Delay = 39.70
+Delay = 35.06
 
 ------- input_net_transition = 50.73
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.50
+|        5.76     11.52
 v      --------------------
-40.00 | 37.28     71.28
-80.00 | 38.13     71.69
-Table value = 44.70
+40.00 | 20.70     37.28
+80.00 | 21.40     38.13
+Table value = 34.55
 PVT scale factor = 1.00
-Slew = 44.70
+Slew = 34.55
+Driver waveform slew = 47.36
 
 .............................................
 
 A v -> Y v
+Pi model C2=6.70 Rpi=2.42 C1=7.27, Ceff=10.09
 P = 1.00 V = 0.77 T = 0.00
 ------- input_net_transition = 48.75
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.09
+|        5.76     11.52
 v      --------------------
-40.00 | 36.17     49.65
-80.00 | 43.28     56.72
-Table value = 40.59
+40.00 | 29.18     36.17
+80.00 | 36.09     43.28
+Table value = 35.98
 PVT scale factor = 1.00
-Delay = 40.59
+Delay = 35.98
 
 ------- input_net_transition = 48.75
-|       total_output_net_capacitance = 13.97
-|        11.52     23.04
+|       total_output_net_capacitance = 10.09
+|        5.76     11.52
 v      --------------------
-40.00 | 31.72     59.66
-80.00 | 32.63     60.23
-Table value = 37.84
+40.00 | 18.15     31.72
+80.00 | 19.36     32.63
+Table value = 28.57
 PVT scale factor = 1.00
-Slew = 37.84
+Slew = 28.57
+Driver waveform slew = 40.66
 
 .............................................
 
@@ -1415,50 +1419,54 @@ Cell: AND2x2_ASAP7_75t_R
 Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
+Pi model C2=6.70 Rpi=2.42 C1=7.32, Ceff=10.90
 P = 1.00 V = 0.70 T = 25.00
 ------- input_net_transition = 50.41
-|       total_output_net_capacitance = 14.02
-|        11.52     23.04
+|       total_output_net_capacitance = 10.90
+|        5.76     11.52
 v      --------------------
-40.00 | 40.48     58.12
-80.00 | 45.47     63.31
-Table value = 45.62
+40.00 | 31.28     40.48
+80.00 | 36.30     45.47
+Table value = 40.79
 PVT scale factor = 1.00
-Delay = 45.62
+Delay = 40.79
 
 ------- input_net_transition = 50.41
-|       total_output_net_capacitance = 14.02
-|        11.52     23.04
+|       total_output_net_capacitance = 10.90
+|        5.76     11.52
 v      --------------------
-40.00 | 43.68     82.62
-80.00 | 44.42     82.97
-Table value = 52.30
+40.00 | 24.52     43.68
+80.00 | 25.29     44.42
+Table value = 41.80
 PVT scale factor = 1.00
-Slew = 52.30
+Slew = 41.80
+Driver waveform slew = 55.90
 
 .............................................
 
 A v -> Y v
+Pi model C2=6.70 Rpi=2.42 C1=7.32, Ceff=10.35
 P = 1.00 V = 0.70 T = 25.00
 ------- input_net_transition = 48.36
-|       total_output_net_capacitance = 14.02
-|        11.52     23.04
+|       total_output_net_capacitance = 10.35
+|        5.76     11.52
 v      --------------------
-40.00 | 43.09     58.01
-80.00 | 52.65     67.66
-Table value = 48.33
+40.00 | 35.35     43.09
+80.00 | 44.73     52.65
+Table value = 43.51
 PVT scale factor = 1.00
-Delay = 48.33
+Delay = 43.51
 
 ------- input_net_transition = 48.36
-|       total_output_net_capacitance = 14.02
-|        11.52     23.04
+|       total_output_net_capacitance = 10.35
+|        5.76     11.52
 v      --------------------
-40.00 | 35.08     65.82
-80.00 | 36.06     66.39
-Table value = 41.94
+40.00 | 20.09     35.08
+80.00 | 21.45     36.06
+Table value = 32.26
 PVT scale factor = 1.00
-Slew = 41.94
+Slew = 32.26
+Driver waveform slew = 45.57
 
 .............................................
 
@@ -1468,50 +1476,54 @@ Cell: DFFHQx4_ASAP7_75t_R
 Arc sense: non_unate
 Arc type: Reg Clk to Q
 CLK ^ -> Q ^
+Pi model C2=6.70 Rpi=2.42 C1=7.22, Ceff=9.22
 P = 1.00 V = 0.77 T = 0.00
 ------- input_net_transition = 48.38
-|       total_output_net_capacitance = 13.92
-|        11.52     23.04
+|       total_output_net_capacitance = 9.22
+|        5.76     11.52
 v      --------------------
-40.00 | 64.09     71.91
-80.00 | 69.26     77.08
-Table value = 66.81
+40.00 | 59.92     64.09
+80.00 | 65.10     69.26
+Table value = 63.51
 PVT scale factor = 1.00
-Delay = 66.81
+Delay = 63.51
 
 ------- input_net_transition = 48.38
-|       total_output_net_capacitance = 13.92
-|        11.52     23.04
+|       total_output_net_capacitance = 9.22
+|        5.76     11.52
 v      --------------------
-40.00 | 21.04     37.91
-80.00 | 21.05     37.92
-Table value = 24.56
+40.00 | 13.01     21.04
+80.00 | 13.01     21.05
+Table value = 17.83
 PVT scale factor = 1.00
-Slew = 24.56
+Slew = 17.83
+Driver waveform slew = 22.83
 
 .............................................
 
 CLK ^ -> Q v
+Pi model C2=6.70 Rpi=2.42 C1=7.21, Ceff=8.89
 P = 1.00 V = 0.77 T = 0.00
 ------- input_net_transition = 48.38
-|       total_output_net_capacitance = 13.91
-|        11.52     23.04
+|       total_output_net_capacitance = 8.89
+|        5.76     11.52
 v      --------------------
-40.00 | 61.63     68.60
-80.00 | 66.47     73.44
-Table value = 64.09
+40.00 | 57.80     61.63
+80.00 | 62.64     66.47
+Table value = 60.90
 PVT scale factor = 1.00
-Delay = 64.09
+Delay = 60.90
 
 ------- input_net_transition = 48.38
-|       total_output_net_capacitance = 13.91
-|        11.52     23.04
+|       total_output_net_capacitance = 8.89
+|        5.76     11.52
 v      --------------------
-40.00 | 17.99     31.89
-80.00 | 17.98     31.88
-Table value = 20.87
+40.00 | 11.30     17.99
+80.00 | 11.31     17.98
+Table value = 14.94
 PVT scale factor = 1.00
-Slew = 20.87
+Slew = 14.94
+Driver waveform slew = 19.18
 
 .............................................
 

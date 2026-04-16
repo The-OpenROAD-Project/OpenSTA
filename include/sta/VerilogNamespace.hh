@@ -25,25 +25,26 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 namespace sta {
 
 std::string
-cellVerilogName(std::string sta_name);
+cellVerilogName(std::string_view sta_name);
 std::string
-instanceVerilogName(std::string sta_name);
+instanceVerilogName(std::string_view sta_name);
 std::string
-netVerilogName(std::string sta_name);
+netVerilogName(std::string_view sta_name);
 std::string
-portVerilogName(std::string sta_name);
+portVerilogName(std::string_view sta_name);
 
 std::string
-moduleVerilogToSta(std::string sta_name);
+moduleVerilogToSta(std::string_view sta_name);
 std::string
-instanceVerilogToSta(std::string sta_name);
+instanceVerilogToSta(std::string_view sta_name);
 std::string
-netVerilogToSta(std::string sta_name);
+netVerilogToSta(std::string_view sta_name);
 std::string
-portVerilogToSta(std::string sta_name);
+portVerilogToSta(std::string_view sta_name);
 
 } // namespace

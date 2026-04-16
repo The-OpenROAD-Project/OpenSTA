@@ -144,8 +144,8 @@ set_false_path -from [get_ports in2] -fall_to [get_ports out2]
 set_multicycle_path 2 -setup -from [get_clocks clk1] -to [get_clocks clk2]
 set_max_delay 7.0 -from [get_ports in3] -rise_through [get_pins or1/ZN] -to [get_ports out2]
 
-set sdc1 [make_result_file sdc_exc_override1.sdc]
+set sdc1 [make_result_file sdc_exc_thru_override1.sdc]
 write_sdc -no_timestamp $sdc1
 
-set sdc2 [make_result_file sdc_exc_override2.sdc]
+set sdc2 [make_result_file sdc_exc_thru_override2.sdc]
 write_sdc -no_timestamp -compatible $sdc2
