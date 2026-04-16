@@ -147,16 +147,16 @@ parseBusName(std::string_view name,
           && (isdigit(name[left + 1]) || name[left + 1] == '*')) {
         is_bus = true;
         bus_name.append(name.substr(0, left));
-        // Check for bus range.
-        size_t range = name.find(':', left);
-        if (range != std::string_view::npos) {
-          is_range = true;
-          from = std::stoi(std::string(name.substr(left + 1)));
-          to = std::stoi(std::string(name.substr(range + 1)));
-        }
+        if (name[left + 1] == '*')
+          subscript_wild = true;
         else {
-          if (left + 1 < len && name[left + 1] == '*')
-            subscript_wild = true;
+          // Check for bus range.
+          size_t range = name.find(':', left);
+          if (range != std::string_view::npos) {
+            is_range = true;
+            from = std::stoi(std::string(name.substr(left + 1)));
+            to = std::stoi(std::string(name.substr(range + 1)));
+          }
           else
             from = to = std::stoi(std::string(name.substr(left + 1)));
         }
