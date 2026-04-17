@@ -26,6 +26,8 @@
 
 #include <mutex>
 #include <vector>
+#include <atomic>
+#include <memory>
 
 #include "Iterator.hh"
 #include "GraphClass.hh"
@@ -166,6 +168,37 @@ protected:
   bool levelLess(Level level1,
 		 Level level2) const override;
   void incrLevel(Level &level) const override;
+};
+
+class BfsFwdInDegreeIterator : public StaState
+{
+public:
+  BfsFwdInDegreeIterator(BfsIndex bfs_index,
+                         SearchPred *search_pred,
+                         StaState *sta);
+  virtual ~BfsFwdInDegreeIterator();
+
+  void computeInDegrees();
+  void computeInDegrees(const VertexSet &invalid_delays);
+  int visitParallel(Level to_level, VertexVisitor *visitor);
+  void clear();
+  void enqueue(Vertex *vertex);
+  void remove(Vertex *) {}
+  void deleteVertexBefore(Vertex *) {}
+  void enqueueAdjacentVertices(Vertex *vertex);
+
+protected:
+  std::vector<VertexVisitor*> visitors_;
+
+  BfsIndex bfs_index_;
+  SearchPred *search_pred_;
+  std::unique_ptr<std::atomic<int>[]> in_degrees_;
+  size_t in_degrees_size_;
+  std::vector<Vertex*> roots_;
+  std::mutex roots_lock_;
+  std::atomic<int> *visit_count_;
+  std::mutex mutex_;
+  std::set<Edge*> processed_edges_;
 };
 
 } // namespace

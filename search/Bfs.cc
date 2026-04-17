@@ -24,6 +24,8 @@
 // This notice may not be removed or altered from any source distribution.
 
 #include "Bfs.hh"
+#include <set>
+#include <iostream>
 
 #include "Report.hh"
 #include "Debug.hh"
@@ -484,6 +486,213 @@ BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
         enqueue(from_vertex);
     }
   }
+}
+
+thread_local int current_thread_id = 0;
+
+BfsFwdInDegreeIterator::BfsFwdInDegreeIterator(BfsIndex bfs_index,
+                                               SearchPred *search_pred,
+                                               StaState *sta) :
+  StaState(sta),
+  bfs_index_(bfs_index),
+  search_pred_(search_pred)
+{
+}
+
+BfsFwdInDegreeIterator::~BfsFwdInDegreeIterator()
+{
+}
+
+void BfsFwdInDegreeIterator::clear()
+{
+  in_degrees_.reset();
+  in_degrees_size_ = 0;
+  roots_.clear();
+}
+
+void BfsFwdInDegreeIterator::computeInDegrees()
+{
+  size_t vertex_count = graph_->vertexCount();
+  in_degrees_ = std::make_unique<std::atomic<int>[]>(vertex_count + 1);
+  in_degrees_size_ = vertex_count + 1;
+  for (size_t i = 0; i < in_degrees_size_; i++) {
+    in_degrees_[i].store(0, std::memory_order_relaxed);
+  }
+  roots_.clear();
+  processed_edges_.clear();
+
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    vertex->setVisited(false);
+    std::set<Vertex*> counted_successors;
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (search_pred_->searchThru(edge)) {
+        if (counted_successors.insert(to_vertex).second) {
+          in_degrees_[to_vertex->objectIdx()].fetch_add(1, std::memory_order_relaxed);
+        }
+      }
+    }
+  }
+
+
+
+  VertexIterator vertex_iter2(graph_);
+  while (vertex_iter2.hasNext()) {
+    Vertex *vertex = vertex_iter2.next();
+    if (search_pred_->searchFrom(vertex)) {
+      if (in_degrees_[vertex->objectIdx()].load(std::memory_order_relaxed) == 0) {
+        roots_.push_back(vertex);
+      }
+    }
+  }
+}
+
+void BfsFwdInDegreeIterator::computeInDegrees(const VertexSet &invalid_delays)
+{
+  // For incremental, we do a reachability pass to find the affected subgraph.
+  // Then we compute in-degrees within that subgraph.
+  
+  // 1. Find reachable subgraph from invalid_delays.
+  std::set<Vertex*> reachable;
+  std::vector<Vertex*> work_list;
+  for (Vertex *v : invalid_delays) {
+    work_list.push_back(v);
+    reachable.insert(v);
+  }
+  
+  size_t idx = 0;
+  while (idx < work_list.size()) {
+    Vertex *v = work_list[idx++];
+    VertexOutEdgeIterator edge_iter(v, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (search_pred_->searchThru(edge)) {
+        if (reachable.insert(to_vertex).second) {
+          work_list.push_back(to_vertex);
+        }
+      }
+    }
+  }
+  
+  // 2. Compute in-degrees within the reachable subgraph.
+  size_t vertex_count = graph_->vertexCount();
+  in_degrees_ = std::make_unique<std::atomic<int>[]>(vertex_count + 1);
+  in_degrees_size_ = vertex_count + 1;
+  for (size_t i = 0; i < in_degrees_size_; i++) {
+    in_degrees_[i].store(0, std::memory_order_relaxed);
+  }
+  roots_.clear();
+  
+  for (Vertex *v : reachable) {
+    VertexOutEdgeIterator edge_iter(v, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (search_pred_->searchThru(edge)) {
+        if (reachable.count(to_vertex)) {
+          in_degrees_[to_vertex->objectIdx()].fetch_add(1, std::memory_order_relaxed);
+        }
+      }
+    }
+  }
+  
+  // 3. Find roots within the reachable subgraph.
+  for (Vertex *v : reachable) {
+    if (in_degrees_[v->objectIdx()].load(std::memory_order_relaxed) == 0) {
+      roots_.push_back(v);
+    }
+  }
+}
+
+void BfsFwdInDegreeIterator::enqueue(Vertex *vertex)
+{
+  visitors_[current_thread_id]->visit(vertex);
+  visit_count_->fetch_add(1, std::memory_order_relaxed);
+  enqueueAdjacentVertices(vertex);
+}
+
+void BfsFwdInDegreeIterator::enqueueAdjacentVertices(Vertex *vertex)
+{
+  VertexOutEdgeIterator edge_iter(vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    Vertex *to_vertex = edge->to(graph_);
+    if (search_pred_->searchThru(edge)) {
+      if (!to_vertex->visited()) {
+        bool inserted = false;
+        {
+          std::lock_guard<std::mutex> lock(mutex_);
+          inserted = processed_edges_.insert(edge).second;
+        }
+        if (inserted) {
+          int old_deg = in_degrees_[to_vertex->objectIdx()].fetch_sub(1, std::memory_order_acq_rel);
+          if (old_deg == 1) {
+            to_vertex->setVisited(true);
+            if (dispatch_queue_) {
+          dispatch_queue_->dispatch([this, to_vertex](size_t tid) {
+            current_thread_id = tid;
+            visitors_[tid]->visit(to_vertex);
+            visit_count_->fetch_add(1, std::memory_order_relaxed);
+            enqueueAdjacentVertices(to_vertex);
+          });
+        } else {
+          current_thread_id = 0;
+          visitors_[0]->visit(to_vertex);
+          visit_count_->fetch_add(1, std::memory_order_relaxed);
+          enqueueAdjacentVertices(to_vertex);
+        }
+      }
+      }
+      }
+    }
+  }
+}
+
+int BfsFwdInDegreeIterator::visitParallel(Level to_level, VertexVisitor *visitor)
+{
+  size_t thread_count = dispatch_queue_ ? dispatch_queue_->getThreadCount() : 1;
+  visitors_.clear();
+  if (dispatch_queue_) {
+    for (size_t k = 0; k < thread_count; k++)
+      visitors_.push_back(visitor->copy());
+  } else {
+    visitors_.push_back(visitor);
+  }
+
+  std::atomic<int> visit_count(0);
+  visit_count_ = &visit_count;
+
+  for (Vertex *root : roots_) {
+    if (dispatch_queue_) {
+      dispatch_queue_->dispatch([this, root](size_t tid) {
+        current_thread_id = tid;
+        visitors_[tid]->visit(root);
+        visit_count_->fetch_add(1, std::memory_order_relaxed);
+        enqueueAdjacentVertices(root);
+      });
+    } else {
+      current_thread_id = 0;
+      visitors_[0]->visit(root);
+      visit_count_->fetch_add(1, std::memory_order_relaxed);
+      enqueueAdjacentVertices(root);
+    }
+  }
+
+  if (dispatch_queue_)
+    dispatch_queue_->finishTasks();
+
+  if (dispatch_queue_) {
+    for (VertexVisitor *v : visitors_)
+      delete v;
+  }
+  visitors_.clear();
+
+  return visit_count.load(std::memory_order_relaxed);
 }
 
 }  // namespace sta
