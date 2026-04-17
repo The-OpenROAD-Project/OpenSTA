@@ -292,21 +292,21 @@ set_net_resistance(Net *net,
 
 void
 make_clock(std::string name,
-           PinSet *pins,
+           PinSet pins,
            bool add_to_pins,
            float period,
-           FloatSeq *waveform,
+           FloatSeq waveform,
            std::string comment)
 {
   Sta *sta = Sta::sta();
   const Mode *mode = sta->cmdMode();
-  sta->makeClock(name.c_str(), pins, add_to_pins, period, waveform,
-                 std::move(comment), mode);
+  sta->makeClock(name, pins, add_to_pins, period, waveform,
+                 comment, mode);
 }
 
 void
 make_generated_clock(std::string name,
-                     PinSet *pins,
+                     PinSet pins,
                      bool add_to_pins,
                      Pin *src_pin,
                      Clock *master_clk,
@@ -315,17 +315,17 @@ make_generated_clock(std::string name,
                      float duty_cycle,
                      bool invert,
                      bool combinational,
-                     IntSeq *edges,
-                     FloatSeq *edge_shifts,
+                     IntSeq edges,
+                     FloatSeq edge_shifts,
                      std::string comment)
 {
   Sta *sta = Sta::sta();
   const Mode *mode = sta->cmdMode();
-  sta->makeGeneratedClock(name.c_str(), pins, add_to_pins,
+  sta->makeGeneratedClock(name, pins, add_to_pins,
                           src_pin, master_clk,
                           divide_by, multiply_by, duty_cycle, invert,
                           combinational, edges, edge_shifts,
-                          std::move(comment), mode);
+                          comment, mode);
 }
 
 void
@@ -1673,7 +1673,7 @@ pin_is_constrained(const Pin *pin)
 
 %extend Clock {
 float period() { return self->period(); }
-FloatSeq *waveform() { return self->waveform(); }
+FloatSeq waveform() { return self->waveform(); }
 float time(RiseFall *rf) { return self->edge(rf)->time(); }
 bool is_generated() { return self->isGenerated(); }
 bool waveform_valid() { return self->waveformValid(); }

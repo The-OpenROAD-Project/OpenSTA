@@ -1584,9 +1584,9 @@ Power::clockDuty(const Clock *clk)
       return clockDuty(master);
   }
   else {
-    const FloatSeq *waveform = clk->waveform();
-    float rise_time = (*waveform)[0];
-    float fall_time = (*waveform)[1];
+    const FloatSeq &waveform = clk->waveform();
+    float rise_time = waveform[0];
+    float fall_time = waveform[1];
     float duty = (fall_time - rise_time) / clk->period();
     return duty;
   }

@@ -57,8 +57,7 @@ public:
   const Pin *defaultPin() const;
   bool addToPins() const { return add_to_pins_; }
   void setAddToPins(bool add_to_pins);
-  FloatSeq *waveform() { return waveform_; }
-  const FloatSeq *waveform() const { return waveform_; }
+  const FloatSeq &waveform() const { return waveform_; }
   ClockEdge *edge(const RiseFall *rf) const;
   int index() const { return index_; }
   bool isPropagated() const { return is_propagated_; }
@@ -120,8 +119,8 @@ public:
   int multiplyBy() const { return multiply_by_; }
   float dutyCycle() const { return duty_cycle_; }
   bool invert() const { return invert_; }
-  IntSeq *edges() const { return edges_; }
-  FloatSeq *edgeShifts() const { return edge_shifts_; }
+  const IntSeq &edges() const { return edges_; }
+  const FloatSeq &edgeShifts() const { return edge_shifts_; }
   const RiseFall *masterClkEdgeTr(const RiseFall *rf) const;
   bool combinational() const { return combinational_; }
   bool isDivideByOneCombinational() const;
@@ -138,13 +137,13 @@ protected:
   Clock(std::string_view name,
         int index,
         const Network *network);
-  void initClk(PinSet *pins,
+  void initClk(const PinSet &pins,
                bool add_to_pins,
                float period,
-               FloatSeq *waveform,
+               const FloatSeq &waveform,
                std::string_view comment,
                const Network *network);
-  void initGeneratedClk(PinSet *pins,
+  void initGeneratedClk(const PinSet &pins,
                         bool add_to_pins,
                         Pin *src_pin,
                         Clock *master_clk,
@@ -153,12 +152,12 @@ protected:
                         float duty_cycle,
                         bool invert,
                         bool combinational,
-                        IntSeq *edges,
-                        FloatSeq *edge_shifts,
+                        const IntSeq &edges,
+                        const FloatSeq &edge_shifts,
                         bool is_propagated,
                         std::string_view comment,
                         const Network *network);
-  void setPins(PinSet *pins,
+  void setPins(const PinSet &pins,
                const Network *network);
   void setMasterClk(Clock *master);
   void makeClkEdges();
@@ -174,10 +173,10 @@ protected:
   // Hierarchical pins in pins_ become driver pins through the pin.
   PinSet leaf_pins_;
   float period_{0.0};
-  FloatSeq *waveform_{nullptr};
+  FloatSeq waveform_;
   bool waveform_valid_{false};
   const int index_;
-  ClockEdge **clk_edges_{nullptr};
+  std::array<ClockEdge*, RiseFall::index_count> clk_edges_;
   bool is_propagated_{false};
   RiseFallMinMax slews_;
   RiseFallMinMax slew_limits_[path_clk_or_data_count];
@@ -193,8 +192,8 @@ protected:
   float duty_cycle_{0};
   bool invert_{false};
   bool combinational_{false};
-  IntSeq *edges_{nullptr};
-  FloatSeq *edge_shifts_{nullptr};
+  IntSeq edges_;
+  FloatSeq edge_shifts_;
 
 private:
   friend class Sdc;

@@ -347,15 +347,15 @@ public:
                   Sdc *sdc);
 
   void makeClock(std::string_view name,
-                 PinSet *pins,
+                 const PinSet &pins,
                  bool add_to_pins,
                  float period,
-                 FloatSeq *waveform,
+                 const FloatSeq &waveform,
                  std::string_view comment,
                  const Mode *mode);
   // edges size must be 3.
   void makeGeneratedClock(std::string_view name,
-                          PinSet *pins,
+                          const PinSet &pins,
                           bool add_to_pins,
                           Pin *src_pin,
                           Clock *master_clk,
@@ -364,8 +364,8 @@ public:
                           float duty_cycle,
                           bool invert,
                           bool combinational,
-                          IntSeq *edges,
-                          FloatSeq *edge_shifts,
+                          const IntSeq &edges,
+                          const FloatSeq &edge_shifts,
                           std::string_view comment,
                           const Mode *mode);
   void removeClock(Clock *clk,
