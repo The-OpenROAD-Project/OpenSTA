@@ -707,7 +707,8 @@ LibertyLibrary::makeScaledCell(std::string_view name,
 
 void
 LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
-                             size_t lib_ap_index,
+                             Scene *scene,
+                             const MinMaxAll *min_max,
                              Network *network,
                              Report *report)
 {
@@ -716,38 +717,33 @@ LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
     LibertyCell *cell = cell_iter.next();
     LibertyCell *link_cell = network->findLibertyCell(cell->name());
     if (link_cell)
-      makeSceneMap(link_cell, cell, lib_ap_index, report);
+      makeSceneMap(link_cell, cell, scene, min_max, report);
   }
 }
 
 // Map a cell linked in the network to the corresponding liberty cell
 // to use for delay calculation at a scene.
 void
-LibertyLibrary::makeSceneMap(LibertyCell *link_cell,
-                             LibertyCell *scene_cell,
-                             size_t lib_ap_index,
-                             Report *report)
-{
-  link_cell->setSceneCell(scene_cell, lib_ap_index);
-  makeSceneMap(link_cell, scene_cell, true, lib_ap_index, report);
-  // Check for brain damage in the other direction.
-  makeSceneMap(scene_cell, link_cell, false, lib_ap_index, report);
-}
-
-void
 LibertyLibrary::makeSceneMap(LibertyCell *cell1,
                              LibertyCell *cell2,
-                             bool link,
-                             size_t lib_ap_index,
+                             Scene *scene,
+                             const MinMaxAll *min_max,
                              Report *report)
 {
+  for (const MinMax *mm : min_max->range()) {
+    size_t lib_ap_index = scene->libertyIndex(mm);
+    cell1->setSceneCell(cell2, lib_ap_index);
+  }
+
   LibertyCellPortBitIterator port_iter1(cell1);
   while (port_iter1.hasNext()) {
     LibertyPort *port1 = port_iter1.next();
     LibertyPort *port2 = cell2->findLibertyPort(port1->name());
     if (port2) {
-      if (link)
+      for (const MinMax *mm : min_max->range()) {
+        size_t lib_ap_index = scene->libertyIndex(mm);
         port1->setScenePort(port2, lib_ap_index);
+      }
     }
     else
       report->warn(1110, "cell {}/{} port {} not found in cell {}/{}.",
@@ -761,17 +757,19 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
   for (TimingArcSet *arc_set1 : cell1->timing_arc_sets_) {
     TimingArcSet *arc_set2 = cell2->findTimingArcSet(arc_set1);
     if (arc_set2) {
-      if (link) {
-        const TimingArcSeq &arcs1 = arc_set1->arcs();
-        const TimingArcSeq &arcs2 = arc_set2->arcs();
-        auto arc_itr1 = arcs1.begin(), arc_itr2 = arcs2.begin();
-        for (;
-             arc_itr1 != arcs1.end() && arc_itr2 != arcs2.end();
-             arc_itr1++, arc_itr2++) {
-          TimingArc *arc1 = *arc_itr1;
-          TimingArc *arc2 = *arc_itr2;
-          if (TimingArc::equiv(arc1, arc2))
+      const TimingArcSeq &arcs1 = arc_set1->arcs();
+      const TimingArcSeq &arcs2 = arc_set2->arcs();
+      auto arc_itr1 = arcs1.begin(), arc_itr2 = arcs2.begin();
+      for (;
+           arc_itr1 != arcs1.end() && arc_itr2 != arcs2.end();
+           arc_itr1++, arc_itr2++) {
+        TimingArc *arc1 = *arc_itr1;
+        TimingArc *arc2 = *arc_itr2;
+        if (TimingArc::equiv(arc1, arc2)) {
+          for (const MinMax *mm : min_max->range()) {
+            size_t lib_ap_index = scene->libertyIndex(mm);
             arc1->setSceneArc(arc2, lib_ap_index);
+          }
         }
       }
     }

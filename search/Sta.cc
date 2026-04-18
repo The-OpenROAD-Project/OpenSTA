@@ -713,12 +713,7 @@ Sta::readLibertyFile(std::string_view filename,
   if (liberty) {
     // Don't map liberty cells if they are redefined by reading another
     // library with the same cell names.
-    if (min_max == MinMaxAll::all()) {
-      readLibertyAfter(liberty, scene, MinMax::min());
-      readLibertyAfter(liberty, scene, MinMax::max());
-    }
-    else
-      readLibertyAfter(liberty, scene, min_max->asMinMax());
+    readLibertyAfter(liberty, scene, min_max);
     network_->readLibertyAfter(liberty);
   }
   return liberty;
@@ -727,11 +722,11 @@ Sta::readLibertyFile(std::string_view filename,
 void
 Sta::readLibertyAfter(LibertyLibrary *liberty,
                       Scene *scene,
-                      const MinMax *min_max)
+                      const MinMaxAll *min_max)
 {
-  scene->addLiberty(liberty, min_max);
-  LibertyLibrary::makeSceneMap(liberty, scene->libertyIndex(min_max), network_,
-                               report_);
+  for (const MinMax *mm : min_max->range())
+    scene->addLiberty(liberty, mm);
+  LibertyLibrary::makeSceneMap(liberty, scene, min_max, network_, report_);
 }
 
 bool
@@ -2624,22 +2619,27 @@ Sta::updateSceneLiberty(Scene *scene,
                         const StringSeq &liberty_min_files,
                         const StringSeq &liberty_max_files)
 {
-  StringSet warned_files;
-  for (const MinMax *min_max : MinMax::range()) {
-    const StringSeq &liberty_files =
-        min_max == MinMax::min() ? liberty_min_files : liberty_max_files;
-    for (const std::string &lib_file : liberty_files) {
-      LibertyLibrary *lib = network_->findLiberty(lib_file);
-      if (lib == nullptr)
-        lib = network_->findLibertyFilename(lib_file);
-      if (lib)
-        LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max), network_,
-                                     report_);
-      else if (!warned_files.contains(lib_file)) {
-        report_->warn(1555, "liberty name/filename {} not found.", lib_file);
-        warned_files.insert(lib_file);
-      }
-    }
+  if (liberty_min_files == liberty_max_files)
+    updateSceneLiberty(scene, liberty_max_files, MinMaxAll::minMax());
+  else {
+    updateSceneLiberty(scene, liberty_min_files, MinMaxAll::min());
+    updateSceneLiberty(scene, liberty_max_files, MinMaxAll::max());
+  }
+}
+
+void
+Sta::updateSceneLiberty(Scene *scene,
+                        const StringSeq &liberty_files,
+                        const MinMaxAll *min_max)
+{
+  for (const std::string &lib_file : liberty_files) {
+    LibertyLibrary *lib = network_->findLiberty(lib_file);
+    if (lib == nullptr)
+      lib = network_->findLibertyFilename(lib_file);
+    if (lib)
+      LibertyLibrary::makeSceneMap(lib, scene, min_max, network_, report_);
+    else
+      report_->warn(1555, "liberty name/filename {} not found.", lib_file);
   }
 }
 
@@ -2650,10 +2650,8 @@ Sta::updateLibertyScenes()
     LibertyLibraryIterator *iter = network_->libertyLibraryIterator();
     while (iter->hasNext()) {
       LibertyLibrary *lib = iter->next();
-      for (const MinMax *min_max : MinMax::range()) {
-        LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max), network_,
-                                     report_);
-      }
+      LibertyLibrary::makeSceneMap(lib, scene, MinMaxAll::minMax(),
+                                   network_, report_);
     }
   }
 }

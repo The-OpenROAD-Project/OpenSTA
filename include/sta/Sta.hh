@@ -154,7 +154,7 @@ public:
   // tmp public
   void readLibertyAfter(LibertyLibrary *liberty,
                         Scene *scene,
-                        const MinMax *min_max);
+                        const MinMaxAll *min_max);
   bool readVerilog(std::string_view filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.
@@ -1597,6 +1597,9 @@ protected:
   void updateSceneLiberty(Scene *scene,
                           const StringSeq &liberty_min_files,
                           const StringSeq &liberty_max_files);
+  void updateSceneLiberty(Scene *scene,
+                          const StringSeq &liberty_files,
+                          const MinMaxAll *min_max);
 
   Scene *makeScene(const std::string &name,
                    Mode *mode,
