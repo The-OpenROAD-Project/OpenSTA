@@ -2380,12 +2380,13 @@ LibertyPort::equiv(const LibertyPort *port1,
         && port1->pwr_gnd_type_ == port2->pwr_gnd_type_);
 }
 
+// Note port1 and port2 may be from different cells (timingArcSetLess).
 bool
 LibertyPort::less(const LibertyPort *port1,
                   const LibertyPort *port2)
 {
   if (port1 && port2)
-    return port1->pinIndex() < port2->pinIndex();
+    return port1->name() < port2->name();
   else
     return port1 == nullptr && port2 != nullptr;
 }
