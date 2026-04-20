@@ -222,34 +222,34 @@ TEST_F(SdcInitTest, DisabledCellPortsIsDisabled) {
 // ExceptionPath::typeString via various subclasses
 TEST_F(SdcInitTest, FalsePathTypeString) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
-  EXPECT_NE(fp.typeString(), nullptr);
+  EXPECT_FALSE(fp.typeString().empty());
 }
 
 TEST_F(SdcInitTest, PathDelayTypeString) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(),
                false, false, 5.0f, true, "");
-  EXPECT_NE(pd.typeString(), nullptr);
+  EXPECT_FALSE(pd.typeString().empty());
 }
 
 TEST_F(SdcInitTest, MultiCyclePathTypeString) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 3, true, "");
-  EXPECT_NE(mcp.typeString(), nullptr);
+  EXPECT_FALSE(mcp.typeString().empty());
 }
 
 TEST_F(SdcInitTest, FilterPathTypeString) {
   FilterPath fp(nullptr, nullptr, nullptr, true);
-  EXPECT_NE(fp.typeString(), nullptr);
+  EXPECT_FALSE(fp.typeString().empty());
 }
 
 TEST_F(SdcInitTest, GroupPathTypeString) {
   GroupPath gp("grp1", false, nullptr, nullptr, nullptr, true, "");
-  EXPECT_NE(gp.typeString(), nullptr);
+  EXPECT_FALSE(gp.typeString().empty());
 }
 
 TEST_F(SdcInitTest, LoopPathTypeString) {
   LoopPath lp(nullptr, true);
-  EXPECT_NE(lp.typeString(), nullptr);
+  EXPECT_FALSE(lp.typeString().empty());
 }
 
 // ExceptionPath::mergeable tests

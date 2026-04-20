@@ -1669,8 +1669,8 @@ TEST(TransitionCovTest, TransitionSdfTripleIndex)
   EXPECT_EQ(Transition::tr1X()->sdfTripleIndex(), 8);
   EXPECT_EQ(Transition::trX0()->sdfTripleIndex(), 9);
   EXPECT_EQ(Transition::trXZ()->sdfTripleIndex(), 10);
-  EXPECT_EQ(Transition::trZX()->sdfTripleIndex(), 11);
-  EXPECT_EQ(Transition::riseFall()->sdfTripleIndex(), -1);
+  EXPECT_EQ(Transition::trZX()->sdfTripleIndex(), 11u);
+  EXPECT_EQ(Transition::riseFall()->sdfTripleIndex(), 12u);
 }
 
 // Transition::maxIndex
