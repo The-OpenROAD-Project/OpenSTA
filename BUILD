@@ -339,15 +339,13 @@ cc_library(
         ],
     ) + [
         "app/StaMain.cc",
-        "util/Machine.cc",
         ":StaConfig",
-    ],
-    #+ select({
-    #        "@bazel_tools//src/conditions:windows": ["util/MachineWin32.cc"],
-    #        "@bazel_tools//src/conditions:darwin": ["util/MachineApple.cc"],
-    #        "@bazel_tools//src/conditions:linux": ["util/MachineLinux.cc"],
-    #        "//conditions:default": ["util/MachineUnknown.cc"],
-    #    })
+    ] + select({
+        "@platforms//os:osx": ["util/MachineApple.cc"],
+        "@platforms//os:linux": ["util/MachineLinux.cc"],
+        "@platforms//os:windows": ["util/MachineWin32.cc"],
+        "//conditions:default": ["util/MachineUnknown.cc"],
+    }),
     hdrs = glob(
         include = ["include/sta/*.hh"],
     ) + [
@@ -393,10 +391,6 @@ cc_library(
         "util",
         "verilog",
     ],
-    textual_hdrs = select({
-        "@platforms//os:osx": ["util/MachineApple.cc"],
-        "//conditions:default": ["util/MachineLinux.cc"],
-    }),
     visibility = ["//:__subpackages__"],
     deps = [
         "@cudd",
