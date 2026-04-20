@@ -101,10 +101,10 @@ edge sense: positive_unate
 edge from_pin: and1/A1
 edge to_pin: and1/ZN
 --- TimingArcSet property ---
-arc_set full_name: AND2_X1 A1 -> ZN
-arc_set name: AND2_X1 A1 -> ZN
-arc_set full_name: AND2_X1 A2 -> ZN
-arc_set name: AND2_X1 A2 -> ZN
+arc_set full_name: AND2_X1 A1 -> ZN combinational
+arc_set name: AND2_X1 A1 -> ZN combinational
+arc_set full_name: AND2_X1 A2 -> ZN combinational
+arc_set name: AND2_X1 A2 -> ZN combinational
 --- PathEnd properties ---
 Warning 502: search_port_pin_properties.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 pathend startpoint: reg1/Q

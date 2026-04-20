@@ -2990,9 +2990,8 @@ TEST_F(StaDesignTest, MakeGeneratedClock) {
     gen_pins->insert(clk2);
     IntSeq *divide_by = new IntSeq;
     divide_by->push_back(2);
-    FloatSeq *edges = nullptr;
     sta_->makeGeneratedClock("gen_clk", *gen_pins, false, clk2, clk,
-                              2, 0, 0.0, false, false, *divide_by, *edges, "",
+                              2, 0, 0.0, false, false, *divide_by, FloatSeq(), "",
                               sta_->cmdMode());
     Clock *gen = sdc->findClock("gen_clk");
     EXPECT_NE(gen, nullptr);
