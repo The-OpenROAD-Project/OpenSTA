@@ -1487,7 +1487,7 @@ TEST_F(SdcDesignTest, WriteSdcWithDrivingCell) {
               to_port = lp;
           }
           if (from_port && to_port) {
-            float from_slews[2] = {0.05f, 0.05f};
+            DriveCellSlews from_slews = {0.05f, 0.05f};
             sta_->setDriveCell(lib, buf_cell, port,
                                from_port, from_slews, to_port,
                                RiseFallBoth::riseFall(), MinMaxAll::all(), sta_->cmdSdc());

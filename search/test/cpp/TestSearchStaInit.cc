@@ -3834,12 +3834,6 @@ TEST_F(StaInitTest, PathEndDataClkPathDefault) {
   EXPECT_EQ(pe.dataClkPath(), nullptr);
 }
 
-TEST_F(StaInitTest, PathEndSetupDefaultCycles) {
-  Path *p = new Path();
-  PathEndUnconstrained pe(p);
-  EXPECT_EQ(pe.setupDefaultCycles(), 1);
-}
-
 TEST_F(StaInitTest, PathEndPathDelayMarginIsExternal) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);

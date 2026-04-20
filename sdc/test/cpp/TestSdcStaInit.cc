@@ -1180,34 +1180,34 @@ TEST_F(SdcInitTest, LoopPathHash) {
 
 TEST_F(SdcInitTest, FalsePathTypeString2) {
   FalsePath fp(nullptr, nullptr, nullptr, MinMaxAll::all(), true, "");
-  const char *ts = fp.typeString();
-  EXPECT_NE(ts, nullptr);
+  std::string_view ts = fp.typeString();
+  EXPECT_FALSE(ts.empty());
 }
 
 TEST_F(SdcInitTest, PathDelayTypeString2) {
   PathDelay pd(nullptr, nullptr, nullptr, MinMax::max(), false, false,
                1.0e-9f, true, "");
-  const char *ts = pd.typeString();
-  EXPECT_NE(ts, nullptr);
+  std::string_view ts = pd.typeString();
+  EXPECT_FALSE(ts.empty());
 }
 
 TEST_F(SdcInitTest, MultiCyclePathTypeString2) {
   MultiCyclePath mcp(nullptr, nullptr, nullptr, MinMaxAll::all(),
                      true, 2, true, "");
-  const char *ts = mcp.typeString();
-  EXPECT_NE(ts, nullptr);
+  std::string_view ts = mcp.typeString();
+  EXPECT_FALSE(ts.empty());
 }
 
 TEST_F(SdcInitTest, GroupPathTypeString2) {
   GroupPath gp("g", false, nullptr, nullptr, nullptr, true, "");
-  const char *ts = gp.typeString();
-  EXPECT_NE(ts, nullptr);
+  std::string_view ts = gp.typeString();
+  EXPECT_FALSE(ts.empty());
 }
 
 TEST_F(SdcInitTest, FilterPathTypeString2) {
   FilterPath flp(nullptr, nullptr, nullptr, true);
-  const char *ts = flp.typeString();
-  EXPECT_NE(ts, nullptr);
+  std::string_view ts = flp.typeString();
+  EXPECT_FALSE(ts.empty());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2014,25 +2014,6 @@ TEST_F(SdcInitTest, DeratingFactorsCellIsOneValue2) {
   if (is_one) {
     EXPECT_FLOAT_EQ(val, 0.95f);
   }
-}
-
-// DeratingFactorsNet
-TEST_F(SdcInitTest, DeratingFactorsNetDefault) {
-  DeratingFactorsNet dfn;
-  EXPECT_FALSE(dfn.hasValue());
-}
-
-// DeratingFactorsNet set and get
-TEST_F(SdcInitTest, DeratingFactorsNetSetGet) {
-  DeratingFactorsNet dfn;
-  dfn.setFactor(PathClkOrData::data, RiseFallBoth::riseFall(),
-                EarlyLate::late(), 1.03f);
-  float factor;
-  bool exists;
-  dfn.factor(PathClkOrData::data, RiseFall::fall(),
-             EarlyLate::late(), factor, exists);
-  EXPECT_TRUE(exists);
-  EXPECT_FLOAT_EQ(factor, 1.03f);
 }
 
 // ClockLatency construction

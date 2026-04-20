@@ -4338,7 +4338,7 @@ TEST_F(StaDesignTest, WriteSdcDrivingCell) {
           LibertyPort *from_port = buf_cell->findLibertyPort("A");
           LibertyPort *to_port = buf_cell->findLibertyPort("Z");
           if (from_port && to_port) {
-            float from_slews[2] = {0.03f, 0.03f};
+            DriveCellSlews from_slews = {0.03f, 0.03f};
             sta_->setDriveCell(lib, buf_cell, port,
                                from_port, from_slews, to_port,
                                RiseFallBoth::riseFall(), MinMaxAll::all(), sta_->cmdSdc());

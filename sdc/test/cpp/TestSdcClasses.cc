@@ -1107,27 +1107,6 @@ TEST_F(DeratingFactorsCellTest, IsOneValueDifferent) {
   EXPECT_FALSE(is_one);
 }
 
-// DeratingFactorsNet tests
-class DeratingFactorsNetTest : public ::testing::Test {};
-
-TEST_F(DeratingFactorsNetTest, DefaultConstruction) {
-  DeratingFactorsNet dfn;
-  EXPECT_FALSE(dfn.hasValue());
-}
-
-TEST_F(DeratingFactorsNetTest, InheritsSetFactor) {
-  DeratingFactorsNet dfn;
-  dfn.setFactor(PathClkOrData::data, RiseFallBoth::riseFall(),
-                MinMax::max(), 1.05f);
-  EXPECT_TRUE(dfn.hasValue());
-  float factor;
-  bool exists;
-  dfn.factor(PathClkOrData::data, RiseFall::rise(), MinMax::max(),
-             factor, exists);
-  EXPECT_TRUE(exists);
-  EXPECT_FLOAT_EQ(factor, 1.05f);
-}
-
 ////////////////////////////////////////////////////////////////
 // ClockLatency tests
 ////////////////////////////////////////////////////////////////
@@ -2453,7 +2432,7 @@ TEST_F(SdcInitTest, InputDriveSlews) {
 TEST_F(SdcInitTest, InputDriveDriveCellsEqual) {
   InputDrive drive;
   // Set the same drive cell for all rise/fall min/max
-  float from_slews[2] = {0.1f, 0.2f};
+  DriveCellSlews from_slews = {0.1f, 0.2f};
   drive.setDriveCell(nullptr, nullptr, nullptr, from_slews, nullptr,
                      RiseFallBoth::riseFall(), MinMaxAll::all());
   EXPECT_TRUE(drive.driveCellsEqual());
@@ -2461,32 +2440,33 @@ TEST_F(SdcInitTest, InputDriveDriveCellsEqual) {
 
 // InputDriveCell tests
 TEST_F(SdcInitTest, InputDriveCellAccessors) {
-  float from_slews[2] = {0.1f, 0.2f};
+  DriveCellSlews from_slews = {0.1f, 0.2f};
   InputDriveCell dc(nullptr, nullptr, nullptr, from_slews, nullptr);
   EXPECT_EQ(dc.library(), nullptr);
   EXPECT_EQ(dc.cell(), nullptr);
   EXPECT_EQ(dc.fromPort(), nullptr);
   EXPECT_EQ(dc.toPort(), nullptr);
-  float *slews = dc.fromSlews();
-  EXPECT_NE(slews, nullptr);
+  const DriveCellSlews &slews = dc.fromSlews();
+  EXPECT_FLOAT_EQ(slews[0], 0.1f);
+  EXPECT_FLOAT_EQ(slews[1], 0.2f);
 }
 
 TEST_F(SdcInitTest, InputDriveCellSetters) {
-  float from_slews[2] = {0.1f, 0.2f};
+  DriveCellSlews from_slews = {0.1f, 0.2f};
   InputDriveCell dc(nullptr, nullptr, nullptr, from_slews, nullptr);
   dc.setLibrary(nullptr);
   dc.setCell(nullptr);
   dc.setFromPort(nullptr);
   dc.setToPort(nullptr);
-  float new_slews[2] = {0.3f, 0.4f};
+  DriveCellSlews new_slews = {0.3f, 0.4f};
   dc.setFromSlews(new_slews);
   EXPECT_FLOAT_EQ(dc.fromSlews()[0], 0.3f);
   EXPECT_FLOAT_EQ(dc.fromSlews()[1], 0.4f);
 }
 
 TEST_F(SdcInitTest, InputDriveCellEqual) {
-  float slews1[2] = {0.1f, 0.2f};
-  float slews2[2] = {0.1f, 0.2f};
+  DriveCellSlews slews1 = {0.1f, 0.2f};
+  DriveCellSlews slews2 = {0.1f, 0.2f};
   InputDriveCell dc1(nullptr, nullptr, nullptr, slews1, nullptr);
   InputDriveCell dc2(nullptr, nullptr, nullptr, slews2, nullptr);
   EXPECT_TRUE(dc1.equal(&dc2));
@@ -3432,9 +3412,9 @@ TEST_F(SdcInitTest, DeratingFactorsCellClear) {
   }() ));
 }
 
-// DeratingFactorsNet: inherits DeratingFactors
-TEST_F(SdcInitTest, DeratingFactorsNetOps) {
-  DeratingFactorsNet factors;
+// DeratingFactors: inherits DeratingFactors
+TEST_F(SdcInitTest, DeratingFactorsOps) {
+  DeratingFactors factors;
   factors.setFactor(PathClkOrData::data,
                     RiseFallBoth::riseFall(), EarlyLate::late(), 1.1f);
   EXPECT_TRUE(factors.hasValue());
@@ -3582,7 +3562,7 @@ TEST_F(SdcInitTest, InputDriveSlewGetSet) {
 // InputDrive: setDriveCell/driveCell/hasDriveCell
 TEST_F(SdcInitTest, InputDriveCellGetSet) {
   InputDrive drive;
-  float from_slews[2] = {0.1f, 0.2f};
+  DriveCellSlews from_slews = {0.1f, 0.2f};
   drive.setDriveCell(nullptr, nullptr, nullptr, from_slews, nullptr,
                      RiseFallBoth::riseFall(), MinMaxAll::all());
   EXPECT_TRUE(drive.hasDriveCell(RiseFall::rise(), MinMax::max()));
@@ -3590,7 +3570,7 @@ TEST_F(SdcInitTest, InputDriveCellGetSet) {
   EXPECT_NE(dc, nullptr);
   const LibertyCell *cell;
   const LibertyPort *from_port;
-  float *slews;
+  const DriveCellSlews *slews;
   const LibertyPort *to_port;
   drive.driveCell(RiseFall::rise(), MinMax::max(),
                   cell, from_port, slews, to_port);
@@ -3874,9 +3854,9 @@ TEST_F(SdcInitTest, DeratingFactorsCellFactors) {
   EXPECT_NE(f, nullptr);
 }
 
-// DeratingFactorsNet
-TEST_F(SdcInitTest, DeratingFactorsNetConstruct) {
-  DeratingFactorsNet dfn;
+// DeratingFactors
+TEST_F(SdcInitTest, DeratingFactorsConstruct) {
+  DeratingFactors dfn;
   EXPECT_FALSE(dfn.hasValue());
 }
 
