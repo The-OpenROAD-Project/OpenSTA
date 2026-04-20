@@ -724,21 +724,21 @@ LibertyLibrary::makeSceneMap(LibertyLibrary *lib,
 // Map a cell linked in the network to the corresponding liberty cell
 // to use for delay calculation at a scene.
 void
-LibertyLibrary::makeSceneMap(LibertyCell *cell1,
-                             LibertyCell *cell2,
+LibertyLibrary::makeSceneMap(LibertyCell *link_cell,
+                             LibertyCell *scene_cell,
                              Scene *scene,
                              const MinMaxAll *min_max,
                              Report *report)
 {
   for (const MinMax *mm : min_max->range()) {
     size_t lib_ap_index = scene->libertyIndex(mm);
-    cell1->setSceneCell(cell2, lib_ap_index);
+    link_cell->setSceneCell(scene_cell, lib_ap_index);
   }
 
-  LibertyCellPortBitIterator port_iter1(cell1);
+  LibertyCellPortBitIterator port_iter1(link_cell);
   while (port_iter1.hasNext()) {
     LibertyPort *port1 = port_iter1.next();
-    LibertyPort *port2 = cell2->findLibertyPort(port1->name());
+    LibertyPort *port2 = scene_cell->findLibertyPort(port1->name());
     if (port2) {
       for (const MinMax *mm : min_max->range()) {
         size_t lib_ap_index = scene->libertyIndex(mm);
@@ -747,15 +747,15 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
     }
     else
       report->warn(1110, "cell {}/{} port {} not found in cell {}/{}.",
-                   cell1->library()->name(),
-                   cell1->name(),
+                   link_cell->library()->name(),
+                   link_cell->name(),
                    port1->name(),
-                   cell2->library()->name(),
-                   cell2->name());
+                   scene_cell->library()->name(),
+                   scene_cell->name());
   }
 
-  for (TimingArcSet *arc_set1 : cell1->timing_arc_sets_) {
-    TimingArcSet *arc_set2 = cell2->findTimingArcSet(arc_set1);
+  for (TimingArcSet *arc_set1 : link_cell->timing_arc_sets_) {
+    TimingArcSet *arc_set2 = scene_cell->findTimingArcSet(arc_set1);
     if (arc_set2) {
       const TimingArcSeq &arcs1 = arc_set1->arcs();
       const TimingArcSeq &arcs2 = arc_set2->arcs();
@@ -775,13 +775,13 @@ LibertyLibrary::makeSceneMap(LibertyCell *cell1,
     }
     else
       report->warn(1111, "cell {}/{} {} -> {} timing group {} not found in cell {}/{}.",
-                   cell1->library()->name(),
-                   cell1->name(),
+                   link_cell->library()->name(),
+                   link_cell->name(),
                    arc_set1->from() ? arc_set1->from()->name() : "",
                    arc_set1->to()->name(),
                    arc_set1->role()->to_string(),
-                   cell2->library()->name(),
-                   cell2->name());
+                   scene_cell->library()->name(),
+                   scene_cell->name());
   }
 }
 
