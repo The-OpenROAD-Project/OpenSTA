@@ -28,8 +28,8 @@
 #include <string>
 #include <vector>
 
-#include "Zlib.hh"
 #include "StaState.hh"
+#include "Zlib.hh"
 
 namespace sta {
 
@@ -78,15 +78,15 @@ private:
   std::string readStmtString();
   std::vector<std::string> readStmtTokens();
 
-  VcdReader *reader_;
+  VcdReader *reader_ = nullptr;
   gzFile stream_;
   std::string token_;
   const char *filename_;
-  int file_line_;
-  int stmt_line_;
+  int file_line_ = 0;
+  int stmt_line_ = 0;
 
-  VcdTime time_;
-  VcdTime prev_time_;
+  VcdTime time_ = 0;
+  VcdTime prev_time_ = 0;
   VcdScope scope_;
 
   Report *report_;
@@ -97,7 +97,7 @@ private:
 class VcdReader
 {
 public:
-  virtual ~VcdReader() {}
+  virtual ~VcdReader() = default;
   virtual void setDate(std::string_view date) = 0;
   virtual void setComment(std::string_view comment) = 0;
   virtual void setVersion(std::string_view version) = 0;
@@ -139,4 +139,4 @@ private:
   uint64_t bus_value_;
 };
 
-} // namespace
+} // namespace sta

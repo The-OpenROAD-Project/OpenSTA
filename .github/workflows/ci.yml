@@ -54,6 +54,7 @@ jobs:
           name: artifact
           path: |
             build/install/*
+          retention-days: 1
 
       - name: Upload Test Result
         uses: actions/upload-artifact@v7

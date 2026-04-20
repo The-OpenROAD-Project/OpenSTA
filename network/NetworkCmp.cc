@@ -26,9 +26,9 @@
 
 #include <algorithm>
 
-#include "StringUtil.hh"
 #include "Liberty.hh"
 #include "Network.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -137,4 +137,4 @@ sortByPathName(NetSet *set,
   return nets;
 }
 
-} // namespace
+} // namespace sta

@@ -24,35 +24,34 @@
 
 #include "ClkSkew.hh"
 
-#include <cmath>  // abs
 #include <algorithm>
+#include <cmath>  // abs
 #include <string_view>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
-#include "Fuzzy.hh"
-#include "Report.hh"
+#include "Bfs.hh"
+#include "Crpr.hh"
 #include "Debug.hh"
 #include "DispatchQueue.hh"
-#include "Units.hh"
-#include "TimingArc.hh"
+#include "Fuzzy.hh"
+#include "Graph.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
-#include "Bfs.hh"
 #include "Path.hh"
-#include "StaState.hh"
-#include "SearchPred.hh"
-#include "Search.hh"
-#include "Crpr.hh"
 #include "PathEnd.hh"
+#include "Report.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "SearchPred.hh"
+#include "StaState.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 
 namespace sta {
 
 ClkSkews::ClkSkews(StaState *sta) :
   StaState(sta),
-  include_internal_latency_(true),
   fanout_pred_(this)
 {
 }
@@ -204,8 +203,8 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
     dispatch_queue_->finishTasks();
 
     // Reduce skews from each register source.
-    for (size_t i = 0; i < partial_skews.size(); i++) {
-      for (auto &[clk, partial_skew] : partial_skews[i]) {
+    for (auto & i : partial_skews) {
+      for (auto &[clk, partial_skew] : i) {
         auto itr = skews_.find(clk);
         if (itr == skews_.end()) {
           // Insert new entry using emplace with piecewise_construct
@@ -403,15 +402,6 @@ ClkSkew::ClkSkew(Path *src_path,
 }
 
 ClkSkew::ClkSkew(const ClkSkew &clk_skew)
-{
-  src_path_ = clk_skew.src_path_;
-  tgt_path_ = clk_skew.tgt_path_;
-  include_internal_latency_ = clk_skew.include_internal_latency_;
-  skew_ = clk_skew.skew_;
-}
-
-void
-ClkSkew::operator=(const ClkSkew &clk_skew)
 {
   src_path_ = clk_skew.src_path_;
   tgt_path_ = clk_skew.tgt_path_;

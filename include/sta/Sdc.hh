@@ -24,25 +24,25 @@
 
 #pragma once
 
-#include <vector>
 #include <map>
-#include <unordered_map>
 #include <mutex>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
-#include "StringUtil.hh"
-#include "MinMax.hh"
-#include "StaState.hh"
-#include "NetworkClass.hh"
-#include "LibertyClass.hh"
-#include "GraphClass.hh"
-#include "SdcClass.hh"
-#include "RiseFallValues.hh"
 #include "Clock.hh"
-#include "DataCheck.hh"
 #include "CycleAccting.hh"
+#include "DataCheck.hh"
 #include "ExceptionPath.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
 #include "PinPair.hh"
+#include "RiseFallValues.hh"
+#include "SdcClass.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -54,7 +54,7 @@ class DisabledPorts;
 class GraphLoop;
 class DeratingFactors;
 class DeratingFactorsGlobal;
-class DeratingFactorsNet;
+class DeratingFactors;
 class DeratingFactorsCell;
 class PatternMatch;
 class FindNetCaps;
@@ -123,13 +123,12 @@ private:
 class NetWireCaps : public MinMaxFloatValues
 {
 public:
-  NetWireCaps();
   bool subtractPinCap(const MinMax *min_max);
   void setSubtractPinCap(bool subtrace_pin_cap,
                          const MinMax *min_max);
 
 private:
-  bool subtract_pin_cap_[MinMax::index_count];
+  bool subtract_pin_cap_[MinMax::index_count]{false, false};
 };
 
 using ClockNameMap = std::map<std::string ,Clock*, std::less<>>;
@@ -175,7 +174,7 @@ using InstancePvtMap = std::map<const Instance*, Pvt*>;
 using PinMinPulseWidthMap = std::map<const Pin*, RiseFallValues*>;
 using ClockMinPulseWidthMap = std::map<const Clock*, RiseFallValues*>;
 using InstMinPulseWidthMap = std::map<const Instance*, RiseFallValues*>;
-using NetDeratingFactorsMap = std::map<const Net*, DeratingFactorsNet*>;
+using NetDeratingFactorsMap = std::map<const Net*, DeratingFactors*>;
 using InstDeratingFactorsMap = std::map<const Instance*, DeratingFactorsCell*>;
 using CellDeratingFactorsMap = std::map<const LibertyCell*, DeratingFactorsCell*>;
 using ClockGroupsSet = std::set<ClockGroups*>;
@@ -202,7 +201,7 @@ class Sdc : public StaState
 public:
   Sdc(Mode *mode,
       StaState *sta);
-  ~Sdc();
+  ~Sdc() override;
   Mode *mode() const { return mode_; }
   // Note that Search may reference a Filter exception removed by clear().
   void clear();
@@ -280,7 +279,7 @@ public:
                     const LibertyCell *cell,
                     const Port *port,
                     const LibertyPort *from_port,
-                    float *from_slews,
+                    const DriveCellSlews &from_slews,
                     const LibertyPort *to_port,
                     const RiseFallBoth *rf,
                     const MinMaxAll *min_max);
@@ -317,13 +316,13 @@ public:
                      bool &exists) const;
   void setSlewLimit(Clock *clk,
                     const RiseFallBoth *rf,
-                    const PathClkOrData clk_data,
+                    PathClkOrData clk_data,
                     const MinMax *min_max,
                     float slew);
   bool haveClkSlewLimits() const;
   void slewLimit(const Clock *clk,
                  const RiseFall *rf,
-                 const PathClkOrData clk_data,
+                 PathClkOrData clk_data,
                  const MinMax *min_max,
                  float &slew,
                  bool &exists) const;
@@ -379,14 +378,14 @@ public:
   void setMaxArea(float area);
   float maxArea() const;
   Clock *makeClock(std::string_view name,
-                   PinSet *pins,
+                   const PinSet &pins,
                    bool add_to_pins,
                    float period,
-                   FloatSeq *waveform,
+                   const FloatSeq &waveform,
                    std::string_view comment);
   // edges size must be 3.
   Clock *makeGeneratedClock(std::string_view name,
-                            PinSet *pins,
+                            const PinSet &pins,
                             bool add_to_pins,
                             Pin *src_pin,
                             Clock *master_clk,
@@ -395,8 +394,8 @@ public:
                             float duty_cycle,
                             bool invert,
                             bool combinational,
-                            IntSeq *edges,
-                            FloatSeq *edge_shifts,
+                            const IntSeq &edges,
+                            const FloatSeq &dge_shifts,
                             std::string_view comment);
   // Invalidate all generated clock waveforms.
   void invalidateGeneratedClks() const;
@@ -500,12 +499,12 @@ public:
                               Clock *to_clk,
                               const RiseFallBoth *to_rf,
                               const SetupHoldAll *setup_hold);
-  ClockGroups *makeClockGroups(const std::string &name,
+  ClockGroups *makeClockGroups(std::string_view name,
                                bool logically_exclusive,
                                bool physically_exclusive,
                                bool asynchronous,
                                bool allow_paths,
-                               std::string comment);
+                               std::string_view comment);
   void makeClockGroup(ClockGroups *clk_groups,
                       ClockSet *clks);
   void removeClockGroups(const std::string &name);
@@ -580,7 +579,7 @@ public:
   void setOutputDelay(const Pin *pin,
                       const RiseFallBoth *rf,
                       const Clock *clk,
-                      const RiseFall *clk_tr,
+                      const RiseFall *clk_rf,
                       const Pin *ref_pin,
                       bool source_latency_included,
                       bool network_latency_included,
@@ -1072,7 +1071,7 @@ protected:
   void deleteClkPinMappings(Clock *clk);
   void makeClkPinMappings(Clock *clk);
   void deletePinClocks(Clock *defining_clk,
-                       PinSet *pins);
+                       const PinSet &pins);
   void makeDefaultArrivalClock();
   InputDrive *ensureInputDrive(const Port *port);
   ExceptionPath *findMergeMatch(ExceptionPath *exception);
@@ -1113,7 +1112,7 @@ protected:
                               ExceptionPathSet &matches);
   void expandExceptionExcluding(ExceptionPath *exception,
                                 ExceptionPath *excluding,
-                                ExceptionPathSet &expanded_matches);
+                                ExceptionPathSet &expansions);
   void recordException1(ExceptionPath *exception);
   void recordExceptionFirstPts(ExceptionPath *exception);
   void recordExceptionFirstFrom(ExceptionPath *exception);
@@ -1288,7 +1287,7 @@ protected:
   InstancePvtMap instance_pvt_maps_[MinMax::index_count];
   MinMaxFloatValues voltages_;
   NetVoltageMap net_voltage_map_;
-  DeratingFactorsGlobal *derating_factors_;
+  DeratingFactorsGlobal *derating_factors_{nullptr};
   NetDeratingFactorsMap net_derating_factors_;
   InstDeratingFactorsMap inst_derating_factors_;
   CellDeratingFactorsMap cell_derating_factors_;
@@ -1297,7 +1296,7 @@ protected:
   // which iterating over the name map can't provide.
   ClockSeq clocks_;
   // Clocks are assigned an index.
-  int clk_index_;
+  int clk_index_{0};
   // Default clock used for unclocked input arrivals.
   Clock *default_arrival_clk_;
   ClockNameMap clock_name_map_;
@@ -1320,7 +1319,7 @@ protected:
   // clks in the same set_clock_group set.
   ClockPairSet clk_group_same_;
   ClockSenseMap clk_sense_map_;
-  ClockGatingCheck *clk_gating_check_;
+  ClockGatingCheck *clk_gating_check_{nullptr};
   ClockGatingCheckMap clk_gating_check_map_;
   InstanceClockGatingCheckMap inst_clk_gating_check_map_;
   PinClockGatingCheckMap pin_clk_gating_check_map_;
@@ -1335,7 +1334,7 @@ protected:
   // Input delays on hierarchical pins are indexed by the load pins.
   InputDelaysPinMap input_delay_leaf_pin_map_;
   InputDelaysPinMap input_delay_internal_pin_map_;
-  int input_delay_index_;
+  int input_delay_index_{0};
 
   OutputDelaySet output_delays_;
   OutputDelaysPinMap output_delay_pin_map_;
@@ -1369,9 +1368,9 @@ protected:
   InstanceSet disabled_clk_gating_checks_inst_;
   PinSet disabled_clk_gating_checks_pin_;
   ExceptionPathSet exceptions_;
-  size_t exception_id_; // Unique ID for exceptions.
+  size_t exception_id_{0}; // Unique ID for exceptions.
 
-  bool have_thru_hpin_exceptions_;
+  bool have_thru_hpin_exceptions_{false};
   // First pin/clock/instance/net/edge exception point to exception set map.
   PinExceptionsMap first_from_pin_exceptions_;
   ClockExceptionsMap first_from_clk_exceptions_;
@@ -1404,7 +1403,7 @@ protected:
   // Filter exception to tag arrivals for
   // report_timing -from pin|inst -through.
   // -to is always nullptr.
-  FilterPath *filter_;
+  FilterPath *filter_{nullptr};
 
   InputDriveMap input_drive_map_;
   // set_LogicValue::one/zero/dc
@@ -1429,4 +1428,4 @@ private:
   friend class GroupPathIterator;
 };
 
-} // namespace
+} // namespace sta

@@ -28,19 +28,22 @@
 
 #include "ArnoldiReduce.hh"
 
-#include "Debug.hh"
-#include "MinMax.hh"
-#include "Sdc.hh"
-#include "Network.hh"
-#include "Units.hh"
+#include <algorithm>
+
 #include "Arnoldi.hh"
+#include "Debug.hh"
 #include "Format.hh"
+#include "MinMax.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Units.hh"
 #include "parasitics/ConcreteParasiticsPvt.hh"
 
 namespace sta {
+// This is legacy C-style code.
+// NOLINTBEGIN(modernize-avoid-c-style-cast, bugprone-multi-level-implicit-pointer-conversion, bugprone-implicit-widening-of-multiplication-result)
 
-rcmodel::rcmodel() :
-  pinV(nullptr)
+rcmodel::rcmodel()
 {
 }
 
@@ -87,11 +90,7 @@ const int ArnoldiReduce::ts_point_count_incr_ = 1024;
 const int ArnoldiReduce::ts_edge_count_incr_ = 1024;
 
 ArnoldiReduce::ArnoldiReduce(StaState *sta) :
-  StaState(sta),
-  ts_pointNmax(1024),
-  ts_edgeNmax(1024),
-  termNmax(256),
-  dNmax(8)
+  StaState(sta)
 {
   ts_pointV = (ts_point *)malloc(ts_pointNmax * sizeof(ts_point));
   ts_ordV = (int *)malloc(ts_pointNmax * sizeof(int));
@@ -351,14 +350,14 @@ ArnoldiReduce::makeRcmodelDfs(ts_point *pdrv)
   ts_point *p0 = ts_pointV;
   ts_point *pend = p0 + ts_pointN;
   for (p = p0; p != pend; p++)
-    p->visited = 0;
+    p->visited = false;
   ts_edge *e;
 
   ts_edge **stackV = ts_stackV;
   int stackN = 1;
   stackV[0] = e = pdrv->eV[0];
   ts_orient(pdrv, e);
-  pdrv->visited = 1;
+  pdrv->visited = true;
   pdrv->in_edge = nullptr;
   pdrv->ts = 0;
   ts_ordV[0] = pdrv - p0;
@@ -376,7 +375,7 @@ ArnoldiReduce::makeRcmodelDfs(ts_point *pdrv)
     }
     else {
       // try to descend
-      q->visited = 1;
+      q->visited = true;
       q->ts = ts_ordN++;
       ts_pordV[q->ts] = q;
       ts_ordV[q->ts] = q - p0;
@@ -531,9 +530,7 @@ ArnoldiReduce::makeRcmodelFromTs()
   u0 = _u0;
   u1 = _u1;
   double sum, e1;
-  order = max_order;
-  if (n < order)
-    order = n;
+  order = std::min(n, max_order);
 
   par[0] = -1;
   r[0] = 0.0;
@@ -682,4 +679,5 @@ ArnoldiReduce::makeRcmodelFromW()
   return mod;
 }
 
+// NOLINTEND(modernize-avoid-c-style-cast, bugprone-multi-level-implicit-pointer-conversion, bugprone-implicit-widening-of-multiplication-result)
 }  // namespace sta

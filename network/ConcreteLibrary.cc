@@ -28,11 +28,11 @@
 #include <cstdlib>
 #include <limits>
 
+#include "ConcreteNetwork.hh"
 #include "ContainerHelpers.hh"
+#include "ParseBus.hh"
 #include "PatternMatch.hh"
 #include "PortDirection.hh"
-#include "ParseBus.hh"
-#include "ConcreteNetwork.hh"
 
 namespace sta {
 
@@ -44,9 +44,7 @@ ConcreteLibrary::ConcreteLibrary(std::string_view name,
   name_(name),
   id_(ConcreteNetwork::nextObjectId()),
   filename_(filename),
-  is_liberty_(is_liberty),
-  bus_brkt_left_('['),
-  bus_brkt_right_(']')
+  is_liberty_(is_liberty)
 {
 }
 
@@ -125,9 +123,6 @@ ConcreteCell::ConcreteCell(std::string_view name,
   id_(ConcreteNetwork::nextObjectId()),
   filename_(filename),
   library_(library),
-  liberty_cell_(nullptr),
-  ext_cell_(nullptr),
-  port_bit_count_(0),
   is_leaf_(is_leaf)
 {
 }
@@ -234,7 +229,7 @@ ConcreteCell::makeBusPortBit(ConcretePort *bus_port,
 }
 
 ConcretePort *
-ConcreteCell::makePort(std::string bit_name,
+ConcreteCell::makePort(std::string_view bit_name,
                        int bit_index)
 {
   ConcretePort *port = new ConcretePort(bit_name, false,
@@ -351,9 +346,9 @@ BusPort::addBusBit(ConcretePort *port,
 }
 
 void
-ConcreteCell::groupBusPorts(const char bus_brkt_left,
-                            const char bus_brkt_right,
-                            std::function<bool(std::string_view)> port_msb_first)
+ConcreteCell::groupBusPorts(char bus_brkt_left,
+                            char bus_brkt_right,
+                            const std::function<bool(std::string_view)> &port_msb_first)
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
   const char bus_brkts_right[2]{bus_brkt_right, '\0'};
@@ -415,15 +410,11 @@ ConcretePort::ConcretePort(std::string_view name,
   id_(ConcreteNetwork::nextObjectId()),
   cell_(cell),
   direction_(PortDirection::unknown()),
-  liberty_port_(nullptr),
-  ext_port_(nullptr),
-  pin_index_(-1),
   is_bundle_(is_bundle),
   is_bus_(is_bus),
   from_index_(from_index),
   to_index_(to_index),
-  member_ports_(member_ports),
-  bundle_port_(nullptr)
+  member_ports_(member_ports)
 {
 }
 
@@ -575,9 +566,7 @@ ConcretePort::memberIterator() const
 
 ConcreteCellPortBitIterator::ConcreteCellPortBitIterator(const ConcreteCell* cell) :
   ports_(cell->ports_),
-  port_iter_(ports_.begin()),
-  member_iter_(nullptr),
-  next_(nullptr)
+  port_iter_(ports_.begin())
 {
   findNext();
 }
@@ -625,4 +614,4 @@ ConcreteCellPortBitIterator::findNext()
   next_ = nullptr;
 }
 
-} // namespace
+} // namespace sta

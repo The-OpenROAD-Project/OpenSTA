@@ -1298,12 +1298,6 @@ TEST(R6_CheckTableModelTest, CheckAxesInvalidAxis) {
 // R6 tests: LibertyCell public properties
 ////////////////////////////////////////////////////////////////
 
-TEST(R6_TestCellTest, HasInternalPortsDefault) {
-  LibertyLibrary lib("test_lib", "test.lib");
-  TestCell cell(&lib, "CELL1", "test.lib");
-  EXPECT_FALSE(cell.hasInternalPorts());
-}
-
 ////////////////////////////////////////////////////////////////
 // R6 tests: LibertyLibrary defaultIntrinsic rise/fall
 ////////////////////////////////////////////////////////////////
@@ -2011,13 +2005,6 @@ TEST_F(StaLibertyTest, CellIsInverterNonInverter) {
   EXPECT_FALSE(buf->isInverter());
 }
 
-// LibertyCell::hasInternalPorts
-TEST_F(StaLibertyTest, CellHasInternalPorts3) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  // Simple buffer has no internal ports
-  EXPECT_FALSE(buf->hasInternalPorts());
-}
 
 // LibertyCell::isMacro
 TEST_F(StaLibertyTest, CellIsMacro3) {

@@ -29,13 +29,13 @@
 
 namespace sta {
 
-ClockGroups::ClockGroups(const std::string &name,
+ClockGroups::ClockGroups(std::string_view name,
                          bool logically_exclusive,
                          bool physically_exclusive,
                          bool asynchronous,
                          bool allow_paths,
-                         std::string comment) :
-  SdcCmdComment(std::move(comment)),
+                         std::string_view comment) :
+  SdcCmdComment(comment),
   name_(name),
   logically_exclusive_(logically_exclusive),
   physically_exclusive_(physically_exclusive),
@@ -70,4 +70,4 @@ ClockGroups::removeClock(Clock *clk)
   }
 }
 
-} // namespace
+} // namespace sta

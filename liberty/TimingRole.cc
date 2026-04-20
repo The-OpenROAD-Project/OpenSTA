@@ -24,6 +24,8 @@
 
 #include "TimingRole.hh"
 
+#include "MinMax.hh"
+
 namespace sta {
 
 TimingRoleMap TimingRole::timing_roles_;
@@ -184,4 +186,4 @@ TimingRole::less(const TimingRole *role1,
   return role1->index() < role2->index();
 }
 
-} // namespace
+} // namespace sta

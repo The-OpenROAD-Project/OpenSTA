@@ -24,20 +24,20 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <map>
 
-#include "MinMax.hh"
-#include "LibertyClass.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
 #include "Delay.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
 #include "StaState.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
 
 namespace sta {
 
@@ -63,14 +63,14 @@ public:
               const Pin *drvr_pin,
               Edge *edge,
               const TimingArc *arc,
-              const Slew in_slew,
+              Slew in_slew,
               float load_cap,
               const Parasitic *parasitic);
   ArcDcalcArg(const Pin *in_pin,
               const Pin *drvr_pin,
               Edge *edge,
               const TimingArc *arc,
-              float in_delay);
+              float input_delay);
   const Pin *inPin() const { return in_pin_; }
   const RiseFall *inEdge() const;
   const Pin *drvrPin() const { return drvr_pin_; }
@@ -160,7 +160,6 @@ class ArcDelayCalc : public StaState
 {
 public:
   ArcDelayCalc(StaState *sta);
-  virtual ~ArcDelayCalc() {}
   virtual ArcDelayCalc *copy() = 0;
   virtual std::string_view name() const = 0;
 
@@ -262,4 +261,4 @@ public:
   virtual void finishDrvrPin() = 0;
 };
 
-} // namespace
+} // namespace sta

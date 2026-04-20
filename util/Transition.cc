@@ -33,11 +33,11 @@ namespace sta {
 const RiseFall RiseFall::rise_("rise", "^", 0);
 const RiseFall RiseFall::fall_("fall", "v", 1);
 const std::array<const RiseFall*, 2> RiseFall::range_{&rise_, &fall_};
-const std::array<int, 2> RiseFall::range_index_{rise_.index(), fall_.index()};
+const std::array<size_t, 2> RiseFall::range_index_{rise_.index(), fall_.index()};
 
 RiseFall::RiseFall(std::string_view name,
                    std::string_view  short_name,
-                   int sdf_triple_index) :
+                   size_t sdf_triple_index) :
   name_(name),
   short_name_(short_name),
   sdf_triple_index_(sdf_triple_index)
@@ -63,17 +63,17 @@ RiseFall::opposite() const
 }
 
 const RiseFall *
-RiseFall::find(std::string_view rf_str)
+RiseFall::find(std::string_view rf_name)
 {
-  if (rf_str == rise_.name() || rf_str == rise_.shortName())
+  if (rf_name == rise_.name() || rf_name == rise_.shortName())
     return &rise_;
-  if (rf_str == fall_.name() || rf_str == fall_.shortName())
+  if (rf_name == fall_.name() || rf_name == fall_.shortName())
     return &fall_;
   return nullptr;
 }
 
 const RiseFall *
-RiseFall::find(int index)
+RiseFall::find(size_t index)
 {
   if (index == rise_.index())
     return &rise_;
@@ -127,10 +127,10 @@ const RiseFallBoth RiseFallBoth::rise_fall_("rise_fall", "rf", 2,
 
 RiseFallBoth::RiseFallBoth(std::string_view name,
                            std::string_view short_name,
-                           int sdf_triple_index,
+                           size_t sdf_triple_index,
                            const RiseFall *as_rise_fall,
-                           std::vector<const RiseFall*> range,
-                           std::vector<int> range_index) :
+                           const std::vector<const RiseFall*> &range,
+                           const std::vector<size_t> &range_index) :
   name_(name),
   short_name_(short_name),
   sdf_triple_index_(sdf_triple_index),
@@ -150,13 +150,13 @@ RiseFallBoth::to_string(bool use_short) const
 }
 
 const RiseFallBoth *
-RiseFallBoth::find(std::string_view name)
+RiseFallBoth::find(std::string_view rf_name)
 {
-  if (name == rise_.name())
+  if (rf_name == rise_.name())
     return &rise_;
-  if (name == fall_.name())
+  if (rf_name == fall_.name())
     return &fall_;
-  if (name == rise_fall_.name())
+  if (rf_name == rise_fall_.name())
     return &rise_fall_;
   return nullptr;
 }
@@ -181,7 +181,7 @@ RiseFallBoth::matches(const Transition *tr) const
 ////////////////////////////////////////////////////////////////
 
 TransitionMap Transition::transition_map_;
-int Transition::max_index_ = 0;
+size_t Transition::max_index_ = 0;
 
 // Sdf triple order defined on Sdf 3.0 spec, pg 3-17.
 const Transition Transition::rise_{  "^", "01", RiseFall::rise(),  0};
@@ -196,12 +196,12 @@ const Transition Transition::tr_1X_{"1X", "1X", RiseFall::fall(),  8};
 const Transition Transition::tr_X0_{"X0", "X0", RiseFall::fall(),  9};
 const Transition Transition::tr_XZ_{"XZ", "XZ", nullptr,          10};
 const Transition Transition::tr_ZX_{"ZX", "ZX", nullptr,          11};
-const Transition Transition::rise_fall_{"*", "**", nullptr,       -1};
+const Transition Transition::rise_fall_{"*", "**", nullptr,       12};
 
 Transition::Transition(std::string_view name,
                        std::string_view init_final,
                        const RiseFall *as_rise_fall,
-                       int sdf_triple_index) :
+                       size_t sdf_triple_index) :
   name_(name),
   init_final_(init_final),
   as_rise_fall_(as_rise_fall),
@@ -219,9 +219,9 @@ Transition::matches(const Transition *tr) const
 }
 
 const Transition *
-Transition::find(std::string_view tr_str)
+Transition::find(std::string_view tr_name)
 {
-  return findStringKey(transition_map_, tr_str);
+  return findStringKey(transition_map_, tr_name);
 }
 
 const RiseFallBoth *
@@ -230,4 +230,4 @@ Transition::asRiseFallBoth() const
   return reinterpret_cast<const RiseFallBoth*>(as_rise_fall_);
 }
 
-} // namespace
+} // namespace sta

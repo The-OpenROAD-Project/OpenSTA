@@ -43,9 +43,7 @@ class LibExprScanner : public LibExprFlexLexer
 {
 public:
   LibExprScanner(std::istringstream &stream);
-  virtual ~LibExprScanner() {}
-
-  virtual int lex(LibExprParse::semantic_type *const yylval);
+  virtual int lex(LibExprParse::semantic_type *yylval);
   // YY_DECL defined in LibertyLex.ll
   // Method body created by flex in LibertyLex.cc
 
@@ -57,4 +55,4 @@ private:
   std::string token_;
 };
 
-} // namespace
+} // namespace sta

@@ -24,9 +24,13 @@
 
 #pragma once
 
+#include "Clock.hh"
+#include "Delay.hh"
+#include "NetworkClass.hh"
+#include "Path.hh"
 #include "SdcClass.hh"
-#include "StaState.hh"
 #include "SearchClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -41,7 +45,7 @@ public:
   // Find the maximum possible crpr (clock min/max delta delay) for path.
   Arrival maxCrpr(const ClkInfo *clk_info);
   // Timing check CRPR.
-  Crpr checkCrpr(const Path *src_clk_path,
+  Crpr checkCrpr(const Path *src_path,
                  const Path *tgt_clk_path);
   void checkCrpr(const Path *src_path,
                  const Path *tgt_clk_path,
@@ -51,7 +55,7 @@ public:
   // Output delay CRPR.
   Crpr outputDelayCrpr(const Path *src_clk_path,
                        const ClockEdge *tgt_clk_edge);
-  void outputDelayCrpr(const Path *src_clk_path,
+  void outputDelayCrpr(const Path *src_path,
                        const ClockEdge *tgt_clk_edge,
                        // Return values.
                        Crpr &crpr,
@@ -83,7 +87,7 @@ private:
                 bool same_pin,
                 // Return values.
                 Crpr &crpr,
-                Pin *&common_pin);
+                Pin *&crpr_pin);
   Path *portClkPath(const ClockEdge *clk_edge,
                     const Pin *clk_src_pin,
                     const Scene *scene,
@@ -93,4 +97,4 @@ private:
   float crprArrivalDiff(const Path *path);
 };
 
-} // namespace
+} // namespace sta

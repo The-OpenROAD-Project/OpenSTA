@@ -24,12 +24,12 @@
 
 #include "Machine.hh"
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/time.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/resource.h>
+#include <sys/time.h>
 #include <thread>
+#include <unistd.h>
 
 #include "StaConfig.hh"
 #include "StringUtil.hh"
@@ -85,4 +85,4 @@ memoryUsage()
   return rusage.ru_maxrss;
 }
 
-} // namespace
+} // namespace sta

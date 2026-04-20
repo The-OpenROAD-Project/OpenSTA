@@ -29,8 +29,8 @@
 #include <vector>
 
 #include "Error.hh"
-#include "SdcCmdComment.hh"
 #include "SdcClass.hh"
+#include "SdcCmdComment.hh"
 
 namespace sta {
 
@@ -70,6 +70,7 @@ public:
   virtual bool isFilter() const { return false; }
   virtual ExceptionPathType type() const = 0;
   virtual std::string to_string(const Network *network) const;
+  virtual std::string_view typeString() const = 0;
   ExceptionFrom *from() const { return from_; }
   ExceptionThruSeq *thrus() const { return thrus_; }
   ExceptionTo *to() const { return to_; }
@@ -135,7 +136,6 @@ public:
   virtual bool breakPath() const { return false; }
 
 protected:
-  virtual const char *typeString() const = 0;
   std::string fromThruToString(const Network *network) const;
   void makeStates();
 
@@ -145,7 +145,7 @@ protected:
   const MinMaxAll *min_max_;
   bool own_pts_;
   int priority_;
-  size_t id_;                   // Unique ID assigned by Sdc.
+  size_t id_{0};                   // Unique ID assigned by Sdc.
   ExceptionState *states_;
 };
 
@@ -172,7 +172,7 @@ public:
                        bool own_pts) override;
   bool isFalse() const override { return true; }
   ExceptionPathType type() const override { return ExceptionPathType::false_path; }
-  const char *typeString() const override;
+  std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
   int typePriority() const override;
@@ -188,7 +188,7 @@ public:
            bool own_pts);
   bool isLoop() const override { return true; }
   ExceptionPathType type() const override { return ExceptionPathType::loop; }
-  const char *typeString() const override;
+  std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
 };
 
@@ -212,7 +212,7 @@ public:
   bool isPathDelay() const override { return true; }
   ExceptionPathType type() const override { return ExceptionPathType::path_delay; }
   std::string to_string(const Network *network) const override;
-  const char *typeString() const override;
+  std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
   float delay() const override { return delay_; }
@@ -248,7 +248,7 @@ public:
   bool matches(const MinMax *min_max,
                bool exactly) const override;
   std::string to_string(const Network *network) const override;
-  const char *typeString() const override;
+  std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
   bool useEndClk() const override { return use_end_clk_; }
@@ -279,7 +279,7 @@ public:
                        bool own_pts) override;
   bool isFilter() const override { return true; }
   ExceptionPathType type() const override { return ExceptionPathType::filter; }
-  const char *typeString() const override;
+  std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
   bool resetMatch(ExceptionFrom *from,
@@ -301,14 +301,13 @@ public:
             ExceptionTo *to,
             bool own_pts,
             std::string_view comment);
-  ~GroupPath() override;
   ExceptionPath *clone(ExceptionFrom *from,
                        ExceptionThruSeq *thrus,
                        ExceptionTo *to,
                        bool own_pts) override;
   bool isGroupPath() const override { return true; }
   ExceptionPathType type() const override { return ExceptionPathType::group_path; }
-  const char *typeString() const override;
+  std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
   int typePriority() const override;
@@ -327,7 +326,7 @@ class ExceptionPt
 public:
   ExceptionPt(const RiseFallBoth *rf,
               bool own_pts);
-  virtual ~ExceptionPt() {};
+  virtual ~ExceptionPt() = default;
   virtual bool isFrom() const { return false; }
   virtual bool isThru() const { return false; }
   virtual bool isTo() const { return false; }
@@ -367,7 +366,7 @@ protected:
   bool own_pts_;
   // Hash is cached because there may be many objects to speed up
   // exception merging.
-  size_t hash_;
+  size_t hash_{0};
 
   // Maximum number of objects for to_string() to show.
   static const int to_string_max_objects_;
@@ -386,7 +385,7 @@ public:
                   const RiseFallBoth *rf,
                   bool own_pts,
                   const Network *network);
-  ~ExceptionFromTo();
+  ~ExceptionFromTo() override;
   PinSet *pins() override { return pins_; }
   bool hasPins() const;
   ClockSet *clks() override { return clks_; }
@@ -512,7 +511,7 @@ public:
                 const RiseFallBoth *rf,
                 bool own_pts,
                 const Network *network);
-  ~ExceptionThru();
+  ~ExceptionThru() override;
   ExceptionThru *clone(const Network *network);
   std::string to_string(const Network *network) const override;
   bool isThru() const override { return true; }
@@ -538,15 +537,6 @@ public:
                      const Network *network) const;
   int typePriority() const override { return 2; }
   size_t objectCount() const override;
-  void connectPinAfter(PinSet *drvrs,
-		       Network *network) override;
-  void deletePinBefore(const Pin *pin,
-                       Network *network) override;
-  void deleteInstance(const Instance *inst,
-                      const Network *network);
-
-protected:
-  void findHash(const Network *network);
   void addPin(const Pin *pin,
               const Network *network) override;
   void addEdge(const EdgePins &edge,
@@ -556,6 +546,15 @@ protected:
   void addInstance(const Instance *inst,
                    const Network *network) override;
   void addClock(Clock *) override {}
+  void connectPinAfter(PinSet *drvrs,
+		       Network *network) override;
+  void deletePinBefore(const Pin *pin,
+                       Network *network) override;
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
+
+protected:
+  void findHash(const Network *network);
   void deletePin(const Pin *pin,
                  const Network *network);
   void deleteEdge(const EdgePins &edge);
@@ -583,7 +582,7 @@ protected:
   // Leaf/port pins.
   PinSet *pins_;
   // Graph edges that traverse thru hierarchical pins.
-  EdgePinsSet *edges_;
+  EdgePinsSet *edges_{nullptr};
   NetSet *nets_;
   InstanceSet *insts_;
 };
@@ -602,9 +601,9 @@ public:
 
 private:
   const ExceptionPath *exception_;
-  bool from_done_;
+  bool from_done_{false};
   ExceptionThruSeq::iterator thru_iter_;
-  bool to_done_;
+  bool to_done_{false};
 };
 
 // Visitor for exception point sets expanded into single object paths.
@@ -620,7 +619,6 @@ class ExpandedExceptionVisitor
 public:
   ExpandedExceptionVisitor(ExceptionPath *exception,
                            const Network *network);
-  virtual ~ExpandedExceptionVisitor() {}
   void visitExpansions();
   // From/thrus/to have a single exception point (pin/instance/net/clock).
   virtual void visit(ExceptionFrom *from,
@@ -666,7 +664,7 @@ public:
 private:
   ExceptionPath *exception_;
   ExceptionThru *next_thru_;
-  ExceptionState *next_state_;
+  ExceptionState *next_state_{nullptr};
   int index_;
 };
 
@@ -678,7 +676,7 @@ exceptionStateCmp(const ExceptionState *state1,
 class EmptyExpceptionPt : public Exception
 {
 public:
-  virtual const char *what() const noexcept;
+  const char *what() const noexcept override;
 };
 
 class ExceptionPathLess
@@ -698,4 +696,4 @@ checkFromThrusTo(ExceptionFrom *from,
                  ExceptionThruSeq *thrus,
                  ExceptionTo *to);
 
-} // namespace
+} // namespace sta

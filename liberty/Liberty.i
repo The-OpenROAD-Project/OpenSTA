@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module liberty
-
 %{
 #include "PatternMatch.hh"
 #include "PortDirection.hh"
@@ -317,7 +315,6 @@ bool is_bundle_member() { return self->isBundleMember(); }
 bool has_members() { return self->hasMembers(); }
 LibertyPortMemberIterator *
 member_iterator() { return new LibertyPortMemberIterator(self); }
-LibertyPort *bundle_port() { return self->bundlePort(); }
 bool is_pwr_gnd() { return self->isPwrGnd(); }
 
 std::string

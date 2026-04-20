@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module search
-
 %include "std_string.i" 
 
 %{
@@ -535,11 +533,11 @@ report_clk_latency(ConstClockSeq clks,
 void
 report_min_pulse_width_checks(const Net *net,
                               size_t max_count,
-                              bool violations,
+                              bool violators,
                               bool verbose,
                               const SceneSeq scenes)
 {
-  return Sta::sta()->reportMinPulseWidthChecks(net, max_count, violations,
+  return Sta::sta()->reportMinPulseWidthChecks(net, max_count, violators,
                                                verbose, scenes);
 }
 
@@ -548,11 +546,11 @@ report_min_pulse_width_checks(const Net *net,
 void
 report_min_period_checks(const Net *net,
                          size_t max_count,
-                         bool violations,
+                         bool violators,
                          bool verbose,
                          const SceneSeq scenes)
 {
-  Sta::sta()->reportMinPeriodChecks(net, max_count, violations, verbose, scenes);
+  Sta::sta()->reportMinPeriodChecks(net, max_count, violators, verbose, scenes);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1113,7 +1111,7 @@ void
 levelize()
 {
   Sta *sta = Sta::sta();
-  sta->levelize()->levelize();
+  sta->levelize()->findLevels();
 }
 
 %} // inline

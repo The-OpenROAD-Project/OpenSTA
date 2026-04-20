@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #include "DelayCalcBase.hh"
 
@@ -47,4 +47,4 @@ protected:
                                        const MinMax *min_max);
 };
 
-} // namespace
+} // namespace sta

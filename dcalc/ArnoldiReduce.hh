@@ -52,7 +52,7 @@ class ArnoldiReduce : public StaState
 {
 public:
   ArnoldiReduce(StaState *sta);
-  ~ArnoldiReduce();
+  ~ArnoldiReduce() override;
   rcmodel *reduceToArnoldi(Parasitic *parasitic,
                            const Pin *drvr_pin,
                            float coupling_cap_factor,
@@ -86,11 +86,11 @@ protected:
   // rcWork
   ts_point *ts_pointV;
   int ts_pointN;
-  int ts_pointNmax;
+  int ts_pointNmax{1024};
   static const int ts_point_count_incr_;
   ts_edge *ts_edgeV;
   int ts_edgeN;
-  int ts_edgeNmax;
+  int ts_edgeNmax{1024};
   static const int ts_edge_count_incr_;
   ts_edge **ts_eV;
   ts_edge **ts_stackV;
@@ -98,14 +98,14 @@ protected:
   ts_point **ts_pordV;
   int ts_ordN;
 
-  int termNmax;
+  int termNmax{256};
   int termN;
   ts_point *pterm0;
   const Pin **pinV; // fixed order, offset from pterm0
   int *termV; // from drv-ordered to fixed order
   int *outV;  // from drv-ordered to ts_pordV
 
-  int dNmax;
+  int dNmax{8};
   double *d;
   double *e;
   double *U0;
@@ -120,4 +120,4 @@ protected:
   int order;
 };
 
-} // namespace
+} // namespace sta

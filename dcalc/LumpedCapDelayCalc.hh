@@ -61,7 +61,7 @@ public:
                            const LoadPinIndexMap &load_pin_index_map,
                            const Scene *scene,
                            const MinMax *min_max) override;
-  std::string reportGateDelay(const Pin *drvr_pin,
+  std::string reportGateDelay(const Pin *check_pin,
                               const TimingArc *arc,
                               const Slew &in_slew,
                               float load_cap,
@@ -84,4 +84,4 @@ protected:
 ArcDelayCalc *
 makeLumpedCapDelayCalc(StaState *sta);
 
-} // namespace
+} // namespace sta

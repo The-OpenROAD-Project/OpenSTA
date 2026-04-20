@@ -24,19 +24,20 @@
 
 #include "CcsCeffDelayCalc.hh"
 
+#include <algorithm>
 #include <cmath>
 
 #include "Debug.hh"
-#include "Units.hh"
-#include "Liberty.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Scene.hh"
-#include "Parasitics.hh"
-#include "GraphDelayCalc.hh"
 #include "DmpDelayCalc.hh"
 #include "FindRoot.hh"
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "Scene.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -53,10 +54,6 @@ makeCcsCeffDelayCalc(StaState *sta)
 
 CcsCeffDelayCalc::CcsCeffDelayCalc(StaState *sta) :
   LumpedCapDelayCalc(sta),
-  output_waveforms_(nullptr),
-  // Includes the Vh:Vdd region.
-  region_count_(0),
-  vl_fail_(false),
   watch_pin_values_(network_),
   capacitance_unit_(units_->capacitanceUnit()),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
@@ -176,8 +173,8 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
     }
 
     for (size_t i = 0; i < region_count_; i++) {
-      double v1 = region_volts_[i];
-      double v2 = region_volts_[i + 1];
+      double seg_v1 = region_volts_[i];
+      double seg_v2 = region_volts_[i + 1];
       double t1 = region_times_[i];
       double t2 = region_times_[i + 1];
 
@@ -186,11 +183,11 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
       // for the charge on c1 from previous segments so it does not
       // work well.
       double c1_v1, c1_v2, ignore;
-      vl(t1, rpi_ * c1_, c1_v1, ignore);
-      vl(t2, rpi_ * c1_, c1_v2, ignore);
-      double q1 = v1 * c2_ + c1_v1 * c1_;
-      double q2 = v2 * c2_ + c1_v2 * c1_;
-      double ceff = (q2 - q1) / (v2 - v1);
+      vLoad(t1, rpi_ * c1_, c1_v1, ignore);
+      vLoad(t2, rpi_ * c1_, c1_v2, ignore);
+      double q1 = seg_v1 * c2_ + c1_v1 * c1_;
+      double q2 = seg_v2 * c2_ + c1_v2 * c1_;
+      double ceff = (q2 - q1) / (seg_v2 - seg_v1);
 
       debugPrint(debug_, "ccs_dcalc", 2, "ceff {}",
                  capacitance_unit_->asString(ceff));
@@ -297,7 +294,7 @@ CcsCeffDelayCalc::initRegions(const LibertyLibrary *drvr_library,
       report_->error(1701, "unsupported ccs region count.");
       break;
   }
-  fill(region_ceff_.begin(), region_ceff_.end(), c2_ + c1_);
+  std::ranges::fill(region_ceff_, c2_ + c1_);
 }
 
 void
@@ -402,11 +399,11 @@ rampElmoreV(double t,
 
 // Elmore (one pole) response to 2 segment ramps [0, vth] slew1, [vth, vdd] slew2.
 void
-CcsCeffDelayCalc::vl(double t,
-                     double elmore,
-                     // Return values.
-                     double &vl,
-                     double &dvl_dt)
+CcsCeffDelayCalc::vLoad(double t,
+                        double elmore,
+                        // Return values.
+                        double &vl,
+                        double &dvl_dt)
 {
   vl = 0.0;
   dvl_dt = 0.0;
@@ -431,11 +428,11 @@ CcsCeffDelayCalc::vl(double t,
 
 // for debugging
 double
-CcsCeffDelayCalc::vl(double t,
-                     double elmore)
+CcsCeffDelayCalc::vLoad(double t,
+                        double elmore)
 {
   double vl1, dvl_dt;
-  vl(t, elmore, vl1, dvl_dt);
+  vLoad(t, elmore, vl1, dvl_dt);
   return vl1;
 }
 
@@ -447,7 +444,7 @@ CcsCeffDelayCalc::findVlTime(double v,
   double t_final = region_ramp_times_[region_count_];
   auto [time, failed] =
     findRoot([&](double t, double &y, double &dy) {
-      vl(t, elmore, y, dy);
+      vLoad(t, elmore, y, dy);
       y -= v;
     },
       t_init, t_final + elmore * 3.0, .001, 20);
@@ -539,7 +536,7 @@ CcsCeffDelayCalc::loadWaveform(const Pin *load_pin)
         load_times->push_back(t);
 
         double ignore;
-        vl(t, elmore, v, ignore);
+        vLoad(t, elmore, v, ignore);
         double v1 = (drvr_rf_ == RiseFall::rise()) ? v : vdd_ - v;
         load_volts->push_back(v1);
       }

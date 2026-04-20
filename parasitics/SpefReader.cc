@@ -28,21 +28,21 @@
 #include <string_view>
 #include <utility>
 
-#include "Zlib.hh"
-#include "Stats.hh"
-#include "Report.hh"
+#include "ArcDelayCalc.hh"
 #include "Debug.hh"
-#include "StringUtil.hh"
-#include "Transition.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "PortDirection.hh"
-#include "Sdc.hh"
 #include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
 #include "Scene.hh"
-#include "ArcDelayCalc.hh"
-#include "SpefReaderPvt.hh"
+#include "Sdc.hh"
 #include "SpefNamespace.hh"
+#include "SpefReaderPvt.hh"
+#include "Stats.hh"
+#include "StringUtil.hh"
+#include "Transition.hh"
+#include "Zlib.hh"
 #include "parasitics/SpefScanner.hh"
 
 namespace sta {
@@ -84,24 +84,10 @@ SpefReader::SpefReader(std::string_view filename,
   reduce_(reduce),
   scene_(scene),
   min_max_(min_max),
-  // defaults
-  divider_('\0'),
-  delimiter_('\0'),
-  bus_brkt_left_('\0'),
-  bus_brkt_right_('\0'),
-  net_(nullptr),
-  triple_index_(0),
-  time_scale_(1.0),
-  cap_scale_(1.0),
-  res_scale_(1.0),
-  induct_scale_(1.0),
-  parasitics_(parasitics),
-  parasitic_(nullptr)
+  parasitics_(parasitics)
 {
   parasitics->setCouplingCapFactor(coupling_cap_factor);
 }
-
-SpefReader::~SpefReader() {}
 
 bool
 SpefReader::read()
@@ -454,7 +440,7 @@ SpefReader::findParasiticNode(std::string_view name,
           if (net) {
             // <net>:<subnode_id>
             if (isDigits(name2)) {
-              int id = std::stoi(name2);
+              uint32_t id = std::stoi(name2);
               if (local_only && !network_->isConnected(net, net_))
                 warn(1653, "{}{}{} not connected to net {}.",
                      name1, delimiter_, name2, network_->pathName(net_));
@@ -489,7 +475,7 @@ SpefReader::findParasiticNode(std::string_view name,
 }
 
 void
-SpefReader::makeCapacitor(int,
+SpefReader::makeCapacitor(uint32_t,
                           std::string_view node_name,
                           SpefTriple *cap)
 {
@@ -502,7 +488,7 @@ SpefReader::makeCapacitor(int,
 }
 
 void
-SpefReader::makeCapacitor(int id,
+SpefReader::makeCapacitor(uint32_t id,
                           std::string_view node_name1,
                           std::string_view node_name2,
                           SpefTriple *cap)
@@ -525,7 +511,7 @@ SpefReader::makeCapacitor(int id,
 }
 
 void
-SpefReader::makeResistor(int id,
+SpefReader::makeResistor(uint32_t id,
                          std::string_view node_name1,
                          std::string_view node_name2,
                          SpefTriple *res)

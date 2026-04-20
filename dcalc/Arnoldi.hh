@@ -45,7 +45,7 @@ class arnoldi1
 public:
   arnoldi1() { order=0; n=0; d=nullptr; e=nullptr; U=nullptr; ctot=0.0; sqc=0.0; }
   ~arnoldi1();
-  double elmore(int term_index);
+  double elmore(int k);
 
   //
   // calculate poles/residues for given rdrive
@@ -70,12 +70,12 @@ class rcmodel : public ConcreteParasitic,
 {
 public:
   rcmodel();
-  virtual ~rcmodel();
-  virtual float capacitance() const;
-  virtual PinSet unannotatedLoads(const Pin *drvr_pin,
-                                  const Parasitics *parasitics) const;
+  ~rcmodel() override;
+  float capacitance() const override;
+  PinSet unannotatedLoads(const Pin *drvr_pin,
+                          const Parasitics *parasitics) const override;
 
-  const Pin **pinV; // [n]
+  const Pin **pinV{nullptr}; // [n]
 };
 
 struct timing_table
@@ -86,4 +86,4 @@ struct timing_table
   float in_slew;
 };
 
-} // namespace
+} // namespace sta

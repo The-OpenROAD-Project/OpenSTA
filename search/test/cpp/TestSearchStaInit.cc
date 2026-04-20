@@ -1142,7 +1142,7 @@ TEST_F(StaInitTest, MakeClockWithComment) {
   waveform->push_back(5.0);
   char *comment = new char[20];
   strcpy(comment, "test clock");
-  sta_->makeClock("cmt_clk", nullptr, false, 10.0, waveform, comment, sta_->cmdMode());
+  sta_->makeClock("cmt_clk", PinSet(), false, 10.0, *waveform, comment, sta_->cmdMode());
 
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("cmt_clk");
@@ -3832,12 +3832,6 @@ TEST_F(StaInitTest, PathEndDataClkPathDefault) {
   Path *p = new Path();
   PathEndUnconstrained pe(p);
   EXPECT_EQ(pe.dataClkPath(), nullptr);
-}
-
-TEST_F(StaInitTest, PathEndSetupDefaultCycles) {
-  Path *p = new Path();
-  PathEndUnconstrained pe(p);
-  EXPECT_EQ(pe.setupDefaultCycles(), 1);
 }
 
 TEST_F(StaInitTest, PathEndPathDelayMarginIsExternal) {

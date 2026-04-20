@@ -72,7 +72,7 @@ protected:
   void thresholdAdjust(const Pin *load_pin,
                        const LibertyLibrary *drvr_library,
                        const RiseFall *rf,
-                       double &load_delay,
+                       double &wire_delay,
                        double &load_slew);
   // Helper function for input ports driving dspf parasitic.
   void dspfWireDelaySlew(const Pin *load_pin,
@@ -89,4 +89,4 @@ protected:
   using ArcDelayCalc::reduceParasitic;
 };
 
-} // namespace
+} // namespace sta

@@ -24,17 +24,16 @@
 
 #include "EquivCells.hh"
 
+#include <cstddef>
+
 #include "ContainerHelpers.hh"
-#include "Hash.hh"
-#include "MinMax.hh"
-#include "PortDirection.hh"
-#include "Transition.hh"
-#include "TimingRole.hh"
 #include "FuncExpr.hh"
-#include "TimingArc.hh"
+#include "Hash.hh"
 #include "Liberty.hh"
-#include "TableModel.hh"
+#include "LibertyClass.hh"
+#include "PortDirection.hh"
 #include "Sequential.hh"
+#include "TimingArc.hh"
 
 namespace sta {
 
@@ -208,8 +207,8 @@ hashCellPorts(const LibertyCell *cell)
 static unsigned
 hashPort(const LibertyPort *port)
 {
-  return hashString(port->name().c_str()) * 3
-    + port->direction()->index() * 5;
+  return hashString(port->name()) * 3U
+    + port->direction()->index() * 5U;
 }
 
 static unsigned
@@ -235,8 +234,8 @@ hashSequential(const Sequential *seq)
   hash += hashPort(seq->outputInv()) * 11;
   hash += hashFuncExpr(seq->clear()) * 13;
   hash += hashFuncExpr(seq->preset()) * 17;
-  hash += int(seq->clearPresetOutput()) * 19;
-  hash += int(seq->clearPresetOutputInv()) * 23;
+  hash += static_cast<unsigned>(seq->clearPresetOutput()) * 19;
+  hash += static_cast<unsigned>(seq->clearPresetOutputInv()) * 23;
   return hash;
 }
 
@@ -501,4 +500,4 @@ equivCellTimingArcSets(const LibertyCell *cell1,
   }
 }
 
-} // namespace
+} // namespace sta

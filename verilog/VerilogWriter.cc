@@ -33,11 +33,11 @@
 #include "Error.hh"
 #include "Format.hh"
 #include "Liberty.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
-#include "VerilogNamespace.hh"
 #include "ParseBus.hh"
+#include "PortDirection.hh"
+#include "VerilogNamespace.hh"
 
 namespace sta {
 
@@ -84,7 +84,7 @@ protected:
   CellSet remove_cells_;
   FILE *stream_;
   Network *network_;
-  int unconnected_net_index_;
+  int unconnected_net_index_{1};
 };
 
 void
@@ -115,8 +115,7 @@ VerilogWriter::VerilogWriter(const char *filename,
   include_pwr_gnd_(include_pwr_gnd),
   remove_cells_(network),
   stream_(stream),
-  network_(network),
-  unconnected_net_index_(1)
+  network_(network)
 {
   if (remove_cells) {
     for(Cell *lib_cell : *remove_cells)
@@ -515,4 +514,4 @@ VerilogWriter::findPortNCcount(const Instance *inst,
   return nc_count;
 }
 
-} // namespace
+} // namespace sta

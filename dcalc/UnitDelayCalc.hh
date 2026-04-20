@@ -109,4 +109,4 @@ protected:
 ArcDelayCalc *
 makeUnitDelayCalc(StaState *sta);
 
-} // namespace
+} // namespace sta

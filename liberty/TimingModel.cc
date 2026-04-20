@@ -24,6 +24,8 @@
 
 #include "TimingModel.hh"
 
+#include "LibertyClass.hh"
+
 namespace sta {
 
 GateTimingModel::GateTimingModel(LibertyCell *cell) :
@@ -36,4 +38,4 @@ CheckTimingModel::CheckTimingModel(LibertyCell *cell) :
 {
 }
 
-} // namespace
+} // namespace sta

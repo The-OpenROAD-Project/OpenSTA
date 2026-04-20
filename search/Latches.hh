@@ -24,10 +24,15 @@
 
 #pragma once
 
+#include "Delay.hh"
 #include "GraphClass.hh"
-#include "SearchClass.hh"
+#include "LibertyClass.hh"
+#include "Mode.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
+#include "SearchClass.hh"
 #include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -108,4 +113,4 @@ protected:
                              const ClockEdge *en_clk_edge);
 };
 
-} // namespace
+} // namespace sta

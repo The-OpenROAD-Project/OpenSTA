@@ -1075,7 +1075,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
@@ -1455,7 +1455,7 @@ protected:
     FloatSeq *wave1 = new FloatSeq;
     wave1->push_back(0.0f);
     wave1->push_back(5.0f);
-    sta_->makeClock("clk1", clk1_pins, false, 10.0f, wave1, "", sta_->cmdMode());
+    sta_->makeClock("clk1", *clk1_pins, false, 10.0f, *wave1, "", sta_->cmdMode());
 
     // Create clock2
     Pin *clk2_pin = network->findPin(top, "clk2");
@@ -1465,7 +1465,7 @@ protected:
     FloatSeq *wave2 = new FloatSeq;
     wave2->push_back(0.0f);
     wave2->push_back(2.5f);
-    sta_->makeClock("clk2", clk2_pins, false, 5.0f, wave2, "", sta_->cmdMode());
+    sta_->makeClock("clk2", *clk2_pins, false, 5.0f, *wave2, "", sta_->cmdMode());
 
     // Input delays
     Clock *clk1 = sta_->cmdSdc()->findClock("clk1");
@@ -1664,7 +1664,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
@@ -1929,7 +1929,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);

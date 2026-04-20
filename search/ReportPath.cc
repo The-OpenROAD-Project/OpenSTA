@@ -22,46 +22,46 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+#include "ReportPath.hh"
+
 #include <algorithm>            // reverse
 #include <string>
 #include <string_view>
 
-#include "ReportPath.hh"
-
+#include "ArcDelayCalc.hh"
+#include "CheckMaxSkews.hh"
+#include "CheckMinPeriods.hh"
+#include "CheckMinPulseWidths.hh"
+#include "ClkInfo.hh"
 #include "ContainerHelpers.hh"
-#include "Format.hh"
-#include "Report.hh"
 #include "Error.hh"
-#include "StringUtil.hh"
+#include "ExceptionPath.hh"
+#include "Format.hh"
 #include "Fuzzy.hh"
-#include "Units.hh"
+#include "Genclks.hh"
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
+#include "InputDrive.hh"
+#include "Latches.hh"
+#include "Liberty.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "Path.hh"
+#include "PathExpanded.hh"
+#include "PathGroup.hh"
+#include "PortDelay.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "StringUtil.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
 #include "TimingRole.hh"
 #include "Transition.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "PortDelay.hh"
-#include "ExceptionPath.hh"
-#include "InputDrive.hh"
-#include "Sdc.hh"
-#include "Parasitics.hh"
-#include "ArcDelayCalc.hh"
-#include "GraphDelayCalc.hh"
-#include "ClkInfo.hh"
-#include "Tag.hh"
-#include "PathGroup.hh"
-#include "CheckMinPulseWidths.hh"
-#include "CheckMinPeriods.hh"
-#include "CheckMaxSkews.hh"
-#include "Path.hh"
-#include "Search.hh"
-#include "PathExpanded.hh"
-#include "Latches.hh"
-#include "Scene.hh"
-#include "Mode.hh"
-#include "Genclks.hh"
+#include "Units.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -96,8 +96,7 @@ ReportField::ReportField(std::string_view name,
 }
 
 ReportField::~ReportField()
-{
-}
+= default;
 
 void
 ReportField::setProperties(std::string_view title,
@@ -125,11 +124,7 @@ ReportField::setEnabled(bool enabled)
 ////////////////////////////////////////////////////////////////
 
 ReportPath::ReportPath(StaState *sta) :
-  StaState(sta),
-  format_(ReportPathFormat::full),
-  no_split_(false),
-  start_end_pt_width_(80),
-  field_width_extra_(5)
+  StaState(sta)
 {
   makeFields();
   setDigits(2);
@@ -365,7 +360,6 @@ ReportPath::reportPathEndHeader() const
 void
 ReportPath::reportPathEndFooter() const
 {
-  std::string header;
   switch (format_) {
   case ReportPathFormat::full:
   case ReportPathFormat::full_clock:
@@ -2476,7 +2470,7 @@ ReportPath::reportPathLine(const Path *path,
 
 void
 ReportPath::reportRequired(const PathEnd *end,
-                           std::string margin_msg) const
+                           const std::string& margin_msg) const
 {
   Required req_time = end->requiredTimeOffset(this);
   const EarlyLate *early_late = end->clkEarlyLate(this);
@@ -2742,7 +2736,7 @@ ReportPath::reportPath6(const Path *path,
     Pin *pin = vertex->pin();
     Arrival time = delaySum(path1->arrival(), time_offset, this);
     Delay incr = 0.0;
-    std::string_view line_case = "";
+    std::string_view line_case;
     bool is_clk_start = path1->vertex(this) == clk_start;
     bool is_clk = path1->isClock(search_);
     Instance *inst = network_->instance(pin);
@@ -3249,7 +3243,7 @@ ReportPath::reportLine(std::string_view what,
       else if (field == field_variation_)
         reportFieldBlank(field, line);
       else if (field == field_src_attr_) {
-        if (src_attr != "")
+        if (!src_attr.empty())
           reportField(src_attr, field, line);
         else
           reportFieldBlank(field, line);
@@ -3597,7 +3591,7 @@ hierPinsThruEdge(const Edge *edge,
   hierPinsAbove(drvr_pin, network, drvr_hpins);
   hierPinsAbove(load_pin, network, load_hpins);
   if (drvr_hpins.empty()) {
-    std::reverse(load_hpins.begin(), load_hpins.end());
+    std::ranges::reverse(load_hpins);
     return load_hpins;
   }
   if (load_hpins.empty())
@@ -3656,4 +3650,4 @@ hierPinsAbove(const Net *net,
   }
 }
 
-} // namespace
+} // namespace sta

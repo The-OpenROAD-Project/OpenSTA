@@ -85,4 +85,4 @@ private:
   bool exists_[RiseFall::index_count][MinMax::index_count];
 };
 
-} // namespace
+} // namespace sta

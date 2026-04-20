@@ -32,20 +32,18 @@ namespace sta {
 class SdcCmdComment
 {
 public:
-  SdcCmdComment();
-  SdcCmdComment(std::string comment);
+  SdcCmdComment() = default;
   SdcCmdComment(std::string_view comment);
   const std::string &comment() { return comment_; }
   const std::string &comment() const { return comment_; }
-  void setComment(std::string comment);
   void setComment(std::string_view comment);
 
 protected:
   // Destructor is protected to prevent deletion of a derived
   // class with a pointer to this base class.
-  ~SdcCmdComment();
+  ~SdcCmdComment() = default;
 
   std::string comment_;
 };
 
-} // namespace
+} // namespace sta

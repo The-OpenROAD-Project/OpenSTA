@@ -24,6 +24,8 @@
 
 #include "InputDrive.hh"
 
+#include "SdcClass.hh"
+
 namespace sta {
 
 InputDrive::InputDrive()
@@ -90,7 +92,7 @@ void
 InputDrive::setDriveCell(const LibertyLibrary *library,
                          const LibertyCell *cell,
                          const LibertyPort *from_port,
-                         float *from_slews,
+                         const DriveCellSlews &from_slews,
                          const LibertyPort *to_port,
                          const RiseFallBoth *rf,
                          const MinMaxAll *min_max)
@@ -120,20 +122,21 @@ InputDrive::driveCell(const RiseFall *rf,
                       // Return values.
                       const LibertyCell *&cell,
                       const LibertyPort *&from_port,
-                      float *&from_slews,
+                      const DriveCellSlews *&from_slews,
                       const LibertyPort *&to_port) const
 {
   InputDriveCell *drive = drive_cells_[rf->index()][min_max->index()];
   if (drive) {
     cell = drive->cell();
     from_port = drive->fromPort();
-    from_slews = drive->fromSlews();
+    from_slews = &drive->fromSlews();
     to_port = drive->toPort();
   }
   else {
     cell = nullptr;
     from_port = nullptr;
-    from_slews = nullptr;
+    static constexpr DriveCellSlews slews_zero{0.0, 0.0};
+    from_slews = &slews_zero;
     to_port = nullptr;
   }
 }
@@ -182,14 +185,14 @@ InputDrive::slew(const RiseFall *rf,
 InputDriveCell::InputDriveCell(const LibertyLibrary *library,
                                const LibertyCell *cell,
                                const LibertyPort *from_port,
-                               float *from_slews,
+                               const DriveCellSlews &from_slews,
                                const LibertyPort *to_port) :
   library_(library),
   cell_(cell),
   from_port_(from_port),
+  from_slews_(from_slews),
   to_port_(to_port)
 {
-  setFromSlews(from_slews);
 }
 
 void
@@ -217,10 +220,9 @@ InputDriveCell::setToPort(const LibertyPort *to_port)
 }
 
 void
-InputDriveCell::setFromSlews(float *from_slews)
+InputDriveCell::setFromSlews(const DriveCellSlews &from_slews)
 {
-  for (auto rf_index : RiseFall::rangeIndex())
-    from_slews_[rf_index] = from_slews[rf_index];
+  from_slews_ = from_slews;
 }
 
 bool
@@ -235,4 +237,4 @@ InputDriveCell::equal(const InputDriveCell *drive) const
     && to_port_ == drive->to_port_;
 }
 
-} // namespace
+} // namespace sta

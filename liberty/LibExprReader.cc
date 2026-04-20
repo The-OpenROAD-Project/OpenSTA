@@ -24,7 +24,6 @@
 
 #include "FuncExpr.hh"
 
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -63,8 +62,7 @@ LibExprReader::LibExprReader(std::string_view func,
   func_(func),
   cell_(cell),
   error_msg_(error_msg),
-  report_(report),
-  result_(nullptr)
+  report_(report)
 {
 }
 

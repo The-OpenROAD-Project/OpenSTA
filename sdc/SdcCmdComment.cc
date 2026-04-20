@@ -22,33 +22,15 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include "StringUtil.hh"
 #include "SdcCmdComment.hh"
 
+#include "StringUtil.hh"
+
 namespace sta {
-
-SdcCmdComment::SdcCmdComment()
-{
-}
-
-SdcCmdComment::SdcCmdComment(std::string comment) :
-  comment_(std::move(comment))
-{
-}
 
 SdcCmdComment::SdcCmdComment(std::string_view comment) :
   comment_(comment)
 {
-}
-
-SdcCmdComment::~SdcCmdComment()
-{
-}
-
-void
-SdcCmdComment::setComment(std::string comment)
-{
-  comment_ = std::move(comment);
 }
 
 void
@@ -57,4 +39,4 @@ SdcCmdComment::setComment(std::string_view comment)
   comment_ = comment;
 }
 
-} // namespace
+} // namespace sta

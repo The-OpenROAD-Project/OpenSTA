@@ -22,20 +22,20 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module sdc
-
 %include "std_string.i" 
 
 %{
+#include "Sdc.hh"
+
 #include <vector>
 
-#include "Sdc.hh"
-#include "Wireload.hh"
 #include "Clock.hh"
+#include "FilterObjects.hh"
 #include "PortDelay.hh"
 #include "Property.hh"
-#include "FilterObjects.hh"
+#include "SdcClass.hh"
 #include "Sta.hh"
+#include "Wireload.hh"
 
 using namespace sta;
 
@@ -292,21 +292,21 @@ set_net_resistance(Net *net,
 
 void
 make_clock(std::string name,
-           PinSet *pins,
+           PinSet pins,
            bool add_to_pins,
            float period,
-           FloatSeq *waveform,
+           FloatSeq waveform,
            std::string comment)
 {
   Sta *sta = Sta::sta();
   const Mode *mode = sta->cmdMode();
-  sta->makeClock(name.c_str(), pins, add_to_pins, period, waveform,
-                 std::move(comment), mode);
+  sta->makeClock(name, pins, add_to_pins, period, waveform,
+                 comment, mode);
 }
 
 void
 make_generated_clock(std::string name,
-                     PinSet *pins,
+                     PinSet pins,
                      bool add_to_pins,
                      Pin *src_pin,
                      Clock *master_clk,
@@ -315,17 +315,17 @@ make_generated_clock(std::string name,
                      float duty_cycle,
                      bool invert,
                      bool combinational,
-                     IntSeq *edges,
-                     FloatSeq *edge_shifts,
+                     IntSeq edges,
+                     FloatSeq edge_shifts,
                      std::string comment)
 {
   Sta *sta = Sta::sta();
   const Mode *mode = sta->cmdMode();
-  sta->makeGeneratedClock(name.c_str(), pins, add_to_pins,
+  sta->makeGeneratedClock(name, pins, add_to_pins,
                           src_pin, master_clk,
                           divide_by, multiply_by, duty_cycle, invert,
                           combinational, edges, edge_shifts,
-                          std::move(comment), mode);
+                          comment, mode);
 }
 
 void
@@ -1076,7 +1076,7 @@ set_drive_cell_cmd(LibertyLibrary *library,
 {
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->cmdSdc();
-  float from_slews[RiseFall::index_count];
+  DriveCellSlews from_slews;
   from_slews[RiseFall::riseIndex()] = from_slew_rise;
   from_slews[RiseFall::fallIndex()] = from_slew_fall;
   sta->setDriveCell(library, cell, port, from_port, from_slews,
@@ -1673,7 +1673,7 @@ pin_is_constrained(const Pin *pin)
 
 %extend Clock {
 float period() { return self->period(); }
-FloatSeq *waveform() { return self->waveform(); }
+FloatSeq waveform() { return self->waveform(); }
 float time(RiseFall *rf) { return self->edge(rf)->time(); }
 bool is_generated() { return self->isGenerated(); }
 bool waveform_valid() { return self->waveformValid(); }

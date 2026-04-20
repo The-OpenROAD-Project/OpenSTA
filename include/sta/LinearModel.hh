@@ -55,10 +55,9 @@ public:
                               PocvMode pocv_mode,
                               int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
-
-protected:
   void setIsScaled(bool is_scaled) override;
 
+protected:
   float intrinsic_;
   float resistance_;
 };
@@ -82,11 +81,10 @@ public:
                                const MinMax *min_max,
                                PocvMode pocv_mode,
                                int digits) const override;
-
-protected:
   void setIsScaled(bool is_scaled) override;
 
+protected:
   float intrinsic_;
 };
 
-} // namespace
+} // namespace sta

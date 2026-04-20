@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include "Delay.hh"
+#include "GraphClass.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
-#include "Transition.hh"
-#include "GraphClass.hh"
-#include "Delay.hh"
-#include "StaState.hh"
 #include "SearchClass.hh"
+#include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -103,7 +103,7 @@ public:
   const Required &required() const {return required_; }
   void setRequired(const Required &required);
   Slack slack(const StaState *sta) const;
-  const Slew slew(const StaState *sta) const;
+  Slew slew(const StaState *sta) const;
   // This takes the same time as prevPath and prevArc combined.
   Path *prevPath() const;
   void setPrevPath(Path *prev_path);
@@ -201,7 +201,6 @@ public:
                      const RiseFall *rf,
                      const MinMax *min_max,
                      const StaState *sta);
-  virtual ~VertexPathIterator();
   bool hasNext() override;
   Path *next() override;
 
@@ -219,4 +218,4 @@ private:
   Path *next_;
 };
 
-} // namespace
+} // namespace sta

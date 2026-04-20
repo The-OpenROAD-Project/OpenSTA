@@ -27,20 +27,20 @@
 #include <algorithm>
 #include <cmath> // abs
 
-#include "Debug.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
-#include "Path.hh"
 #include "ClkInfo.hh"
+#include "Debug.hh"
+#include "Genclks.hh"
+#include "Graph.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "Path.hh"
+#include "PathEnd.hh"
+#include "Sdc.hh"
+#include "Search.hh"
 #include "Tag.hh"
 #include "TagGroup.hh"
-#include "VisitPathEnds.hh"
-#include "PathEnd.hh"
-#include "Search.hh"
-#include "Genclks.hh"
 #include "Variables.hh"
-#include "Mode.hh"
+#include "VisitPathEnds.hh"
 
 namespace sta {
 
@@ -384,4 +384,4 @@ CheckCrpr::crprPossible(const Clock *clk1,
         || intersects(&clk1->pins(), &clk2->pins(), network_));
 }
 
-} // namespace
+} // namespace sta

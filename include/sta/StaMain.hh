@@ -75,4 +75,4 @@ sourceTclFile(const char *filename,
               bool verbose,
               Tcl_Interp *interp);
 
-} // namespace
+} // namespace sta

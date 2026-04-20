@@ -55,4 +55,4 @@ reduceToPiPoleResidue2(const Parasitic *parasitic_network,
                        const MinMax *min_max,
                        StaState *sta);
 
-} // namespace
+} // namespace sta

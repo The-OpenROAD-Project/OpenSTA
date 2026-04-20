@@ -39,4 +39,4 @@ makeTimingModel(std::string_view lib_name,
                 const Scene *scene,
                 Sta *sta);
 
-} // namespace
+} // namespace sta

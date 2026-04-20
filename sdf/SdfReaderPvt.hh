@@ -28,14 +28,14 @@
 #include <string_view>
 #include <vector>
 
-#include "TimingRole.hh"
-#include "Transition.hh"
+#include "GraphClass.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
-#include "GraphClass.hh"
 #include "Report.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -58,7 +58,7 @@ public:
             bool is_incremental_only,
             MinMaxAll *cond_use,
             StaState *sta);
-  ~SdfReader();
+  ~SdfReader() override;
   bool read();
 
   void setDivider(char divider);
@@ -80,7 +80,7 @@ public:
                                SdfTriple *triple);
   void setEdgeArcDelaysCondUse(Edge *edge,
                                TimingArc *arc,
-                               float *value,
+                               const float *value,
                                int triple_index,
                                int arc_delay_index,
                                const MinMax *min_max);
@@ -126,7 +126,7 @@ public:
   void port(std::string_view o_pin_name,
             SdfTripleSeq *triples);
   void device(SdfTripleSeq *triples);
-  void device(std::string_view to_pin_name,
+  void device(std::string_view to_port_name,
               SdfTripleSeq *triples);
 
   SdfTriple *makeTriple();
@@ -151,7 +151,7 @@ public:
   void setInTimingCheck(bool in);
   bool inIncremental() const { return in_incremental_; }
   void setInIncremental(bool incr);
-  std::string makeBusName(std::string_view bus_name,
+  std::string makeBusName(std::string_view base_name,
                           int index);
   std::string_view filename() const { return filename_; }
   int sdfLine() const;
@@ -209,8 +209,8 @@ private:
   SdfScanner *scanner_;
   std::string_view path_;
   // Which values to pull out of the sdf triples.
-  int triple_min_index_;
-  int triple_max_index_;
+  int triple_min_index_{0};
+  int triple_max_index_{2};
   // Which arc delay value to deposit the sdf values into.
   int arc_delay_min_index_;
   int arc_delay_max_index_;
@@ -219,15 +219,15 @@ private:
   bool is_incremental_only_;
   MinMaxAll *cond_use_;
 
-  char divider_;
-  char escape_;
-  Instance *instance_;
+  char divider_{'/'};
+  char escape_{'\\'};
+  Instance *instance_{nullptr};
   std::string cell_name_;
-  bool in_timing_check_;
-  bool in_incremental_;
-  float timescale_;
+  bool in_timing_check_{false};
+  bool in_incremental_{false};
+  float timescale_{1.0E-9F};  // default units of ns
 
   static const int null_index_ = -1;
 };
 
-} // namespace
+} // namespace sta

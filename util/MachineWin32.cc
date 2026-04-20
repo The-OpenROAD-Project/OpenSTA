@@ -24,7 +24,8 @@
 
 #include "Machine.hh"
 
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 #include <windows.h> // GetSystemInfo
 
 namespace sta {
@@ -35,7 +36,7 @@ int
 vsnprint(char *str,
          size_t size,
          const char *fmt,
-         va_list args)
+         const va_list args)
 {
   // Copy args before using them because consumption is destructive.
   va_list args_copy1;
@@ -109,4 +110,4 @@ memoryUsage()
   return 0;
 }
 
-} // namespace
+} // namespace sta

@@ -24,19 +24,15 @@
 
 #include "Stats.hh"
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "Report.hh"
 #include "Debug.hh"
+#include "Machine.hh"
+#include "Report.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
 Stats::Stats(Debug *debug,
              Report *report) :
-  elapsed_begin_(0.0),
-  user_begin_(0.0),
-  system_begin_(0.0),
-  memory_begin_(0),
   debug_(debug),
   report_(report)
 {

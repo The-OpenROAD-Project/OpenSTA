@@ -39,6 +39,7 @@
 namespace sta {
 
 class Report;
+class VerilogReader;
 
 class VerilogScanner : public VerilogFlexLexer
 {
@@ -46,9 +47,7 @@ public:
   VerilogScanner(std::istream *stream,
                  std::string_view filename,
                  Report *report);
-  virtual ~VerilogScanner() {}
-
-  virtual int lex(VerilogParse::semantic_type *const yylval,
+  virtual int lex(VerilogParse::semantic_type *yylval,
                   VerilogParse::location_type *yylloc);
   // YY_DECL defined in VerilogLex.ll
   // Method body created by flex in VerilogLex.cc
@@ -65,4 +64,4 @@ private:
   std::string token_;
 };
 
-} // namespace
+} // namespace sta

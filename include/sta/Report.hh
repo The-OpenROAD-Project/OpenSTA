@@ -24,15 +24,15 @@
 
 #pragma once
 
-#include <stdio.h>
 #include <cstdarg>
-#include <string>
-#include <string_view>
 #include <mutex>
 #include <set>
+#include <cstdio>
+#include <string>
+#include <string_view>
 
-#include "Machine.hh"  // __attribute__
 #include "Format.hh"
+#include "Machine.hh"  // __attribute__
 
 struct Tcl_Interp;
 
@@ -51,12 +51,11 @@ class Report
 {
 public:
   Report();
-  virtual ~Report();
-
+  virtual ~Report() = default;
   virtual void reportLine(const std::string &line);
   virtual void reportBlankLine();
 
-  // Print formatted line using std::format (C++20).
+  // Print formatted line using std::format.
   template <typename... Args>
   void report(std::string_view fmt,
               Args &&...args)
@@ -210,28 +209,13 @@ protected:
   // Return the number of characters written.
   virtual size_t printConsole(const char *buffer,
                               size_t length);
-  void printToBuffer(const char *fmt, ...) __attribute__((format(printf, 2, 3)));
-
-  void printToBuffer(const char *fmt,
-                     va_list args);
-  void printToBufferAppend(const char *fmt,
-                           ...);
-  void printToBufferAppend(const char *fmt,
-                           va_list args);
-  void printBufferLine();
   void redirectStringPrint(const char *buffer,
                            size_t length);
 
-  FILE *log_stream_;
-  FILE *redirect_stream_;
-  bool redirect_to_string_;
+  FILE *log_stream_{nullptr};
+  FILE *redirect_stream_{nullptr};
+  bool redirect_to_string_{false};
   std::string redirect_string_;
-  // Buffer to support printf style arguments.
-  size_t buffer_size_;
-  char *buffer_;
-  // Length of string in buffer.
-  size_t buffer_length_;
-  std::mutex buffer_lock_;
   static Report *default_;
   std::set<int> suppressed_msg_ids_;
 

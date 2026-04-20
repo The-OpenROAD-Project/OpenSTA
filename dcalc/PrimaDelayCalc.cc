@@ -24,31 +24,26 @@
 
 #include "PrimaDelayCalc.hh"
 
+#include <Eigen/LU>
+#include <Eigen/QR>
 #include <cmath>  // abs
 #include <string_view>
 
 #include "Debug.hh"
-#include "Units.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Scene.hh"
-#include "Graph.hh"
-#include "Parasitics.hh"
-#include "GraphDelayCalc.hh"
 #include "DmpDelayCalc.hh"
 #include "Format.hh"
-
-#include <Eigen/LU>
-#include <Eigen/QR>
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 
 namespace sta {
-
-using Eigen::ColPivHouseholderQR;
-using Eigen::HouseholderQR;
-using Eigen::SparseLU;
 
 // Lawrence Pillage - “Electronic Circuit & System Simulation Methods” 1998
 // McGraw-Hill, Inc. New York, NY.
@@ -61,17 +56,7 @@ makePrimaDelayCalc(StaState *sta)
 
 PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   DelayCalcBase(sta),
-  dcalc_args_(nullptr),
-  scene_(nullptr),
-  min_max_(nullptr),
-  parasitics_(nullptr),
-  parasitic_network_(nullptr),
-  load_pin_index_map_(nullptr),
   pin_node_map_(network_),
-  prima_order_(3),
-  make_waveforms_(false),
-  waveform_drvr_pin_(nullptr),
-  waveform_load_pin_(nullptr),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
@@ -79,20 +64,18 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
 
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   DelayCalcBase(dcalc),
-  dcalc_args_(nullptr),
-  load_pin_index_map_(nullptr),
   pin_node_map_(network_),
   node_index_map_(dcalc.node_index_map_),
   prima_order_(dcalc.prima_order_),
-  make_waveforms_(false),
-  waveform_drvr_pin_(nullptr),
-  waveform_load_pin_(nullptr),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
 {
 }
 
-PrimaDelayCalc::~PrimaDelayCalc() { delete table_dcalc_; }
+PrimaDelayCalc::~PrimaDelayCalc()
+{
+  delete table_dcalc_;
+}
 
 ArcDelayCalc *
 PrimaDelayCalc::copy()
@@ -359,7 +342,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
                           const Eigen::MatrixXd &B,
                           const Eigen::VectorXd &x_init,
                           const Eigen::MatrixXd &x_to_v,
-                          const size_t order)
+                          size_t order)
 {
   Eigen::VectorXd x(order);
   Eigen::VectorXd x_prev(order);
@@ -379,7 +362,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   MatrixSd A(order, order);
   A = G + (2.0 / time_step_) * C;
   A.makeCompressed();
-  SparseLU<MatrixSd> A_solver;
+  Eigen::SparseLU<MatrixSd> A_solver;
   A_solver.compute(A);
 
   // Initial time depends on ceff which impact delay, so use a sim step
@@ -403,7 +386,10 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   if (make_waveforms_)
     recordWaveformStep(time_begin);
 
-  for (double time = time_begin; time <= time_end; time += time_step_) {
+  for (size_t step = 0;; ++step) {
+    const double time = time_begin + step * time_step_;
+    if (time > time_end)
+      break;
     setPortCurrents();
     rhs = B * u_ + (1.0 / time_step_) * C * (3.0 * x_prev - x_prev2);
     x = A_solver.solve(rhs);
@@ -850,7 +836,7 @@ PrimaDelayCalc::primaReduce()
 {
   G_.makeCompressed();
   // Step 3: solve G*R = B for R
-  SparseLU<MatrixSd> G_solver(G_);
+  Eigen::SparseLU<MatrixSd> G_solver(G_);
   if (G_solver.info() != Eigen::Success)
     report_->error(1752, "G matrix is singular.");
   Eigen::MatrixXd R(order_, port_count_);
@@ -1003,8 +989,8 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
   bool arg_fail = checkArgs(dcalc_args, scene, min_max);
   if (arg_fail) {
     const RiseFall *rf = arc->toEdge()->asRiseFall();
-    const Parasitic *reduced =
-        table_dcalc_->findParasitic(drvr_pin, rf, scene, min_max);
+    const Parasitic *reduced = table_dcalc_->findParasitic(drvr_pin, rf,
+                                                           scene, min_max);
     return table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
                                          reduced, load_pin_index_map, scene,
                                          min_max, digits);
@@ -1042,7 +1028,7 @@ PinSeq
 PrimaDelayCalc::watchPins() const
 {
   PinSeq pins;
-  for (auto pin_values : watch_pin_values_) {
+  for (const auto &pin_values : watch_pin_values_) {
     const Pin *pin = pin_values.first;
     pins.push_back(pin);
   }
@@ -1121,10 +1107,8 @@ void
 PrimaDelayCalc::reportMatrix(Eigen::VectorXd &matrix)
 {
   std::string line = "| ";
-  for (Eigen::Index i = 0; i < matrix.rows(); i++) {
-    std::string entry = 
+  for (Eigen::Index i = 0; i < matrix.rows(); i++)
     line += sta::format("{:10.3e}", matrix.coeff(i)) + " ";
-  }
   line += "|";
   report_->reportLine(line);
 }
@@ -1133,8 +1117,8 @@ void
 PrimaDelayCalc::reportVector(std::vector<double> &matrix)
 {
   std::string line = "| ";
-  for (size_t i = 0; i < matrix.size(); i++)
-    line += sta::format("{:10.3e}", matrix[i]) + " ";
+  for (const double &entry : matrix)
+    line += sta::format("{:10.3e}", entry) + " ";
   line += "|";
   report_->reportLine(line);
 }

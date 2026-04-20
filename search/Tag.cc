@@ -24,16 +24,16 @@
 
 #include "Tag.hh"
 
-#include "Report.hh"
-#include "Network.hh"
-#include "Clock.hh"
-#include "PortDelay.hh"
-#include "ExceptionPath.hh"
-#include "Sdc.hh"
-#include "Graph.hh"
-#include "Scene.hh"
-#include "Search.hh"
 #include "ClkInfo.hh"
+#include "Clock.hh"
+#include "ExceptionPath.hh"
+#include "Graph.hh"
+#include "Network.hh"
+#include "PortDelay.hh"
+#include "Report.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "Search.hh"
 
 namespace sta {
 
@@ -53,8 +53,6 @@ Tag::Tag(Scene *scene,
   states_(states),
   index_(index),
   is_clk_(is_clk),
-  is_filter_(false),
-  is_loop_(false),
   is_segment_start_(is_segment_start),
   own_states_(own_states),
   rf_index_(rf->index()),
@@ -681,4 +679,4 @@ TagMatchEqual::operator()(const Tag *tag1,
   return Tag::match(tag1, tag2, match_crpr_clk_pin_, sta_);
 }
 
-} // namespace
+} // namespace sta

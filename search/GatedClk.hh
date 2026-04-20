@@ -26,10 +26,14 @@
 
 #include <set>
 
-#include "SdcClass.hh"
 #include "GraphClass.hh"
-#include "SearchClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "NetworkClass.hh"
+#include "SdcClass.hh"
 #include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -64,4 +68,4 @@ protected:
                            FuncExprSet &funcs) const;
 };
 
-} // namespace
+} // namespace sta

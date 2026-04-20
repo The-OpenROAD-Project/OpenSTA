@@ -26,8 +26,8 @@
 
 #include <map>
 
-#include "StaState.hh"
 #include "LibertyClass.hh"
+#include "StaState.hh"
 
 struct DdNode;
 struct DdManager;
@@ -41,7 +41,7 @@ class Bdd : public StaState
 {
 public:
   Bdd(const StaState *sta);
-  ~Bdd();
+  ~Bdd() override;
   DdNode *funcBdd(const FuncExpr *expr);
   DdNode *findNode(const LibertyPort *port);
   const LibertyPort *nodePort(DdNode *node);
@@ -58,4 +58,4 @@ private:
   BddVarIdxPortMap bdd_var_idx_port_map_;
 };
 
-} // namespace
+} // namespace sta

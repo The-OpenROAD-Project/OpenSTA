@@ -25,11 +25,11 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-#include <vector>
 #include <map>
 #include <set>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 #include "Iterator.hh"
 
@@ -173,4 +173,4 @@ public:
   NetSet(const Network *network);
 };
 
-} // namespace
+} // namespace sta

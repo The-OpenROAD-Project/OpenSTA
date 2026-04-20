@@ -24,9 +24,9 @@
 
 #pragma once
 
+#include "GraphClass.hh"
 #include "NetworkClass.hh"
 #include "NetworkCmp.hh"
-#include "GraphClass.hh"
 
 namespace sta {
 
@@ -59,4 +59,4 @@ sortEdges(EdgeSeq *edges,
           Network *network,
           Graph *graph);
 
-} // namespace
+} // namespace sta

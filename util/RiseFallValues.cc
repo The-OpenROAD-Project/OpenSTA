@@ -102,4 +102,4 @@ RiseFallValues::hasValue(const RiseFall *rf) const
   return exists_[rf->index()];
 }
 
-} // namespace
+} // namespace sta

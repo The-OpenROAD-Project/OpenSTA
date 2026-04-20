@@ -25,19 +25,19 @@
 #pragma once
 
 #include <fstream>
+#include <map>
 #include <string>
 #include <string_view>
-#include <map>
 #include <vector>
 
-#include "Format.hh"
-#include "StaState.hh"
-#include "StringUtil.hh"
-#include "Liberty.hh"
-#include "GraphClass.hh"
-#include "Parasitics.hh"
 #include "Bdd.hh"
 #include "CircuitSim.hh"
+#include "Format.hh"
+#include "GraphClass.hh"
+#include "Liberty.hh"
+#include "Parasitics.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -96,7 +96,7 @@ protected:
                            const NetSet &coupling_nets);
   void writeParasiticNetwork(const Pin *drvr_pin,
                              const Parasitic *parasitic,
-                             const NetSet &aggressor_nets);
+                             const NetSet &coupling_nets);
   void writePiElmore(const Pin *drvr_pin,
                      const Parasitic *parasitic);
   void writeNullParasitic(const Pin *drvr_pin);
@@ -181,12 +181,12 @@ protected:
   float gnd_voltage_;
   float max_time_;
   // Resistance to use to simulate a short circuit between spice nodes.
-  float short_ckt_resistance_;
+  float short_ckt_resistance_{0.0001F};
   // Input clock waveform cycles.
   // Sequential device numbers.
-  int cap_index_;
-  int res_index_;
-  int volt_index_;
+  int cap_index_{1};
+  int res_index_{1};
+  int volt_index_{1};
   CellSpicePortNames cell_spice_port_names_;
   Bdd bdd_;
   Parasitics *parasitics_;

@@ -24,14 +24,25 @@
 
 #include "TableModel.hh"
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <string>
+#include <utility>
 
+#include "Delay.hh"
 #include "Error.hh"
-#include "EnumNameMap.hh"
 #include "ContainerHelpers.hh"
-#include "Units.hh"
+#include "EnumNameMap.hh"
+#include "Format.hh"
+#include "LibertyClass.hh"
 #include "Liberty.hh"
+#include "MinMax.hh"
+#include "PocvMode.hh"
+#include "TimingModel.hh"
+#include "Transition.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -61,7 +72,7 @@ GateTableModel::GateTableModel(LibertyCell *cell,
   GateTimingModel(cell),
   delay_models_(delay_models),
   slew_models_(slew_models),
-  receiver_model_(receiver_model),
+  receiver_model_(std::move(receiver_model)),
   output_waveforms_(output_waveforms)
 {
 }
@@ -76,8 +87,6 @@ GateTableModel::GateTableModel(LibertyCell *cell,
   output_waveforms_(nullptr)
 {
 }
-
-GateTableModel::~GateTableModel() = default;
 
 const TableModel *
 GateTableModel::delayModel() const
@@ -115,8 +124,7 @@ GateTableModel::gateDelay(const Pvt *pvt,
   if (slew_models_ && slew_models_->model()) {
     drvr_slew = findValue(pvt, slew_models_->model(), in_slew, load_cap, 0.0);
     // Clip negative slews to zero.
-    if (drvr_slew < 0.0)
-      drvr_slew = 0.0;
+    drvr_slew = std::max(drvr_slew, 0.0F);
   }
   else
     drvr_slew = 0.0;
@@ -358,8 +366,7 @@ GateTableModel::maxCapSlew(float in_slew,
     slew = 0.0;
   }
   // Clip negative slews to zero.
-  if (slew < 0.0)
-    slew = 0.0;
+  slew = std::max(slew, 0.0F);
 }
 
 float
@@ -410,8 +417,6 @@ GateTableModel::checkAxis(const TableAxis *axis)
 
 ////////////////////////////////////////////////////////////////
 
-ReceiverModel::~ReceiverModel() = default;
-
 void
 ReceiverModel::setCapacitanceModel(TableModel table_model,
                                    size_t segment,
@@ -449,8 +454,6 @@ CheckTableModel::CheckTableModel(LibertyCell *cell,
   check_models_(check_models)
 {
 }
-
-CheckTableModel::~CheckTableModel() = default;
 
 const TableModel *
 CheckTableModel::checkModel() const
@@ -760,9 +763,9 @@ TableModel::TableModel(TablePtr table,
                        TableTemplate *tbl_template,
                        ScaleFactorType scale_factor_type,
                        const RiseFall *rf) :
-  table_(table),
+  table_(std::move(table)),
   tbl_template_(tbl_template),
-  scale_factor_type_(int(scale_factor_type)),
+  scale_factor_type_(static_cast<int>(scale_factor_type)),
   rf_index_(rf->index()),
   is_scaled_(false)
 {
@@ -783,7 +786,7 @@ TableModel::scaleFactorType() const
 void
 TableModel::setScaleFactorType(ScaleFactorType type)
 {
-  scale_factor_type_ = int(type);
+  scale_factor_type_ = static_cast<int>(type);
 }
 
 void
@@ -950,7 +953,7 @@ Table::Table(FloatSeq *values,
   order_(1),
   value_(0.0),
   values1_(std::move(*values)),
-  axis1_(axis1)
+  axis1_(std::move(axis1))
 {
   delete values;
 }
@@ -960,7 +963,7 @@ Table::Table(FloatSeq &&values,
   order_(1),
   value_(0.0),
   values1_(std::move(values)),
-  axis1_(axis1)
+  axis1_(std::move(axis1))
 {
 }
 
@@ -970,8 +973,8 @@ Table::Table(FloatTable &&values,
   order_(2),
   value_(0.0),
   values_table_(std::move(values)),
-  axis1_(axis1),
-  axis2_(axis2)
+  axis1_(std::move(axis1)),
+  axis2_(std::move(axis2))
 {
 }
 
@@ -982,36 +985,27 @@ Table::Table(FloatTable &&values,
   order_(3),
   value_(0.0),
   values_table_(std::move(values)),
-  axis1_(axis1),
-  axis2_(axis2),
-  axis3_(axis3)
+  axis1_(std::move(axis1)),
+  axis2_(std::move(axis2)),
+  axis3_(std::move(axis3))
 {
 }
 
-Table::Table(Table &&table) :
+Table::Table(Table &&table) noexcept :
   order_(table.order_),
   value_(table.value_),
   values1_(std::move(table.values1_)),
   values_table_(std::move(table.values_table_)),
-  axis1_(table.axis1_),
-  axis2_(table.axis2_),
-  axis3_(table.axis3_)
+  axis1_(std::move(table.axis1_)),
+  axis2_(std::move(table.axis2_)),
+  axis3_(std::move(table.axis3_))
 {
 }
 
-Table::Table(const Table &table) :
-  order_(table.order_),
-  value_(table.value_),
-  values1_(table.values1_),
-  values_table_(table.values_table_),
-  axis1_(table.axis1_),
-  axis2_(table.axis2_),
-  axis3_(table.axis3_)
-{
-}
+Table::Table(const Table &table) = default;
 
 Table &
-Table::operator=(Table &&table)
+Table::operator=(Table &&table) noexcept
 {
   if (this != &table) {
     order_ = table.order_;
@@ -1788,12 +1782,11 @@ OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
                                  const RiseFall *rf,
                                  Table1Seq &current_waveforms,
                                  Table ref_times) :
-  slew_axis_(slew_axis),
-  cap_axis_(cap_axis),
+  slew_axis_(std::move(slew_axis)),
+  cap_axis_(std::move(cap_axis)),
   rf_(rf),
   current_waveforms_(current_waveforms),
-  ref_times_(std::move(ref_times)),
-  vdd_(0.0)
+  ref_times_(std::move(ref_times))
 {
 }
 
@@ -2211,7 +2204,7 @@ OutputWaveforms::finalResistance()
 DriverWaveform::DriverWaveform(std::string name,
                                TablePtr waveforms) :
   name_(std::move(name)),
-  waveforms_(waveforms)
+  waveforms_(std::move(waveforms))
 {
 }
 

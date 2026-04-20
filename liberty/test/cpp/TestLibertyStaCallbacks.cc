@@ -167,7 +167,7 @@ public:
 
 class RecordingLibertyVisitor : public LibertyGroupVisitor {
 public:
-  ~RecordingLibertyVisitor() override
+  ~RecordingLibertyVisitor()
   {
     for (const LibertyGroup *group : root_groups)
       delete group;
@@ -2210,18 +2210,6 @@ library(test_r9_64) {
   writeAndReadLib(sta_, content);
 
   }() ));
-}
-
-// R9_65: LibertyCell hasInternalPorts (read-only check)
-TEST_F(StaLibertyTest, CellHasInternalPorts4) {
-  LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
-  ASSERT_NE(dff, nullptr);
-  // DFF should have internal ports for state vars (IQ, IQN)
-  EXPECT_TRUE(dff->hasInternalPorts());
-  // A simple buffer should not
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  EXPECT_FALSE(buf->hasInternalPorts());
 }
 
 // R9_66: LibertyBuilder destructor (coverage)

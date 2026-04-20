@@ -35,4 +35,4 @@ hashString(std::string_view str)
   return hash;
 }
 
-} // namespace
+} // namespace sta

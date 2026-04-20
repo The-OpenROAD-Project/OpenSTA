@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module write_gate_spice
-
 %{
 
 #include "spice/WritePathSpice.hh"

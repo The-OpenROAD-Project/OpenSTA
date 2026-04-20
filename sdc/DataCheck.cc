@@ -46,8 +46,8 @@ DataCheck::margin(const RiseFall *from_rf,
                   float &margin,
                   bool &exists) const
 {
-  return margins_[from_rf->index()].value(to_rf, setup_hold,
-                                          margin, exists);
+  margins_[from_rf->index()].value(to_rf, setup_hold,
+                                   margin, exists);
 }
 
 void
@@ -120,4 +120,4 @@ DataCheckLess::operator()(const DataCheck *check1,
                 && clkCmp(clk1, clk2) < 0)));
 }
 
-} // namespace
+} // namespace sta

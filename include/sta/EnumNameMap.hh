@@ -34,7 +34,8 @@ template <class ENUM>
 class EnumNameMap
 {
 public:
-  EnumNameMap(std::initializer_list<std::pair<const ENUM, std::string>> enum_names);
+  EnumNameMap(std::initializer_list<std::pair<const ENUM,
+                                              std::string>> enum_names) noexcept;
   const std::string &find(ENUM key) const;
   ENUM find(std::string_view name,
             ENUM unknown_key) const;
@@ -49,7 +50,7 @@ private:
 };
 
 template <class ENUM>
-EnumNameMap<ENUM>::EnumNameMap(std::initializer_list<std::pair<const ENUM,std::string>> enum_names) :
+EnumNameMap<ENUM>::EnumNameMap(std::initializer_list<std::pair<const ENUM,std::string>> enum_names) noexcept :
   enum_map_(enum_names)
 {
   for (const auto& [key, name] : enum_map_)
@@ -97,4 +98,4 @@ EnumNameMap<ENUM>::find(std::string_view name,
     return unknown_key;
 }
 
-} // namespace
+} // namespace sta

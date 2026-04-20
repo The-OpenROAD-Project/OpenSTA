@@ -141,4 +141,4 @@ private:
   StateInternalValues next_values_;
 };
 
-} // namespace
+} // namespace sta

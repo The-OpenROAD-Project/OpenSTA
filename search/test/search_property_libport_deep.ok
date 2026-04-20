@@ -191,31 +191,31 @@ Path group names: clk input_grp output_grp reg2reg_grp through_grp asynchronous 
 input_grp is group: 1
 nonexistent is group: 0
 --- TimingArcSet properties on DFF_X1 ---
-DFF_X1 arc: DFF_X1 CK -> D / DFF_X1 CK -> D
-DFF_X1 arc: DFF_X1 CK -> D / DFF_X1 CK -> D
-DFF_X1 arc: DFF_X1 CK -> CK / DFF_X1 CK -> CK
-DFF_X1 arc: DFF_X1 CK -> Q / DFF_X1 CK -> Q
-DFF_X1 arc: DFF_X1 CK -> QN / DFF_X1 CK -> QN
+DFF_X1 arc: DFF_X1 CK -> D hold / DFF_X1 CK -> D hold
+DFF_X1 arc: DFF_X1 CK -> D setup / DFF_X1 CK -> D setup
+DFF_X1 arc: DFF_X1 CK -> CK width / DFF_X1 CK -> CK width
+DFF_X1 arc: DFF_X1 CK -> Q Reg Clk to Q / DFF_X1 CK -> Q Reg Clk to Q
+DFF_X1 arc: DFF_X1 CK -> QN Reg Clk to Q / DFF_X1 CK -> QN Reg Clk to Q
 --- TimingArcSet properties on DFFR_X1 ---
-DFFR_X1 arc: DFFR_X1 CK -> D
-DFFR_X1 arc: DFFR_X1 CK -> D
-DFFR_X1 arc: DFFR_X1 CK -> RN
-DFFR_X1 arc: DFFR_X1 CK -> RN
-DFFR_X1 arc: DFFR_X1 RN -> RN
-DFFR_X1 arc: DFFR_X1 CK -> CK
-DFFR_X1 arc: DFFR_X1 CK -> Q
-DFFR_X1 arc: DFFR_X1 RN -> Q
-DFFR_X1 arc: DFFR_X1 RN -> Q
-DFFR_X1 arc: DFFR_X1 RN -> Q
-DFFR_X1 arc: DFFR_X1 RN -> Q
-DFFR_X1 arc: DFFR_X1 CK -> QN
-DFFR_X1 arc: DFFR_X1 RN -> QN
-DFFR_X1 arc: DFFR_X1 RN -> QN
-DFFR_X1 arc: DFFR_X1 RN -> QN
-DFFR_X1 arc: DFFR_X1 RN -> QN
+DFFR_X1 arc: DFFR_X1 CK -> D hold
+DFFR_X1 arc: DFFR_X1 CK -> D setup
+DFFR_X1 arc: DFFR_X1 CK -> RN recovery
+DFFR_X1 arc: DFFR_X1 CK -> RN removal
+DFFR_X1 arc: DFFR_X1 RN -> RN width
+DFFR_X1 arc: DFFR_X1 CK -> CK width
+DFFR_X1 arc: DFFR_X1 CK -> Q Reg Clk to Q
+DFFR_X1 arc: DFFR_X1 RN -> Q Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 RN -> Q Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 RN -> Q Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 RN -> Q Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 CK -> QN Reg Clk to Q
+DFFR_X1 arc: DFFR_X1 RN -> QN Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 RN -> QN Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 RN -> QN Reg Set/Clr
+DFFR_X1 arc: DFFR_X1 RN -> QN Reg Set/Clr
 --- TimingArcSet properties on OR2_X1 ---
-OR2_X1 arc: OR2_X1 A1 -> ZN / OR2_X1 A1 -> ZN
-OR2_X1 arc: OR2_X1 A2 -> ZN / OR2_X1 A2 -> ZN
+OR2_X1 arc: OR2_X1 A1 -> ZN combinational / OR2_X1 A1 -> ZN combinational
+OR2_X1 arc: OR2_X1 A2 -> ZN combinational / OR2_X1 A2 -> ZN combinational
 --- Pin is_hierarchical/is_port ---
 reg1/D is_hierarchical: 0
 reg1/D is_port: 0

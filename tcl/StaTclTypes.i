@@ -258,7 +258,7 @@ setPtrTclList(SET_TYPE *set,
 
 ////////////////////////////////////////////////////////////////
 
-} // namespace
+} // namespace sta
 
 using namespace sta;
 
@@ -751,8 +751,28 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(in) FloatSeq {
+  Tcl_Size argc;
+  Tcl_Obj **argv;
+  FloatSeq floats;
+
+  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK) {
+    for (int i = 0; i < argc; i++) {
+      char *arg = Tcl_GetString(argv[i]);
+      double value;
+      if (Tcl_GetDouble(interp, arg, &value) == TCL_OK)
+        floats.push_back(static_cast<float>(value));
+      else {
+        tclArgError(interp, 2175, "{} is not a floating point number.", arg);
+        return TCL_ERROR;
+      }
+    }
+  }
+  $1 = floats;
+}
+
 %typemap(out) FloatSeq {
-  FloatSeq &floats = $1;
+  const FloatSeq &floats = $1;
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   for (float f : floats) {
     Tcl_Obj *obj = Tcl_NewDoubleObj(f);
@@ -761,21 +781,18 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
-%typemap(in) IntSeq* {
+%typemap(in) IntSeq {
   Tcl_Size argc;
   Tcl_Obj **argv;
-  IntSeq *ints = nullptr;
 
+  IntSeq ints;
   if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK) {
-    if (argc)
-      ints = new IntSeq;
     for (int i = 0; i < argc; i++) {
       char *arg = Tcl_GetString(argv[i]);
       int value;
       if (Tcl_GetInt(interp, arg, &value) == TCL_OK)
-        ints->push_back(value);
+        ints.push_back(value);
       else {
-        delete ints;
         tclArgError(interp, 2158, "{} is not an integer.", arg);
         return TCL_ERROR;
       }

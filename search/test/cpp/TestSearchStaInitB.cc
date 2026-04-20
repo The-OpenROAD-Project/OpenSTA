@@ -354,9 +354,9 @@ TEST_F(StaInitTest, PropertiesDefineLibrary) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_lib_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Library*>::PropertyHandler(
-        [](const Library*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Library*>::PropertyHandler handler(
+      [](const Library*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -364,9 +364,9 @@ TEST_F(StaInitTest, PropertiesDefineLibertyLibrary) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_liblib_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const LibertyLibrary*>::PropertyHandler(
-        [](const LibertyLibrary*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const LibertyLibrary*>::PropertyHandler handler(
+      [](const LibertyLibrary*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -374,9 +374,9 @@ TEST_F(StaInitTest, PropertiesDefineCell) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_cell_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Cell*>::PropertyHandler(
-        [](const Cell*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Cell*>::PropertyHandler handler(
+      [](const Cell*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -384,9 +384,9 @@ TEST_F(StaInitTest, PropertiesDefineLibertyCell) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_libcell_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const LibertyCell*>::PropertyHandler(
-        [](const LibertyCell*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const LibertyCell*>::PropertyHandler handler(
+      [](const LibertyCell*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -394,9 +394,9 @@ TEST_F(StaInitTest, PropertiesDefinePort) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_port_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Port*>::PropertyHandler(
-        [](const Port*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Port*>::PropertyHandler handler(
+      [](const Port*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -404,9 +404,9 @@ TEST_F(StaInitTest, PropertiesDefineLibertyPort) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_libport_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const LibertyPort*>::PropertyHandler(
-        [](const LibertyPort*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const LibertyPort*>::PropertyHandler handler(
+      [](const LibertyPort*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -414,9 +414,9 @@ TEST_F(StaInitTest, PropertiesDefineInstance) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_inst_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Instance*>::PropertyHandler(
-        [](const Instance*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Instance*>::PropertyHandler handler(
+      [](const Instance*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -424,9 +424,9 @@ TEST_F(StaInitTest, PropertiesDefinePin) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_pin_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Pin*>::PropertyHandler(
-        [](const Pin*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Pin*>::PropertyHandler handler(
+      [](const Pin*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -434,9 +434,9 @@ TEST_F(StaInitTest, PropertiesDefineNet) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_net_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Net*>::PropertyHandler(
-        [](const Net*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Net*>::PropertyHandler handler(
+      [](const Net*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 
@@ -444,9 +444,9 @@ TEST_F(StaInitTest, PropertiesDefineClock) {
   ASSERT_NO_THROW(( [&](){
     Properties props(sta_);
     std::string prop_name("test_clk_prop");
-    props.defineProperty(prop_name,
-      PropertyRegistry<const Clock*>::PropertyHandler(
-        [](const Clock*, Sta*) -> PropertyValue { return PropertyValue(); }));
+    PropertyRegistry<const Clock*>::PropertyHandler handler(
+      [](const Clock*, Sta*) -> PropertyValue { return PropertyValue(); });
+    props.defineProperty(prop_name, handler);
   }() ));
 }
 

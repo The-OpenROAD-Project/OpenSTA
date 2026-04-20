@@ -24,16 +24,16 @@
 
 #pragma once
 
-#include <utility>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
-#include "StaConfig.hh"  // CUDD
-#include "Network.hh"
-#include "SdcClass.hh"
-#include "PowerClass.hh"
-#include "StaState.hh"
 #include "Bdd.hh"
+#include "Network.hh"
+#include "PowerClass.hh"
+#include "SdcClass.hh"
+#include "StaConfig.hh"  // CUDD
+#include "StaState.hh"
 
 struct DdNode;
 struct DdManager;
@@ -107,20 +107,20 @@ public:
   PowerResult power(const Instance *inst,
                     const Scene *scene);
 
-  void setGlobalActivity(float activity,
+  void setGlobalActivity(float density,
 			 float duty);
   void unsetGlobalActivity();
-  void setInputActivity(float activity,
+  void setInputActivity(float density,
 			float duty);
   void unsetInputActivity();
   void setInputPortActivity(const Port *input_port,
-			    float activity,
+			    float density,
 			    float duty);
   void unsetInputPortActivity(const Port *input_port);
   PwrActivity pinActivity(const Pin *pin,
                           const Scene *scene);
   void setUserActivity(const Pin *pin,
-		       float activity,
+		       float density,
 		       float duty,
 		       PwrActivityOrigin origin);
   void unsetUserActivity(const Pin *pin);
@@ -255,7 +255,7 @@ protected:
   size_t pinCount();
 
 private:
-  const Scene *scene_;
+  const Scene *scene_{nullptr};
   // Port/pin activities set by set_pin_activity.
   // set_pin_activity -global
   PwrActivity global_activity_;
@@ -265,15 +265,18 @@ private:
   PwrActivityMap user_activity_map_;
   // Propagated activities.
   PwrActivityMap activity_map_;
-  PwrSeqActivityMap seq_activity_map_;
-  bool activities_valid_;
+  PwrSeqActivityMap seq_activity_map_{100,
+                                        SeqPinHash(network_),
+                                        SeqPinEqual()};
+  bool activities_valid_{false};
   Bdd bdd_;
-  std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_;
-  bool instance_powers_valid_;
+  std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_{
+      InstanceIdLess(network_)};
+  bool instance_powers_valid_{false};
 
   static constexpr int max_activity_passes_ = 50;
 
   friend class PropActivityVisitor;
 };
 
-} // namespace
+} // namespace sta

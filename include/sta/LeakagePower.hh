@@ -50,4 +50,4 @@ protected:
   float power_;
 };
 
-} // namespace
+} // namespace sta

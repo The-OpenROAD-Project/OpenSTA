@@ -24942,11 +24942,3 @@ Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQ[0] not found in 
 Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQN[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
 Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L CLK -> Q timing group Reg Clk to Q not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
 Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L D -> Q timing group combinational not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
-Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L CLK -> Q timing group Latch En to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
-Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L D -> Q timing group Latch D to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
-Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQ[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
-Warning 1110: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L port IQN[0] not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
-Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L CLK -> Q timing group Reg Clk to Q not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
-Warning 1111: cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L D -> Q timing group combinational not found in cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L.
-Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L CLK -> Q timing group Latch En to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.
-Warning 1111: cell asap7sc7p5t_SEQ_LVT_FF_nldm_220123/DHLx1_ASAP7_75t_L D -> Q timing group Latch D to Q not found in cell asap7sc7p5t_lvt_ff/DHLx1_ASAP7_75t_L.

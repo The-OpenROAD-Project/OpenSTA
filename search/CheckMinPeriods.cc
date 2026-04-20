@@ -24,13 +24,21 @@
 
 #include "CheckMinPeriods.hh"
 
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Sdc.hh"
+#include <cstddef>
+
 #include "Clock.hh"
+#include "ContainerHelpers.hh"
+#include "Delay.hh"
 #include "Graph.hh"
 #include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
 #include "Search.hh"
+#include "SearchPred.hh"
 
 namespace sta {
 
@@ -205,4 +213,4 @@ MinPeriodSlackLess::operator()(const MinPeriodCheck &check1,
                                    check2.clk()))));
 }
 
-} // namespace
+} // namespace sta

@@ -25,7 +25,6 @@
 #include "LeakagePower.hh"
 
 #include "FuncExpr.hh"
-#include "TableModel.hh"
 #include "Liberty.hh"
 
 namespace sta {
@@ -55,4 +54,4 @@ LeakagePower::~LeakagePower()
   delete when_;
 }
 
-} // namespace
+} // namespace sta

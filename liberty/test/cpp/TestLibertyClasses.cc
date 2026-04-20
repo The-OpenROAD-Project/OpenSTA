@@ -2799,12 +2799,6 @@ TEST(TestCellTest, CellBusDcl) {
   EXPECT_EQ(cell.findBusDcl("nonexistent"), nullptr);
 }
 
-TEST(TestCellTest, HasInternalPorts) {
-  LibertyLibrary lib("test_lib", "test.lib");
-  TestCell cell(&lib, "CELL1", "test.lib");
-  EXPECT_FALSE(cell.hasInternalPorts());
-}
-
 TEST(TestCellTest, SetAlwaysOn) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "AON1", "test.lib");

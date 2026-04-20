@@ -25,73 +25,90 @@
 #include "Sta.hh"
 
 #include <algorithm>
-#include <filesystem>
+#include <cstddef>
 #include <string>
 
-#include "Machine.hh"
-#include "Format.hh"
-#include "ContainerHelpers.hh"
-#include "DispatchQueue.hh"
-#include "ReportTcl.hh"
-#include "Debug.hh"
-#include "Stats.hh"
-#include "Fuzzy.hh"
-#include "Units.hh"
-#include "PatternMatch.hh"
-#include "TimingArc.hh"
-#include "FuncExpr.hh"
-#include "EquivCells.hh"
-#include "Liberty.hh"
-#include "liberty/LibertyReader.hh"
-#include "LibertyWriter.hh"
-#include "SdcNetwork.hh"
-#include "MakeConcreteNetwork.hh"
-#include "PortDirection.hh"
-#include "VerilogReader.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "Variables.hh"
-#include "sdc/WriteSdc.hh"
-#include "ExceptionPath.hh"
-#include "Parasitics.hh"
-#include "parasitics/SpefReader.hh"
-#include "parasitics/ReportParasiticAnnotation.hh"
-#include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
+#include "CheckCapacitances.hh"
+#include "CheckFanouts.hh"
+#include "CheckMaxSkews.hh"
+#include "CheckMinPeriods.hh"
+#include "CheckMinPulseWidths.hh"
+#include "CheckSlews.hh"
+#include "CheckTiming.hh"
+#include "CircuitSim.hh"
+#include "ClkInfo.hh"
+#include "ClkLatency.hh"
+#include "ClkNetwork.hh"
+#include "ClkSkew.hh"
+#include "ContainerHelpers.hh"
+#include "Debug.hh"
+#include "Delay.hh"
+#include "DelayCalc.hh"
+#include "DelayNormal.hh"
+#include "DelayScalar.hh"
+#include "DelaySkewNormal.hh"
+#include "DispatchQueue.hh"
+#include "EquivCells.hh"
+#include "ExceptionPath.hh"
+#include "FindRegister.hh"
+#include "Format.hh"
+#include "FuncExpr.hh"
+#include "Fuzzy.hh"
+#include "Genclks.hh"
+#include "Graph.hh"
+#include "GraphClass.hh"
+#include "GraphCmp.hh"
 #include "GraphDelayCalc.hh"
+#include "Latches.hh"
+#include "Levelize.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
+#include "LibertyWriter.hh"
+#include "Machine.hh"
+#include "MakeConcreteNetwork.hh"
+#include "MakeTimingModel.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "Parasitics.hh"
+#include "PathExpanded.hh"
+#include "PathGroup.hh"
+#include "PatternMatch.hh"
+#include "PocvMode.hh"
+#include "PortDirection.hh"
+#include "PowerClass.hh"
+#include "ReportPath.hh"
+#include "ReportTcl.hh"
+#include "RiseFallMinMaxDelay.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
+#include "SdcNetwork.hh"
+#include "Search.hh"
+#include "SearchClass.hh"
+#include "SearchPred.hh"
+#include "Sim.hh"
+#include "Stats.hh"
+#include "StringUtil.hh"
+#include "TagGroup.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Units.hh"
+#include "Variables.hh"
+#include "VerilogReader.hh"
+#include "VisitPathEnds.hh"
+#include "Wireload.hh"
+#include "liberty/LibertyReader.hh"
+#include "parasitics/ConcreteParasitics.hh"
+#include "parasitics/ReportParasiticAnnotation.hh"
+#include "parasitics/SpefReader.hh"
+#include "power/Power.hh"
+#include "sdc/WriteSdc.hh"
 #include "sdf/SdfReader.hh"
 #include "sdf/SdfWriter.hh"
-#include "Levelize.hh"
-#include "Sim.hh"
-#include "ClkInfo.hh"
-#include "TagGroup.hh"
-#include "Search.hh"
-#include "Latches.hh"
-#include "PathGroup.hh"
-#include "CheckTiming.hh"
-#include "CheckSlews.hh"
-#include "CheckFanouts.hh"
-#include "CheckCapacitances.hh"
-#include "CheckMinPulseWidths.hh"
-#include "CheckMinPeriods.hh"
-#include "CheckMaxSkews.hh"
-#include "ClkSkew.hh"
-#include "ClkLatency.hh"
-#include "FindRegister.hh"
-#include "ReportPath.hh"
-#include "Genclks.hh"
-#include "ClkNetwork.hh"
-#include "power/Power.hh"
-#include "VisitPathEnds.hh"
-#include "PathExpanded.hh"
-#include "MakeTimingModel.hh"
-#include "parasitics/ConcreteParasitics.hh"
 #include "spice/WritePathSpice.hh"
-#include "DelayScalar.hh"
-#include "DelayNormal.hh"
-#include "DelaySkewNormal.hh"
 
 namespace sta {
 
@@ -128,7 +145,6 @@ private:
 };
 
 StaDelayCalcObserver::StaDelayCalcObserver(Search *search) :
-  DelayCalcObserver(),
   search_(search)
 {
 }
@@ -261,30 +277,6 @@ deleteAllMemory()
 }
 
 ////////////////////////////////////////////////////////////////
-
-// Singleton used by TCL commands.
-Sta *Sta::sta_;
-
-Sta::Sta() :
-  StaState(),
-  cmd_scene_(nullptr),
-  current_instance_(nullptr),
-  verilog_reader_(nullptr),
-  check_timing_(nullptr),
-  check_slews_(nullptr),
-  check_fanouts_(nullptr),
-  check_capacitances_(nullptr),
-  check_min_pulse_widths_(nullptr),
-  check_min_periods_(nullptr),
-  check_max_skews_(nullptr),
-  clk_skews_(nullptr),
-  report_path_(nullptr),
-  power_(nullptr),
-  update_genclks_(false),
-  equiv_cells_(nullptr),
-  properties_(this)
-{
-}
 
 void
 Sta::makeComponents()
@@ -721,12 +713,7 @@ Sta::readLibertyFile(std::string_view filename,
   if (liberty) {
     // Don't map liberty cells if they are redefined by reading another
     // library with the same cell names.
-    if (min_max == MinMaxAll::all()) {
-      readLibertyAfter(liberty, scene, MinMax::min());
-      readLibertyAfter(liberty, scene, MinMax::max());
-    }
-    else
-      readLibertyAfter(liberty, scene, min_max->asMinMax());
+    readLibertyAfter(liberty, scene, min_max);
     network_->readLibertyAfter(liberty);
   }
   return liberty;
@@ -735,11 +722,11 @@ Sta::readLibertyFile(std::string_view filename,
 void
 Sta::readLibertyAfter(LibertyLibrary *liberty,
                       Scene *scene,
-                      const MinMax *min_max)
+                      const MinMaxAll *min_max)
 {
-  scene->addLiberty(liberty, min_max);
-  LibertyLibrary::makeSceneMap(liberty, scene->libertyIndex(min_max), network_,
-                               report_);
+  for (const MinMax *mm : min_max->range())
+    scene->addLiberty(liberty, mm);
+  LibertyLibrary::makeSceneMap(liberty, scene, min_max, network_, report_);
 }
 
 bool
@@ -964,7 +951,7 @@ Sta::setDriveCell(const LibertyLibrary *library,
                   const LibertyCell *cell,
                   const Port *port,
                   const LibertyPort *from_port,
-                  float *from_slews,
+                  const DriveCellSlews &from_slews,
                   const LibertyPort *to_port,
                   const RiseFallBoth *rf,
                   const MinMaxAll *min_max,
@@ -1077,7 +1064,7 @@ Sta::setWireloadSelection(WireloadSelection *selection,
 void
 Sta::setSlewLimit(Clock *clk,
                   const RiseFallBoth *rf,
-                  const PathClkOrData clk_data,
+                  PathClkOrData clk_data,
                   const MinMax *min_max,
                   float slew,
                   Sdc *sdc)
@@ -1157,10 +1144,10 @@ Sta::setMaxArea(float area,
 
 void
 Sta::makeClock(std::string_view name,
-               PinSet *pins,
+               const PinSet &pins,
                bool add_to_pins,
                float period,
-               FloatSeq *waveform,
+               const FloatSeq &waveform,
                std::string_view comment,
                const Mode *mode)
 {
@@ -1173,7 +1160,7 @@ Sta::makeClock(std::string_view name,
 
 void
 Sta::makeGeneratedClock(std::string_view name,
-                        PinSet *pins,
+                        const PinSet &pins,
                         bool add_to_pins,
                         Pin *src_pin,
                         Clock *master_clk,
@@ -1182,8 +1169,8 @@ Sta::makeGeneratedClock(std::string_view name,
                         float duty_cycle,
                         bool invert,
                         bool combinational,
-                        IntSeq *edges,
-                        FloatSeq *edge_shifts,
+                        const IntSeq &edges,
+                        const FloatSeq &edge_shifts,
                         std::string_view comment,
                         const Mode *mode)
 {
@@ -1381,18 +1368,18 @@ Sta::removeClockUncertainty(Clock *from_clk,
 }
 
 ClockGroups *
-Sta::makeClockGroups(const std::string &name,
+Sta::makeClockGroups(std::string_view name,
                      bool logically_exclusive,
                      bool physically_exclusive,
                      bool asynchronous,
                      bool allow_paths,
-                     std::string comment,
+                     std::string_view comment,
                      Sdc *sdc)
 {
   ClockGroups *groups = sdc->makeClockGroups(name, logically_exclusive,
                                              physically_exclusive,
                                              asynchronous, allow_paths,
-                                             std::move(comment));
+                                             comment);
   search_->requiredsInvalid();
   return groups;
 }
@@ -2482,9 +2469,9 @@ Sta::setClkThruTristateEnabled(bool enable)
 void
 Sta::makeDefaultScene()
 {
-  const char *name = "default";
+  std::string name("default");
   StringSeq scene_names;
-  scene_names.push_back(name);
+  scene_names.emplace_back(name);
   Parasitics *parasitics = makeConcreteParasitics(name, "");
 
   Mode *mode = new Mode(name, 0, this);
@@ -2632,22 +2619,27 @@ Sta::updateSceneLiberty(Scene *scene,
                         const StringSeq &liberty_min_files,
                         const StringSeq &liberty_max_files)
 {
-  StringSet warned_files;
-  for (const MinMax *min_max : MinMax::range()) {
-    const StringSeq &liberty_files =
-        min_max == MinMax::min() ? liberty_min_files : liberty_max_files;
-    for (const std::string &lib_file : liberty_files) {
-      LibertyLibrary *lib = network_->findLiberty(lib_file);
-      if (lib == nullptr)
-        lib = network_->findLibertyFilename(lib_file);
-      if (lib)
-        LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max), network_,
-                                     report_);
-      else if (!warned_files.contains(lib_file)) {
-        report_->warn(1555, "liberty name/filename {} not found.", lib_file);
-        warned_files.insert(lib_file);
-      }
-    }
+  if (liberty_min_files == liberty_max_files)
+    updateSceneLiberty(scene, liberty_max_files, MinMaxAll::minMax());
+  else {
+    updateSceneLiberty(scene, liberty_min_files, MinMaxAll::min());
+    updateSceneLiberty(scene, liberty_max_files, MinMaxAll::max());
+  }
+}
+
+void
+Sta::updateSceneLiberty(Scene *scene,
+                        const StringSeq &liberty_files,
+                        const MinMaxAll *min_max)
+{
+  for (const std::string &lib_file : liberty_files) {
+    LibertyLibrary *lib = network_->findLiberty(lib_file);
+    if (lib == nullptr)
+      lib = network_->findLibertyFilename(lib_file);
+    if (lib)
+      LibertyLibrary::makeSceneMap(lib, scene, min_max, network_, report_);
+    else
+      report_->warn(1555, "liberty name/filename {} not found.", lib_file);
   }
 }
 
@@ -2658,10 +2650,8 @@ Sta::updateLibertyScenes()
     LibertyLibraryIterator *iter = network_->libertyLibraryIterator();
     while (iter->hasNext()) {
       LibertyLibrary *lib = iter->next();
-      for (const MinMax *min_max : MinMax::range()) {
-        LibertyLibrary::makeSceneMap(lib, scene->libertyIndex(min_max), network_,
-                                     report_);
-      }
+      LibertyLibrary::makeSceneMap(lib, scene, MinMaxAll::minMax(),
+                                   network_, report_);
     }
   }
 }
@@ -3232,8 +3222,8 @@ public:
   EndpointPathEndVisitor(std::string_view path_group_name,
                          const MinMax *min_max,
                          const StaState *sta);
-  PathEndVisitor *copy() const;
-  void visit(PathEnd *path_end);
+  PathEndVisitor *copy() const override;
+  void visit(PathEnd *path_end) override;
   Slack slack() const { return slack_; }
 
 private:
@@ -3337,7 +3327,7 @@ Sta::reportDelaysWrtClks(const Pin *pin,
                          bool report_variance,
                          int digits,
                          bool find_required,
-                         PathDelayFunc get_path_delay)
+                         const PathDelayFunc &get_path_delay)
 {
   ensureGraph();
   Vertex *vertex, *bidir_vertex;
@@ -3356,7 +3346,7 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
                          bool report_variance,
                          int digits,
                          bool find_required,
-                         PathDelayFunc get_path_delay)
+                         const PathDelayFunc &get_path_delay)
 {
   if (find_required)
     findRequired(vertex);
@@ -3382,7 +3372,7 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
                          const Scene *scene,
                          bool report_variance,
                          int digits,
-                         PathDelayFunc get_path_delay)
+                         const PathDelayFunc &get_path_delay)
 {
   RiseFallMinMaxDelay delays =
       findDelaysWrtClks(vertex, clk_edge, scene, get_path_delay);
@@ -3406,7 +3396,7 @@ RiseFallMinMaxDelay
 Sta::findDelaysWrtClks(Vertex *vertex,
                        const ClockEdge *clk_edge,
                        const Scene *scene,
-                       PathDelayFunc get_path_delay)
+                       const PathDelayFunc &get_path_delay)
 {
   RiseFallMinMaxDelay delays;
   VertexPathIterator path_iter(vertex, scene, nullptr, nullptr, this);
@@ -3458,7 +3448,7 @@ private:
   const Clock *clk_;
   bool include_port_paths_;
   StaState *sta_;
-  float min_period_;
+  float min_period_{0.0};
 };
 
 MinPeriodEndVisitor::MinPeriodEndVisitor(const Clock *clk,
@@ -3466,8 +3456,7 @@ MinPeriodEndVisitor::MinPeriodEndVisitor(const Clock *clk,
                                          StaState *sta) :
   clk_(clk),
   include_port_paths_(include_port_paths),
-  sta_(sta),
-  min_period_(0)
+  sta_(sta)
 {
 }
 
@@ -3584,7 +3573,7 @@ Sta::worstSlack(const Scene *scene,
                 Vertex *&worst_vertex)
 {
   searchPreamble();
-  return search_->worstSlack(scene, min_max, worst_slack, worst_vertex);
+  search_->worstSlack(scene, min_max, worst_slack, worst_vertex);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3645,7 +3634,7 @@ Sta::setIncrementalDelayTolerance(float tol)
   graph_delay_calc_->setIncrementalDelayTolerance(tol);
 }
 
-const ArcDelay
+ArcDelay
 Sta::arcDelay(Edge *edge,
               TimingArc *arc,
               DcalcAPIndex ap_index)
@@ -4275,7 +4264,7 @@ void
 Sta::deleteParasitics()
 {
   Parasitics *parasitics_default = findParasitics("default");
-  for (auto [name, parasitics] : parasitics_name_map_) {
+  for (auto &[name, parasitics] : parasitics_name_map_) {
     if (parasitics != parasitics_default)
       delete parasitics;
   }
@@ -4291,11 +4280,11 @@ Sta::deleteParasitics()
 }
 
 Parasitics *
-Sta::makeConcreteParasitics(std::string name,
-                            std::string filename)
+Sta::makeConcreteParasitics(std::string_view name,
+                            std::string_view filename)
 {
   Parasitics *parasitics = new ConcreteParasitics(name, filename, this);
-  parasitics_name_map_[name] = parasitics;
+  parasitics_name_map_[std::string(name)] = parasitics;
   return parasitics;
 }
 
@@ -5083,56 +5072,56 @@ Sta::clockDomains(const Pin *pin,
 InstanceSet
 Sta::findRegisterInstances(ClockSet *clks,
                            const RiseFallBoth *clk_rf,
-                           bool edge_triggered,
+                           bool registers,
                            bool latches,
                            const Mode *mode)
 {
   findRegisterPreamble(mode);
-  return findRegInstances(clks, clk_rf, edge_triggered, latches, mode, this);
+  return findRegInstances(clks, clk_rf, registers, latches, mode, this);
 }
 
 PinSet
 Sta::findRegisterDataPins(ClockSet *clks,
                           const RiseFallBoth *clk_rf,
-                          bool edge_triggered,
+                          bool registers,
                           bool latches,
                           const Mode *mode)
 {
   findRegisterPreamble(mode);
-  return findRegDataPins(clks, clk_rf, edge_triggered, latches, mode, this);
+  return findRegDataPins(clks, clk_rf, registers, latches, mode, this);
 }
 
 PinSet
 Sta::findRegisterClkPins(ClockSet *clks,
                          const RiseFallBoth *clk_rf,
-                         bool edge_triggered,
+                         bool registers,
                          bool latches,
                          const Mode *mode)
 {
   findRegisterPreamble(mode);
-  return findRegClkPins(clks, clk_rf, edge_triggered, latches, mode, this);
+  return findRegClkPins(clks, clk_rf, registers, latches, mode, this);
 }
 
 PinSet
 Sta::findRegisterAsyncPins(ClockSet *clks,
                            const RiseFallBoth *clk_rf,
-                           bool edge_triggered,
+                           bool registers,
                            bool latches,
                            const Mode *mode)
 {
   findRegisterPreamble(mode);
-  return findRegAsyncPins(clks, clk_rf, edge_triggered, latches, mode, this);
+  return findRegAsyncPins(clks, clk_rf, registers, latches, mode, this);
 }
 
 PinSet
 Sta::findRegisterOutputPins(ClockSet *clks,
                             const RiseFallBoth *clk_rf,
-                            bool edge_triggered,
+                            bool registers,
                             bool latches,
                             const Mode *mode)
 {
   findRegisterPreamble(mode);
-  return findRegOutputPins(clks, clk_rf, edge_triggered, latches, mode, this);
+  return findRegOutputPins(clks, clk_rf, registers, latches, mode, this);
 }
 
 void
@@ -5708,7 +5697,6 @@ Sta::checkFanout(const Pin *pin,
                  float &slack)
 {
   FanoutCheck check = check_fanouts_->check(pin, mode, min_max);
-  pin = check.pin();
   fanout = check.fanout();
   limit = check.limit();
   slack = check.slack();
@@ -5801,7 +5789,6 @@ Sta::checkCapacitance(const Pin *pin,
                       const Scene *&scene)
 {
   CapacitanceCheck check = check_capacitances_->check(pin, scenes, min_max);
-  pin = check.pin();
   capacitance = check.capacitance();
   limit = check.limit();
   slack = check.slack();

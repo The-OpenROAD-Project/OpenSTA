@@ -76,7 +76,7 @@ PortDirection::destroy()
 }
 
 PortDirection::PortDirection(const char *name,
-                             int index) :
+                             size_t index) :
   name_(name),
   index_(index)
 {
@@ -135,4 +135,4 @@ PortDirection::isPowerGround() const
     || this == well_;
 }
 
-} // namespace
+} // namespace sta

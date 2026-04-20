@@ -2121,7 +2121,7 @@ TEST_F(DesignParasiticsTest, TimingWithParasitics) {
     waveform->push_back(0.0f);
     waveform->push_back(250.0f);
 
-    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, "",
+    sta_->makeClock("clk", *clk_pins, false, 500.0f, *waveform, "",
                     sta_->cmdMode());
 
     // Run timing update to exercise delay calculation with parasitics

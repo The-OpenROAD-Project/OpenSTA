@@ -25,40 +25,49 @@
 #include "Sdc.hh"
 
 #include <algorithm>
+#include <cstddef>
 #include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "ContainerHelpers.hh"
-#include "Stats.hh"
-#include "Debug.hh"
-#include "Mutex.hh"
-#include "Report.hh"
-#include "Variables.hh"
-#include "PatternMatch.hh"
-#include "MinMax.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Transition.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "RiseFallMinMax.hh"
 #include "Clock.hh"
-#include "ClockLatency.hh"
-#include "ClockInsertion.hh"
-#include "CycleAccting.hh"
-#include "PortDelay.hh"
-#include "ExceptionPath.hh"
-#include "PortExtCap.hh"
-#include "DisabledPorts.hh"
-#include "InputDrive.hh"
-#include "DataCheck.hh"
 #include "ClockGatingCheck.hh"
 #include "ClockGroups.hh"
+#include "ClockInsertion.hh"
+#include "ClockLatency.hh"
+#include "ContainerHelpers.hh"
+#include "CycleAccting.hh"
+#include "DataCheck.hh"
+#include "Debug.hh"
 #include "DeratingFactors.hh"
-#include "HpinDrvrLoad.hh"
-#include "search/Levelize.hh"
-#include "Scene.hh"
+#include "DisabledPorts.hh"
+#include "ExceptionPath.hh"
+#include "Format.hh"
 #include "Graph.hh"
+#include "HpinDrvrLoad.hh"
+#include "InputDrive.hh"
+#include "Liberty.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Mutex.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "PatternMatch.hh"
+#include "PinPair.hh"
+#include "PortDelay.hh"
+#include "PortDirection.hh"
+#include "PortExtCap.hh"
+#include "Report.hh"
+#include "RiseFallMinMax.hh"
+#include "Scene.hh"
+#include "SdcClass.hh"
+#include "Stats.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
+#include "Variables.hh"
+#include "search/Levelize.hh"
 
 namespace sta {
 
@@ -94,8 +103,6 @@ Sdc::Sdc(Mode *mode,
          StaState *sta) :
   StaState(sta),
   mode_(mode),
-  derating_factors_(nullptr),
-  clk_index_(0),
   clock_pin_map_(10, PinIdHash(network_)),
   clock_leaf_pin_map_(10, PinIdHash(network_)),
   clk_hpin_disables_(network_),
@@ -105,14 +112,12 @@ Sdc::Sdc(Mode *mode,
   edge_clk_latency_map_(network_),
   clk_insertions_(network_),
   clk_sense_map_(network_),
-  clk_gating_check_(nullptr),
   cycle_acctings_(this),
 
   input_delay_pin_map_(PinIdLess(network_)),
   input_delay_ref_pin_map_(PinIdLess(network_)),
   input_delay_leaf_pin_map_(PinIdLess(network_)),
   input_delay_internal_pin_map_(PinIdLess(network_)),
-  input_delay_index_(0),
 
   output_delay_pin_map_(PinIdLess(network_)),
   output_delay_ref_pin_map_(PinIdLess(network_)),
@@ -127,14 +132,11 @@ Sdc::Sdc(Mode *mode,
   disabled_wire_edges_(network_),
   disabled_clk_gating_checks_inst_(network_),
   disabled_clk_gating_checks_pin_(network_),
-  exception_id_(0),
-  have_thru_hpin_exceptions_(false),
   first_thru_edge_exceptions_(0, PinPairHash(network_), PinPairEqual()),
   path_delay_internal_from_(network_),
   path_delay_internal_from_break_(network_),
   path_delay_internal_to_(network_),
-  path_delay_internal_to_break_(network_),
-  filter_(nullptr)
+  path_delay_internal_to_break_(network_)
 {
   initVariables();
   setWireload(nullptr, MinMaxAll::all());
@@ -146,11 +148,11 @@ Sdc::Sdc(Mode *mode,
 void
 Sdc::makeDefaultArrivalClock()
 {
-  FloatSeq *waveform = new FloatSeq;
-  waveform->push_back(0.0);
-  waveform->push_back(0.0);
+  FloatSeq waveform;
+  waveform.push_back(0.0);
+  waveform.push_back(0.0);
   default_arrival_clk_ = new Clock("input port clock", clk_index_++, network_);
-  default_arrival_clk_->initClk(0, false, 0.0, waveform, "", network_);
+  default_arrival_clk_->initClk(nullptr, false, 0.0, waveform, "", network_);
 }
 
 Sdc::~Sdc()
@@ -577,9 +579,9 @@ Sdc::setTimingDerate(const Net *net,
                      const EarlyLate *early_late,
                      float derate)
 {
-  DeratingFactorsNet *factors = findKey(net_derating_factors_, net);
+  DeratingFactors *factors = findKey(net_derating_factors_, net);
   if (factors == nullptr) { 
-    factors = new DeratingFactorsNet;
+    factors = new DeratingFactors;
     net_derating_factors_[net] = factors;
   }
   factors->setFactor(clk_data, rf, early_late, derate);
@@ -663,7 +665,7 @@ Sdc::timingDerateNet(const Pin *pin,
                      const EarlyLate *early_late) const
 {
   const Net *net = network_->net(pin);
-  DeratingFactorsNet *factors = findKey(net_derating_factors_, net);
+  DeratingFactors *factors = findKey(net_derating_factors_, net);
   if (factors) {
     float factor;
     bool exists;
@@ -717,7 +719,7 @@ Sdc::setDriveCell(const LibertyLibrary *library,
                   const LibertyCell *cell,
                   const Port *port,
                   const LibertyPort *from_port,
-                  float *from_slews,
+                  const DriveCellSlews &from_slews,
                   const LibertyPort *to_port,
                   const RiseFallBoth *rf,
                   const MinMaxAll *min_max)
@@ -760,7 +762,7 @@ Sdc::ensureInputDrive(const Port *port)
 void
 Sdc::setSlewLimit(Clock *clk,
                   const RiseFallBoth *rf,
-                  const PathClkOrData clk_data,
+                  PathClkOrData clk_data,
                   const MinMax *min_max,
                   float slew)
 {
@@ -777,7 +779,7 @@ Sdc::haveClkSlewLimits() const
 void
 Sdc::slewLimit(const Clock *clk,
                const RiseFall *rf,
-               const PathClkOrData clk_data,
+               PathClkOrData clk_data,
                const MinMax *min_max,
                float &slew,
                bool &exists) const
@@ -957,10 +959,10 @@ Sdc::maxArea() const
 
 Clock *
 Sdc::makeClock(std::string_view name,
-               PinSet *pins,
+               const PinSet &pins,
                bool add_to_pins,
                float period,
-               FloatSeq *waveform,
+               const FloatSeq &waveform,
                std::string_view comment)
 {
   Clock *clk = findStringKey(clock_name_map_, name);
@@ -971,7 +973,7 @@ Sdc::makeClock(std::string_view name,
     deleteClkPinMappings(clk);
   else {
     // Fresh clock definition.
-    clk = new Clock(std::move(name), clk_index_++, network_);
+    clk = new Clock(name, clk_index_++, network_);
     clk->setIsPropagated(variables_->propagateAllClocks());
     clocks_.push_back(clk);
     // Use the copied name in the map.
@@ -987,7 +989,7 @@ Sdc::makeClock(std::string_view name,
 
 Clock *
 Sdc::makeGeneratedClock(std::string_view name,
-                        PinSet *pins,
+                        const PinSet &pins,
                         bool add_to_pins,
                         Pin *src_pin,
                         Clock *master_clk,
@@ -996,8 +998,8 @@ Sdc::makeGeneratedClock(std::string_view name,
                         float duty_cycle,
                         bool invert,
                         bool combinational,
-                        IntSeq *edges,
-                        FloatSeq *edge_shifts,
+                        const IntSeq &edges,
+                        const FloatSeq &edge_shifts,
                         std::string_view comment)
 {
   Clock *clk = findStringKey(clock_name_map_, name);
@@ -1037,23 +1039,21 @@ Sdc::invalidateGeneratedClks() const
 // is not the clock being defined and has no pins it is removed.
 void
 Sdc::deletePinClocks(Clock *defining_clk,
-                     PinSet *pins)
+                     const PinSet &pins)
 {
   // Find all the clocks defined on pins to avoid finding the clock's
   // vertex pins multiple times.
   ClockSet clks;
-  if (pins) {
-    for (const Pin *pin : *pins) {
-      ClockSet *pin_clks = findKey(clock_pin_map_, pin);
-      if (pin_clks) {
-        for (Clock *clk : *pin_clks) 
-          clks.insert(clk);
-      }
+  for (const Pin *pin : pins) {
+    ClockSet *pin_clks = findKey(clock_pin_map_, pin);
+    if (pin_clks) {
+      for (Clock *clk : *pin_clks) 
+        clks.insert(clk);
     }
   }
   for (Clock *clk : clks) {
     deleteClkPinMappings(clk);
-    for (const Pin *pin : *pins)
+    for (const Pin *pin : pins)
       clk->deletePin(pin);
     if (clk != defining_clk) {
       if (clk->pins().empty())
@@ -1132,7 +1132,7 @@ Sdc::removeClock(Clock *clk)
   clearCycleAcctings();
 
   deleteClkPinMappings(clk);
-  clocks_.erase(std::find(clocks_.begin(), clocks_.end(), clk));
+  clocks_.erase(std::ranges::find(clocks_, clk));
   clock_name_map_.erase(clk->name());
   delete clk;
 }
@@ -1287,9 +1287,9 @@ public:
                       Sdc *sdc);
   bool drvrLoadExists(const Pin *drvr,
                       const Pin *load);
+  void visit(HpinDrvrLoad *drvr_load) override;
 
 protected:
-  void visit(HpinDrvrLoad *drvr_load) override;
   void makeClkHpinDisables(const Pin *clk_src,
                            const Pin *drvr,
                            const Pin *load);
@@ -1303,7 +1303,6 @@ protected:
 FindClkHpinDisables::FindClkHpinDisables(Clock *clk,
                                          const Network *network,
                                          Sdc *sdc) :
-  HpinDrvrLoadVisitor(),
   clk_(clk),
   drvr_loads_(network),
   network_(network),
@@ -1468,11 +1467,10 @@ class MakeClkLatencyEdge : public HierPinThruVisitor
 public:
   MakeClkLatencyEdge(ClockLatency *latency,
                      EdgeClockLatencyMap &edge_clk_latency_map);
-
-private:
   void visit(const Pin *drvr,
              const Pin *load) override;
 
+private:
   ClockLatency *latency_;
   EdgeClockLatencyMap &edge_clk_latency_map_;
 };
@@ -1941,12 +1939,12 @@ ClockInsertionkLess::operator()(const ClockInsertion *insert1,
 ////////////////////////////////////////////////////////////////
 
 ClockGroups *
-Sdc::makeClockGroups(const std::string &name,
+Sdc::makeClockGroups(std::string_view name,
                      bool logically_exclusive,
                      bool physically_exclusive,
                      bool asynchronous,
                      bool allow_paths,
-                     std::string comment)
+                     std::string_view comment)
 {
   std::string group_name;
   if (name.empty())
@@ -1960,7 +1958,7 @@ Sdc::makeClockGroups(const std::string &name,
   ClockGroups *groups = new ClockGroups(group_name, logically_exclusive,
                                         physically_exclusive,
                                         asynchronous, allow_paths,
-                                        std::move(comment));
+                                        comment);
   clk_groups_name_map_[groups->name()] = groups;
   return groups;
 }
@@ -3561,18 +3559,16 @@ class DisableEdgesThruHierPin : public HierPinThruVisitor
 public:
   DisableEdgesThruHierPin(PinPairSet *pairs,
                           Graph *graph);
-
-protected:
   void visit(const Pin *drvr,
              const Pin *load) override;
 
+protected:
   PinPairSet *pairs_;
   Graph *graph_;
 };
 
 DisableEdgesThruHierPin::DisableEdgesThruHierPin(PinPairSet *pairs,
                                                  Graph *graph) :
-  HierPinThruVisitor(),
   pairs_(pairs),
   graph_(graph)
 {
@@ -3602,18 +3598,16 @@ class RemoveDisableEdgesThruHierPin : public HierPinThruVisitor
 public:
   RemoveDisableEdgesThruHierPin(PinPairSet *pairs,
                                 Graph *graph);
-
-protected:
   void visit(const Pin *drvr,
              const Pin *load) override;
 
+protected:
   PinPairSet *pairs_;
   Graph *graph_;
 };
 
 RemoveDisableEdgesThruHierPin::RemoveDisableEdgesThruHierPin(PinPairSet *pairs,
                                                              Graph *graph) :
-  HierPinThruVisitor(),
   pairs_(pairs),
   graph_(graph)
 {
@@ -4083,7 +4077,7 @@ void
 Sdc::clearGroupPathMap()
 {
   // GroupPath exceptions are deleted with other exceptions.
-  for (auto [name, groups] : group_path_map_) {
+  for (auto &[name, groups] : group_path_map_) {
     deleteContents(*groups);
     delete groups;
   }
@@ -4396,17 +4390,17 @@ Sdc::deleteMatchingExceptions(ExceptionPath *exception)
   ExceptionPathSet matches;
   findMatchingExceptions(exception, matches);
 
-  ExceptionPathSet expanded_matches;
+  ExceptionPathSet expansions;
   for (ExceptionPath *match : matches)
     // Expand the matching exception into a set of exceptions that
     // that do not cover the new exception.  Do not record them
     // to prevent merging with the match, which will be deleted.
-    expandExceptionExcluding(match, exception, expanded_matches);
+    expandExceptionExcluding(match, exception, expansions);
 
   for (ExceptionPath *match : matches)
     deleteException(match);
 
-  for (ExceptionPath *match : expanded_matches)
+  for (ExceptionPath *match : expansions)
     addException(match);
 }
 
@@ -5783,11 +5777,6 @@ findLeafDriverPins(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-NetWireCaps::NetWireCaps() :
-  subtract_pin_cap_{false, false}
-{
-}
-
 bool
 NetWireCaps::subtractPinCap(const MinMax *min_max)
 {
@@ -5801,4 +5790,4 @@ NetWireCaps::setSubtractPinCap(bool subtrace_pin_cap,
   subtract_pin_cap_[min_max->index()] = subtrace_pin_cap;
 }
 
-} // namespace
+} // namespace sta

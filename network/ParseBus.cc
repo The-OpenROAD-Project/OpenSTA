@@ -90,7 +90,7 @@ parseBusName(std::string_view name,
           && left + 1 < len
           && isdigit(name[left + 1])) {
         is_bus = true;
-        bus_name.append(name.data(), left);
+        bus_name.append(name.substr(0, left));
         // Simple bus subscript.
         index = std::stoi(std::string(name.substr(left + 1)));
       }
@@ -146,7 +146,7 @@ parseBusName(std::string_view name,
           && left + 1 < len
           && (isdigit(name[left + 1]) || name[left + 1] == '*')) {
         is_bus = true;
-        bus_name.append(name.data(), left);
+        bus_name.append(name.substr(0, left));
         if (name[left + 1] == '*')
           subscript_wild = true;
         else {
@@ -194,4 +194,4 @@ escapeChars(std::string_view token,
   return escaped;
 }
 
-} // namespace
+} // namespace sta

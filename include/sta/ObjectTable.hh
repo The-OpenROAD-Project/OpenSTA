@@ -50,7 +50,6 @@ template <class TYPE>
 class ObjectTable
 {
 public:
-  ObjectTable();
   ~ObjectTable();
   TYPE *make();
   void destroy(TYPE *object);
@@ -70,19 +69,12 @@ private:
   void freePush(TYPE *object,
                 ObjectId id);
 
-  size_t size_;
+  size_t size_{0};
   // Object ID of next free object.
-  ObjectId free_;
+  ObjectId free_{object_id_null};
   std::vector<TableBlock<TYPE>*> blocks_;
   static constexpr ObjectId idx_mask_ = block_object_count - 1;
 };
-
-template <class TYPE>
-ObjectTable<TYPE>::ObjectTable() :
-  size_(0),
-  free_(object_id_null)
-{
-}
 
 template <class TYPE>
 ObjectTable<TYPE>::~ObjectTable()
@@ -213,4 +205,4 @@ TableBlock<TYPE>::TableBlock(BlockIdx block_idx,
 {
 }
 
-} // Namespace
+} // namespace sta
