@@ -163,7 +163,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "",
                      sta_->cmdMode());
 
     // Set input delays
@@ -2991,8 +2991,8 @@ TEST_F(StaDesignTest, MakeGeneratedClock) {
     IntSeq *divide_by = new IntSeq;
     divide_by->push_back(2);
     FloatSeq *edges = nullptr;
-    sta_->makeGeneratedClock("gen_clk", gen_pins, false, clk2, clk,
-                              2, 0, 0.0, false, false, divide_by, edges, "",
+    sta_->makeGeneratedClock("gen_clk", *gen_pins, false, clk2, clk,
+                              2, 0, 0.0, false, false, *divide_by, *edges, "",
                               sta_->cmdMode());
     Clock *gen = sdc->findClock("gen_clk");
     EXPECT_NE(gen, nullptr);

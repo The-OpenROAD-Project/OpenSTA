@@ -1703,7 +1703,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(250.0f);
-    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 500.0f, *waveform, "", sta_->cmdMode());
 
     design_loaded_ = true;
   }
@@ -4174,7 +4174,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     // Set input/output delay constraints to create constrained timing paths
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -4418,7 +4418,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
@@ -4599,7 +4599,7 @@ TEST_F(MultiDriverDcalcTest, IncrementalClockPeriodChange) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(1.0f);
-  sta_->makeClock("clk", clk_pins, false, 2.0f, waveform, "", sta_->cmdMode());
+  sta_->makeClock("clk", *clk_pins, false, 2.0f, *waveform, "", sta_->cmdMode());
   sta_->updateTiming(true);
   Slack slack2 = sta_->worstSlack(MinMax::max());
 
@@ -4735,7 +4735,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     // Set input/output delay constraints to create constrained timing paths
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -4861,7 +4861,7 @@ TEST_F(DesignDcalcTest, IncrementalWithSpef) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(50.0f);
-  sta_->makeClock("clk", clk_pins, false, 100.0f, waveform, "", sta_->cmdMode());
+  sta_->makeClock("clk", *clk_pins, false, 100.0f, *waveform, "", sta_->cmdMode());
   sta_->updateTiming(true);
   Slack slack2 = sta_->worstSlack(MinMax::max());
 

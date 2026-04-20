@@ -127,7 +127,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     Pin *in1 = network->findPin(top, "in1");
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -173,7 +173,7 @@ TEST_F(SdcDesignTest, CycleAcctingSourceTargetCycle) {
     FloatSeq *waveform2 = new FloatSeq;
     waveform2->push_back(0.0f);
     waveform2->push_back(2.5f);
-    sta_->makeClock("clk2", clk2_pins, false, 5.0f, waveform2, "", sta_->cmdMode());
+    sta_->makeClock("clk2", *clk2_pins, false, 5.0f, *waveform2, "", sta_->cmdMode());
     sta_->updateTiming(true);
     // Forces CycleAccting to compute inter-clock accounting
   }
@@ -337,7 +337,7 @@ TEST_F(SdcInitTest, ClockEdgeAccessors) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(5.0f);
-  sta_->makeClock("test_clk_edge", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+  sta_->makeClock("test_clk_edge", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
   Clock *clk = sdc->findClock("test_clk_edge");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
@@ -391,12 +391,12 @@ TEST_F(SdcInitTest, SdcInterClockUncertainty) {
   FloatSeq *waveform1 = new FloatSeq;
   waveform1->push_back(0.0f);
   waveform1->push_back(5.0f);
-  sta_->makeClock("clk_a", pins1, false, 10.0f, waveform1, "", sta_->cmdMode());
+  sta_->makeClock("clk_a", *pins1, false, 10.0f, *waveform1, "", sta_->cmdMode());
   PinSet *pins2 = new PinSet(sta_->cmdNetwork());
   FloatSeq *waveform2 = new FloatSeq;
   waveform2->push_back(0.0f);
   waveform2->push_back(2.5f);
-  sta_->makeClock("clk_b", pins2, false, 5.0f, waveform2, "", sta_->cmdMode());
+  sta_->makeClock("clk_b", *pins2, false, 5.0f, *waveform2, "", sta_->cmdMode());
 
   Clock *clk_a = sdc->findClock("clk_a");
   Clock *clk_b = sdc->findClock("clk_b");
@@ -849,7 +849,7 @@ TEST_F(SdcInitTest, SdcDeleteLatchBorrowLimits) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(5.0f);
-  sta_->makeClock("clk_borrow", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+  sta_->makeClock("clk_borrow", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
   Clock *clk = sdc->findClock("clk_borrow");
   ASSERT_NE(clk, nullptr);
   // Set latch borrow limit on clock
@@ -1179,11 +1179,10 @@ TEST_F(SdcDesignTest, ClockAccessors) {
   ASSERT_NE(clk, nullptr);
   EXPECT_EQ(clk->name(), "clk");
   EXPECT_FLOAT_EQ(clk->period(), 10.0f);
-  const FloatSeq *wave = clk->waveform();
-  ASSERT_NE(wave, nullptr);
-  EXPECT_GE(wave->size(), 2u);
-  EXPECT_FLOAT_EQ((*wave)[0], 0.0f);
-  EXPECT_FLOAT_EQ((*wave)[1], 5.0f);
+  const FloatSeq &wave = clk->waveform();
+  EXPECT_GE(wave.size(), 2u);
+  EXPECT_FLOAT_EQ(wave[0], 0.0f);
+  EXPECT_FLOAT_EQ(wave[1], 5.0f);
   EXPECT_FALSE(clk->isGenerated());
   EXPECT_FALSE(clk->isVirtual());
   int idx = clk->index();
@@ -1519,7 +1518,7 @@ TEST_F(SdcDesignTest, WriteSdcWithClockGroupsMembers) {
       FloatSeq *waveform2 = new FloatSeq;
       waveform2->push_back(0.0f);
       waveform2->push_back(2.5f);
-      sta_->makeClock("clk2", clk2_pins, false, 5.0f, waveform2, "", sta_->cmdMode());
+      sta_->makeClock("clk2", *clk2_pins, false, 5.0f, *waveform2, "", sta_->cmdMode());
       Clock *clk2 = sdc->findClock("clk2");
       if (clk2) {
         ClockGroups *cg = sta_->makeClockGroups("grp1", true, false, false,

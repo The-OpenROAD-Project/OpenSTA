@@ -72,8 +72,8 @@ TEST_F(SdcInitTest, ClockAddPinNull) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_addpin", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_addpin", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   // addPin with nullptr - after adding null, isVirtual becomes false
   // because the pins set becomes non-empty
@@ -87,8 +87,8 @@ TEST_F(SdcInitTest, ClockSetSlewRfMinMax) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_slew", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_slew", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->setSlew(RiseFall::rise(), MinMax::max(), 0.5f);
   float slew;
@@ -105,8 +105,8 @@ TEST_F(SdcInitTest, ClockEdgeTime) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_edge", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_edge", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ClockEdge *fall_edge = clk->edge(RiseFall::fall());
@@ -122,8 +122,8 @@ TEST_F(SdcInitTest, ClockEdgeOpposite) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_opp", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_opp", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ClockEdge *fall_edge = clk->edge(RiseFall::fall());
@@ -139,8 +139,8 @@ TEST_F(SdcInitTest, ClockEdgePulseWidth) {
   waveform->push_back(0.0);
   waveform->push_back(4.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_pw", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_pw", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ASSERT_NE(rise_edge, nullptr);
@@ -154,8 +154,8 @@ TEST_F(SdcInitTest, ClockEdgeNameIndex) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_ni", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_ni", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
   ASSERT_NE(rise_edge, nullptr);
@@ -585,8 +585,8 @@ TEST_F(SdcInitTest, SdcLatchBorrowLimitOnClock) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  Clock *clk = sdc->makeClock("clk_lbl", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_lbl", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   sdc->setLatchBorrowLimit(clk, 2.0f);
   // Just exercise - borrow limit is set
@@ -601,10 +601,10 @@ TEST_F(SdcInitTest, InterClockUncertaintyEmpty) {
   waveform2->push_back(0.0);
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk1 = sdc->makeClock("clk_icu1", nullptr, false, 10.0,
-                                waveform1, "");
-  Clock *clk2 = sdc->makeClock("clk_icu2", nullptr, false, 6.0,
-                                waveform2, "");
+  Clock *clk1 = sdc->makeClock("clk_icu1", PinSet(), false, 10.0,
+                                *waveform1, "");
+  Clock *clk2 = sdc->makeClock("clk_icu2", PinSet(), false, 6.0,
+                                *waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   EXPECT_TRUE(icu.empty());
   EXPECT_EQ(icu.src(), clk1);
@@ -619,10 +619,10 @@ TEST_F(SdcInitTest, InterClockUncertaintySetAndGet) {
   waveform2->push_back(0.0);
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk1 = sdc->makeClock("clk_icu3", nullptr, false, 10.0,
-                                waveform1, "");
-  Clock *clk2 = sdc->makeClock("clk_icu4", nullptr, false, 6.0,
-                                waveform2, "");
+  Clock *clk1 = sdc->makeClock("clk_icu3", PinSet(), false, 10.0,
+                                *waveform1, "");
+  Clock *clk2 = sdc->makeClock("clk_icu4", PinSet(), false, 6.0,
+                                *waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   icu.setUncertainty(RiseFallBoth::riseFall(), RiseFallBoth::riseFall(),
                      SetupHoldAll::all(), 0.1f);
@@ -643,10 +643,10 @@ TEST_F(SdcInitTest, InterClockUncertaintyRemove) {
   waveform2->push_back(0.0);
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk1 = sdc->makeClock("clk_icu5", nullptr, false, 10.0,
-                                waveform1, "");
-  Clock *clk2 = sdc->makeClock("clk_icu6", nullptr, false, 6.0,
-                                waveform2, "");
+  Clock *clk1 = sdc->makeClock("clk_icu5", PinSet(), false, 10.0,
+                                *waveform1, "");
+  Clock *clk2 = sdc->makeClock("clk_icu6", PinSet(), false, 6.0,
+                                *waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   icu.setUncertainty(RiseFallBoth::riseFall(), RiseFallBoth::riseFall(),
                      SetupHoldAll::all(), 0.2f);
@@ -663,10 +663,10 @@ TEST_F(SdcInitTest, InterClockUncertaintyUncertainties) {
   waveform2->push_back(0.0);
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk1 = sdc->makeClock("clk_icu7", nullptr, false, 10.0,
-                                waveform1, "");
-  Clock *clk2 = sdc->makeClock("clk_icu8", nullptr, false, 6.0,
-                                waveform2, "");
+  Clock *clk1 = sdc->makeClock("clk_icu7", PinSet(), false, 10.0,
+                                *waveform1, "");
+  Clock *clk2 = sdc->makeClock("clk_icu8", PinSet(), false, 6.0,
+                                *waveform2, "");
   InterClockUncertainty icu(clk1, clk2);
   const RiseFallMinMax *rfmm = icu.uncertainties(RiseFall::rise());
   EXPECT_NE(rfmm, nullptr);
@@ -678,8 +678,8 @@ TEST_F(SdcInitTest, CycleAcctingConstruct2) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_ca", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_ca", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise = clk->edge(RiseFall::rise());
   ClockEdge *fall = clk->edge(RiseFall::fall());
@@ -693,8 +693,8 @@ TEST_F(SdcInitTest, CycleAcctingFindDefaultArrivalSrcDelays) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_ca2", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_ca2", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   ClockEdge *rise = clk->edge(RiseFall::rise());
   ClockEdge *fall = clk->edge(RiseFall::fall());
@@ -737,10 +737,10 @@ TEST_F(SdcInitTest, ClockSetCompare) {
   waveform2->push_back(0.0);
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk1 = sdc->makeClock("clk_csc1", nullptr, false, 10.0,
-                                waveform1, "");
-  Clock *clk2 = sdc->makeClock("clk_csc2", nullptr, false, 6.0,
-                                waveform2, "");
+  Clock *clk1 = sdc->makeClock("clk_csc1", PinSet(), false, 10.0,
+                                *waveform1, "");
+  Clock *clk2 = sdc->makeClock("clk_csc2", PinSet(), false, 6.0,
+                                *waveform2, "");
   ClockSet set1;
   set1.insert(clk1);
   ClockSet set2;
@@ -904,8 +904,8 @@ TEST_F(SdcInitTest, ClockRemoveSlew) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_rs", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_rs", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->setSlew(RiseFallBoth::riseFall(), MinMaxAll::all(), 0.5f);
   clk->removeSlew();
@@ -921,8 +921,8 @@ TEST_F(SdcInitTest, ClockSlewsAccessor) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_sa", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_sa", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->slews();
 }
@@ -933,8 +933,8 @@ TEST_F(SdcInitTest, ClockUncertaintiesAccessor) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_ua", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_ua", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   // A freshly created clock has no uncertainties set yet
   ClockUncertainties *unc = clk->uncertainties();
@@ -947,8 +947,8 @@ TEST_F(SdcInitTest, ClockSetRemoveUncertainty) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_sru", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_sru", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   clk->setUncertainty(SetupHoldAll::all(), 0.1f);
   float unc;
@@ -967,8 +967,8 @@ TEST_F(SdcInitTest, ClockGeneratedProperties) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_gp", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_gp", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   EXPECT_FALSE(clk->isGenerated());
   EXPECT_EQ(clk->masterClk(), nullptr);
@@ -986,10 +986,10 @@ TEST_F(SdcInitTest, ClkNameLess) {
   waveform2->push_back(0.0);
   waveform2->push_back(3.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clkA = sdc->makeClock("alpha", nullptr, false, 10.0,
-                                waveform1, "");
-  Clock *clkB = sdc->makeClock("beta", nullptr, false, 6.0,
-                                waveform2, "");
+  Clock *clkA = sdc->makeClock("alpha", PinSet(), false, 10.0,
+                                *waveform1, "");
+  Clock *clkB = sdc->makeClock("beta", PinSet(), false, 6.0,
+                                *waveform2, "");
   ClockNameLess less;
   EXPECT_TRUE(less(clkA, clkB));
   EXPECT_FALSE(less(clkB, clkA));
@@ -1012,8 +1012,8 @@ TEST_F(SdcInitTest, ClockPropagation2) {
   waveform->push_back(0.0);
   waveform->push_back(5.0);
   Sdc *sdc = sta_->cmdSdc();
-  Clock *clk = sdc->makeClock("clk_prop", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("clk_prop", PinSet(), false, 10.0,
+                               *waveform, "");
   ASSERT_NE(clk, nullptr);
   EXPECT_FALSE(clk->isPropagated());
   sdc->setPropagatedClock(clk);
@@ -1218,7 +1218,7 @@ TEST_F(SdcInitTest, ClockEdgeTimeAccess) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("et_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
+  sta_->makeClock("et_clk", PinSet(), false, 10.0, *waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("et_clk");
   ClockEdge *rise_edge = clk->edge(RiseFall::rise());
@@ -1236,8 +1236,8 @@ TEST_F(SdcInitTest, ClockMakeClock) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  Clock *clk = sdc->makeClock("direct_clk", nullptr, false, 10.0,
-                               waveform, "");
+  Clock *clk = sdc->makeClock("direct_clk", PinSet(), false, 10.0,
+                               *waveform, "");
   EXPECT_NE(clk, nullptr);
   EXPECT_EQ(clk->name(), "direct_clk");
 }
@@ -1246,7 +1246,7 @@ TEST_F(SdcInitTest, ClockLeafPins) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("lp_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
+  sta_->makeClock("lp_clk", PinSet(), false, 10.0, *waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("lp_clk");
   const PinSet &pins = clk->leafPins();
@@ -1350,7 +1350,7 @@ TEST_F(SdcInitTest, ClockGroupsPhysicallyExclusive) {
   FloatSeq *wave = new FloatSeq;
   wave->push_back(0.0);
   wave->push_back(5.0);
-  sta_->makeClock("pe_clk", nullptr, false, 10.0, wave, "", sta_->cmdMode());
+  sta_->makeClock("pe_clk", PinSet(), false, 10.0, *wave, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("pe_clk");
 
@@ -1368,7 +1368,7 @@ TEST_F(SdcInitTest, ClockGroupsAsynchronous) {
   FloatSeq *wave = new FloatSeq;
   wave->push_back(0.0);
   wave->push_back(5.0);
-  sta_->makeClock("async_clk", nullptr, false, 10.0, wave, "", sta_->cmdMode());
+  sta_->makeClock("async_clk", PinSet(), false, 10.0, *wave, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("async_clk");
 
@@ -1403,7 +1403,7 @@ TEST_F(SdcInitTest, ClockSetUncertaintyMinMax) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("unc_mm_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
+  sta_->makeClock("unc_mm_clk", PinSet(), false, 10.0, *waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("unc_mm_clk");
   clk->setUncertainty(MinMax::min(), 0.05f);
@@ -1469,17 +1469,17 @@ TEST_F(SdcInitTest, FindClocksMatchingWildcard) {
   FloatSeq *wave1 = new FloatSeq;
   wave1->push_back(0.0);
   wave1->push_back(5.0);
-  sta_->makeClock("sys_clk_a", nullptr, false, 10.0, wave1, "", sta_->cmdMode());
+  sta_->makeClock("sys_clk_a", PinSet(), false, 10.0, *wave1, "", sta_->cmdMode());
 
   FloatSeq *wave2 = new FloatSeq;
   wave2->push_back(0.0);
   wave2->push_back(2.5);
-  sta_->makeClock("sys_clk_b", nullptr, false, 5.0, wave2, "", sta_->cmdMode());
+  sta_->makeClock("sys_clk_b", PinSet(), false, 5.0, *wave2, "", sta_->cmdMode());
 
   FloatSeq *wave3 = new FloatSeq;
   wave3->push_back(0.0);
   wave3->push_back(1.0);
-  sta_->makeClock("io_clk", nullptr, false, 2.0, wave3, "", sta_->cmdMode());
+  sta_->makeClock("io_clk", PinSet(), false, 2.0, *wave3, "", sta_->cmdMode());
 
   Sdc *sdc = sta_->cmdSdc();
   PatternMatch pattern("sys_*");
@@ -1514,12 +1514,12 @@ TEST_F(SdcInitTest, SdcComplexSequence) {
   FloatSeq *w1 = new FloatSeq;
   w1->push_back(0.0);
   w1->push_back(5.0);
-  sta_->makeClock("seq_clk1", nullptr, false, 10.0, w1, "", sta_->cmdMode());
+  sta_->makeClock("seq_clk1", PinSet(), false, 10.0, *w1, "", sta_->cmdMode());
 
   FloatSeq *w2 = new FloatSeq;
   w2->push_back(0.0);
   w2->push_back(2.5);
-  sta_->makeClock("seq_clk2", nullptr, false, 5.0, w2, "", sta_->cmdMode());
+  sta_->makeClock("seq_clk2", PinSet(), false, 5.0, *w2, "", sta_->cmdMode());
 
   // Set various constraints
   sdc->setMaxArea(1000.0);
@@ -1553,7 +1553,7 @@ TEST_F(SdcInitTest, ClockPropagateCycle) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("prop_cycle_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
+  sta_->makeClock("prop_cycle_clk", PinSet(), false, 10.0, *waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("prop_cycle_clk");
 
@@ -1574,11 +1574,11 @@ TEST_F(SdcInitTest, InterClockUncertaintySetGet) {
   FloatSeq *w1 = new FloatSeq;
   w1->push_back(0.0);
   w1->push_back(5.0);
-  sta_->makeClock("icu_clk1", nullptr, false, 10.0, w1, "", sta_->cmdMode());
+  sta_->makeClock("icu_clk1", PinSet(), false, 10.0, *w1, "", sta_->cmdMode());
   FloatSeq *w2 = new FloatSeq;
   w2->push_back(0.0);
   w2->push_back(2.5);
-  sta_->makeClock("icu_clk2", nullptr, false, 5.0, w2, "", sta_->cmdMode());
+  sta_->makeClock("icu_clk2", PinSet(), false, 5.0, *w2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("icu_clk1");
   Clock *clk2 = sdc->findClock("icu_clk2");
@@ -1763,7 +1763,7 @@ TEST_F(SdcInitTest, ClockLatencyConstruction) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0);
   waveform->push_back(5.0);
-  sta_->makeClock("lat_clk", nullptr, false, 10.0, waveform, "", sta_->cmdMode());
+  sta_->makeClock("lat_clk", PinSet(), false, 10.0, *waveform, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("lat_clk");
   ClockLatency lat(clk, nullptr);
@@ -2411,7 +2411,7 @@ TEST_F(SdcInitTest, ClockSlewSetGet2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_slew_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2428,7 +2428,7 @@ TEST_F(SdcInitTest, ClockRemoveSlew2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_rslew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_rslew_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_rslew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2445,7 +2445,7 @@ TEST_F(SdcInitTest, ClockSlewsAccessor2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slews_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_slews_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slews_clk");
   ASSERT_NE(clk, nullptr);
@@ -2459,7 +2459,7 @@ TEST_F(SdcInitTest, ClockPeriod) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(10.0);
-  sta_->makeClock("r8_per_clk", nullptr, false, 20.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_per_clk", PinSet(), false, 20.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_per_clk");
   ASSERT_NE(clk, nullptr);
@@ -2471,7 +2471,7 @@ TEST_F(SdcInitTest, ClockPeriodAccess) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(12.5);
-  sta_->makeClock("r8_pera_clk", nullptr, false, 25.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_pera_clk", PinSet(), false, 25.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_pera_clk");
   ASSERT_NE(clk, nullptr);
@@ -2483,7 +2483,7 @@ TEST_F(SdcInitTest, ClockIsVirtual2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_virt_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_virt_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_virt_clk");
   ASSERT_NE(clk, nullptr);
@@ -2496,7 +2496,7 @@ TEST_F(SdcInitTest, ClockIsPropagated) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_prop_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_prop_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_prop_clk");
   ASSERT_NE(clk, nullptr);
@@ -2511,7 +2511,7 @@ TEST_F(SdcInitTest, ClockIsIdeal) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_ideal_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_ideal_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_ideal_clk");
   ASSERT_NE(clk, nullptr);
@@ -2523,7 +2523,7 @@ TEST_F(SdcInitTest, ClockEdge) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_edge_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_edge_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_edge_clk");
   ASSERT_NE(clk, nullptr);
@@ -2539,7 +2539,7 @@ TEST_F(SdcInitTest, ClockEdgeProperties2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_edgep_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_edgep_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_edgep_clk");
   ASSERT_NE(clk, nullptr);
@@ -2555,7 +2555,7 @@ TEST_F(SdcInitTest, ClockEdgeOpposite2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_opp_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_opp_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_opp_clk");
   ASSERT_NE(clk, nullptr);
@@ -2570,7 +2570,7 @@ TEST_F(SdcInitTest, ClockEdgePulseWidth2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_pw_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_pw_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_pw_clk");
   ASSERT_NE(clk, nullptr);
@@ -2584,7 +2584,7 @@ TEST_F(SdcInitTest, ClockEdgeIndex) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_idx_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_idx_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_idx_clk");
   ASSERT_NE(clk, nullptr);
@@ -2598,7 +2598,7 @@ TEST_F(SdcInitTest, ClockUncertainty2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_unc_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_unc_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_unc_clk");
   ASSERT_NE(clk, nullptr);
@@ -2615,7 +2615,7 @@ TEST_F(SdcInitTest, ClockRemoveUncertainty) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_runc_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_runc_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_runc_clk");
   ASSERT_NE(clk, nullptr);
@@ -2632,7 +2632,7 @@ TEST_F(SdcInitTest, ClockIsGenerated) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_gen_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_gen_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_gen_clk");
   ASSERT_NE(clk, nullptr);
@@ -2644,7 +2644,7 @@ TEST_F(SdcInitTest, ClockAddToPins) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_atp_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_atp_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_atp_clk");
   ASSERT_NE(clk, nullptr);
@@ -2659,13 +2659,12 @@ TEST_F(SdcInitTest, ClockWaveform) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_wf_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_wf_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_wf_clk");
   ASSERT_NE(clk, nullptr);
-  FloatSeq *wave = clk->waveform();
-  EXPECT_NE(wave, nullptr);
-  EXPECT_EQ(wave->size(), 2u);
+  const FloatSeq &wave = clk->waveform();
+  EXPECT_EQ(wave.size(), 2u);
 }
 
 // Clock index
@@ -2673,11 +2672,11 @@ TEST_F(SdcInitTest, ClockIndex2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_idx1_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_idx1_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(10.0);
-  sta_->makeClock("r8_idx2_clk", nullptr, false, 20.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_idx2_clk", PinSet(), false, 20.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_idx1_clk");
   Clock *clk2 = sdc->findClock("r8_idx2_clk");
@@ -2691,7 +2690,7 @@ TEST_F(SdcInitTest, ClockCombinational) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_comb_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_comb_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_comb_clk");
   ASSERT_NE(clk, nullptr);
@@ -2704,11 +2703,11 @@ TEST_F(SdcInitTest, InterClockUncertaintyConstruct) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icus_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_icus_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icut_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_icut_clk", PinSet(), false, 10.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icus_clk");
   Clock *clk2 = sdc->findClock("r8_icut_clk");
@@ -2723,11 +2722,11 @@ TEST_F(SdcInitTest, InterClockUncertaintySetGet2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icu2s_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_icu2s_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icu2t_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_icu2t_clk", PinSet(), false, 10.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icu2s_clk");
   Clock *clk2 = sdc->findClock("r8_icu2t_clk");
@@ -2748,11 +2747,11 @@ TEST_F(SdcInitTest, InterClockUncertaintyRemove2) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icu3s_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_icu3s_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icu3t_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_icu3t_clk", PinSet(), false, 10.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icu3s_clk");
   Clock *clk2 = sdc->findClock("r8_icu3t_clk");
@@ -2769,11 +2768,11 @@ TEST_F(SdcInitTest, InterClockUncertaintyAccessor) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_icu4s_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_icu4s_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_icu4t_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_icu4t_clk", PinSet(), false, 10.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_icu4s_clk");
   Clock *clk2 = sdc->findClock("r8_icu4t_clk");
@@ -2833,7 +2832,7 @@ TEST_F(SdcInitTest, SdcPropagatedClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_propt_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_propt_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_propt_clk");
   ASSERT_NE(clk, nullptr);
@@ -2848,7 +2847,7 @@ TEST_F(SdcInitTest, SdcSetClockSlew2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_sslew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_sslew_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_sslew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2863,7 +2862,7 @@ TEST_F(SdcInitTest, SdcRemoveClockSlew) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_srslew_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_srslew_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_srslew_clk");
   ASSERT_NE(clk, nullptr);
@@ -2879,7 +2878,7 @@ TEST_F(SdcInitTest, SdcSetClockLatency2) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slat_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_slat_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slat_clk");
   ASSERT_NE(clk, nullptr);
@@ -2898,7 +2897,7 @@ TEST_F(SdcInitTest, SdcRemoveClockLatency) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_srlat_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_srlat_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_srlat_clk");
   ASSERT_NE(clk, nullptr);
@@ -2924,7 +2923,7 @@ TEST_F(SdcInitTest, SdcClockLatencyFloat) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_slatf_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_slatf_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_slatf_clk");
   ASSERT_NE(clk, nullptr);
@@ -2939,7 +2938,7 @@ TEST_F(SdcInitTest, SdcClockInsertion) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_sins_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_sins_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_sins_clk");
   ASSERT_NE(clk, nullptr);
@@ -2955,7 +2954,7 @@ TEST_F(SdcInitTest, SdcRemoveClockInsertion) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_srins_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_srins_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_srins_clk");
   ASSERT_NE(clk, nullptr);
@@ -2980,7 +2979,7 @@ TEST_F(SdcInitTest, SdcSetLatchBorrowLimit) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_lbl_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_lbl_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_lbl_clk");
   ASSERT_NE(clk, nullptr);
@@ -2993,7 +2992,7 @@ TEST_F(SdcInitTest, SdcRemoveClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_rem_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_rem_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_rem_clk");
   ASSERT_NE(clk, nullptr);
@@ -3172,11 +3171,11 @@ TEST_F(SdcInitTest, ClkCmp) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_cmpa_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_cmpa_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_cmpb_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_cmpb_clk", PinSet(), false, 10.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk1 = sdc->findClock("r8_cmpa_clk");
   Clock *clk2 = sdc->findClock("r8_cmpb_clk");
@@ -3192,7 +3191,7 @@ TEST_F(SdcInitTest, ClkEdgeCmp) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_ecmp_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_ecmp_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_ecmp_clk");
   ASSERT_NE(clk, nullptr);
@@ -3207,7 +3206,7 @@ TEST_F(SdcInitTest, ClkEdgeLess) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_eless_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_eless_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_eless_clk");
   ASSERT_NE(clk, nullptr);
@@ -3224,11 +3223,11 @@ TEST_F(SdcInitTest, ClockNameLess) {
   FloatSeq *wf1 = new FloatSeq;
   wf1->push_back(0.0);
   wf1->push_back(5.0);
-  sta_->makeClock("r8_aaa_clk", nullptr, false, 10.0, wf1, "", sta_->cmdMode());
+  sta_->makeClock("r8_aaa_clk", PinSet(), false, 10.0, *wf1, "", sta_->cmdMode());
   FloatSeq *wf2 = new FloatSeq;
   wf2->push_back(0.0);
   wf2->push_back(5.0);
-  sta_->makeClock("r8_zzz_clk", nullptr, false, 10.0, wf2, "", sta_->cmdMode());
+  sta_->makeClock("r8_zzz_clk", PinSet(), false, 10.0, *wf2, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk_a = sdc->findClock("r8_aaa_clk");
   Clock *clk_z = sdc->findClock("r8_zzz_clk");
@@ -3253,7 +3252,7 @@ TEST_F(SdcInitTest, SdcClockGatingCheckOnClock) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_cg_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_cg_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_cg_clk");
   ASSERT_NE(clk, nullptr);
@@ -3267,7 +3266,7 @@ TEST_F(SdcInitTest, ClockSlewLimit) {
   FloatSeq *wf = new FloatSeq;
   wf->push_back(0.0);
   wf->push_back(5.0);
-  sta_->makeClock("r8_sl_clk", nullptr, false, 10.0, wf, "", sta_->cmdMode());
+  sta_->makeClock("r8_sl_clk", PinSet(), false, 10.0, *wf, "", sta_->cmdMode());
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("r8_sl_clk");
   ASSERT_NE(clk, nullptr);
