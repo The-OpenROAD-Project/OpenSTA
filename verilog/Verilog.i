@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module verilog
-
 %{
 #include "Sta.hh"
 #include "VerilogWriter.hh"

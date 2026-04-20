@@ -42,6 +42,7 @@
 #include "Sta.hh"
 #include "StringUtil.hh"
 #include "TimingArc.hh"
+#include "TimingRole.hh"
 #include "Transition.hh"
 #include "Units.hh"
 #include "power/Power.hh"
@@ -1152,10 +1153,11 @@ Properties::getProperty(TimingArcSet *arc_set,
     if (arc_set->isWire())
       return PropertyValue("wire");
     else {
-      std::string name = sta::format("{} {} -> {}",
+      std::string name = sta::format("{} {} -> {} {}",
                                      arc_set->libertyCell()->name(),
                                      arc_set->from()->name(),
-                                     arc_set->to()->name());
+                                     arc_set->to()->name(),
+                                     arc_set->role()->to_string());
       return PropertyValue(name);
     }
   }

@@ -212,7 +212,7 @@ TimingArcSet::TimingArcSet(const TimingRole *role,
 }
 
 std::string
-TimingArcSet::to_string()
+TimingArcSet::to_string() const
 {
   std::string str = from_->name();
   str += " -> ";

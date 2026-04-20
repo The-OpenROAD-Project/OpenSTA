@@ -833,7 +833,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 
   bool divide_by_1 = gclk->isDivideByOneCombinational();
   bool invert = gclk->invert();
-  bool has_edges = gclk->edges() != nullptr;
+  bool has_edges = !gclk->edges().empty();
 
   for (const Pin *gclk_pin : gclk->leafPins()) {
     std::vector<Path> &src_paths = genclk_src_paths_[ClockPinPair(gclk, gclk_pin)];

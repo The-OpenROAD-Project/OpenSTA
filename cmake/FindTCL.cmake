@@ -23,6 +23,7 @@
 # searching OSX system directories before unix directories.
 
 set(TCL_POSSIBLE_NAMES
+  #tcl90 tcl9.0
   tcl87 tcl8.7
   tcl86 tcl8.6
   tcl85 tcl8.5
@@ -32,6 +33,7 @@ set(TCL_POSSIBLE_NAMES
 if (NOT TCL_LIB_PATHS)
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(TCL_LIB_PATHS
+      #/opt/homebrew/Cellar/tcl-tk/9.0.3/lib
       /opt/homebrew/Cellar/tcl-tk@8/8.6.17/lib
       /opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib
       /opt/homebrew/opt/tcl-tk/lib /usr/local/lib)

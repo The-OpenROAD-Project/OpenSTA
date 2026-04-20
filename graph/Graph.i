@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module graph
-
 %{
 #include "Clock.hh"
 #include "FuncExpr.hh"

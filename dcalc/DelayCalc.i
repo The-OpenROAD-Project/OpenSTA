@@ -22,8 +22,6 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module dcalc
-
 %include <std_string.i>
 
 %{

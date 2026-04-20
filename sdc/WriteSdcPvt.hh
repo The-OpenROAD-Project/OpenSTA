@@ -72,9 +72,9 @@ public:
   void writeClock(Clock *clk) const;
   void writeGeneratedClock(Clock *clk) const;
   void writeClockPins(const Clock *clk) const;
-  void writeFloatSeq(FloatSeq *floats,
+  void writeFloatSeq(const FloatSeq &floats,
                      float scale) const;
-  void writeIntSeq(IntSeq *ints) const;
+  void writeIntSeq(const IntSeq &ints) const;
   void writeClockSlews(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk,

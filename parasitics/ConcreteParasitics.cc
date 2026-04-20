@@ -975,7 +975,10 @@ ConcreteParasitics::piModel(const Parasitic *parasitic,
                             float &c1) const
 {
   const ConcreteParasitic *cparasitic = static_cast<const ConcreteParasitic*>(parasitic);
-  cparasitic->piModel(c2, rpi, c1);
+  if (cparasitic->isPiModel())
+    cparasitic->piModel(c2, rpi, c1);
+  else
+    criticalError(2700, "piModel called on non-PiElmore parasitic.");
 }
 
 void
@@ -985,7 +988,10 @@ ConcreteParasitics::setPiModel(Parasitic *parasitic,
                                float c1)
 {
   ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
-  cparasitic->setPiModel(c2, rpi, c1);
+  if (cparasitic->isPiModel())
+    cparasitic->setPiModel(c2, rpi, c1);
+  else
+    criticalError(2701, "setPiModel called on non-PiElmore parasitic.");
 }
 
 ////////////////////////////////////////////////////////////////

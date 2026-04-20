@@ -419,10 +419,10 @@ WriteSdc::writeClock(Clock *clk) const
   sta::print(stream_, " -period ");
   float period = clk->period();
   writeTime(period);
-  FloatSeq *waveform = clk->waveform();
-  if (!(waveform->size() == 2
-        && (*waveform)[0] == 0.0
-        && fuzzyEqual((*waveform)[1], period / 2.0))) {
+  const FloatSeq &waveform = clk->waveform();
+  if (!(waveform.size() == 2
+        && waveform[0] == 0.0
+        && fuzzyEqual(waveform[1], period / 2.0))) {
     sta::print(stream_, " -waveform ");
     writeFloatSeq(waveform, scaleTime(1.0));
   }
@@ -461,12 +461,12 @@ WriteSdc::writeGeneratedClock(Clock *clk) const
   }
   if (clk->invert())
     sta::print(stream_, " -invert");
-  IntSeq *edges = clk->edges();
-  if (edges && !edges->empty()) {
+  const IntSeq &edges = clk->edges();
+  if (!edges.empty()) {
     sta::print(stream_, " -edges ");
     writeIntSeq(edges);
-    FloatSeq *edge_shifts = clk->edgeShifts();
-    if (edge_shifts && !edge_shifts->empty()) {
+    const FloatSeq &edge_shifts = clk->edgeShifts();
+    if (!edge_shifts.empty()) {
       sta::print(stream_, " -edge_shift ");
       writeFloatSeq(edge_shifts, scaleTime(1.0));
     }
@@ -2762,12 +2762,12 @@ WriteSdc::writeResistance(float res) const
 }
 
 void
-WriteSdc::writeFloatSeq(FloatSeq *floats,
+WriteSdc::writeFloatSeq(const FloatSeq &floats,
                         float scale) const
 {
   sta::print(stream_, "{{");
   bool first = true;
-  for (float flt : *floats) {
+  for (float flt : floats) {
     if (!first)
       sta::print(stream_, " ");
     writeFloat(flt * scale);
@@ -2777,11 +2777,11 @@ WriteSdc::writeFloatSeq(FloatSeq *floats,
 }
 
 void
-WriteSdc::writeIntSeq(IntSeq *ints) const
+WriteSdc::writeIntSeq(const IntSeq &ints) const
 {
   sta::print(stream_, "{{");
   bool first = true;
-  for (int i : *ints) {
+  for (int i : ints) {
     if (!first)
       sta::print(stream_, " ");
     sta::print(stream_, "{}", i);

@@ -67,8 +67,9 @@ stringFloat(const std::string &str)
     return {0.0, false};
 #else
   char *ptr;
+  errno = 0;
   value = strtof(str.data(), &ptr);
-  if (!errno || *ptr != '\0')
+  if (errno != 0 || *ptr != '\0')
     return {0.0, false};
   else
     return {value, true};

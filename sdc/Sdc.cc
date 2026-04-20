@@ -148,9 +148,9 @@ Sdc::Sdc(Mode *mode,
 void
 Sdc::makeDefaultArrivalClock()
 {
-  FloatSeq *waveform = new FloatSeq;
-  waveform->push_back(0.0);
-  waveform->push_back(0.0);
+  FloatSeq waveform;
+  waveform.push_back(0.0);
+  waveform.push_back(0.0);
   default_arrival_clk_ = new Clock("input port clock", clk_index_++, network_);
   default_arrival_clk_->initClk(nullptr, false, 0.0, waveform, "", network_);
 }
@@ -959,10 +959,10 @@ Sdc::maxArea() const
 
 Clock *
 Sdc::makeClock(std::string_view name,
-               PinSet *pins,
+               const PinSet &pins,
                bool add_to_pins,
                float period,
-               FloatSeq *waveform,
+               const FloatSeq &waveform,
                std::string_view comment)
 {
   Clock *clk = findStringKey(clock_name_map_, name);
@@ -989,7 +989,7 @@ Sdc::makeClock(std::string_view name,
 
 Clock *
 Sdc::makeGeneratedClock(std::string_view name,
-                        PinSet *pins,
+                        const PinSet &pins,
                         bool add_to_pins,
                         Pin *src_pin,
                         Clock *master_clk,
@@ -998,8 +998,8 @@ Sdc::makeGeneratedClock(std::string_view name,
                         float duty_cycle,
                         bool invert,
                         bool combinational,
-                        IntSeq *edges,
-                        FloatSeq *edge_shifts,
+                        const IntSeq &edges,
+                        const FloatSeq &edge_shifts,
                         std::string_view comment)
 {
   Clock *clk = findStringKey(clock_name_map_, name);
@@ -1039,32 +1039,30 @@ Sdc::invalidateGeneratedClks() const
 // is not the clock being defined and has no pins it is removed.
 void
 Sdc::deletePinClocks(Clock *defining_clk,
-                     PinSet *pins)
+                     const PinSet &pins)
 {
   // Find all the clocks defined on pins to avoid finding the clock's
   // vertex pins multiple times.
-  if (pins) {
-    ClockSet clks;
-    for (const Pin *pin : *pins) {
-      ClockSet *pin_clks = findKey(clock_pin_map_, pin);
-      if (pin_clks) {
-        for (Clock *clk : *pin_clks) 
-          clks.insert(clk);
-      }
+  ClockSet clks;
+  for (const Pin *pin : pins) {
+    ClockSet *pin_clks = findKey(clock_pin_map_, pin);
+    if (pin_clks) {
+      for (Clock *clk : *pin_clks) 
+        clks.insert(clk);
     }
-    for (Clock *clk : clks) {
-      deleteClkPinMappings(clk);
-      for (const Pin *pin : *pins)
-        clk->deletePin(pin);
-      if (clk != defining_clk) {
-        if (clk->pins().empty())
-          removeClock(clk);
-        else {
-          clk->makeLeafPins(network_);
-          // One of the remaining clock pins may use a vertex pin that
-          // was deleted above.
-          makeClkPinMappings(clk);
-        }
+  }
+  for (Clock *clk : clks) {
+    deleteClkPinMappings(clk);
+    for (const Pin *pin : pins)
+      clk->deletePin(pin);
+    if (clk != defining_clk) {
+      if (clk->pins().empty())
+        removeClock(clk);
+      else {
+        clk->makeLeafPins(network_);
+        // One of the remaining clock pins may use a vertex pin that
+        // was deleted above.
+        makeClkPinMappings(clk);
       }
     }
   }

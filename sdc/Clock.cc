@@ -55,17 +55,16 @@ Clock::Clock(std::string_view name,
 }
 
 void
-Clock::initClk(PinSet *pins,
+Clock::initClk(const PinSet &pins,
                bool add_to_pins,
                float period,
-               FloatSeq *waveform,
+               const FloatSeq &waveform,
                std::string_view comment,
                const Network *network)
 {
   is_generated_ = false;
   setPins(pins, network);
   add_to_pins_ = add_to_pins;
-  delete waveform_;
   waveform_ = waveform;
   waveform_valid_ = true;
   period_ = period;
@@ -80,12 +79,10 @@ Clock::isVirtual() const
 }
 
 void
-Clock::setPins(PinSet *pins,
+Clock::setPins(const PinSet &pins,
                const Network *network)
 {
-  if (pins)
-    pins_ = *pins;
-  delete pins;
+  pins_ = pins;
   makeLeafPins(network);
 }
 
@@ -107,23 +104,15 @@ Clock::setMasterClk(Clock *master)
 void
 Clock::makeClkEdges()
 {
-  clk_edges_ = new ClockEdge*[RiseFall::index_count];
-  for (auto rf : RiseFall::range()) {
+  for (const RiseFall *rf : RiseFall::range()) {
     clk_edges_[rf->index()] = new ClockEdge(this, rf);
   }
 }
 
 Clock::~Clock()
 {
-  if (clk_edges_) {
-    delete clk_edges_[RiseFall::riseIndex()];
-    delete clk_edges_[RiseFall::fallIndex()];
-    delete [] clk_edges_;
-  }
-  delete waveform_;
-  delete edges_;
-  delete edge_shifts_;
-  delete uncertainties_;
+  for (size_t rf_index : RiseFall::rangeIndex())
+    delete clk_edges_[rf_index];
 }
 
 void
@@ -155,7 +144,7 @@ Clock::setClkEdgeTimes()
 void
 Clock::setClkEdgeTime(const RiseFall *rf)
 {
-  float time = (rf == RiseFall::rise()) ? (*waveform_)[0]:(*waveform_)[1];
+  float time = waveform_[rf->index()];
   clk_edges_[rf->index()]->setTime(time);
 }
 
@@ -298,7 +287,7 @@ Clock::waveformInvalid()
 ////////////////////////////////////////////////////////////////
 
 void
-Clock::initGeneratedClk(PinSet *pins,
+Clock::initGeneratedClk(const PinSet &pins,
                         bool add_to_pins,
                         Pin *src_pin,
                         Clock *master_clk,
@@ -307,8 +296,8 @@ Clock::initGeneratedClk(PinSet *pins,
                         float duty_cycle,
                         bool invert,
                         bool combinational,
-                        IntSeq *edges,
-                        FloatSeq *edge_shifts,
+                        const IntSeq &edges,
+                        const FloatSeq &edge_shifts,
                         bool is_propagated,
                         std::string_view comment,
                         const Network *network)
@@ -328,20 +317,7 @@ Clock::initGeneratedClk(PinSet *pins,
   is_propagated_ = is_propagated;
   setComment(comment);
 
-  delete edges_;
-  if (edges
-      && edges->empty()) {
-    delete edges;
-    edges = nullptr;
-  }
   edges_ = edges;
-
-  delete edge_shifts_;
-  if (edge_shifts
-      && edge_shifts->empty()) {
-    delete edge_shifts;
-    edge_shifts = nullptr;
-  }
   edge_shifts_ = edge_shifts;
 }
 
@@ -371,40 +347,36 @@ Clock::isGeneratedWithPropagatedMaster() const
 void
 Clock::generate(const Clock *src_clk)
 {
-  if (waveform_ == nullptr)
-    waveform_ = new FloatSeq;
-  else
-    waveform_->clear();
-
+  waveform_.clear();
   if (divide_by_ == 1.0) {
     period_ = src_clk->period();
-    const FloatSeq *src_wave = src_clk->waveform();
-    waveform_->push_back((*src_wave)[0]);
-    waveform_->push_back((*src_wave)[1]);
+    const FloatSeq &src_wave = src_clk->waveform();
+    waveform_.push_back(src_wave[0]);
+    waveform_.push_back(src_wave[1]);
   }
   else if (divide_by_ > 1) {
     if (isPowerOfTwo(divide_by_)) {
       period_ = src_clk->period() * divide_by_;
-      const FloatSeq *src_wave = src_clk->waveform();
-      float rise = (*src_wave)[0];
-      waveform_->push_back(rise);
-      waveform_->push_back(rise + period_ / 2);
+      const FloatSeq &src_wave = src_clk->waveform();
+      float rise = src_wave[0];
+      waveform_.push_back(rise);
+      waveform_.push_back(rise + period_ / 2);
     }
     else
       generateScaledClk(src_clk, static_cast<float>(divide_by_));
   }
   else if (multiply_by_ >= 1)
     generateScaledClk(src_clk, 1.0F / multiply_by_);
-  else if (edges_)
+  else if (!edges_.empty())
     generateEdgesClk(src_clk);
 
   if (invert_) {
-    float first_time = (*waveform_)[0];
+    float first_time = waveform_[0];
     float offset = (first_time >= period_) ? period_ : 0.0F;
-    size_t edge_count = waveform_->size();
+    size_t edge_count = waveform_.size();
     for (size_t i = 0; i < edge_count - 1; i++)
-      (*waveform_)[i] = (*waveform_)[i + 1] - offset;
-    (*waveform_)[edge_count - 1] = first_time - offset + period_;
+      waveform_[i] = waveform_[i + 1] - offset;
+    waveform_[edge_count - 1] = first_time - offset + period_;
   }
   setClkEdgeTimes();
   waveform_valid_ = true;
@@ -416,13 +388,13 @@ Clock::generateScaledClk(const Clock *src_clk,
 {
   period_ = src_clk->period() * scale;
   if (duty_cycle_ != 0.0) {
-    float rise = (*src_clk->waveform())[0] * scale;
-    waveform_->push_back(rise);
-    waveform_->push_back(rise + period_ * duty_cycle_ / 100.0F);
+    float rise = src_clk->waveform()[0] * scale;
+    waveform_.push_back(rise);
+    waveform_.push_back(rise + period_ * duty_cycle_ / 100.0F);
   }
   else {
-    for (float time : *src_clk->waveform())
-      waveform_->push_back(time * scale);
+    for (float time : src_clk->waveform())
+      waveform_.push_back(time * scale);
   }
 }
 
@@ -431,34 +403,34 @@ Clock::generateEdgesClk(const Clock *src_clk)
 {
   // The create_generated_clock tcl cmd and Sta::makeClock
   // enforce this restriction.
-  if (edges_->size() == 3) {
-    const FloatSeq *src_wave = src_clk->waveform();
-    size_t src_size = src_wave->size();
+  if (edges_.size() == 3) {
+    const FloatSeq &src_wave = src_clk->waveform();
+    size_t src_size = src_wave.size();
     int src_size_int = static_cast<int>(src_size);
     float src_period = src_clk->period();
 
-    int edge0_1 = (*edges_)[0] - 1;
+    int edge0_1 = edges_[0] - 1;
     div_t edge0_div = std::div(edge0_1, src_size_int);
-    float rise = (*src_wave)[edge0_div.rem]
+    float rise = src_wave[edge0_div.rem]
       + static_cast<float>(edge0_div.quot) * src_period;
-    if (edge_shifts_)
-      rise += (*edge_shifts_)[0];
-    waveform_->push_back(rise);
+    if (!edge_shifts_.empty())
+      rise += edge_shifts_[0];
+    waveform_.push_back(rise);
 
-    int edge1_1 = (*edges_)[1] - 1;
+    int edge1_1 = edges_[1] - 1;
     div_t edge1_div = std::div(edge1_1, src_size_int);
-    float fall = (*src_wave)[edge1_div.rem]
+    float fall = src_wave[edge1_div.rem]
       + static_cast<float>(edge1_div.quot) * src_period;
-    if (edge_shifts_)
-      fall += (*edge_shifts_)[1];
-    waveform_->push_back(fall);
+    if (!edge_shifts_.empty())
+      fall += edge_shifts_[1];
+    waveform_.push_back(fall);
 
-    int edge2_1 = (*edges_)[2] - 1;
+    int edge2_1 = edges_[2] - 1;
     div_t edge2_div = std::div(edge2_1, src_size_int);
-    period_ = (*src_wave)[edge2_div.rem]
+    period_ = src_wave[edge2_div.rem]
       + static_cast<float>(edge2_div.quot) * src_period - rise;
-    if (edge_shifts_)
-      period_ += (*edge_shifts_)[2];
+    if (!edge_shifts_.empty())
+      period_ += edge_shifts_[2];
   }
   else
     criticalError(244, "generated clock edges size is not three.");
@@ -474,7 +446,7 @@ const RiseFall *
 Clock::masterClkEdgeTr(const RiseFall *rf) const
 {
   int edge_index = (rf == RiseFall::rise()) ? 0 : 1;
-  return ((*edges_)[edge_index] - 1) % 2 
+  return (edges_[edge_index] - 1) % 2 
     ? RiseFall::fall()
     : RiseFall::rise();
 }
@@ -509,7 +481,7 @@ Clock::isDivideByOneCombinational() const
   return combinational_
     && divide_by_ == 1
     && multiply_by_ == 0
-    && edge_shifts_ == nullptr;
+    && edge_shifts_.empty();
 }
 
 ////////////////////////////////////////////////////////////////

@@ -374,19 +374,15 @@ public:
 
   static void
   makeSceneMap(LibertyLibrary *lib,
-               size_t lib_ap_index,
+               Scene *scene,
+               const MinMaxAll *min_max,
                Network *network,
                Report *report);
   static void
   makeSceneMap(LibertyCell *link_cell,
                LibertyCell *scene_cell,
-               size_t lib_ap_index,
-               Report *report);
-  static void
-  makeSceneMap(LibertyCell *cell1,
-               LibertyCell *cell2,
-               bool link,
-               size_t lib_ap_index,
+               Scene *scene,
+               const MinMaxAll *min_max,
                Report *report);
   static void
   checkScenes(LibertyCell *cell,

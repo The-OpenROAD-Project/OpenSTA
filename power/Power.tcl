@@ -135,7 +135,7 @@ proc set_power_activity { args } {
         sta_error 307 "-activity requires a clock to be defined"
       }
     }
-    set density [expr $activity / [clock_min_period [sta::cmd_mode]]]
+    set density [expr $activity / [clock_min_period [cmd_mode_name]]]
   }
 
   if { [info exists keys(-density)] } {
@@ -165,7 +165,7 @@ proc set_power_activity { args } {
     set ports [get_ports_error "input_ports" $keys(-input_ports)]
     foreach port $ports {
       if { [get_property $port "direction"] == "input" } {
-        if { [is_clock_src [sta::get_port_pin $port]] } {
+        if { [is_clock_src [get_port_pin $port]] } {
           sta_warn 310 "activity cannot be set on clock ports."
         } else {
           set_power_input_port_activity $port $density $duty
@@ -206,7 +206,7 @@ proc unset_power_activity { args } {
     set ports [get_ports_error "input_ports" $keys(-input_ports)]
     foreach port $ports {
       if { [get_property $port "direction"] == "input" } {
-        if { [is_clock_src [sta::get_port_pin $port]] } {
+        if { [is_clock_src [get_port_pin $port]] } {
           sta_warn 303 "activity cannot be set on clock ports."
         } else {
           unset_power_input_port_activity $port
@@ -255,7 +255,7 @@ proc read_vcd { args } {
   if { [info exists keys(-scope)] } {
     set scope $keys(-scope)
   }
-  set mode_name [sta::cmd_mode]
+  set mode_name [cmd_mode_name]
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
   }

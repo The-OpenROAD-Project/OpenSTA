@@ -378,14 +378,14 @@ public:
   void setMaxArea(float area);
   float maxArea() const;
   Clock *makeClock(std::string_view name,
-                   PinSet *pins,
+                   const PinSet &pins,
                    bool add_to_pins,
                    float period,
-                   FloatSeq *waveform,
+                   const FloatSeq &waveform,
                    std::string_view comment);
   // edges size must be 3.
   Clock *makeGeneratedClock(std::string_view name,
-                            PinSet *pins,
+                            const PinSet &pins,
                             bool add_to_pins,
                             Pin *src_pin,
                             Clock *master_clk,
@@ -394,8 +394,8 @@ public:
                             float duty_cycle,
                             bool invert,
                             bool combinational,
-                            IntSeq *edges,
-                            FloatSeq *edge_shifts,
+                            const IntSeq &edges,
+                            const FloatSeq &dge_shifts,
                             std::string_view comment);
   // Invalidate all generated clock waveforms.
   void invalidateGeneratedClks() const;
@@ -1071,7 +1071,7 @@ protected:
   void deleteClkPinMappings(Clock *clk);
   void makeClkPinMappings(Clock *clk);
   void deletePinClocks(Clock *defining_clk,
-                       PinSet *pins);
+                       const PinSet &pins);
   void makeDefaultArrivalClock();
   InputDrive *ensureInputDrive(const Port *port);
   ExceptionPath *findMergeMatch(ExceptionPath *exception);

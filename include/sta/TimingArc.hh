@@ -146,7 +146,7 @@ class TimingArcSet
 
 public:
   ~TimingArcSet();
-  std::string to_string();
+  std::string to_string() const;
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
   LibertyPort *to() const { return to_; }

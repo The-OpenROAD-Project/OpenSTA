@@ -989,8 +989,8 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
   bool arg_fail = checkArgs(dcalc_args, scene, min_max);
   if (arg_fail) {
     const RiseFall *rf = arc->toEdge()->asRiseFall();
-    const Parasitic *reduced =
-        table_dcalc_->findParasitic(drvr_pin, rf, scene, min_max);
+    const Parasitic *reduced = table_dcalc_->findParasitic(drvr_pin, rf,
+                                                           scene, min_max);
     return table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
                                          reduced, load_pin_index_map, scene,
                                          min_max, digits);
