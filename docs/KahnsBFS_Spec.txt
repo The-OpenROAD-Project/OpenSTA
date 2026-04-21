@@ -132,49 +132,46 @@ Per-call active_vertices allocation. The KahnState persistence avoids re-allocat
 Recursive dispatch cost for small workloads. Each ready vertex is dispatched as its own DispatchQueue task. The dispatch lock and condition-variable signaling cost is tiny per task, but for active sets smaller than the thread count the parallelism benefit may not offset the dispatch overhead.
 
 
-11. REVIEWER FEEDBACK AND ROADMAP
+11. FUTURE ROADMAP
 
-Two reviewer comments suggest directions that address the limitations above.
+The following enhancements extend the current Kahn's-based incremental timing implementation. They address known limitations in the existing approach and are orthogonal to Kahn's itself — each can be layered on top of the existing implementation independently. Items are listed in rough order of payoff relative to effort.
 
-Reviewer 1: "In the incremental case wouldn't you want to work backwards from the query?"
+1. Visit-level change short-circuit
+Objective: Restore the "arrivals unchanged" optimization within Kahn's propagation by skipping the visit body when no predecessor's arrival has actually changed.
+Approach: Track a per-vertex "changed" flag during Kahn's traversal. When a vertex is popped from the queue, check whether any of its incoming arrivals differ from the previously recorded values before performing the full visit.
+Benefit: Addresses the eager-visit limitation in the current implementation, eliminating redundant work when dirty vertices do not actually propagate value changes downstream.
+Risk and effort: Low risk, localized change.
 
-This is the demand-driven or point-specific propagation model used by some commercial STA tools. For a single slack query at pin P, the idea is:
+2. Validity-boundary seeding
+Objective: Address over-invalidation by narrowing the set of vertices that require re-propagation.
+Approach: Before seeding the BFS, perform a pre-pass that walks the dirty-reachable subgraph to identify the minimal boundary — the last layer of vertices whose arrivals remain known-valid but whose fanout begins the invalid region. Seed the BFS from those valid boundary vertices so that propagation walks forward into the invalid region with known-correct source arrivals. The same pattern applies in reverse for required times: find the boundary between known-valid and known-invalid requireds, seed from the valid side, and propagate backward into the invalid region.
+Benefit: If the invalidation is actually narrower than the dirty set suggests, the boundary pass prunes work the current approach would still perform. Starting from vertices with known-correct arrivals also gives the forward pass a clean reference point, which may catch cases where a dirty vertex's arrival does not actually change.
+Risk and effort: Medium effort, refinement of the current dirty-set mechanism rather than an architectural change. Can be added in Search.cc at the seeding step (seedInvalidArrivals / seedInvalidRequireds) without modifying the BFS iterator.
 
-  1. Walk backward from P to compute its fanin cone.
-  2. Intersect the cone with the dirty set -- only those dirty vertices actually affect P.
-  3. Propagate forward only from those vertices, restricted to within the cone.
+3. Demand-driven forward propagation for single-point queries
+Objective: For single slack queries at a given pin, restrict forward propagation to only the vertices that actually influence that pin.
+Approach: For a slack query at pin P:
+--Walk backward from P to compute its fanin cone.
+--Intersect the cone with the dirty set — only those dirty vertices actually affect P.
+--Propagate forward only from those vertices, restricted to within the cone.
 
-OpenSTA already does this for the backward required-time pass (stops at query pin's level) and for the endpoint-with-no-fanout shortcut (seedRequired, no BFS at all). It does not do this for the forward arrival pass in slack queries -- findAllArrivals always goes to maxLevel. Adding demand-driven forward propagation would require:
+OpenSTA already applies this pattern in the backward required-time pass (which stops at the query pin's level) and for the endpoint-with-no-fanout shortcut (seedRequired, no BFS at all). It does not currently do this for the forward arrival pass in slack queries — findAllArrivals always goes to maxLevel.
+Implementation requirements:
 
-  - A query context passed from the Tcl command down to findArrivals
-  - A backward cone computation (or lazy cone membership check)
-  - Predicate filtering during Kahn's discovery to skip vertices outside the cone
+--A query context passed from the Tcl command down to findArrivals
+--A backward cone computation, or a lazy cone-membership check
+--Predicate filtering during Kahn's discovery to skip vertices outside the cone
 
-The scope is architectural (Search.cc and the query entry points), not inside the BFS iterator. Kahn's would still apply to the forward pass within the cone -- it is still a DAG traversal with the same barrier elimination benefit. The two optimizations stack rather than compete.
+Kahn's traversal still applies to the forward pass within the cone — it remains a DAG traversal and retains the barrier elimination benefit. The two optimizations stack rather than compete.
+Benefit: The largest win for narrow single-point queries on large designs.
+Risk and effort: Larger architectural change spanning Search.cc and the Tcl query entry points. Scope is architectural, not inside the BFS iterator.
 
-Reviewer 2: "I would do a pre-traversal DFS to find the edge between valid and invalid nodes and I would queue the valid ones and then BFS forward and do the same thing in reverse for the required times."
+4. Hybrid scheduling
+Objective: Address the small-workload overhead of the current scheduling model.
+Approach: Introduce an adaptive threshold that switches between batched dispatch (suited for small active sets) and recursive dispatch (suited for large active sets), based on the size of the active set at scheduling time.
+Benefit: Eliminates overhead for small incremental updates while preserving throughput for large ones.
 
-This addresses over-invalidation. The idea: before seeding the BFS, do a pre-pass that walks the dirty-reachable subgraph to find the minimal boundary -- the last layer of vertices whose arrivals are still known-valid but whose fanout begins the invalid region. Seed the BFS from those valid boundary vertices. Propagation then walks forward into the invalid region with known-correct source arrivals.
-
-Two potential benefits:
-
-  - If the invalidation is actually narrower than the dirty set suggests, the boundary pass prunes work the current approach would still do.
-  - Starting from vertices with known-correct arrivals gives the forward pass a clean reference point, which may catch cases where a dirty vertex's arrival doesn't actually change.
-
-Same pattern applies in reverse for requireds: find the boundary between known-valid and known-invalid required times, seed from the valid side, propagate backward into the invalid region.
-
-Implementation-wise this is a refinement of the current dirty-set mechanism rather than an architectural change. It could be added in Search.cc at the seeding step (seedInvalidArrivals / seedInvalidRequireds) without touching the BFS iterator.
-
-Potential roadmap items, in rough order of payoff and effort:
-
-  1. Visit-level change short-circuit (restore the "arrivals unchanged" optimization within Kahn's): skip the visit body if no predecessor's arrival actually changed. Track a per-vertex "changed" flag during Kahn's. Low risk, addresses the eager-visit limitation.
-
-  2. Validity-boundary seeding (Reviewer 2's suggestion): pre-pass to find the minimal boundary of invalid arrivals/requireds; seed from the valid side. Medium effort, addresses over-invalidation.
-
-  3. Demand-driven forward propagation for single-point queries (Reviewer 1's suggestion): query context + backward cone restriction. Larger architectural change spanning Search.cc and Tcl entry points. Biggest win for narrow single-point queries on large designs.
-
-  4. Hybrid scheduling (batched for small sets, recursive for large): adaptive threshold switches between the two dispatch models based on active set size. Addresses the small-workload overhead.
-
-  5. Multi-query cone batching: if multiple slack queries are made in sequence, compute the union of their backward cones once and do a single scoped forward sweep. Amortizes the cone-computation cost.
-
-These are orthogonal to Kahn's itself -- all of them layer on top of the existing implementation.
+5. Multi-query cone batching
+Objective: Amortize cone-computation cost when multiple slack queries are issued in sequence.
+Approach: When several slack queries arrive together, compute the union of their backward cones once and perform a single scoped forward sweep across the combined cone, rather than repeating the cone computation and forward traversal per query.
+Benefit: Reduces redundant work in reporting flows that issue many related queries, such as full endpoint slack reports or path-group summaries.
