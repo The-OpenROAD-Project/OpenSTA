@@ -415,7 +415,6 @@ BfsIterator::visitParallel(Level to_level,
       dispatch_queue_->finishTasks();
 
       visit_count = total_visited.load(std::memory_order_relaxed);
-      visitor->levelFinished();
 
       for (VertexVisitor *v : visitors)
         delete v;
