@@ -219,8 +219,15 @@ BfsIterator::visitParallel(Level to_level,
   if (!empty()) {
     if (thread_count == 1)
       visit_count = visit(to_level, visitor);
-    else if (!variables_->useKahnsBfs() || !kahn_pred_) {
+    else if (!variables_->useKahnsBfs()
+             || !kahn_pred_
+             || variables_->dynamicLoopBreaking()) {
       // Original level-based parallel BFS with per-level barriers.
+      // dynamic_loop_breaking enables disabled-loop edges based on
+      // arrival tags that only emerge during propagation. Kahn's
+      // discovery runs before any propagation and cannot see those
+      // tags, so we fall back to the original BFS whenever dynamic
+      // loop breaking is active.
       std::vector<VertexVisitor *> visitors;
       visitors.reserve(thread_count_);
       for (int k = 0; k < thread_count_; k++)

@@ -65,6 +65,8 @@ Enabling Kahn's at the iterator level requires two calls on a BfsIterator:
 
 The edge filter is separate from the iterator's existing search_pred_ because the original BFS never uses search_pred_ directly for arrivals -- the visitor provides its own filter at call time. Kahn's discovery runs before any visitor, so it needs the filter upfront. If the filter is null, visitParallel falls back to the original BFS.
 
+Kahn's is also bypassed -- even when enabled -- whenever the Tcl variable sta_dynamic_loop_breaking is set. That feature relies on arrival tags that only emerge during propagation to decide whether an otherwise-disabled loop edge can be traversed. Kahn's needs the active subgraph and in-degrees known before propagation begins, so it cannot consult those tags. To avoid silently missing vertices, visitParallel guards the Kahn's path with an explicit check on variables_->dynamicLoopBreaking() and falls back to the original level-based BFS whenever dynamic loop breaking is active. The toggle remains a no-op from the user's point of view; results stay correct.
+
 For end users, Kahn's can be toggled from Tcl via a design-level variable:
 
   set sta_use_kahns_bfs 1      ;# enable Kahn's (default)
@@ -124,20 +126,158 @@ Resolution: Introduced kahn_pred, a dedicated predicate for Kahn's discovery, wi
 
 Both findings were caught by rmp.gcd_restructure.tcl and resolved without changing the original BFS behavior.
 
+Finding 3: Incompatibility with dynamic loop breaking
+
+sta_dynamic_loop_breaking (a pre-existing Tcl variable, default off) enables on-the-fly re-activation of disabled-loop edges when arrival propagation produces loop tags that satisfy user-declared false-path exceptions. The check lives in SearchAdj::searchThru: a disabled-loop edge is traversable when (dynamicLoopBreaking() && hasPendingLoopPaths(edge)) holds, where hasPendingLoopPaths consults the visitor's live TagGroupBldr to see which loop tags are currently propagating.
+
+The SearchAdj instance we reuse as kahn_pred_ (search_adj_ in Search.cc) is constructed with tag_bldr_ == nullptr, so hasPendingLoopPaths always returns false for it -- by design, since Kahn's discovery runs before any visitor is active and there are no live tags to consult. This means that when a user enables sta_dynamic_loop_breaking alongside sta_use_kahns_bfs, Kahn's discovery and successor decrement would systematically skip disabled-loop edges that the original ArrivalVisitor path (using its own tag-aware adj_pred_) can traverse. Vertices reachable only through those edges would never enter the active set, leaving their arrivals and slacks stale.
+
+Neither OpenSTA's regression suite nor OpenROAD's standard flows set sta_dynamic_loop_breaking, so this never surfaced in testing. It was identified during code review.
+
+Resolution: visitParallel now falls back to the original level-based BFS whenever variables_->dynamicLoopBreaking() is true, regardless of the Kahn's toggle. This is a defensive guard; the Tcl variable still reads and writes normally, but the traversal uses the original path when the two features would otherwise interact unsafely. The cost is one additional boolean check per visitParallel invocation.
+
+A future enhancement could make Kahn's loop-breaking-aware by conservatively discovering through disabled-loop edges and adjusting in-degrees based on actual propagation, but that work is non-trivial and not worth pursuing until a concrete use case combines both features.
+
 
 8. PERFORMANCE
 
 On the OpenSTA regression suite (6109 tests), Kahn's BFS runs at parity with the original level-based BFS (28s vs 27-30s). On small test designs the discovery stage overhead is negligible. On large designs with uneven level populations, barrier elimination should produce net speedups, particularly at high thread counts where the original BFS leaves threads idle.
 
 
-9. TEST RESULTS
+9. TEST PLAN
+
+Beyond the OpenSTA standalone regression suite and the OpenROAD full regression, a set of helper scripts is provided for A/B runtime benchmarking and validation across ORFS designs. These run the full ORFS flow for each design twice -- once with Kahn's BFS disabled and once with Kahn's enabled -- and collect per-step timing and design-size metrics for comparison.
+
+All scripts live under flow/util/ and are intended to be invoked from the flow/ directory. They do not modify any design scripts or ORFS flow files; instead, a tiny binary wrapper injects the Tcl variable sta_use_kahns_bfs into every OpenROAD invocation.
+
+
+9.1 Binary wrapper: openroad_kahns_wrap.sh
+
+ORFS invokes openroad with -no_init, so ~/.openroad is not sourced. To toggle sta_use_kahns_bfs across every invocation of every flow step without editing any Tcl, this wrapper sits in front of the real OpenROAD binary:
+
+  - Finds the .tcl cmd_file argument in the invocation.
+  - Creates a temporary Tcl that performs
+        set sta_use_kahns_bfs <mode>
+        puts "kahns-wrap: requested=<mode>, effective=$::sta_use_kahns_bfs"
+        source "<original.tcl>"
+  - Execs the real OpenROAD on the temporary file.
+
+The wrapper reads KAHNS_BFS from the environment (0 = original BFS, 1 = Kahn's). The breadcrumb puts line lands in every step log, so a single grep confirms the flag was in effect and never overridden by a downstream script.
+
+
+9.2 Benchmark driver: kahns_benchmark.sh
+
+Runs an A/B sweep across one or more designs. For each design:
+  1. make clean_all
+  2. Run target (default: finish) with KAHNS_BFS=0; time with date +%s.%N.
+  3. Save elapsed-all.txt and copy logs/<pdk>/<design>/<variant>/ before the next clean.
+  4. make clean_all
+  5. Run target with KAHNS_BFS=1; time.
+  6. Save elapsed-all.txt and the logs tree again.
+
+Output directory layout:
+
+  <bench_dir>/
+    summary.csv                                         wall-time totals, CSV
+    <design>_kahns_off.log                              full stdout, OFF run
+    <design>_kahns_on.log                               full stdout, ON run
+    <design>_kahns_off_artifacts/elapsed-all.txt        per-step seconds, OFF
+    <design>_kahns_off_artifacts/logs/                  raw step logs and JSON metrics, OFF
+    <design>_kahns_on_artifacts/elapsed-all.txt         per-step seconds, ON
+    <design>_kahns_on_artifacts/logs/                   raw step logs and JSON metrics, ON
+
+Usage (from flow/):
+  util/kahns_benchmark.sh [-t target] [-o outdir] [design-configs...]
+
+Target defaults to finish. For STA-focused benchmarking, -t route covers all STA-heavy steps (place, repair_timing_post_place, cts, global_route, repair_timing_post_global_route, detail_route) without the downstream fill / final_report overhead.
+
+
+9.3 Per-step runtime comparison: kahns_compare.sh
+
+Reads the elapsed-all.txt files from a benchmark directory and produces a per-step comparison table with OFF seconds, ON seconds, delta, and ratio (ON/OFF). Positive deltas mean Kahn's was slower for that step; ratios below 1.00x mean Kahn's was faster.
+
+Usage (from flow/):
+  util/kahns_compare.sh <bench_dir> [design_tag]
+
+Without design_tag, every design that has both OFF and ON artifacts is compared in a single run.
+
+Typical reading pattern for a given design:
+  - Non-STA steps (yosys, floorplan_macro, pdn, fillcell): ratio ~1.00x.
+  - STA-heavy steps (3_3_place_gp, 4_1_cts, 5_1_grt, 5_2_route): where any real speed-up or slowdown appears.
+  - Small designs: slight positive delta from Kahn's discovery-pass overhead.
+  - Large designs with uneven level populations: expected speed-up from barrier elimination.
+
+
+9.4 Design-size view and correctness check: kahns_size.sh
+
+Extracts design-size metrics (instance count, net count, IO count, cell area) at each major stage from the step-level JSON metrics files (<step>.json). Provides three modes:
+
+  Default (combined view):
+      util/kahns_size.sh <bench_dir> [design_tag]
+    Prints one table per design with the OFF-run values and a match column
+    that flags any stage where ON disagreed. Ideal for spotting correctness
+    regressions at a glance: every row must show ok.
+
+  Verbose (-v):
+      util/kahns_size.sh -v <bench_dir> [design_tag]
+    Prints the two separate OFF and ON tables side-by-side so the actual
+    disagreeing values can be read.
+
+  Validation sweep (-c, --check):
+      util/kahns_size.sh --check <bench_dir>
+    Iterates every design in the benchmark directory and emits one line per
+    design: OK, FAIL (with the stage and metrics that disagreed), or SKIP
+    (missing artifacts). Exits non-zero if any design fails, which makes it
+    CI-friendly. Any FAIL is a real correctness bug -- Kahn's must produce
+    the same netlist as the original BFS.
+
+
+9.5 Operational checklist
+
+Running a full sweep across several designs:
+
+  1. Build OpenROAD with Kahn's: the flag sta_use_kahns_bfs defaults to 1.
+  2. From flow/, choose the target and the design list. For example:
+        util/kahns_benchmark.sh -t finish -o kahns_bench_gf12 \
+            $(ls -d designs/gf12/*/config.mk)
+  3. While it runs, tail the most recent per-design stdout log to follow
+     progress and verify the wrapper breadcrumb:
+        tail -f "$(ls -t kahns_bench_gf12/*.log | head -1)" | grep -i "kahns-wrap\|error"
+  4. Validate correctness once designs finish:
+        util/kahns_size.sh --check kahns_bench_gf12
+     Address any FAIL before trusting the runtime numbers.
+  5. Compare per-step runtimes:
+        util/kahns_compare.sh kahns_bench_gf12
+     Interpret in the context of design size:
+        util/kahns_size.sh kahns_bench_gf12
+
+
+9.6 Additional conventions
+
+  - Always run KAHNS_BFS=0 first, then KAHNS_BFS=1. The OFF pass is the
+    baseline; running OFF first avoids any chance that a bug in the ON
+    path could corrupt shared state and affect a subsequent OFF run.
+  - Target choice: -t route is usually enough for STA-feature benchmarking.
+    -t finish adds fillers / final report which do not exercise Kahn's much.
+  - Parallelism: ORFS exports NUM_CORES to OpenROAD's -threads flag.
+    Kahn's and the original BFS both respect this. A fair comparison must
+    use identical thread counts.
+  - Disk usage: each artifact directory copies the per-design logs tree.
+    Budget a few hundred MB per design for a finish sweep.
+  - Clean up between sweeps: kahns_benchmark.sh always runs make clean_all
+    before each design's first iteration. No manual cleanup is required.
+
+
+10. TEST RESULTS
 
 OpenSTA standalone: 6109/6109 tests PASS with Kahn's enabled.
 
-OpenROAD full regression: All tests PASS, including rmp.gcd_restructure (the test that surfaced both findings above), rsz (incremental netlist modification), and cts (buffer insertion with re-timing).
+OpenROAD full regression: All tests PASS, including rmp.gcd_restructure (the test that surfaced both findings in Section 7), rsz (incremental netlist modification), and cts (buffer insertion with re-timing).
+
+ORFS A/B runtime benchmarks (Section 9): in progress. An initial sweep across the gf12 and rapidus2hp design sets is running using util/kahns_benchmark.sh. Completed designs to date show Kahn's at parity or slightly slower on small designs (e.g. gf12/aes: +12s / +3% total over 375s baseline), consistent with the Section 8 prediction that the discovery-pass overhead dominates when the active graph is small. Larger designs (gf12/bp_quad, gf12/ariane133, bp_dual) are still pending; this section will be updated with their numbers and the per-step breakdown as each finishes. Correctness (netlist-size match between OFF and ON) is verified after each design via util/kahns_size.sh --check.
 
 
-10. LIMITATIONS OF THE CURRENT APPROACH
+11. LIMITATIONS OF THE CURRENT APPROACH
 
 The current implementation is correct and matches the original BFS at parity on small designs, but several limitations remain:
 
@@ -151,8 +291,10 @@ Per-call active_vertices allocation. The KahnState persistence avoids re-allocat
 
 Recursive dispatch cost for small workloads. Each ready vertex is dispatched as its own DispatchQueue task. The dispatch lock and condition-variable signaling cost is tiny per task, but for active sets smaller than the thread count the parallelism benefit may not offset the dispatch overhead.
 
+No Kahn's when dynamic loop breaking is enabled. sta_dynamic_loop_breaking decides whether a disabled-loop edge is traversable based on arrival tags that only appear during propagation, which Kahn's upfront-discovery model cannot consult. visitParallel therefore falls back to the original level-based BFS whenever dynamicLoopBreaking() is true. The Tcl toggle sta_use_kahns_bfs still reads normally, but the traversal uses the original path. See Section 7, Finding 3 for details.
 
-11. FUTURE ROADMAP
+
+12. FUTURE ROADMAP
 
 The following enhancements extend the current Kahn's-based incremental timing implementation. They address known limitations in the existing approach and are orthogonal to Kahn's itself — each can be layered on top of the existing implementation independently. Items are listed in rough order of payoff relative to effort.
 
