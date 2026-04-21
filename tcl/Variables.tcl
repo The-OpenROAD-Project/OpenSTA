@@ -47,6 +47,14 @@ proc trace_report_default_digits { name1 name2 op } {
   }
 }
 
+trace add variable ::sta_use_kahns_bfs {read write} \
+  sta::trace_use_kahns_bfs
+
+proc trace_use_kahns_bfs { name1 name2 op } {
+  trace_boolean_var $op ::sta_use_kahns_bfs \
+    use_kahns_bfs set_use_kahns_bfs
+}
+
 trace add variable ::sta_crpr_enabled {read write} \
   sta::trace_crpr_enabled
 

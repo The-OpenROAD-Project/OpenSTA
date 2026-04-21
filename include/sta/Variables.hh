@@ -34,6 +34,11 @@ enum class CrprMode { same_pin, same_transition };
 class Variables
 {
 public:
+  // TCL variable sta_use_kahns_bfs.
+  // Use Kahn's topological traversal (no per-level barriers) for the
+  // parallel arrival and required-time BFS passes.
+  bool useKahnsBfs() const { return use_kahns_bfs_; }
+  void setUseKahnsBfs(bool use);
   // TCL variable sta_crpr_enabled.
   bool crprEnabled() const { return crpr_enabled_; }
   void setCrprEnabled(bool enabled);
@@ -80,6 +85,7 @@ public:
   void setPocvQuantile(float quantile);
 
 private:
+  bool use_kahns_bfs_{true};
   bool crpr_enabled_{true};
   CrprMode crpr_mode_{CrprMode::same_pin};
   bool propagate_gated_clock_enable_{true};

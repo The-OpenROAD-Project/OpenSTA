@@ -78,14 +78,10 @@ public:
   void deleteVertexBefore(Vertex *vertex);
   void remove(Vertex *vertex);
   void reportEntries() const;
-  // Enable/disable Kahn's algorithm for parallel traversal.
-  // When disabled (default), the original level-based BFS is used.
-  // Kahn's requires a non-null kahn_pred to know which edges to
-  // follow during discovery. Set it via setKahnPred() before enabling.
-  void setUseKahns(bool use_kahns) { use_kahns_ = use_kahns; }
-  bool useKahns() const { return use_kahns_; }
   // Search predicate used by Kahn's discovery and successor decrement.
   // Separate from search_pred_ which is used by the original BFS.
+  // Kahn's traversal is gated by Variables::useKahnsBfs() (Tcl variable
+  // sta_use_kahns_bfs); this filter is required for Kahn's discovery.
   void setKahnPred(SearchPred *pred) { kahn_pred_ = pred; }
 
   bool hasNext() override;
@@ -144,7 +140,6 @@ protected:
   Level first_level_;
   // Max (min) level of queued vertices.
   Level last_level_;
-  bool use_kahns_ = true;
   SearchPred *kahn_pred_ = nullptr;
 
   friend class BfsFwdIterator;

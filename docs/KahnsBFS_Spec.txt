@@ -46,14 +46,34 @@ Files modified:
 
   search/Bfs.cc -- Defined KahnState struct holding persistent in-degree arrays (reused across calls to avoid re-allocation). Added a third branch to visitParallel: single-threaded / original-parallel / Kahn's-parallel. Implemented kahnForEachSuccessor for both BfsFwdIterator and BfsBkwdIterator.
 
-  search/Search.cc -- Two lines in the Search constructor wire the Kahn's edge filter (SearchAdj) onto the arrival and required iterators.
+  include/sta/Search.hh -- Added useKahnsBfs() getter and setUseKahnsBfs(bool) setter on Search, forwarding to the arrival and required iterators.
 
-Enabling Kahn's requires two calls on a BfsIterator:
+  search/Search.cc -- Two lines in the Search constructor wire the Kahn's edge filter (SearchAdj) onto the arrival and required iterators. Added Search::useKahnsBfs() and Search::setUseKahnsBfs() implementations.
+
+  include/sta/Sta.hh -- Added useKahnsBfs() / setUseKahnsBfs() declarations for the Tcl variable sta_use_kahns_bfs.
+
+  search/Sta.cc -- Implemented Sta::useKahnsBfs() and Sta::setUseKahnsBfs() as thin forwarders to Search.
+
+  search/Search.i -- Exposed use_kahns_bfs and set_use_kahns_bfs to SWIG for Tcl.
+
+  tcl/Variables.tcl -- Added the sta_use_kahns_bfs Tcl variable with a read/write trace that calls the underlying commands.
+
+Enabling Kahn's at the iterator level requires two calls on a BfsIterator:
 
   iterator->setKahnPred(predicate);  // edge filter for discovery
   iterator->setUseKahns(true);       // enable Kahn's
 
 The edge filter is separate from the iterator's existing search_pred_ because the original BFS never uses search_pred_ directly for arrivals -- the visitor provides its own filter at call time. Kahn's discovery runs before any visitor, so it needs the filter upfront. If the filter is null, visitParallel falls back to the original BFS.
+
+For end users, Kahn's can be toggled from Tcl via a design-level variable:
+
+  set sta_use_kahns_bfs 1      ;# enable Kahn's (default)
+  set sta_use_kahns_bfs 0      ;# fall back to original level-based BFS
+  puts $sta_use_kahns_bfs      ;# read current setting
+
+Setting the variable calls Sta::setUseKahnsBfs, which applies the flag to both the arrival (forward) and required-time (backward) BFS iterators. No arrivals or requireds are invalidated on toggle -- the two algorithms produce bit-identical results, so cached state remains valid. Scripts can flip the variable mid-session to compare the two paths without a full rerun.
+
+The Tcl plumbing is registered at package load via Variables.tcl (trace add variable) and the underlying commands use_kahns_bfs / set_use_kahns_bfs are exposed through Search.i (SWIG) to the sta namespace.
 
 Persistent state (KahnState) stores the in-degree arrays across calls. On the first call it allocates; on subsequent calls it resets only the entries touched previously, avoiding full re-initialization.
 

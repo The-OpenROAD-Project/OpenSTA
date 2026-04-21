@@ -27,6 +27,12 @@
 namespace sta {
 
 void
+Variables::setUseKahnsBfs(bool use)
+{
+  use_kahns_bfs_ = use;
+}
+
+void
 Variables::setCrprEnabled(bool enabled)
 {
   crpr_enabled_ = enabled;

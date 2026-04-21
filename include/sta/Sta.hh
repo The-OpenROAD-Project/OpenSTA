@@ -1412,6 +1412,12 @@ public:
   ////////////////////////////////////////////////////////////////
   // TCL Variables
 
+  // TCL variable sta_use_kahns_bfs.
+  // Use Kahn's topological traversal (no per-level barriers) for the
+  // parallel arrival and required-time BFS passes. Falls back to the
+  // original level-based BFS when disabled.
+  bool useKahnsBfs() const;
+  void setUseKahnsBfs(bool use);
   // TCL variable sta_crpr_enabled.
   // Common Reconvergent Clock Removal (CRPR).
   // Timing check source/target common clock path overlap for search

@@ -930,6 +930,18 @@ find_fanout_insts(PinSeq *from,
 ////////////////////////////////////////////////////////////////
 
 bool
+use_kahns_bfs()
+{
+  return Sta::sta()->useKahnsBfs();
+}
+
+void
+set_use_kahns_bfs(bool use)
+{
+  Sta::sta()->setUseKahnsBfs(use);
+}
+
+bool
 crpr_enabled()
 {
   return Sta::sta()->crprEnabled();

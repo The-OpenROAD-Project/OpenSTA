@@ -36,6 +36,7 @@
 #include "Report.hh"
 #include "Sdc.hh"
 #include "SearchPred.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -218,7 +219,7 @@ BfsIterator::visitParallel(Level to_level,
   if (!empty()) {
     if (thread_count == 1)
       visit_count = visit(to_level, visitor);
-    else if (!use_kahns_ || !kahn_pred_) {
+    else if (!variables_->useKahnsBfs() || !kahn_pred_) {
       // Original level-based parallel BFS with per-level barriers.
       std::vector<VertexVisitor *> visitors;
       visitors.reserve(thread_count_);

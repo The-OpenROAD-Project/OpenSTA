@@ -2234,6 +2234,18 @@ Sta::checkTiming(const Mode *mode,
 ////////////////////////////////////////////////////////////////
 
 bool
+Sta::useKahnsBfs() const
+{
+  return variables_->useKahnsBfs();
+}
+
+void
+Sta::setUseKahnsBfs(bool use)
+{
+  variables_->setUseKahnsBfs(use);
+}
+
+bool
 Sta::crprEnabled() const
 {
   return variables_->crprEnabled();
