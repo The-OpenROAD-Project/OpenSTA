@@ -354,21 +354,26 @@ BfsIterator::visitParallel(Level to_level,
       kahn_state_->ensureAtomicSize(max_id + 1);
       std::atomic<int> *in_degree = kahn_state_->in_degree.get();
 
-      // Copy active in-degrees to atomic array and collect ready batch.
-      std::vector<Vertex*> ready_batch;
+      // Copy active in-degrees to atomic array and record IDs
+      // for cleanup on the next call.
       kahn_state_->prev_ids.clear();
       kahn_state_->prev_ids.reserve(active_count);
+      int initial_ready_count = 0;
       for (Vertex *v : active_vertices) {
         VertexId vid = graph_->id(v);
         in_degree[vid].store(in_deg[vid], std::memory_order_relaxed);
         kahn_state_->prev_ids.push_back(vid);
         if (in_deg[vid] == 0)
-          ready_batch.push_back(v);
+          initial_ready_count++;
       }
       debugPrint(debug_, "bfs", 1, "kahns {} initial ready",
-                 ready_batch.size());
+                 initial_ready_count);
 
-      // Phase 3: Batch-dispatch Kahn's traversal.
+      // Phase 3: Recursive-dispatch Kahn's traversal.
+      // Each task visits its vertex, decrements successor in-degrees,
+      // and directly dispatches any successor whose in-degree hit zero
+      // back into the DispatchQueue. finishTasks() waits for all work,
+      // including recursively-dispatched tasks. No batch barriers.
       std::vector<VertexVisitor *> visitors;
       for (size_t k = 0; k < thread_count; k++)
         visitors.push_back(visitor->copy());
@@ -376,53 +381,41 @@ BfsIterator::visitParallel(Level to_level,
       std::atomic<int> total_visited{0};
       BfsIndex bfs_index = bfs_index_;
       SearchPred *pred = kahn_pred_;
-      std::vector<Vertex*> next_ready;
-      std::mutex next_ready_lock;
+      size_t in_deg_size = in_deg.size();
 
-      while (!ready_batch.empty()) {
-        next_ready.clear();
-
-        if (ready_batch.size() < thread_count) {
-          for (Vertex *vertex : ready_batch) {
-            vertex->setBfsInQueue(bfs_index, false);
-            visitor->visit(vertex);
-            total_visited.fetch_add(1, std::memory_order_relaxed);
-            kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
-              VertexId sid = graph_->id(succ);
-              if (sid < in_deg.size() && in_deg[sid] >= 0) {
-                int prev = in_degree[sid]
-                    .fetch_sub(1, std::memory_order_acq_rel);
-                if (prev == 1)
-                  next_ready.push_back(succ);
-              }
-            });
-          }
-        }
-        else {
-          size_t in_deg_size = in_deg.size();
-          for (Vertex *vertex : ready_batch) {
-            dispatch_queue_->dispatch(
-                [&, vertex, bfs_index, pred, in_deg_size](size_t tid) {
-              vertex->setBfsInQueue(bfs_index, false);
-              visitors[tid]->visit(vertex);
-              total_visited.fetch_add(1, std::memory_order_relaxed);
-              kahnForEachSuccessor(vertex, pred, [&, in_deg_size](Vertex *succ) {
-                VertexId sid = graph_->id(succ);
-                if (sid < in_deg_size && in_deg[sid] >= 0) {
-                  int prev = in_degree[sid]
-                      .fetch_sub(1, std::memory_order_acq_rel);
-                  if (prev == 1) {
-                    LockGuard lock(next_ready_lock);
-                    next_ready.push_back(succ);
-                  }
-                }
+      // Recursive task lambda: self-reference via std::function.
+      // Captures persist on visitParallel's stack until finishTasks
+      // returns.
+      std::function<void(Vertex*, size_t)> process;
+      process = [&, bfs_index, pred, in_deg_size](Vertex *vertex,
+                                                  size_t tid) {
+        vertex->setBfsInQueue(bfs_index, false);
+        visitors[tid]->visit(vertex);
+        total_visited.fetch_add(1, std::memory_order_relaxed);
+        kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
+          VertexId sid = graph_->id(succ);
+          if (sid < in_deg_size && in_deg[sid] >= 0) {
+            int prev = in_degree[sid]
+                .fetch_sub(1, std::memory_order_acq_rel);
+            if (prev == 1) {
+              // Successor is now ready -- dispatch immediately.
+              dispatch_queue_->dispatch([&process, succ](size_t t) {
+                process(succ, t);
               });
-            });
+            }
           }
-          dispatch_queue_->finishTasks();
+        });
+      };
+
+      // Seed initial ready vertices into the dispatch queue.
+      for (Vertex *v : active_vertices) {
+        if (in_deg[graph_->id(v)] == 0) {
+          dispatch_queue_->dispatch([&process, v](size_t t) {
+            process(v, t);
+          });
         }
-        ready_batch.swap(next_ready);
       }
+      dispatch_queue_->finishTasks();
 
       visit_count = total_visited.load(std::memory_order_relaxed);
       visitor->levelFinished();

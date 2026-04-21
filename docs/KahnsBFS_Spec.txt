@@ -27,16 +27,15 @@ Stage 1: Discovery and In-Degree Counting (single-threaded)
 
 Starting from the seed vertices already in the BFS queue, a forward BFS discovers all reachable vertices following the same edge-filtering rules used by the original traversal. As each new vertex is discovered, its in-degree (number of active predecessors) is recorded in a flat array indexed by graph vertex ID. Seed vertices have in-degree zero.
 
-Stage 2: Batch-Dispatch Parallel Traversal (multi-threaded)
+Stage 2: Recursive-Dispatch Parallel Traversal (multi-threaded)
 
-All zero-in-degree vertices form the initial ready batch. The algorithm loops:
+The unit of scheduling is a single ready vertex. All zero-in-degree vertices are initially dispatched as separate tasks into the existing DispatchQueue thread pool. Each task does three things:
 
-  1. Dispatch one task per ready vertex into the existing DispatchQueue thread pool.
-  2. Each task visits the vertex (computing arrivals or required times), then atomically decrements the in-degree of each successor. Any successor whose in-degree reaches zero is collected into the next batch.
-  3. finishTasks() waits for all tasks in the current batch to complete.
-  4. Swap in the next batch and repeat until no vertices remain.
+  1. Visit the vertex (computing arrivals or required times).
+  2. Atomically decrement the in-degree of each successor.
+  3. If any successor's in-degree reaches zero, dispatch that successor immediately as a new task into the same DispatchQueue.
 
-Small batches (fewer vertices than threads) are processed single-threaded to avoid dispatch overhead. The DispatchQueue uses condition_variable internally, so there is no spin-wait or wasted CPU.
+A single finishTasks() call at the end waits for all dispatched work -- including tasks dispatched recursively from within running tasks -- to complete. There are no per-batch or per-level barriers. A worker thread that makes a successor ready sends it straight into the pool, where any idle thread can pick it up without waiting for unrelated tasks to finish. The DispatchQueue uses condition_variable internally, so idle threads block efficiently rather than spinning.
 
 
 4. IMPLEMENTATION DETAILS
@@ -57,6 +56,8 @@ Enabling Kahn's requires two calls on a BfsIterator:
 The edge filter is separate from the iterator's existing search_pred_ because the original BFS never uses search_pred_ directly for arrivals -- the visitor provides its own filter at call time. Kahn's discovery runs before any visitor, so it needs the filter upfront. If the filter is null, visitParallel falls back to the original BFS.
 
 Persistent state (KahnState) stores the in-degree arrays across calls. On the first call it allocates; on subsequent calls it resets only the entries touched previously, avoiding full re-initialization.
+
+The Stage 2 task body is a std::function defined as a local variable in visitParallel. It captures itself by reference so that task code can recursively dispatch successors via the same function. Its lifetime is the duration of visitParallel; finishTasks() guarantees all dispatched tasks complete before the function returns, so the self-reference is always valid.
 
 
 5. INCREMENTAL TIMING UPDATES
@@ -82,7 +83,9 @@ Discovery cost: The alternate scans every vertex and edge in the entire graph to
 
 Thread safety: The alternate uses a non-atomic visited flag from worker threads (data race risk) and maintains a per-edge mutex-locked set for deduplication (serialization bottleneck). Ours uses a read-only array for active-set checks and computes in-degrees upfront so edge tracking is unnecessary.
 
-What we adopted: The alternate's batch-dispatch model (one task per vertex into DispatchQueue with finishTasks barriers) proved far more efficient than our initial spin-wait worker design. Adopting it cut test overhead from 87s to 28s.
+Scheduling granularity: The alternate uses batched dispatch -- it dispatches a wavefront of ready vertices, waits for all to finish via finishTasks(), then dispatches the next wavefront. This re-introduces a barrier between wavefronts. Ours dispatches each ready vertex as a separate task and, when a running task makes a successor ready, dispatches that successor immediately via recursive dispatch into the same DispatchQueue. A single finishTasks() at the end waits for all work. This removes the per-wavefront barrier and keeps threads continuously fed.
+
+What we adopted from them: The DispatchQueue-based execution model. Our initial implementation used custom spin-wait workers (std::this_thread::yield) which wasted CPU. Moving to DispatchQueue with condition_variable-based blocking cut overhead substantially.
 
 
 7. FINDINGS FROM REGRESSIONS
