@@ -237,19 +237,20 @@ Extracts design-size metrics (instance count, net count, IO count, cell area) at
 Running a full sweep across several designs:
 
   1. Build OpenROAD with Kahn's: the flag sta_use_kahns_bfs defaults to 1.
-  2. From flow/, choose the target and the design list. For example:
-        util/kahns_benchmark.sh -t finish -o kahns_bench_gf12 \
-            $(ls -d designs/gf12/*/config.mk)
+  2. From flow/, choose the target, the output directory, and the design list.
+     For example, pick one or more config.mk paths from a platform of interest
+     (under flow/designs/<platform>/) and pass them on the command line:
+        util/kahns_benchmark.sh -t finish -o <bench_dir> <config1> <config2> ...
   3. While it runs, tail the most recent per-design stdout log to follow
      progress and verify the wrapper breadcrumb:
-        tail -f "$(ls -t kahns_bench_gf12/*.log | head -1)" | grep -i "kahns-wrap\|error"
+        tail -f "$(ls -t <bench_dir>/*.log | head -1)" | grep -i "kahns-wrap\|error"
   4. Validate correctness once designs finish:
-        util/kahns_size.sh --check kahns_bench_gf12
+        util/kahns_size.sh --check <bench_dir>
      Address any FAIL before trusting the runtime numbers.
   5. Compare per-step runtimes:
-        util/kahns_compare.sh kahns_bench_gf12
+        util/kahns_compare.sh <bench_dir>
      Interpret in the context of design size:
-        util/kahns_size.sh kahns_bench_gf12
+        util/kahns_size.sh <bench_dir>
 
 
 9.6 Additional conventions
@@ -274,7 +275,7 @@ OpenSTA standalone: 6109/6109 tests PASS with Kahn's enabled.
 
 OpenROAD full regression: All tests PASS, including rmp.gcd_restructure (the test that surfaced both findings in Section 7), rsz (incremental netlist modification), and cts (buffer insertion with re-timing).
 
-ORFS A/B runtime benchmarks (Section 9): in progress. An initial sweep across the gf12 and rapidus2hp design sets is running using util/kahns_benchmark.sh. Completed designs to date show Kahn's at parity or slightly slower on small designs (e.g. gf12/aes: +12s / +3% total over 375s baseline), consistent with the Section 8 prediction that the discovery-pass overhead dominates when the active graph is small. Larger designs (gf12/bp_quad, gf12/ariane133, bp_dual) are still pending; this section will be updated with their numbers and the per-step breakdown as each finishes. Correctness (netlist-size match between OFF and ON) is verified after each design via util/kahns_size.sh --check.
+ORFS A/B runtime benchmarks (Section 9): in progress. An initial sweep across several platform/design combinations is running using util/kahns_benchmark.sh. Completed designs to date show Kahn's at parity or slightly slower on small designs (for a representative small design the measured overhead was roughly +3% / +12s over a ~375s baseline), consistent with the Section 8 prediction that the discovery-pass overhead dominates when the active graph is small. Larger designs are still pending; this section will be updated with their numbers and the per-step breakdown as each finishes. Correctness (netlist-size match between OFF and ON) is verified after each design via util/kahns_size.sh --check.
 
 
 11. LIMITATIONS OF THE CURRENT APPROACH
