@@ -31,3 +31,29 @@ alwaysApply: false
 
 - C++ source: `.cc`
 - C++ headers: `.hh`
+
+## Include order
+
+Sort `#include` lines **lexicographically by the path inside** `<>`
+or `""` (case-sensitive). Separate **groups** with a single blank line.
+
+### Translation units (`*.cc`)
+
+1. **Primary header(s)** for this file only:
+   - `#include "Stem.hh"` where `Stem` matches the basename of the `.cc` file (e.g. `Foo.cc` → `Foo.hh`).
+   - If the file uses a paired private header, include `#include "StemPvt.hh"` **immediately after** `Stem.hh` (e.g. `MakeTimingModel.cc` → `MakeTimingModel.hh` then `MakeTimingModelPvt.hh`).
+   - Do **not** pull in other headers just because their names share a prefix with `Stem` (e.g. `SearchClass.hh` is not a “primary” include for `Search.cc`; it belongs in the project group below).
+
+2. **System / standard library** headers: `#include <...>` lines, sorted alphabetically.
+
+3. **All other project** headers: `#include "..."` lines, sorted alphabetically (including `search/Crpr.hh`-style paths and includes from `liberty/`, etc.).
+
+If a **comment or special block** intentionally splits the include list (e.g. a third-party note before `#include "cudd.h"`), keep that structure; sort only within each contiguous run of `#include` lines unless merging groups is clearly safe.
+
+### Headers (`*.hh`)
+
+After `#pragma once` (and the file’s license block, if present):
+
+1. **System** `#include <...>` lines, sorted alphabetically.
+
+2. **Project** `#include "..."` lines, sorted alphabetically.

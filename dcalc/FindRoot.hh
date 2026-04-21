@@ -25,6 +25,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 namespace sta {
 
@@ -33,24 +34,22 @@ using FindRootFunc = const std::function<void (double x,
                                                  double &y,
                                                  double &dy)>;
 
-double
-findRoot(FindRootFunc func,
+// first: root estimate; second: true if the search failed.
+std::pair<double, bool>
+findRoot(const FindRootFunc &func,
          double x1,
          double x2,
          double x_tol,
-         int max_iter,
-         // Return value.
-         bool &fail);
+         int max_iter);
 
-double
-findRoot(FindRootFunc func,
+// first: root estimate; second: true if the search failed.
+std::pair<double, bool>
+findRoot(const FindRootFunc &func,
          double x1,
          double y1,
          double x2,
          double y2,
          double x_tol,
-         int max_iter,
-         // Return value.
-         bool &fail);
+         int max_iter);
 
-} // namespace
+} // namespace sta

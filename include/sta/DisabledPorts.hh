@@ -27,8 +27,8 @@
 #include <set>
 #include <vector>
 
-#include "NetworkClass.hh"
 #include "LibertyClass.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
 
 namespace sta {
@@ -46,7 +46,6 @@ using TimingArcSetSet = std::set<TimingArcSet*, TimingArcSetLess>;
 class DisabledPorts
 {
 public:
-  DisabledPorts();
   ~DisabledPorts();
   void setDisabledAll();
   void removeDisabledAll();
@@ -67,10 +66,10 @@ public:
   [[nodiscard]] bool all() const { return all_; }
 
 private:
-  bool all_;
-  LibertyPortSet *from_;
-  LibertyPortSet *to_;
-  LibertyPortPairSet *from_to_;
+  bool all_{false};
+  LibertyPortSet *from_{nullptr};
+  LibertyPortSet *to_{nullptr};
+  LibertyPortPairSet *from_to_{nullptr};
 };
 
 // set_disable_timing cell [-from] [-to]
@@ -89,7 +88,7 @@ public:
 
 private:
   LibertyCell *cell_;
-  TimingArcSetSet *arc_sets_;
+  TimingArcSetSet *arc_sets_{nullptr};
 };
 
 // set_disable_timing instance [-from] [-to]
@@ -111,4 +110,4 @@ sortByPathName(const DisabledInstancePortsMap *inst_map,
 LibertyPortPairSeq
 sortByName(const LibertyPortPairSet *set);
 
-} // namespace
+} // namespace sta

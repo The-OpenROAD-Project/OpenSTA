@@ -217,15 +217,15 @@ public:
   InstanceSeq findInstancesMatching(const Instance *context,
                                     const PatternMatch *pattern) const override;
   Net *findNet(std::string_view path_name) const override;
-  Net *findNetRelative(const Instance *instance,
-                       std::string_view net_name) const override;
+  Net *findNetRelative(const Instance *inst,
+                       std::string_view path_name) const override;
   Net *findNet(const Instance *instance,
                std::string_view net_name) const override;
   NetSeq findNetsMatching(const Instance *parent,
                           const PatternMatch *pattern) const override;
   void findInstNetsMatching(const Instance *instance,
                             const PatternMatch *pattern,
-                            NetSeq &nets) const override;
+                            NetSeq &matches) const override;
   Instance *findChild(const Instance *parent,
                       std::string_view name) const override;
   Pin *findPin(std::string_view path_name) const override;
@@ -266,9 +266,9 @@ protected:
                  std::string &path_tail) const;
   bool visitMatches(const Instance *parent,
                     const PatternMatch *pattern,
-                    std::function<bool (const Instance *instance,
-                                        const PatternMatch *tail)>
-                    visit_tail) const;
+                    const std::function<bool (const Instance *instance,
+                                              const PatternMatch *tail)>
+                    &visit_tail) const;
   bool visitPinTail(const Instance *instance,
                     const PatternMatch *tail,
                     PinSeq &matches) const;
@@ -290,4 +290,4 @@ std::string
 escapeBrackets(std::string_view name,
                const Network *network);
 
-} // namespace
+} // namespace sta

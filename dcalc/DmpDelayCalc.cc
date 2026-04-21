@@ -24,15 +24,15 @@
 
 #include "DmpDelayCalc.hh"
 
+#include "DmpCeff.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
 #include "TableModel.hh"
 #include "TimingArc.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Parasitics.hh"
-#include "GraphDelayCalc.hh"
-#include "DmpCeff.hh"
 
 namespace sta {
 
@@ -125,8 +125,12 @@ DmpCeffElmoreDelayCalc::loadDelaySlew(const Pin *load_pin,
   float elmore = 0.0;
   if (parasitic)
     parasitics_->findElmore(parasitic, load_pin, elmore, elmore_exists);
-  if (elmore_exists)
-    loadDelaySlewElmore(load_pin, elmore, wire_delay, load_slew);
+  if (elmore_exists) {
+    if (auto r = loadDelaySlewElmore(load_pin, elmore)) {
+      wire_delay = r->first;
+      load_slew = r->second;
+    }
+  }
   thresholdAdjust(load_pin, drvr_library, rf, wire_delay, load_slew);
 }
 
@@ -160,7 +164,7 @@ public:
                            const Scene *scene,
                            const MinMax *min_max) override;
 
-private:
+protected:
   void loadDelaySlew(const Pin *load_pin,
                      double drvr_slew,
                      const RiseFall *rf,
@@ -169,6 +173,8 @@ private:
                      // Return values.
                      double &wire_delay,
                      double &load_slew) override;
+
+private:
   void loadDelay(double drvr_slew,
                  Parasitic *pole_residue,
                  double p1,
@@ -186,11 +192,11 @@ private:
                   double tt,
                   double y_tt);
 
-  bool parasitic_is_pole_residue_;
-  float vth_;
-  float vl_;
-  float vh_;
-  float slew_derate_;
+  bool parasitic_is_pole_residue_{false};
+  float vth_{0.0F};
+  float vl_{0.0F};
+  float vh_{0.0F};
+  float slew_derate_{0.0F};
 };
 
 ArcDelayCalc *
@@ -200,12 +206,7 @@ makeDmpCeffTwoPoleDelayCalc(StaState *sta)
 }
 
 DmpCeffTwoPoleDelayCalc::DmpCeffTwoPoleDelayCalc(StaState *sta) :
-  DmpCeffDelayCalc(sta),
-  parasitic_is_pole_residue_(false),
-  vth_(0.0),
-  vl_(0.0),
-  vh_(0.0),
-  slew_derate_(0.0)
+  DmpCeffDelayCalc(sta)
 {
 }
 
@@ -330,7 +331,7 @@ DmpCeffTwoPoleDelayCalc::loadDelaySlew(const Pin *load_pin,
   // Should handle PiElmore parasitic.
   wire_delay = 0.0;
   load_slew = drvr_slew;
-  Parasitic *pole_residue = 0;
+  Parasitic *pole_residue = nullptr;
   if (parasitic_is_pole_residue_)
     pole_residue = parasitics_->findPoleResidue(parasitic, load_pin);
   if (pole_residue) {
@@ -432,4 +433,4 @@ DmpCeffTwoPoleDelayCalc::loadDelay(double vth,
   }
 }
 
-} // namespace
+} // namespace sta

@@ -46,4 +46,4 @@ writeSdc(const Sdc *sdc,
          bool gzip,
          bool no_timestamp);
 
-} // namespace
+} // namespace sta

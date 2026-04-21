@@ -241,7 +241,7 @@ report_check_types -max_delay -min_delay -verbose
 # report_checks with various options
 #---------------------------------------------------------------
 puts "--- report_checks options ---"
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -format full_clock
 

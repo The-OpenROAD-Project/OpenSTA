@@ -24,23 +24,24 @@
 
 #include "CheckMaxSkews.hh"
 
-#include "TimingRole.hh"
-#include "TimingArc.hh"
+#include <cstddef>
+
+#include "ContainerHelpers.hh"
+#include "Delay.hh"
+#include "Graph.hh"
 #include "Liberty.hh"
 #include "Network.hh"
-#include "Graph.hh"
-#include "Clock.hh"
+#include "NetworkClass.hh"
 #include "Path.hh"
 #include "Search.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
 
 namespace sta {
 
 CheckMaxSkews::CheckMaxSkews(StaState *sta) :
   sta_(sta)
-{
-}
-
-CheckMaxSkews::~CheckMaxSkews()
 {
 }
 
@@ -208,4 +209,4 @@ MaxSkewSlackLess::operator()(const MaxSkewCheck &check1,
         && sta_->network()->pinLess(check1.clkPin(sta_), check2.clkPin(sta_)));
 }
 
-} // namespace
+} // namespace sta

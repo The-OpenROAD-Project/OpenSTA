@@ -24,15 +24,19 @@
 
 #pragma once
 
-#include "MinMax.hh"
-#include "Transition.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
+#include <cstddef>
+#include <vector>
+
+#include "BoundedHeap.hh"
 #include "Delay.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
+#include "Scene.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
-#include "BoundedHeap.hh"
-#include "Network.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -164,5 +168,5 @@ protected:
   const StaState *sta_;
 };
 
-} // namespace
+} // namespace sta
 

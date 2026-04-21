@@ -17,8 +17,7 @@ TEST_F(FindRootTest, QuadraticPositiveRoot) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -29,8 +28,7 @@ TEST_F(FindRootTest, QuadraticNegativeRoot) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, -3.0, -1.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -3.0, -1.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -2.0, 1e-8);
 }
@@ -41,8 +39,7 @@ TEST_F(FindRootTest, LinearRoot) {
     y = x - 1.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.0, 2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, 2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 1.0, 1e-8);
 }
@@ -53,8 +50,7 @@ TEST_F(FindRootTest, SinRoot) {
     y = sin(x);
     dy = cos(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 2.5, 3.8, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.5, 3.8, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, M_PI, 1e-6);
 }
@@ -65,8 +61,7 @@ TEST_F(FindRootTest, ExponentialRoot) {
     y = exp(x) - 2.0;
     dy = exp(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 0.0, 1.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, 1.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, log(2.0), 1e-8);
 }
@@ -77,8 +72,7 @@ TEST_F(FindRootTest, TightTolerance) {
     y = x * x - 2.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 2.0, 1e-14, 200, fail);
+  auto [root, fail] = findRoot(func, 1.0, 2.0, 1e-14, 200);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, sqrt(2.0), 1e-12);
 }
@@ -89,9 +83,8 @@ TEST_F(FindRootTest, WithPrecomputedY) {
     y = x * x - 9.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
   // x1=2, y1=4-9=-5, x2=4, y2=16-9=7
-  double root = findRoot(func, 2.0, -5.0, 4.0, 7.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.0, -5.0, 4.0, 7.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }
@@ -106,8 +99,7 @@ TEST_F(FindRootTest, VeryTightTolerance) {
     y = x - 5.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 3.0, 7.0, 1e-15, 500, fail);
+  auto [root, fail] = findRoot(func, 3.0, 7.0, 1e-15, 500);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 5.0, 1e-13);
 }
@@ -118,8 +110,7 @@ TEST_F(FindRootTest, LooseTolerance) {
     y = x * x - 25.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 3.0, 7.0, 1e-1, 100, fail);
+  auto [root, fail] = findRoot(func, 3.0, 7.0, 1e-1, 100);
   EXPECT_FALSE(fail);
   // With 10% relative tolerance, result should still be in the right ballpark
   EXPECT_NEAR(root, 5.0, 0.6);
@@ -132,8 +123,7 @@ TEST_F(FindRootTest, ZeroTolerance) {
     y = x - 3.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 5.0, 0.0, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 5.0, 0.0, 100);
   // May or may not converge -- for a linear function Newton converges in 1 step
   // so dx can be exactly 0. Accept either outcome.
   if (!fail) {
@@ -152,8 +142,7 @@ TEST_F(FindRootTest, OneIteration) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 1, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 1);
   // With only 1 iteration, a quadratic likely won't converge to tight tol
   // The algorithm may or may not fail depending on initial bisection step
   // Root should still be a finite number within the bracket
@@ -169,8 +158,7 @@ TEST_F(FindRootTest, TwoIterations) {
     y = x - 7.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 5.0, 9.0, 1e-10, 2, fail);
+  auto [root, fail] = findRoot(func, 5.0, 9.0, 1e-10, 2);
   // Linear function: Newton should converge very fast
   // After the initial midpoint (7.0), Newton step should nail it
   if (!fail) {
@@ -184,8 +172,7 @@ TEST_F(FindRootTest, ZeroMaxIterations) {
     y = x - 1.0;
     dy = 1.0;
   };
-  bool fail = false;
-  findRoot(func, 0.0, 2.0, 1e-10, 0, fail);
+  auto [root_, fail] = findRoot(func, 0.0, 2.0, 1e-10, 0);
   EXPECT_TRUE(fail);
 }
 
@@ -195,8 +182,7 @@ TEST_F(FindRootTest, LargeMaxIter) {
     y = x * x - 16.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 10.0, 1e-12, 10000, fail);
+  auto [root, fail] = findRoot(func, 1.0, 10.0, 1e-12, 10000);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 4.0, 1e-10);
 }
@@ -211,8 +197,7 @@ TEST_F(FindRootTest, CubicRoot) {
     y = x * x * x - 8.0;
     dy = 3.0 * x * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -223,8 +208,7 @@ TEST_F(FindRootTest, QuarticRoot) {
     y = x * x * x * x - 16.0;
     dy = 4.0 * x * x * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -235,8 +219,7 @@ TEST_F(FindRootTest, ExponentialRoot2) {
     y = exp(x) - 10.0;
     dy = exp(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 4.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 4.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, log(10.0), 1e-8);
 }
@@ -248,8 +231,7 @@ TEST_F(FindRootTest, SqrtFunctionRoot) {
     y = sqrt(x) - 3.0;
     dy = 0.5 / sqrt(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 20.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 20.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 9.0, 1e-6);
 }
@@ -267,8 +249,7 @@ TEST_F(FindRootTest, NearZeroRootLinear) {
     y = x - 1e-10;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -1.0, 1.0, 1e-6, 200, fail);
+  auto [root, fail] = findRoot(func, -1.0, 1.0, 1e-6, 200);
   // Newton on a linear function converges in 1-2 steps regardless of root location
   if (!fail) {
     EXPECT_NEAR(root, 1e-10, 1e-6);
@@ -283,8 +264,7 @@ TEST_F(FindRootTest, RootExactlyAtZero) {
     y = x;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -1.0, 1.0, 1e-10, 200, fail);
+  auto [root, fail] = findRoot(func, -1.0, 1.0, 1e-10, 200);
   // Even if fail is true, root should be very close to 0
   EXPECT_NEAR(root, 0.0, 1e-6);
 }
@@ -299,8 +279,7 @@ TEST_F(FindRootTest, NegativeDomainRoot) {
     y = x + 100.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -200.0, 0.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -200.0, 0.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -100.0, 1e-6);
 }
@@ -311,8 +290,7 @@ TEST_F(FindRootTest, NegativeBracketRoot) {
     y = x * x - 1.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, -2.0, -0.5, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -2.0, -0.5, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -1.0, 1e-8);
 }
@@ -327,8 +305,7 @@ TEST_F(FindRootTest, SinRootAtZero) {
     y = sin(x);
     dy = cos(x);
   };
-  bool fail = false;
-  double root = findRoot(func, -1.0, 1.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -1.0, 1.0, 1e-10, 100);
   // Root at 0 has the relative-tolerance issue, but Newton converges fast for sin
   EXPECT_NEAR(root, 0.0, 1e-4);
 }
@@ -339,8 +316,7 @@ TEST_F(FindRootTest, SinRootAt2Pi) {
     y = sin(x);
     dy = cos(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 5.5, 7.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 5.5, 7.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0 * M_PI, 1e-6);
 }
@@ -351,8 +327,7 @@ TEST_F(FindRootTest, CosRootAtPiOver2) {
     y = cos(x);
     dy = -sin(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, M_PI / 2.0, 1e-6);
 }
@@ -368,8 +343,7 @@ TEST_F(FindRootTest, MultipleRootsFindFirst) {
     y = (x - 1.0) * (x - 2.0);
     dy = 2.0 * x - 3.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.5, 1.5, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.5, 1.5, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 1.0, 1e-8);
 }
@@ -380,8 +354,7 @@ TEST_F(FindRootTest, MultipleRootsFindSecond) {
     y = (x - 1.0) * (x - 2.0);
     dy = 2.0 * x - 3.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.5, 2.5, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.5, 2.5, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -397,8 +370,7 @@ TEST_F(FindRootTest, AbsValueRoot) {
     y = fabs(x) - 1.0;
     dy = (x >= 0.0) ? 1.0 : -1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.5, 2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.5, 2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 1.0, 1e-8);
 }
@@ -409,8 +381,7 @@ TEST_F(FindRootTest, AbsValueNegativeRoot) {
     y = fabs(x) - 1.0;
     dy = (x >= 0.0) ? 1.0 : -1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -2.0, -0.5, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -2.0, -0.5, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -1.0, 1e-8);
 }
@@ -430,8 +401,7 @@ TEST_F(FindRootTest, FlatFifthOrderRootFails) {
     y = d4 * d;       // (x-3)^5
     dy = 5.0 * d4;    // 5*(x-3)^4
   };
-  bool fail = false;
-  findRoot(func, 2.0, 4.0, 1e-6, 500, fail);
+  auto [root_, fail] = findRoot(func, 2.0, 4.0, 1e-6, 500);
   // The algorithm is expected to fail because dy -> 0 at the root
   EXPECT_TRUE(fail);
 }
@@ -444,8 +414,7 @@ TEST_F(FindRootTest, FlatSinhRoot) {
     y = sinh(x - 3.0);
     dy = cosh(x - 3.0);
   };
-  bool fail = false;
-  double root = findRoot(func, 2.0, 4.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.0, 4.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-6);
 }
@@ -460,8 +429,7 @@ TEST_F(FindRootTest, SteepLinearRoot) {
     y = 1000.0 * (x - 5.0);
     dy = 1000.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 3.0, 7.0, 1e-12, 100, fail);
+  auto [root, fail] = findRoot(func, 3.0, 7.0, 1e-12, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 5.0, 1e-10);
 }
@@ -472,8 +440,7 @@ TEST_F(FindRootTest, VerySteepLinearRoot) {
     y = 1e6 * (x - 2.0);
     dy = 1e6;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-14, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-14, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-12);
 }
@@ -488,8 +455,7 @@ TEST_F(FindRootTest, LargeBracket) {
     y = x - 42.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -1000.0, 1000.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -1000.0, 1000.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 42.0, 1e-6);
 }
@@ -500,8 +466,7 @@ TEST_F(FindRootTest, LargeBracketQuadratic) {
     y = x * x - 100.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 1000.0, 1e-10, 200, fail);
+  auto [root, fail] = findRoot(func, 1.0, 1000.0, 1e-10, 200);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 10.0, 1e-6);
 }
@@ -516,8 +481,7 @@ TEST_F(FindRootTest, SmallBracket) {
     y = x - 1.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.999999, 1.000001, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.999999, 1.000001, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 1.0, 1e-6);
 }
@@ -528,8 +492,7 @@ TEST_F(FindRootTest, SmallBracketQuadratic) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.9999, 2.0001, 1e-12, 100, fail);
+  auto [root, fail] = findRoot(func, 1.9999, 2.0001, 1e-12, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -545,14 +508,12 @@ TEST_F(FindRootTest, OverloadsProduceSameResult) {
     dy = 3.0 * x * x;
   };
 
-  bool fail_2arg = false;
-  double root_2arg = findRoot(func, 2.0, 4.0, 1e-12, 100, fail_2arg);
+  auto [root_2arg, fail_2arg] = findRoot(func, 2.0, 4.0, 1e-12, 100);
 
   // Pre-compute y values for 4-arg version
   double y1 = 2.0 * 2.0 * 2.0 - 27.0;  // 8 - 27 = -19
   double y2 = 4.0 * 4.0 * 4.0 - 27.0;  // 64 - 27 = 37
-  bool fail_4arg = false;
-  double root_4arg = findRoot(func, 2.0, y1, 4.0, y2, 1e-12, 100, fail_4arg);
+  auto [root_4arg, fail_4arg] = findRoot(func, 2.0, y1, 4.0, y2, 1e-12, 100);
 
   EXPECT_FALSE(fail_2arg);
   EXPECT_FALSE(fail_4arg);
@@ -567,9 +528,8 @@ TEST_F(FindRootTest, FourArgX1IsRoot) {
     y = x - 5.0;
     dy = 1.0;
   };
-  bool fail = false;
   // y1 = 5 - 5 = 0
-  double root = findRoot(func, 5.0, 0.0, 8.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 5.0, 0.0, 8.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_DOUBLE_EQ(root, 5.0);
 }
@@ -580,9 +540,8 @@ TEST_F(FindRootTest, FourArgX2IsRoot) {
     y = x - 5.0;
     dy = 1.0;
   };
-  bool fail = false;
   // y2 = 5 - 5 = 0
-  double root = findRoot(func, 2.0, -3.0, 5.0, 0.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.0, -3.0, 5.0, 0.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_DOUBLE_EQ(root, 5.0);
 }
@@ -597,8 +556,7 @@ TEST_F(FindRootTest, BothEndpointsPositiveFails) {
     y = x * x + 1.0;  // Always positive, no real root
     dy = 2.0 * x;
   };
-  bool fail = false;
-  findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root_, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_TRUE(fail);
 }
 
@@ -608,8 +566,7 @@ TEST_F(FindRootTest, BothEndpointsNegativeFails) {
     y = -x * x - 1.0;  // Always negative
     dy = -2.0 * x;
   };
-  bool fail = false;
-  findRoot(func, -3.0, 3.0, 1e-10, 100, fail);
+  auto [root_, fail] = findRoot(func, -3.0, 3.0, 1e-10, 100);
   EXPECT_TRUE(fail);
 }
 
@@ -619,9 +576,8 @@ TEST_F(FindRootTest, FourArgSameSignFails) {
     y = x * x;
     dy = 2.0 * x;
   };
-  bool fail = false;
   // Both y values positive
-  findRoot(func, 1.0, 1.0, 2.0, 4.0, 1e-10, 100, fail);
+  auto [root_, fail] = findRoot(func, 1.0, 1.0, 2.0, 4.0, 1e-10, 100);
   EXPECT_TRUE(fail);
 }
 
@@ -635,8 +591,7 @@ TEST_F(FindRootTest, SymmetryPositiveBracket) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.5, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.5, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -646,8 +601,7 @@ TEST_F(FindRootTest, SymmetryNegativeBracket) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, -3.0, -0.5, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -3.0, -0.5, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -2.0, 1e-8);
 }
@@ -662,9 +616,8 @@ TEST_F(FindRootTest, SwappedBracketOrder) {
     y = x - 3.0;
     dy = 1.0;
   };
-  bool fail = false;
   // x1=5 > x2=1 (reversed order)
-  double root = findRoot(func, 5.0, 1.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 5.0, 1.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }

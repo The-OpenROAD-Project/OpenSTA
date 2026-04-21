@@ -28,21 +28,19 @@ namespace sta {
 
 RiseFallMinMaxDelay::RiseFallMinMaxDelay()
 {
-  for (int rf_index = 0; rf_index<RiseFall::index_count; rf_index++) {
-    for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
-      exists_[rf_index][mm_index] = false;
-    }
+  for (auto rf_exists : exists_) {
+    for (size_t mm_index = 0; mm_index < MinMax::index_count; mm_index++)
+      rf_exists[mm_index] = false;
   }
 }
 
 bool
 RiseFallMinMaxDelay::empty() const
 {
-  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
-    for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
-      if (exists_[rf_index][mm_index])
+  for (auto rf_exists : exists_) {
+    for (size_t mm_index = 0; mm_index < MinMax::index_count; mm_index++)
+      if (rf_exists[mm_index])
         return false;
-    }
   }
   return true;
 }
@@ -74,4 +72,4 @@ RiseFallMinMaxDelay::mergeValue(const RiseFall *rf,
   }
 }
 
-} // namespace
+} // namespace sta

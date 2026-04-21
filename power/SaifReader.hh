@@ -33,4 +33,4 @@ readSaif(const char *filename,
          const char *scope,
          Sta *sta);
 
-} // namespace
+} // namespace sta

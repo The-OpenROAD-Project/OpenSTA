@@ -24,16 +24,16 @@
 
 #pragma once
 
+#include <functional>
 #include <map>
 #include <string>
 #include <string_view>
-#include <functional>
 
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
-#include "SearchClass.hh"
-#include "SdcClass.hh"
 #include "PowerClass.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
 
 namespace sta {
 
@@ -47,7 +47,7 @@ template<class TYPE>
 class PropertyRegistry
 {
 public:
-  typedef std::function<PropertyValue (TYPE object, Sta *sta)> PropertyHandler;
+  using PropertyHandler = std::function<PropertyValue (TYPE object, Sta *sta)>;
   void defineProperty(std::string_view property,
                       PropertyHandler handler);
   PropertyValue getProperty(TYPE object,
@@ -63,7 +63,6 @@ class Properties
 {
 public:
   Properties(Sta *sta);
-  virtual ~Properties() {}
 
   PropertyValue getProperty(const Library *lib,
                             std::string_view property);
@@ -100,25 +99,25 @@ public:
   //                              return PropertyValue("bar");
   //                            });
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Library *>::PropertyHandler handler);
+                      PropertyRegistry<const Library *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const LibertyLibrary *>::PropertyHandler handler);
+                      PropertyRegistry<const LibertyLibrary *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Cell *>::PropertyHandler handler);
+                      PropertyRegistry<const Cell *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const LibertyCell *>::PropertyHandler handler);
+                      PropertyRegistry<const LibertyCell *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Port *>::PropertyHandler handler);
+                      PropertyRegistry<const Port *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const LibertyPort *>::PropertyHandler handler);
+                      PropertyRegistry<const LibertyPort *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Instance *>::PropertyHandler handler);
+                      PropertyRegistry<const Instance *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Pin *>::PropertyHandler handler);
+                      PropertyRegistry<const Pin *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Net *>::PropertyHandler handler);
+                      PropertyRegistry<const Net *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Clock *>::PropertyHandler handler);
+                      PropertyRegistry<const Clock *>::PropertyHandler &handler);
 
 protected:
   PropertyValue portSlew(const Port *port,
@@ -201,9 +200,9 @@ public:
   PropertyValue(ConstPathSeq *value);
   PropertyValue(PwrActivity *value);
   // Copy constructor.
-  PropertyValue(const PropertyValue &props);
+  PropertyValue(const PropertyValue &value);
   // Move constructor.
-  PropertyValue(PropertyValue &&props) noexcept;
+  PropertyValue(PropertyValue &&value) noexcept;
   ~PropertyValue();
   Type type() const { return type_; }
   const Unit *unit() const { return unit_; }
@@ -259,4 +258,4 @@ private:
   const Unit *unit_;
 };
 
-} // namespace
+} // namespace sta

@@ -39,7 +39,7 @@ public:
   double staToUser(double value);
   // Convert from user interface units to sta units.
   double userToSta(double value);
-  void operator=(const Unit &unit);
+  Unit &operator=(const Unit &unit) = default;
   float scale() const { return scale_; }
   void setScale(float scale);
   // Mkmunpf abbreviation for scale.
@@ -76,7 +76,7 @@ class Units
 public:
   Units();
   Unit *find(std::string_view unit_name);
-  void operator=(const Units &units);
+  Units &operator=(const Units &units);
   Unit *timeUnit() { return &time_unit_; }
   const Unit *timeUnit() const { return &time_unit_; }
   Unit *capacitanceUnit() { return &capacitance_unit_; }
@@ -105,4 +105,4 @@ private:
   Unit scalar_unit_;
 };
 
-} // namespace
+} // namespace sta

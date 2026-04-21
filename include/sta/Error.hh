@@ -35,8 +35,6 @@ namespace sta {
 class Exception : public std::exception
 {
 public:
-  Exception();
-  virtual ~Exception() {}
   const char *what() const noexcept override = 0;
 };
 
@@ -44,7 +42,7 @@ class ExceptionMsg : public Exception
 {
 public:
   ExceptionMsg(const std::string &msg,
-               const bool suppressed);
+               bool suppressed);
   const char *what() const noexcept override;
   bool suppressed() const { return suppressed_; }
 
@@ -93,4 +91,4 @@ protected:
 #define criticalError(id, msg) \
   Report::defaultReport()->fileCritical(id, __FILE__, __LINE__, msg)
 
-} // namespace
+} // namespace sta

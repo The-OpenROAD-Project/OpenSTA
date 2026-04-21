@@ -54,7 +54,7 @@ public:
                            int to_index,
                            BusDcl *bus_dcl);
   LibertyPort *makeBundlePort(LibertyCell *cell,
-                              const char *name,
+                              std::string_view name,
                               ConcretePortSeq *members);
   // Build timing arc sets and their arcs given a type and sense.
   // Port functions and cell latches are also used by this builder
@@ -63,31 +63,30 @@ public:
                                LibertyPort *from_port,
                                LibertyPort *to_port,
                                LibertyPort *related_out,
-                               TimingArcAttrsPtr attrs,
-                               int line);
+                               const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeFromTransitionArcs(LibertyCell *cell,
                                        LibertyPort *from_port,
                                        LibertyPort *to_port,
                                        LibertyPort *related_out,
                                        const RiseFall *from_rf,
                                        const TimingRole *role,
-                                       TimingArcAttrsPtr attrs);
+                                       const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeCombinationalArcs(LibertyCell *cell,
                                       LibertyPort *from_port,
                                       LibertyPort *to_port,
                                       bool to_rise,
                                       bool to_fall,
-                                      TimingArcAttrsPtr attrs);
+                                      const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeClockTreePathArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
                                       const TimingRole *role,
-                                      TimingArcAttrsPtr attrs);
+                                      const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeMinPulseWidthArcs(LibertyCell *cell,
                                       LibertyPort *from_port,
                                       LibertyPort *to_port,
                                       LibertyPort *related_out,
                                       const TimingRole *role,
-                                      TimingArcAttrsPtr attrs);
+                                      const TimingArcAttrsPtr &attrs);
 
 protected:
   ConcretePort *makeBusPort(std::string_view name,
@@ -102,7 +101,7 @@ protected:
                        int to_index);
   // Bus port bit (internal to makeBusPortBits).
   LibertyPort *makePort(LibertyCell *cell,
-                        std::string bit_name,
+                        std::string_view bit_name,
                         int bit_index);
   void makeBusPortBit(ConcreteLibrary *library,
                       LibertyCell *cell,
@@ -121,32 +120,32 @@ protected:
                                   LibertyPort *from_port,
                                   LibertyPort *to_port,
                                   TimingSense sense,
-                                  TimingArcAttrsPtr attrs);
+                                  const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeRegLatchArcs(LibertyCell *cell,
                                  LibertyPort *from_port,
                                  LibertyPort *to_port,
                                  const RiseFall *from_rf,
-                                 TimingArcAttrsPtr attrs);
+                                 const TimingArcAttrsPtr &attrs);
   TimingArcSet *makePresetClrArcs(LibertyCell *cell,
                                   LibertyPort *from_port,
                                   LibertyPort *to_port,
                                   const RiseFall *to_rf,
-                                  TimingArcAttrsPtr attrs);
+                                  const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeTristateEnableArcs(LibertyCell *cell,
                                        LibertyPort *from_port,
                                        LibertyPort *to_port,
                                        bool to_rise,
                                        bool to_fall,
-                                       TimingArcAttrsPtr attrs);
+                                       const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeTristateDisableArcs(LibertyCell *cell,
                                         LibertyPort *from_port,
                                         LibertyPort *to_port,
                                         bool to_rise,
                                         bool to_fall,
-                                        TimingArcAttrsPtr attrs);
+                                        const TimingArcAttrsPtr &attrs);
 
   Debug *debug_;
   Report *report_;
 };
 
-} // namespace
+} // namespace sta

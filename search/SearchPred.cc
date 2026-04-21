@@ -24,17 +24,17 @@
 
 #include "SearchPred.hh"
 
+#include "Graph.hh"
+#include "Latches.hh"
+#include "Levelize.hh"
+#include "Liberty.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "Sim.hh"
 #include "TimingArc.hh"
 #include "TimingRole.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "Levelize.hh"
-#include "Search.hh"
-#include "Latches.hh"
-#include "Sim.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -198,7 +198,7 @@ bool
 isClkEnd(Vertex *vertex,
          const Mode *mode)
 {
-  Graph *graph = mode->graph();
+  Graph *graph = mode->sta()->graph();
   ClkTreeSearchPred pred(graph);
   VertexOutEdgeIterator edge_iter(vertex, graph);
   while (edge_iter.hasNext()) {
@@ -223,7 +223,7 @@ searchThru(const Edge *edge,
            const TimingArc *arc,
            const Mode *mode)
 {
-  const Graph *graph = mode->graph();
+  const Graph *graph = mode->sta()->graph();
   const RiseFall *from_rf = arc->fromEdge()->asRiseFall();
   const RiseFall *to_rf = arc->toEdge()->asRiseFall();
   // Ignore transitions other than rise/fall.
@@ -323,4 +323,4 @@ hasFanout(Vertex *vertex,
   return false;
 }
 
-} // namespace
+} // namespace sta

@@ -25,11 +25,13 @@
 #pragma once
 
 #include <atomic>
+#include <vector>
 
-#include "MinMax.hh"
-#include "Transition.hh"
+#include "Delay.hh"
 #include "GraphClass.hh"
+#include "LibertyClass.hh"
 #include "SearchClass.hh"
+#include "StaState.hh"
 #include "Tag.hh"
 
 namespace sta {
@@ -89,7 +91,7 @@ protected:
 class TagGroupHash
 {
 public:
-  size_t operator()(const TagGroup *tag) const;
+  size_t operator()(const TagGroup *group) const;
 };
 
 class TagGroupEqual
@@ -151,11 +153,11 @@ protected:
   int default_path_count_;
   PathIndexMap path_index_map_;
   std::vector<Path>  paths_;
-  bool has_clk_tag_;
-  bool has_genclk_src_tag_;
-  bool has_filter_tag_;
-  bool has_loop_tag_;
-  bool has_propagated_clk_;
+  bool has_clk_tag_{false};
+  bool has_genclk_src_tag_{false};
+  bool has_filter_tag_{false};
+  bool has_loop_tag_{false};
+  bool has_propagated_clk_{false};
   const StaState *sta_;
 };
 
@@ -163,4 +165,4 @@ void
 pathIndexMapReport(const PathIndexMap *path_index_map,
                    const StaState *sta);
 
-} // namespace
+} // namespace sta

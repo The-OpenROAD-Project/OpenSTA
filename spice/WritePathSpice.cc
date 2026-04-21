@@ -24,35 +24,36 @@
 
 #include "WritePathSpice.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <string_view>
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "Report.hh"
 #include "Format.hh"
-#include "StringUtil.hh"
 #include "FuncExpr.hh"
-#include "Units.hh"
-#include "Sequential.hh"
-#include "Liberty.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
 #include "Graph.hh"
-#include "Sdc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
 #include "Parasitics.hh"
 #include "Path.hh"
 #include "PathExpanded.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Sdc.hh"
+#include "Sequential.hh"
 #include "StaState.hh"
-#include "search/Sim.hh"
+#include "StringUtil.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 #include "WriteSpice.hh"
+#include "search/Sim.hh"
 
 namespace sta {
 
-typedef int Stage;
+using Stage = int;
 
 ////////////////////////////////////////////////////////////////
 
@@ -138,7 +139,7 @@ private:
   const Path *path_;
   PathExpanded path_expanded_;
   // Input clock waveform cycles.
-  int clk_cycle_count_;
+  int clk_cycle_count_{3};
 
   InstanceSet written_insts_;
 
@@ -184,7 +185,6 @@ WritePathSpice::WritePathSpice(const Path *path,
              path->scene(sta), path->minMax(sta), sta),
   path_(path),
   path_expanded_(sta),
-  clk_cycle_count_(3),
   written_insts_(network_)
 {
   initPowerGnd();
@@ -269,13 +269,11 @@ WritePathSpice::pathMaxTime()
         Edge *edge = edge_iter.next();
         Vertex *load = edge->to(graph_);
         float load_slew = railToRailSlew(findSlew(load, rf, nullptr), rf);
-        if (load_slew > path_max_slew)
-          path_max_slew = load_slew;
+        path_max_slew = std::max(load_slew, path_max_slew);
       }
     }
     float path_max_time = delayAsFloat(path->arrival()) + path_max_slew * 2.0;
-    if (path_max_time > max_time)
-      max_time = path_max_time;
+    max_time = std::max(path_max_time, max_time);
   }
   return max_time;
 }
@@ -756,4 +754,4 @@ WritePathSpice::stageLibertyCell(Stage stage)
   return network_->libertyPort(pin)->libertyCell();
 }
 
-} // namespace
+} // namespace sta

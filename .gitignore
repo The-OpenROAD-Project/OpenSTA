@@ -30,3 +30,7 @@ doc/messages.txt
 
 # clangd turds
 .cache/
+
+# test artifacts
+*/test/*.log
+**/Testing/

@@ -38,7 +38,7 @@ class TimingModel
 {
 public:
   TimingModel(LibertyCell *cell);
-  virtual ~TimingModel() {}
+  virtual ~TimingModel() = default;
   virtual void setIsScaled(bool is_scaled) = 0;
 
 protected:
@@ -97,4 +97,4 @@ public:
                                        int digits) const = 0;
 };
 
-} // namespace
+} // namespace sta

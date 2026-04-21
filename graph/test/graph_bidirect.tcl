@@ -41,7 +41,7 @@ report_checks -from [get_ports d3] -to [get_ports q4]
 # Test 3: Fields that exercise graph delay/slew queries
 #---------------------------------------------------------------
 puts "--- Test 3: report with fields ---"
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 report_checks -format full_clock
 

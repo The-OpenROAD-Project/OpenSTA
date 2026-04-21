@@ -38,4 +38,4 @@ parseFuncExpr(std::string_view func,
               std::string_view error_msg,
               Report *report);
 
-} // namespace
+} // namespace sta

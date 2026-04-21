@@ -47,10 +47,18 @@ sta::SpefParse::error(const location_type &loc,
 
 %code requires {
 #include <string>
+#include "StringUtil.hh"
 
 namespace sta {
 // Bison's C++ variant skeleton cannot use void as a semantic type.
 struct SpefParseVoid {};
+class SpefReader;
+class SpefScanner;
+class Net;
+class Pin;
+class PortDirection;
+class SpefRspfPi;
+class SpefTriple;
 }
 }
 

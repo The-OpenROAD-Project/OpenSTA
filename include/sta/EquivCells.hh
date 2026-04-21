@@ -87,4 +87,4 @@ bool
 equivCellSequentials(const LibertyCell *cell1,
                      const LibertyCell *cell2);
 
-} // namespace
+} // namespace sta

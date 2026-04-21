@@ -33,4 +33,4 @@ class Report;
 Report *
 makeReportStd();
 
-} // namespace
+} // namespace sta

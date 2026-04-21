@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include <cctype>
 #include <charconv>
 #include <system_error>
+#include <version>
 
 namespace sta {
 
@@ -56,18 +57,29 @@ std::pair<float, bool>
 stringFloat(const std::string &str)
 {
   float value;
+  // OsX 15.xx and earlier clang do not support std::from_chars.
+#if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
   auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
   if (ec == std::errc()
       && *ptr == '\0')
     return {value, true};
   else
     return {0.0, false};
+#else
+  char *ptr;
+  errno = 0;
+  value = strtof(str.data(), &ptr);
+  if (errno != 0 || *ptr != '\0')
+    return {0.0, false};
+  else
+    return {value, true};
+#endif
 }
 
 void
 trimRight(std::string &str)
 {
-  str.erase(str.find_last_not_of(" ") + 1);
+  str.erase(str.find_last_not_of(' ') + 1);
 }
 
 StringSeq
@@ -87,4 +99,4 @@ parseTokens(const std::string &text,
   return tokens;
 }
 
-} // namespace
+} // namespace sta

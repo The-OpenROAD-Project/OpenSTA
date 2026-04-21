@@ -289,7 +289,6 @@ Unannotated Arcs
  width              reg2/CK -> reg2/CK 
 --- Test 5: write SDF ---
 --- Test 6: detailed reports ---
-Warning 168: sdf_cond_pathpulse.tcl line 1, unknown field nets.
 Startpoint: d1 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
@@ -301,14 +300,19 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                           0.00    0.00 v input external delay
      1    0.88    0.10    0.00    0.00 v d1 (in)
+                                         d1 (net)
                   0.10    0.00    0.00 v buf1/A (BUF_X1)
      1    0.87    0.01    0.14    0.14 v buf1/Z (BUF_X1)
+                                         n1 (net)
                   0.01    0.03    0.17 v and1/A1 (AND2_X1)
      1    0.90    0.01    0.13    0.30 v and1/ZN (AND2_X1)
+                                         n3 (net)
                   0.01    0.03    0.33 v or1/A2 (OR2_X1)
      2    2.59    0.01    0.10    0.43 v or1/ZN (OR2_X1)
+                                         n4 (net)
                   0.01    0.03    0.46 v nand1/A1 (NAND2_X1)
      1    1.14    0.02    0.10    0.56 ^ nand1/ZN (NAND2_X1)
+                                         n5 (net)
                   0.02    0.02    0.58 ^ reg2/D (DFF_X1)
                                   0.58   data arrival time
 

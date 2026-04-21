@@ -251,8 +251,8 @@ Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ff_n40C_1v95
 File ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00
@@ -294,8 +294,8 @@ Cell sky130_fd_sc_hd__dfrtp_1
 Library sky130_fd_sc_hd__ss_n40C_1v40
 File ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
  VGND ground
- VNB bias
- VPB bias
+ VNB well
+ VPB well
  VPWR power
  CLK input 0.00-0.00
  D input 0.00-0.00

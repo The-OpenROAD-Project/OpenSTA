@@ -1442,7 +1442,7 @@ TEST_F(StaLibertyTest, PortBundlePort) {
   ASSERT_NE(buf, nullptr);
   LibertyPort *port = buf->findLibertyPort("A");
   ASSERT_NE(port, nullptr);
-  LibertyPort *bundle = port->bundlePort();
+  ConcretePort *bundle = port->bundlePort();
   EXPECT_EQ(bundle, nullptr);
 }
 
@@ -2299,14 +2299,6 @@ TEST_F(StaLibertyTest, LibraryTableTemplates) {
 ////////////////////////////////////////////////////////////////
 // LibertyCell misc
 ////////////////////////////////////////////////////////////////
-
-TEST_F(StaLibertyTest, CellHasInternalPorts) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  bool hip = buf->hasInternalPorts();
-  (void)hip;
-  // hip value depends on cell type
-}
 
 TEST_F(StaLibertyTest, CellClockGateLatch) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
@@ -3346,12 +3338,5 @@ TEST_F(StaLibertyTest, CellAlwaysOn) {
 }
 
 // isDisabledConstraint has been moved from LibertyCell to Sdc.
-
-TEST_F(StaLibertyTest, CellHasInternalPorts2) {
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  EXPECT_FALSE(buf->hasInternalPorts());
-}
-
 
 } // namespace sta

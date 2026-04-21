@@ -35,7 +35,7 @@ template <class OBJ>
 class Iterator
 {
 public:
-  virtual ~Iterator() {}
+  virtual ~Iterator() = default;
   virtual bool hasNext() = 0;
   virtual OBJ next() = 0;
 };
@@ -116,4 +116,4 @@ protected:
   SET_TYPE::const_iterator itr_;
 };
 
-} // namespace
+} // namespace sta

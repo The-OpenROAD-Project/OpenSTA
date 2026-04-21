@@ -57,15 +57,6 @@ Unit::setScaleAbbrevSuffix()
   scale_abbrev_suffix_ = scaleAbbreviation() + suffix_;
 }
 
-void
-Unit::operator=(const Unit &unit)
-{
-  scale_ = unit.scale_;
-  suffix_ = unit.suffix_;
-  scale_abbrev_suffix_ = unit.scale_abbrev_suffix_;
-  digits_ = unit.digits_;
-}
-
 double
 Unit::staToUser(double value)
 {
@@ -213,7 +204,7 @@ Units::find(std::string_view unit_name)
     return nullptr;
 }
 
-void
+Units &
 Units::operator=(const Units &units)
 {
   time_unit_ = *units.timeUnit();
@@ -224,6 +215,7 @@ Units::operator=(const Units &units)
   power_unit_ = *units.powerUnit();
   distance_unit_ = *units.distanceUnit();
   scalar_unit_ = *units.scalarUnit();
+  return *this;
 }
 
-} // namespace
+} // namespace sta

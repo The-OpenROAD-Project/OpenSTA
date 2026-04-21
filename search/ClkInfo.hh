@@ -24,10 +24,19 @@
 
 #pragma once
 
-#include "Transition.hh"
-#include "SearchClass.hh"
-#include "Sdc.hh"
+#include <cstddef>
+#include <string>
+
+#include "Clock.hh"
+#include "Delay.hh"
+#include "GraphClass.hh"
+#include "MinMax.hh"
+#include "NetworkClass.hh"
 #include "Path.hh"
+#include "Sdc.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -49,7 +58,6 @@ public:
           const MinMax *min_max,
           const Path *crpr_clk_path,
           const StaState *sta);
-  ~ClkInfo();
   std::string to_string(const StaState *sta) const;
   Scene *scene() const { return scene_; }
   const MinMax *minMax() const;
@@ -111,7 +119,6 @@ class ClkInfoLess
 {
 public:
   ClkInfoLess(const StaState *sta);
-  ~ClkInfoLess() {}
   bool operator()(const ClkInfo *clk_info1,
                   const ClkInfo *clk_info2) const;
 
@@ -136,4 +143,4 @@ protected:
   const StaState *sta_;
 };
 
-} // namespace
+} // namespace sta

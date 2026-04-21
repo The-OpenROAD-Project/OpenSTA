@@ -22,17 +22,15 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module dcalc
-
 %include <std_string.i>
 
 %{
 
-#include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
+#include "DelayCalc.hh"
+#include "Sta.hh"
 #include "dcalc/ArcDcalcWaveforms.hh"
 #include "dcalc/PrimaDelayCalc.hh"
-#include "Sta.hh"
 
 %}
 

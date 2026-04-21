@@ -67,6 +67,21 @@ proc diff_files_sorted { file1 file2 } {
   }
 }
 
+proc assert_file_nonempty { path } {
+  if { ![file exists $path] || [file size $path] <= 0 } {
+    error "expected non-empty file: $path"
+  }
+}
+
+proc assert_file_contains { path token } {
+  set in [open $path r]
+  set text [read $in]
+  close $in
+  if { [string first $token $text] < 0 } {
+    error "expected '$token' in $path"
+  }
+}
+
 proc diff_files { file1 file2 { ignore "" } } {
   set stream1 [open $file1 r]
   set stream2 [open $file2 r]

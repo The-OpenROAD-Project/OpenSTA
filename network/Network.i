@@ -22,14 +22,14 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module network
-
 %include <std_string.i>
 
 %{
 #include "Network.hh"
-#include "StringUtil.hh"
+
 #include <string>
+
+#include "StringUtil.hh"
 %}
 
 ////////////////////////////////////////////////////////////////

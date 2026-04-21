@@ -24,14 +24,15 @@
 
 #pragma once
 
+#include <algorithm>
+#include <functional>
+#include <map>
+#include <ranges>
+#include <set>
+#include <string_view>
 #include <type_traits>
 #include <utility>   // for std::declval
-#include <map>
-#include <set>
 #include <vector>
-#include <algorithm>
-#include <ranges>
-#include <functional>
 
 namespace sta {
 
@@ -41,7 +42,8 @@ namespace sta {
 // 1. Sequence containers (vector<T*>, list<T*>, deque<T*>, …)
 // ------------------------------------------------------------
 template <typename Container>
-std::enable_if_t<std::is_pointer_v<typename Container::value_type>>
+requires std::is_pointer_v<typename Container::value_type>
+void
 deleteContents(Container& c)
 {
   for (auto ptr : c)
@@ -50,7 +52,8 @@ deleteContents(Container& c)
 }
 
 template <typename Container>
-std::enable_if_t<std::is_pointer_v<typename Container::value_type>>
+requires std::is_pointer_v<typename Container::value_type>
+void
 deleteContents(Container *c)
 {
   for (auto ptr : *c)
@@ -62,8 +65,8 @@ deleteContents(Container *c)
 // 2. Maps (map<K, T*>, unordered_map<K, T*>)
 // ------------------------------------------------------------
 template <typename Map>
-std::enable_if_t<std::is_pointer_v<typename Map::mapped_type>
->
+requires std::is_pointer_v<typename Map::mapped_type>
+void
 deleteContents(Map& m)
 {
   for (auto& kv : m)
@@ -72,8 +75,8 @@ deleteContents(Map& m)
 }
 
 template <typename Map>
-std::enable_if_t<std::is_pointer_v<typename Map::mapped_type>
->
+requires std::is_pointer_v<typename Map::mapped_type>
+void
 deleteContents(Map *m)
 {
   for (auto& kv : *m)
@@ -85,10 +88,10 @@ deleteContents(Map *m)
 // 3. Sets (set<T*>, unordered_set<T*>)
 // ------------------------------------------------------------
 template <typename Set>
-std::enable_if_t<
-  std::is_pointer_v<typename Set::value_type> &&
-  !std::is_same_v<typename Set::value_type, typename Set::mapped_type>
->
+requires (std::is_pointer_v<typename Set::value_type> &&
+          requires { typename Set::mapped_type; } &&
+          !std::is_same_v<typename Set::value_type, typename Set::mapped_type>)
+void
 deleteContents(Set& s)
 {
   for (auto ptr : s)
@@ -118,28 +121,28 @@ struct find_return;
 template<typename C>
 struct find_return<C*, true>
 {
-  using type = typename C::mapped_type;
+  using type = C::mapped_type;
 };
 
 // pointer to set
 template<typename C>
 struct find_return<C*, false>
 {
-  using type = typename C::key_type;
+  using type = C::key_type;
 };
 
 // map ref
 template<typename C>
 struct find_return<C, true>
 {
-  using type = typename C::mapped_type;
+  using type = C::mapped_type;
 };
 
 // set ref
 template<typename C>
 struct find_return<C, false>
 {
-  using type = typename C::key_type;
+  using type = C::key_type;
 };
 
 
@@ -148,10 +151,10 @@ struct find_return<C, false>
 template<typename AssocContainer>
 auto
 findKey(const AssocContainer& c,
-        typename AssocContainer::key_type key)
-    -> typename find_return<AssocContainer>::type
+        const typename AssocContainer::key_type& key)
+    -> find_return<AssocContainer>::type
 {
-  using ReturnType = typename find_return<AssocContainer>::type;
+  using ReturnType = find_return<AssocContainer>::type;
 
   static_assert(std::is_pointer_v<ReturnType>,
                 "findKey requires pointer types");
@@ -172,9 +175,9 @@ template<typename AssocContainer>
 auto
 findStringKey(const AssocContainer& c,
               std::string_view key)
-    -> typename find_return<AssocContainer>::type
+    -> find_return<AssocContainer>::type
 {
-  using ReturnType = typename find_return<AssocContainer>::type;
+  using ReturnType = find_return<AssocContainer>::type;
 
   static_assert(std::is_pointer_v<ReturnType>,
                 "findStringKey requires pointer types");
@@ -193,8 +196,8 @@ findStringKey(const AssocContainer& c,
 template<typename AssocContainer>
 auto
 findKeyValue(const AssocContainer& c,
-             typename AssocContainer::key_type key)
-  -> const typename find_return<AssocContainer>::type &
+             const typename AssocContainer::key_type& key)
+  -> const find_return<AssocContainer>::type &
 {
   auto it = c.find(key);
   if (it != c.end()) {
@@ -212,7 +215,7 @@ findKeyValue(const AssocContainer& c,
 template<typename AssocContainer>
 void
 findKeyValue(const AssocContainer& c,
-             typename AssocContainer::key_type key,
+             const typename AssocContainer::key_type& key,
              typename find_return<AssocContainer>::type &value,
              bool &exists)
 {
@@ -239,7 +242,7 @@ findKeyValue(const AssocContainer& c,
 template<typename AssocContainer>
 void
 findKeyValue(const AssocContainer *c,
-             typename AssocContainer::key_type key,
+             const typename AssocContainer::key_type& key,
              typename find_return<AssocContainer>::type &value,
              bool &exists)
 {
@@ -268,8 +271,8 @@ findKeyValue(const AssocContainer *c,
 template<typename AssocContainer>
 auto
 findKeyValuePtr(AssocContainer& c,
-                typename AssocContainer::key_type key)
-  -> typename find_return<AssocContainer>::type*
+                 const typename AssocContainer::key_type& key)
+  -> find_return<AssocContainer>::type*
 {
   auto it = c.find(key);
   if (it == c.end())
@@ -288,8 +291,8 @@ findKeyValuePtr(AssocContainer& c,
 template<typename AssocContainer>
 auto
 findKeyValuePtr(const AssocContainer& c,
-                typename AssocContainer::key_type key)
-  -> typename find_return<AssocContainer>::type const*
+                 const typename AssocContainer::key_type& key)
+  -> find_return<AssocContainer>::type const*
 {
   auto it = c.find(key);
   if (it == c.end())
@@ -309,8 +312,8 @@ findKeyValuePtr(const AssocContainer& c,
 template<typename AssocContainer>
 auto
 findStringValuePtr(AssocContainer& c,
-                   std::string_view key)
-  -> typename find_return<AssocContainer>::type*
+                    std::string_view key)
+  -> find_return<AssocContainer>::type*
 {
   auto it = c.find(key);
   if (it == c.end())
@@ -325,8 +328,8 @@ findStringValuePtr(AssocContainer& c,
 template<typename AssocContainer>
 auto
 findStringValuePtr(const AssocContainer& c,
-                   std::string_view key)
-  -> typename find_return<AssocContainer>::type const*
+                    std::string_view key)
+  -> find_return<AssocContainer>::type const*
 {
   auto it = c.find(key);
   if (it == c.end())
@@ -434,7 +437,7 @@ requires std::predicate<Comp&,
                         std::ranges::range_reference_t<Range>>
 void
 sort(Range& r,
-     Comp comp = Comp{})
+     const Comp &comp = Comp{})
 {
   std::stable_sort(std::ranges::begin(r), std::ranges::end(r), comp);
 }
@@ -449,9 +452,9 @@ requires std::ranges::random_access_range<Range> &&
                         std::ranges::range_reference_t<Range>>
 void
 sort(Range* r,
-     Comp comp = Comp{})
+     const Comp &comp = Comp{})
 {
   std::stable_sort(std::ranges::begin(*r), std::ranges::end(*r), comp);
 }
 
-} // namespace
+} // namespace sta

@@ -26,16 +26,16 @@
 
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
-#include "Stats.hh"
+#include "FuncExpr.hh"
+#include "Liberty.hh"
 #include "MinMax.hh"
 #include "Mutex.hh"
-#include "Transition.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
-#include "FuncExpr.hh"
+#include "PortDirection.hh"
+#include "Stats.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "Transition.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -49,8 +49,6 @@ namespace sta {
 Graph::Graph(StaState *sta,
              DcalcAPIndex ap_count) :
   StaState(sta),
-  vertices_(nullptr),
-  edges_(nullptr),
   ap_count_(ap_count),
   period_check_annotations_(network_),
   reg_clk_vertices_(makeVertexSet(this))
@@ -342,11 +340,10 @@ class MakeEdgesThruHierPin : public HierPinThruVisitor
 {
 public:
   MakeEdgesThruHierPin(Graph *graph);
-
-private:
   void visit(const Pin *drvr,
              const Pin *load) override;
 
+private:
   Graph *graph_;
 };
 
@@ -585,7 +582,7 @@ Graph::slew(const Vertex *vertex,
   size_t slew_index = ap_index * RiseFall::index_count + rf->index();
   const float *slews_flt = vertex->slewsFloat();
   if (variables_->pocvEnabled()) {
-    const Slew *slews = std::bit_cast<const Slew*>(slews_flt);
+    const Slew *slews = reinterpret_cast<const Slew*>(slews_flt);
     return slews[slew_index];
   }
   else
@@ -598,7 +595,7 @@ Graph::slew(const Vertex *vertex,
 {
   const float *slews_flt = vertex->slewsFloat();
   if (variables_->pocvEnabled()) {
-    const Slew *slews = std::bit_cast<const Slew*>(slews_flt);
+    const Slew *slews = reinterpret_cast<const Slew*>(slews_flt);
     return slews[index];
   }
   else
@@ -678,7 +675,7 @@ Graph::arcDelay(const Edge *edge,
 {
   size_t index = arc->index() * ap_count_ + ap_index;
   if (variables_->pocvEnabled()) {
-    ArcDelay *delays = std::bit_cast<ArcDelay*>(edge->arcDelays());
+    const ArcDelay *delays = reinterpret_cast<const ArcDelay*>(edge->arcDelays());
     return delays[index];
   }
   else {
@@ -695,7 +692,7 @@ Graph::setArcDelay(Edge *edge,
 {
   size_t index = arc->index() * ap_count_ + ap_index;
   if (variables_->pocvEnabled()) {
-    ArcDelay *delays = std::bit_cast<ArcDelay*>(edge->arcDelays());
+    ArcDelay *delays = reinterpret_cast<ArcDelay*>(edge->arcDelays());
     delays[index] = delay;
   }
   else {
@@ -711,7 +708,7 @@ Graph::wireArcDelay(const Edge *edge,
 {
   size_t index = rf->index() * ap_count_ + ap_index;
   if (variables_->pocvEnabled()) {
-    ArcDelay *delays = std::bit_cast<ArcDelay*>(edge->arcDelays());
+    const ArcDelay *delays = reinterpret_cast<const ArcDelay*>(edge->arcDelays());
     return delays[index];
   }
   else {
@@ -728,7 +725,7 @@ Graph::setWireArcDelay(Edge *edge,
 {
   size_t index = rf->index() * ap_count_ + ap_index;
   if (variables_->pocvEnabled()) {
-    ArcDelay *delays = std::bit_cast<ArcDelay*>(edge->arcDelays());
+    ArcDelay *delays = reinterpret_cast<ArcDelay*>(edge->arcDelays());
     delays[index] = delay;
   }
   else {
@@ -753,7 +750,7 @@ Graph::setArcDelayAnnotated(Edge *edge,
                             DcalcAPIndex ap_index,
                             bool annotated)
 {
-  return edge->setArcDelayAnnotated(arc, ap_index, ap_count_, annotated);
+  edge->setArcDelayAnnotated(arc, ap_index, ap_count_, annotated);
 }
 
 bool
@@ -774,7 +771,7 @@ Graph::setWireDelayAnnotated(Edge *edge,
 {
   int arc_index = TimingArcSet::wireArcIndex(rf);
   TimingArc *arc = TimingArcSet::wireTimingArcSet()->findTimingArc(arc_index);
-  return edge->setArcDelayAnnotated(arc, ap_index, ap_count_, annotated);
+  edge->setArcDelayAnnotated(arc, ap_index, ap_count_, annotated);
 }
 
 void
@@ -819,7 +816,7 @@ Graph::initSlews(Vertex *vertex)
 {
   size_t slew_count = slewCount();
   if (variables_->pocvEnabled()) {
-    float *slews = std::bit_cast<float*>(new Slew[slew_count]{});
+    float *slews = reinterpret_cast<float*>(new Slew[slew_count]{});
     vertex->setSlews(slews);
   }
   else {
@@ -840,7 +837,7 @@ Graph::initArcDelays(Edge *edge)
   size_t arc_count = edge->timingArcSet()->arcCount();
   size_t delay_count = arc_count * ap_count_;
   if (variables_->pocvEnabled()) {
-    float *delays = std::bit_cast<float*>(new ArcDelay[delay_count]{});
+    float *delays = reinterpret_cast<float*>(new ArcDelay[delay_count]{});
     edge->setArcDelays(delays);
   }
   else {
@@ -1187,7 +1184,7 @@ Vertex::setHasDownstreamClkPin(bool has_clk_pin)
 bool
 Vertex::bfsInQueue(BfsIndex index) const
 {
-  return (bfs_in_queue_ >> unsigned(index)) & 1;
+  return (bfs_in_queue_ >> static_cast<unsigned>(index)) & 1;
 }
 
 void
@@ -1195,9 +1192,9 @@ Vertex::setBfsInQueue(BfsIndex index,
                       bool value)
 {
   if (value)
-    bfs_in_queue_ |= 1 << int(index);
+    bfs_in_queue_ |= 1 << static_cast<unsigned>(index);
   else
-    bfs_in_queue_ &= ~(1 << int(index));
+    bfs_in_queue_ &= ~(1 << static_cast<unsigned>(index));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1400,10 +1397,7 @@ VertexIterator::VertexIterator(Graph *graph) :
   graph_(graph),
   network_(graph->network()),
   top_inst_(network_->topInstance()),
-  inst_iter_(network_->leafInstanceIterator()),
-  pin_iter_(nullptr),
-  vertex_(nullptr),
-  bidir_vertex_(nullptr)
+  inst_iter_(network_->leafInstanceIterator())
 {
   if (inst_iter_)
     findNext();
@@ -1580,4 +1574,4 @@ VertexIdLess::operator()(const Vertex *vertex1,
 }
 
 
-} // namespace
+} // namespace sta

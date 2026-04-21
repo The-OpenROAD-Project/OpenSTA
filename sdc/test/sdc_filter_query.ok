@@ -29,7 +29,4 @@ filter_insts ref_name =~ BUF*: 1
 filter_pins direction == input: 1
 filter_nets full_name =~ n*: 7
 No differences found.
-remove_constraints: skipped (API removed)
-Differences found at line 10.
-set_input_delay 2.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {in1}]
-create_clock -name vclk -period 5.0000 
+No differences found.

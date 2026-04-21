@@ -46,9 +46,7 @@ public:
              std::string_view filename,
              SdfReader *reader,
              Report *report);
-  virtual ~SdfScanner() {}
-
-  virtual int lex(SdfParse::semantic_type *const yylval,
+  virtual int lex(SdfParse::semantic_type *yylval,
                   SdfParse::location_type *yylloc);
   // YY_DECL defined in SdfLex.ll
   // Method body created by flex in SdfLex.cc
@@ -65,4 +63,4 @@ private:
   std::string token_;
 };
 
-} // namespace
+} // namespace sta

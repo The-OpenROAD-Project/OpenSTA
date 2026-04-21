@@ -167,7 +167,7 @@ public:
 
 class RecordingLibertyVisitor : public LibertyGroupVisitor {
 public:
-  ~RecordingLibertyVisitor() override
+  ~RecordingLibertyVisitor()
   {
     for (const LibertyGroup *group : root_groups)
       delete group;
@@ -2210,18 +2210,6 @@ library(test_r9_64) {
   writeAndReadLib(sta_, content);
 
   }() ));
-}
-
-// R9_65: LibertyCell hasInternalPorts (read-only check)
-TEST_F(StaLibertyTest, CellHasInternalPorts4) {
-  LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
-  ASSERT_NE(dff, nullptr);
-  // DFF should have internal ports for state vars (IQ, IQN)
-  EXPECT_TRUE(dff->hasInternalPorts());
-  // A simple buffer should not
-  LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
-  ASSERT_NE(buf, nullptr);
-  EXPECT_FALSE(buf->hasInternalPorts());
 }
 
 // R9_66: LibertyBuilder destructor (coverage)
@@ -4306,6 +4294,54 @@ library(test_r11_ccs) {
   writeAndReadLib(sta_, content);
 
   }() ));
+}
+
+// Regression: hasSequentials must return true for cells that define
+// sequential behavior via a statetable group (no ff/latch).
+// Multi-bit flip-flops (MBFFs) and clock-gated cells commonly use
+// statetable instead of ff/latch groups.  Without the statetable_
+// check in hasSequentials(), these cells are misclassified as
+// combinational — breaking power categorization, resizer guards,
+// and dbSta cell-type mapping.
+TEST_F(StaLibertyTest, HasSequentialsStatetableMBFF) {
+  const char *content = R"(
+library(test_mbff_statetable) {
+  delay_model : table_lookup ;
+  time_unit : "1ns" ;
+  voltage_unit : "1V" ;
+  current_unit : "1mA" ;
+  capacitive_load_unit(1, ff) ;
+  cell(MBFF2) {
+    area : 6.0 ;
+    pin(D0) { direction : input ; capacitance : 0.01 ; }
+    pin(D1) { direction : input ; capacitance : 0.01 ; }
+    pin(CLK) { direction : input ; capacitance : 0.01 ; clock : true ; }
+    pin(Q0) { direction : output ; function : "IQ0" ; }
+    pin(Q1) { direction : output ; function : "IQ1" ; }
+    statetable("D0 D1 CLK", "IQ0 IQ1") {
+      table : "- - ~R : - - : N N ,\
+               H - R  : - - : H N ,\
+               L - R  : - - : L N ,\
+               - H R  : - - : N H ,\
+               - L R  : - - : N L" ;
+    }
+  }
+}
+)";
+  LibertyLibrary *lib = writeAndReadLibReturn(sta_, content);
+  ASSERT_NE(lib, nullptr);
+  LibertyCell *mbff = lib->findLibertyCell("MBFF2");
+  ASSERT_NE(mbff, nullptr);
+
+  // The cell has no ff/latch group, so sequentials_ is empty.
+  EXPECT_TRUE(mbff->sequentials().empty());
+  // But it has a statetable, so it IS sequential.
+  EXPECT_NE(mbff->statetable(), nullptr);
+  // hasSequentials() must return true for statetable-only cells.
+  EXPECT_TRUE(mbff->hasSequentials())
+    << "MBFF2 uses statetable (no ff/latch) but hasSequentials() "
+       "returned false — statetable cells are misclassified as "
+       "combinational";
 }
 
 } // namespace sta

@@ -24,16 +24,16 @@
 
 #include "Machine.hh"
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/time.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/resource.h>
+#include <sys/time.h>
 #include <thread>
+#include <unistd.h>
 
+#include "Format.hh"
 #include "StaConfig.hh"
 #include "StringUtil.hh"
-#include "Format.hh"
 
 namespace sta {
 
@@ -105,4 +105,4 @@ memoryUsage()
   return memory;
 }
 
-} // namespace
+} // namespace sta

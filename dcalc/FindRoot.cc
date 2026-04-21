@@ -28,47 +28,38 @@
 
 namespace sta {
 
-double
-findRoot(FindRootFunc func,
+std::pair<double, bool>
+findRoot(const FindRootFunc &func,
          double x1,
          double x2,
          double x_tol,
-         int max_iter,
-         // Return value.
-         bool &fail)
+         int max_iter)
 {
   double y1, y2, dy1;
   func(x1, y1, dy1);
   func(x2, y2, dy1);
-  return findRoot(func, x1, y1, x2, y2, x_tol, max_iter, fail);
+  return findRoot(func, x1, y1, x2, y2, x_tol, max_iter);
 }
 
-double
-findRoot(FindRootFunc func,
+std::pair<double, bool>
+findRoot(const FindRootFunc &func,
          double x1,
          double y1,
          double x2,
          double y2,
          double x_tol,
-         int max_iter,
-         // Return value.
-         bool &fail)
+         int max_iter)
 {
   if ((y1 > 0.0 && y2 > 0.0) || (y1 < 0.0 && y2 < 0.0)) {
     // Initial bounds do not surround a root.
-    fail = true;
-    return 0.0;
+    return {0.0, true};
   }
 
-  if (y1 == 0.0) {
-    fail = false;
-    return x1;
-  }
+  if (y1 == 0.0)
+    return {x1, false};
 
-  if (y2 == 0.0) {
-    fail = false;
-    return x2;
-  }
+  if (y2 == 0.0)
+    return {x2, false};
 
   if (y1 > 0.0)
     // Swap x1/x2 so func(x1) < 0.
@@ -95,8 +86,7 @@ findRoot(FindRootFunc func,
     }
     if (std::abs(dx) <= x_tol * std::abs(root)) {
       // Converged.
-      fail = false;
-      return root;
+      return {root, false};
     }
 
     func(root, y, dy);
@@ -105,8 +95,7 @@ findRoot(FindRootFunc func,
     else
       x2 = root;
   }
-  fail = true;
-  return root;
+  return {root, true};
 }
 
-} // namespace
+} // namespace sta

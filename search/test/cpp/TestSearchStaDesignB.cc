@@ -163,7 +163,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "",
                      sta_->cmdMode());
 
     // Set input delays
@@ -402,10 +402,6 @@ TEST_F(StaDesignTest, StaPins) {
   sta_->ensureClkNetwork(sta_->cmdMode());
   const PinSet *pins = sta_->pins(clk, sta_->cmdMode());
   EXPECT_NE(pins, nullptr);
-}
-
-TEST_F(StaDesignTest, StaStartpointPins) {
-  // startpointPins() is declared in Sta.hh but not defined - skip
 }
 
 TEST_F(StaDesignTest, StaEndpointPins) {
@@ -2994,9 +2990,8 @@ TEST_F(StaDesignTest, MakeGeneratedClock) {
     gen_pins->insert(clk2);
     IntSeq *divide_by = new IntSeq;
     divide_by->push_back(2);
-    FloatSeq *edges = nullptr;
-    sta_->makeGeneratedClock("gen_clk", gen_pins, false, clk2, clk,
-                              2, 0, 0.0, false, false, divide_by, edges, "",
+    sta_->makeGeneratedClock("gen_clk", *gen_pins, false, clk2, clk,
+                              2, 0, 0.0, false, false, *divide_by, FloatSeq(), "",
                               sta_->cmdMode());
     Clock *gen = sdc->findClock("gen_clk");
     EXPECT_NE(gen, nullptr);
@@ -4342,7 +4337,7 @@ TEST_F(StaDesignTest, WriteSdcDrivingCell) {
           LibertyPort *from_port = buf_cell->findLibertyPort("A");
           LibertyPort *to_port = buf_cell->findLibertyPort("Z");
           if (from_port && to_port) {
-            float from_slews[2] = {0.03f, 0.03f};
+            DriveCellSlews from_slews = {0.03f, 0.03f};
             sta_->setDriveCell(lib, buf_cell, port,
                                from_port, from_slews, to_port,
                                RiseFallBoth::riseFall(), MinMaxAll::all(), sta_->cmdSdc());

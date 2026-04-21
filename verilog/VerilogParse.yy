@@ -25,7 +25,6 @@
 %{
 #include <cstdlib>
 #include <string>
-#include <utility>
 
 #include "Report.hh"
 #include "PortDirection.hh"
@@ -49,6 +48,31 @@ sta::VerilogParse::error(const location_type &loc,
 }
 
 %}
+
+%code requires {
+#include <string>
+#include <vector>
+
+namespace sta {
+class PortDirection;
+class VerilogAssign;
+class VerilogAttr;
+class VerilogAttrEntry;
+class VerilogAttrStmt;
+class VerilogDclArg;
+class VerilogNet;
+class VerilogReader;
+class VerilogScanner;
+class VerilogStmt;
+
+using VerilogAttrEntrySeq = std::vector<VerilogAttrEntry*>;
+using VerilogAttrSeq = std::vector<VerilogAttr*>;
+using VerilogAttrStmtSeq = std::vector<VerilogAttrStmt*>;
+using VerilogDclArgSeq = std::vector<VerilogDclArg*>;
+using VerilogNetSeq = std::vector<VerilogNet*>;
+using VerilogStmtSeq = std::vector<VerilogStmt*>;
+}
+}
 
 %require  "3.2"
 %skeleton "lalr1.cc"
@@ -109,13 +133,13 @@ modules:
 
 module:
 	attr_instance_seq MODULE ID ';' stmts ENDMODULE
-	{ reader->makeModule(std::move($3), new sta::VerilogNetSeq,$5, $1, loc_line(@2));}
+	{ reader->makeModule($3, new sta::VerilogNetSeq,$5, $1, loc_line(@2));}
 |	attr_instance_seq MODULE ID '(' ')' ';' stmts ENDMODULE
-	{ reader->makeModule(std::move($3), new sta::VerilogNetSeq,$7, $1, loc_line(@2));}
+	{ reader->makeModule($3, new sta::VerilogNetSeq,$7, $1, loc_line(@2));}
 |	attr_instance_seq MODULE ID '(' port_list ')' ';' stmts ENDMODULE
-	{ reader->makeModule(std::move($3), $5, $8, $1, loc_line(@2)); }
+	{ reader->makeModule($3, $5, $8, $1, loc_line(@2)); }
 |	attr_instance_seq MODULE ID '(' port_dcls ')' ';' stmts ENDMODULE
-	{ reader->makeModule(std::move($3), $5, $8, $1, loc_line(@2)); }
+	{ reader->makeModule($3, $5, $8, $1, loc_line(@2)); }
 	;
 
 port_list:
@@ -130,9 +154,9 @@ port_list:
 port:
 	port_expr
 |	'.' ID '(' ')'
-	{ $$ = reader->makeNetNamedPortRefScalar(std::move($2), nullptr);}
+	{ $$ = reader->makeNetNamedPortRefScalar($2, nullptr);}
 |	'.' ID '(' port_expr ')'
-	{ $$ = reader->makeNetNamedPortRefScalar(std::move($2), $4);}
+	{ $$ = reader->makeNetNamedPortRefScalar($2, $4);}
 	;
 
 port_expr:
@@ -332,9 +356,9 @@ dcl_args:
 
 dcl_arg:
 	ID
-	{ $$ = reader->makeDclArg(std::move($1)); }
+	{ $$ = reader->makeDclArg($1); }
 |	net_assignment
-	{ $$ = reader->makeDclArg(std::move($1)); }
+	{ $$ = reader->makeDclArg($1); }
 	;
 
 continuous_assign:
@@ -363,9 +387,9 @@ net_assign_lhs:
 
 instance:
 	attr_instance_seq ID ID '(' inst_pins ')' ';'
-	{ $$ = reader->makeModuleInst(std::move($2), std::move($3), $5, $1, loc_line(@2)); }
+	{ $$ = reader->makeModuleInst($2, $3, $5, $1, loc_line(@2)); }
 |	attr_instance_seq ID parameter_values ID '(' inst_pins ')' ';'
-	{ $$ = reader->makeModuleInst(std::move($2), std::move($4), $6, $1, loc_line(@2)); }
+	{ $$ = reader->makeModuleInst($2, $4, $6, $1, loc_line(@2)); }
 	;
 
 parameter_values:
@@ -411,23 +435,23 @@ inst_named_pins:
 inst_named_pin:
 //      Scalar port.
 	'.' ID '(' ')'
-	{ $$ = reader->makeNetNamedPortRefScalarNet(std::move($2)); }
+	{ $$ = reader->makeNetNamedPortRefScalarNet($2); }
 |	'.' ID '(' ID ')'
-	{ $$ = reader->makeNetNamedPortRefScalarNet(std::move($2), std::move($4)); }
+	{ $$ = reader->makeNetNamedPortRefScalarNet($2, $4); }
 |	'.' ID '(' ID '[' INT ']' ')'
-	{ $$ = reader->makeNetNamedPortRefBitSelect(std::move($2), std::move($4), $6); }
+	{ $$ = reader->makeNetNamedPortRefBitSelect($2, $4, $6); }
 |	'.' ID '(' named_pin_net_expr ')'
-	{ $$ = reader->makeNetNamedPortRefScalar(std::move($2), $4); }
+	{ $$ = reader->makeNetNamedPortRefScalar($2, $4); }
 //      Bus port bit select.
 |	'.' ID '[' INT ']' '(' ')'
-	{ $$ = reader->makeNetNamedPortRefBit(std::move($2), $4, nullptr); }
+	{ $$ = reader->makeNetNamedPortRefBit($2, $4, nullptr); }
 |	'.' ID '[' INT ']' '(' net_expr ')'
-	{ $$ = reader->makeNetNamedPortRefBit(std::move($2), $4, $7); }
+	{ $$ = reader->makeNetNamedPortRefBit($2, $4, $7); }
 //      Bus port part select.
 |	'.'  ID '[' INT ':' INT ']' '(' ')'
-	{ $$ = reader->makeNetNamedPortRefPart(std::move($2), $4, $6, nullptr); }
+	{ $$ = reader->makeNetNamedPortRefPart($2, $4, $6, nullptr); }
 |	'.'  ID '[' INT ':' INT ']' '(' net_expr ')'
-	{ $$ = reader->makeNetNamedPortRefPart(std::move($2), $4, $6, $9); }
+	{ $$ = reader->makeNetNamedPortRefPart($2, $4, $6, $9); }
 	;
 
 named_pin_net_expr:
@@ -444,22 +468,22 @@ net_named:
 
 net_scalar:
 	ID
-	{ $$ = reader->makeNetScalar(std::move($1)); }
+	{ $$ = reader->makeNetScalar($1); }
 	;
 
 net_bit_select:
 	ID '[' INT ']'
-	{ $$ = reader->makeNetBitSelect(std::move($1), $3); }
+	{ $$ = reader->makeNetBitSelect($1, $3); }
 	;
 
 net_part_select:
 	ID '[' INT ':' INT ']'
-	{ $$ = reader->makeNetPartSelect(std::move($1), $3, $5); }
+	{ $$ = reader->makeNetPartSelect($1, $3, $5); }
 	;
 
 net_constant:
 	CONSTANT
-	{ $$ = reader->makeNetConstant(std::move($1), loc_line(@1)); }
+	{ $$ = reader->makeNetConstant($1, loc_line(@1)); }
 	;
 
 net_expr_concat:
@@ -507,16 +531,16 @@ attr_specs:
 
 attr_spec:
 	ID
-	{ $$ = new sta::VerilogAttrEntry(std::move($1), "1"); }
+	{ $$ = new sta::VerilogAttrEntry($1, "1"); }
 | 	ID '=' attr_spec_value
-	{ $$ = new sta::VerilogAttrEntry(std::move($1), std::move($3)); }
+	{ $$ = new sta::VerilogAttrEntry($1, $3); }
 	;
 
 attr_spec_value:
 	CONSTANT
-	{ $$ = std::move($1); }
+	{ $$ = $1; }
 | 	STRING
-	{ $$ = std::move($1); }
+	{ $$ = $1; }
 | 	INT
   	{ $$ = std::to_string($1); }
 	;

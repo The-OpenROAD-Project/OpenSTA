@@ -31,4 +31,4 @@ class NetworkReader;
 NetworkReader *
 makeConcreteNetwork();
 
-} // namespace
+} // namespace sta

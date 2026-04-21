@@ -50,4 +50,4 @@ writePathSpice(const Path *path,
                CircuitSim ckt_sim,
                StaState *sta);
 
-} // namespace
+} // namespace sta

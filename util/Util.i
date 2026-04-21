@@ -22,34 +22,26 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%module util
 %include <std_string.i>
 
 %{
 
+#include "Error.hh"
+#include "Fuzzy.hh"
+#include "Report.hh"
 #include "Sta.hh"
 #include "StaConfig.hh"  // STA_VERSION
 #include "Stats.hh"
-#include "Report.hh"
-#include "Error.hh"
-#include "Fuzzy.hh"
-#include "Units.hh"
 #include "StringUtil.hh"
+#include "Units.hh"
 
 using namespace sta;
 
 %}
 
-////////////////////////////////////////////////////////////////
-//
-// Empty class definitions to make swig happy.
-// Private constructor/destructor so swig doesn't emit them.
-//
-////////////////////////////////////////////////////////////////
-
 %inline %{
 
-float float_inf = INF;
+const float float_inf = INF;
 
 const char *
 version()
@@ -261,23 +253,6 @@ const char *
 object_type(const char *obj)
 {
   return &obj[1 + sizeof(void*) * 2 + 3];
-}
-
-bool
-is_object_list(const char *list,
-               const char *type)
-{
-  const char *s = list;
-  while (s) {
-    bool type_match;
-    const char *next;
-    objectListNext(s, type, type_match, next);
-    if (type_match)
-      s = next;
-    else
-      return false;
-  }
-  return true;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -561,11 +536,3 @@ fuzzy_equal(float value1,
 }
 
 %} // inline
-
-////////////////////////////////////////////////////////////////
-//
-// Object Methods
-//
-////////////////////////////////////////////////////////////////
-
-

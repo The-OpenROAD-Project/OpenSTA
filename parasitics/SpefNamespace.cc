@@ -114,4 +114,4 @@ staToSpef(std::string_view sta_name,
   return spef_name;
 }
 
-} // namespace
+} // namespace sta

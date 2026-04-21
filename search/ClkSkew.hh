@@ -25,15 +25,19 @@
 #pragma once
 
 #include <map>
-
 #include <unordered_set>
 
+#include "Delay.hh"
+#include "GraphClass.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "Path.hh"
+#include "Scene.hh"
 #include "SdcClass.hh"
-#include "StaState.hh"
-#include "Transition.hh"
 #include "SearchClass.hh"
 #include "SearchPred.hh"
-#include "Path.hh"
+#include "StaState.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -49,7 +53,7 @@ public:
           bool include_internal_latency,
 	  StaState *sta);
   ClkSkew(const ClkSkew &clk_skew);
-  void operator=(const ClkSkew &clk_skew);
+  ClkSkew &operator=(const ClkSkew &clk_skew) = default;
   Path *srcPath() { return src_path_; }
   Path *tgtPath() { return tgt_path_; }
   Arrival srcLatency(const StaState *sta);
@@ -128,9 +132,9 @@ protected:
   ConstClockSeq clks_;
   ConstClockSet clk_set_;
   SceneSet scenes_set_;
-  bool include_internal_latency_;
+  bool include_internal_latency_{true};
   FanOutSrchPred fanout_pred_;
   ClkSkewMap skews_;
 };
 
-} // namespace
+} // namespace sta

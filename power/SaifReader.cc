@@ -29,18 +29,18 @@
 #include <string>
 #include <utility>
 
-#include "Error.hh"
 #include "Debug.hh"
-#include "Stats.hh"
-#include "Report.hh"
+#include "Error.hh"
+#include "Liberty.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
-#include "Liberty.hh"
-#include "Sdc.hh"
 #include "Power.hh"
+#include "Report.hh"
+#include "Sdc.hh"
+#include "Sta.hh"
+#include "Stats.hh"
 #include "power/SaifReaderPvt.hh"
 #include "power/SaifScanner.hh"
-#include "Sta.hh"
 
 namespace sta {
 
@@ -60,11 +60,6 @@ SaifReader::SaifReader(const char *filename,
   StaState(sta),
   filename_(filename),
   scope_(scope),
-  divider_('/'),
-  escape_('\\'),
-  timescale_(1.0E-9F),  // default units of ns
-  duration_(0.0),
-  in_scope_level_(0),
   power_(sta->power())
 {
 }

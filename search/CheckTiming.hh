@@ -24,13 +24,15 @@
 
 #pragma once
 
+#include <string_view>
 #include <vector>
 
-#include "StringUtil.hh"
-#include "NetworkClass.hh"
 #include "GraphClass.hh"
+#include "Mode.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -43,8 +45,8 @@ class CheckTiming : public StaState
 {
 public:
   CheckTiming(StaState *sta);
-  ~CheckTiming();
-  CheckErrorSeq &check(const Mode *sdc,
+  ~CheckTiming() override;
+  CheckErrorSeq &check(const Mode *mode,
                        bool no_input_delay,
                        bool no_output_delay,
                        bool reg_multiple_clks,
@@ -62,7 +64,7 @@ protected:
                     bool reg_no_clks);
   void checkUnconstrainedEndpoints();
   bool hasClkedArrival(Vertex *vertex);
-  void checkNoOutputDelay(PinSet &ends);
+  void checkNoOutputDelay(PinSet &no_departure);
   void checkUnconstrainedOutputs(PinSet &unconstrained_ends);
   void checkUnconstrainedSetups(PinSet &unconstrained_ends);
   void checkLoops();
@@ -76,10 +78,10 @@ protected:
                      ClockSet &clks);
 
   CheckErrorSeq errors_;
-  const Mode *mode_;
-  const Sdc *sdc_;
-  const Sim *sim_;
-  const ClkNetwork *clk_network_;
+  const Mode *mode_{nullptr};
+  const Sdc *sdc_{nullptr};
+  const Sim *sim_{nullptr};
+  const ClkNetwork *clk_network_{nullptr};
 };
 
-} // namespace
+} // namespace sta

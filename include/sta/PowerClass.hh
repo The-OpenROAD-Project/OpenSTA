@@ -24,12 +24,13 @@
 
 #pragma once
 
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace sta {
 
 class Power;
+class Instance;
 
 enum class PwrActivityOrigin
 {
@@ -47,7 +48,7 @@ enum class PwrActivityOrigin
 class PwrActivity
 {
 public:
-  PwrActivity();
+  PwrActivity() = default;
   PwrActivity(float density,
               float duty,
               PwrActivityOrigin origin);
@@ -67,9 +68,9 @@ public:
 private:
   void check();
 
-  float density_;               // transitions / second
-  float duty_;                  // probability signal is high
-  PwrActivityOrigin origin_;
+  float density_{0.0};          // transitions / second
+  float duty_{0.0};             // probability signal is high
+  PwrActivityOrigin origin_{PwrActivityOrigin::unknown};
 
   static constexpr float min_density = 1E-10;
 };
@@ -77,7 +78,7 @@ private:
 class PowerResult
 {
 public:
-  PowerResult();
+  PowerResult() = default;
   void clear();
   float internal() const { return internal_; }
   float switching() const { return switching_; }
@@ -89,12 +90,12 @@ public:
   void incrLeakage(float pwr);
 
 private:
-  float internal_;
-  float switching_;
-  float leakage_;
+  float internal_{0.0};
+  float switching_{0.0};
+  float leakage_{0.0};
 };
 
 using InstPower = std::pair<const Instance*, PowerResult>;
 using InstPowers = std::vector<InstPower>;
 
-} // namespace
+} // namespace sta

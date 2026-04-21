@@ -35,7 +35,7 @@ PortDirection *PortDirection::bidirect_;
 PortDirection *PortDirection::internal_;
 PortDirection *PortDirection::ground_;
 PortDirection *PortDirection::power_;
-PortDirection *PortDirection::bias_;
+PortDirection *PortDirection::well_;
 PortDirection *PortDirection::unknown_;
 
 void
@@ -48,7 +48,7 @@ PortDirection::init()
   internal_ = new PortDirection("internal", 4);
   ground_ = new PortDirection("ground", 5);
   power_ = new PortDirection("power", 6);
-  bias_ = new PortDirection("bias", 7);
+  well_ = new PortDirection("well", 7);
   unknown_ = new PortDirection("unknown", 8);
 }
 
@@ -69,14 +69,14 @@ PortDirection::destroy()
   ground_ = nullptr;
   delete power_;
   power_ = nullptr;
-  delete bias_;
-  bias_ = nullptr;
+  delete well_;
+  well_ = nullptr;
   delete unknown_;
   unknown_ = nullptr;
 }
 
 PortDirection::PortDirection(const char *name,
-                             int index) :
+                             size_t index) :
   name_(name),
   index_(index)
 {
@@ -99,8 +99,8 @@ PortDirection::find(const char *dir_name)
     return ground_;
   else if (stringEqual(dir_name, "power"))
     return power_;
-  else if (stringEqual(dir_name, "bias"))
-    return bias_;
+  else if (stringEqual(dir_name, "well"))
+    return well_;
   else
     return nullptr;
 }
@@ -130,7 +130,9 @@ PortDirection::isAnyTristate() const
 bool
 PortDirection::isPowerGround() const
 {
-  return this == ground_ || this == power_ || this == bias_;
+  return this == ground_
+    || this == power_
+    || this == well_;
 }
 
-} // namespace
+} // namespace sta

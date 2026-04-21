@@ -24,11 +24,16 @@
 
 #include "LibertyWriter.hh"
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
+#include <string>
 
+#include "Error.hh"
 #include "Format.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Transition.hh"
 #include "Units.hh"
 #include "FuncExpr.hh"
 #include "PortDirection.hh"
@@ -494,6 +499,8 @@ LibertyWriter::writeTableModel(const TableModel *model)
     case 3:
       report_->error(1342, "3 axis table models not supported.");
       break;
+    default:
+      break;
   }
 }
 
@@ -569,8 +576,9 @@ LibertyWriter::asString(const PortDirection *dir)
     return "internal";
   else if (dir == PortDirection::bidirect())
     return "inout";
-  else if (dir == PortDirection::ground() || dir == PortDirection::power()
-           || dir == PortDirection::bias())
+  else if (dir == PortDirection::ground()
+           || dir == PortDirection::power()
+           || dir == PortDirection::well())
     return "input";
   return "unknown";
 }

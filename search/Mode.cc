@@ -22,27 +22,28 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+#include <algorithm>
+
 #include "Mode.hh"
 
-#include "Sdc.hh"
-#include "Sim.hh"
 #include "ClkNetwork.hh"
 #include "Genclks.hh"
 #include "PathGroup.hh"
+#include "Sdc.hh"
+#include "Sim.hh"
 
 namespace sta {
 
 Mode::Mode(std::string_view name,
            size_t mode_index,
            StaState *sta) :
-  StaState(sta),
   name_(name),
   mode_index_(mode_index),
   sdc_(new Sdc(this, sta)),
   sim_(new Sim(sta)),
   clk_network_(new ClkNetwork(this, sta)),
   genclks_(new Genclks(this, sta)),
-  path_groups_(nullptr)
+  sta_(sta)
 {
 }
 
@@ -58,7 +59,7 @@ Mode::~Mode()
 void
 Mode::copyState(const StaState *sta)
 {
-  StaState::copyState(sta);
+  sta_->copyState(sta);
   sdc_->copyState(sta);
   sim_->copyState(sta);
   clk_network_->copyState(sta);
@@ -84,10 +85,11 @@ void
 Mode::removeScene(Scene *scene)
 {
   // std iterators just plain suck
-  scenes_.erase(std::remove(scenes_.begin(), scenes_.end(), scene), scenes_.end());
+  auto tail = std::ranges::remove(scenes_, scene);
+  scenes_.erase(tail.begin(), tail.end());
 }
 
-const SceneSet
+SceneSet
 Mode::sceneSet() const
 {
   SceneSet scenes;
@@ -143,4 +145,4 @@ Mode::pathGroups(const PathEnd *path_end) const
     return PathGroupSeq();
 }
 
-} // namespace
+} // namespace sta

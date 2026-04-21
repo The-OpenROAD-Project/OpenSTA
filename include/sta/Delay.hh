@@ -27,8 +27,8 @@
 #include <array>
 #include <cstddef>
 
-#include "StaConfig.hh"
 #include "MinMax.hh"
+#include "StaConfig.hh"
 
 namespace sta {
 
@@ -37,16 +37,16 @@ class StaState;
 class Delay
 {
 public:
-  Delay();
-  Delay(float mean);
+  Delay() noexcept;
+  Delay(float mean) noexcept;
   Delay(float mean,
         // std_dev^2
-        float std_dev2);
+        float std_dev2) noexcept;
   Delay(float mean,
         float mean_shift,
         // std_dev^2
         float std_dev2,
-        float skewness);
+        float skewness) noexcept;
   void setValues(float mean,
                  float mean_shift,
                  float std_dev2,
@@ -62,7 +62,7 @@ public:
   float skewness() const { return values_[3]; }
   void setSkewness(float skewness);
 
-  void operator=(float delay);
+  Delay &operator=(float delay);
   // This allows applications that do not support statistical timing
   // to treat Delays as floats without explicitly converting with
   // delayAsFloat.
@@ -77,8 +77,8 @@ private:
 class DelayDbl
 {
 public:
-  DelayDbl();
-  DelayDbl(double value);
+  DelayDbl() noexcept;
+  DelayDbl(double mean) noexcept;
   double mean() const { return values_[0]; }
   void setMean(double mean);
   double meanShift() const { return values_[1]; }
@@ -91,7 +91,7 @@ public:
                  double std_dev2,
                  double skewnes);
 
-  void operator=(double delay);
+  DelayDbl &operator=(double delay);
 
 private:
   std::array<double, 4> values_;
@@ -108,7 +108,7 @@ const Delay delay_zero(0.0);
 class DelayOps
 {
 public:
-  virtual ~DelayOps() {}
+  virtual ~DelayOps() = default;
   virtual float stdDev2(const Delay &delay,
                         const EarlyLate *early_late) const = 0;
   virtual float asFloat(const Delay &delay,
@@ -356,4 +356,4 @@ Delay
 delayRemove(const Delay &delay1,
             const Delay &delay2);
 
-} // namespace
+} // namespace sta

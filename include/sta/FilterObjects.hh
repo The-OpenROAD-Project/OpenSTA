@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@
 #include <string_view>
 #include <vector>
 
+#include "GraphClass.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StringUtil.hh"
@@ -39,68 +41,57 @@ class Report;
 
 PortSeq
 filterPorts(std::string_view filter_expression,
-            PortSeq *objects,
-            bool bool_props_as_int,
+            PortSeq *ports,
             Sta *sta);
 
 InstanceSeq
 filterInstances(std::string_view filter_expression,
-                InstanceSeq *objects,
-                bool bool_props_as_int,
+                InstanceSeq *insts,
                 Sta *sta);
 
 PinSeq
 filterPins(std::string_view filter_expression,
-           PinSeq *objects,
-           bool bool_props_as_int,
+           PinSeq *pins,
            Sta *sta);
 
 NetSeq
 filterNets(std::string_view filter_expression,
-           NetSeq *objects,
-           bool bool_props_as_int,
+           NetSeq *nets,
            Sta *sta);
 
 ClockSeq
 filterClocks(std::string_view filter_expression,
-             ClockSeq *objects,
-             bool bool_props_as_int,
+             ClockSeq *clks,
              Sta *sta);
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,
-               LibertyCellSeq *objects,
-               bool bool_props_as_int,
+               LibertyCellSeq *cells,
                Sta *sta);
 
 LibertyPortSeq
 filterLibPins(std::string_view filter_expression,
-              LibertyPortSeq *objects,
-              bool bool_props_as_int,
+              LibertyPortSeq *ports,
               Sta *sta);
 
 LibertyLibrarySeq
 filterLibertyLibraries(std::string_view filter_expression,
-                       LibertyLibrarySeq *objects,
-                       bool bool_props_as_int,
+                       LibertyLibrarySeq *libs,
                        Sta *sta);
 
 EdgeSeq
 filterTimingArcs(std::string_view filter_expression,
-                  EdgeSeq *objects,
-                  bool bool_props_as_int,
+                  EdgeSeq *edges,
                   Sta *sta);
 
 PathEndSeq
 filterPathEnds(std::string_view filter_expression,
-               PathEndSeq *objects,
-               bool bool_props_as_int,
+               PathEndSeq *ends,
                Sta *sta);
 
 // For FilterExpr unit tests.
 StringSeq
 filterExprToPostfix(std::string_view expr,
-                    bool bool_props_as_int,
                     Report *report);
 
-} // namespace
+} // namespace sta

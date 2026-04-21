@@ -24,15 +24,15 @@
 
 #include "ReportParasiticAnnotation.hh"
 
+#include "ArcDelayCalc.hh"
 #include "ContainerHelpers.hh"
-#include "Report.hh"
+#include "Graph.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
-#include "PortDirection.hh"
-#include "Graph.hh"
-#include "Scene.hh"
 #include "Parasitics.hh"
-#include "ArcDelayCalc.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Scene.hh"
 
 namespace sta {
 
@@ -43,7 +43,7 @@ public:
                             bool report_unannotated,
                             const Scene *scene,
                             StaState *sta);
-  void report();
+  void reportAnnotation();
 
 private:
   void reportAnnotationCounts();
@@ -67,7 +67,7 @@ reportParasiticAnnotation(Parasitics *parasitics,
 {
   ReportParasiticAnnotation report_annotation(parasitics, report_unannotated, scene,
                                               sta);
-  report_annotation.report();
+  report_annotation.reportAnnotation();
 }
 
 ReportParasiticAnnotation::ReportParasiticAnnotation(Parasitics *parasitics,
@@ -83,7 +83,7 @@ ReportParasiticAnnotation::ReportParasiticAnnotation(Parasitics *parasitics,
 }
 
 void
-ReportParasiticAnnotation::report()
+ReportParasiticAnnotation::reportAnnotation()
 {
   findCounts();
   reportAnnotationCounts();
@@ -132,7 +132,7 @@ ReportParasiticAnnotation::findCounts()
             arc_delay_calc_->findParasitic(pin, RiseFall::rise(), scene_, min_max_);
       if (parasitic) {
         PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, pin);
-        if (unannotated_loads.size() > 0)
+        if (!unannotated_loads.empty())
           partially_annotated_.push_back(pin);
       }
       else

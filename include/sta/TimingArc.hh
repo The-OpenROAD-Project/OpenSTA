@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
-#include "Transition.hh"
 #include "Delay.hh"
 #include "LibertyClass.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -86,7 +86,7 @@ enum class TimingType {
 std::string_view
 to_string(TimingType type);
 TimingType
-findTimingType(std::string_view string);
+findTimingType(std::string_view type_name);
 bool
 timingTypeIsCheck(TimingType type);
 ScaleFactorType
@@ -107,15 +107,15 @@ public:
   FuncExpr *cond() const { return cond_; }
   void setCond(FuncExpr *cond);
   const std::string &sdfCond() const { return sdf_cond_; }
-  void setSdfCond(std::string cond);
+  void setSdfCond(std::string_view cond);
   const std::string &sdfCondStart() const { return sdf_cond_start_; }
-  void setSdfCondStart(std::string cond);
+  void setSdfCondStart(std::string_view cond);
   const std::string &sdfCondEnd() const { return sdf_cond_end_; }
-  void setSdfCondEnd(std::string cond);
+  void setSdfCondEnd(std::string_view cond);
   const std::string &modeName() const { return mode_name_; }
-  void setModeName(std::string name);
+  void setModeName(std::string_view name);
   const std::string &modeValue() const { return mode_value_; }
-  void setModeValue(std::string value);
+  void setModeValue(std::string_view value);
   TimingModel *model(const RiseFall *rf) const;
   void setModel(const RiseFall *rf,
                 TimingModel *model);
@@ -146,7 +146,7 @@ class TimingArcSet
 
 public:
   ~TimingArcSet();
-  std::string to_string();
+  std::string to_string() const;
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
   LibertyPort *to() const { return to_; }
@@ -260,9 +260,9 @@ public:
   GateTableModel *gateTableModel() const;
   GateTableModel *gateTableModel(const Scene *scene,
                                  const MinMax *min_max) const;
-  const TimingArc *sceneArc(int ap_index) const;
+  const TimingArc *sceneArc(size_t lib_ap_index) const;
   void setSceneArc(TimingArc *scene_arc,
-                   int ap_index);
+                   size_t lib_ap_index);
   float driveResistance() const;
   ArcDelay intrinsicDelay() const;
 
@@ -281,7 +281,7 @@ protected:
   const Transition *to_rf_;
   unsigned index_;
   TimingModel *model_;
-  ScaledTimingModelMap *scaled_models_;
+  ScaledTimingModelMap *scaled_models_{nullptr};
   std::vector<TimingArc*> scene_arcs_;
 
 private:
@@ -290,4 +290,4 @@ private:
   friend class TimingArcSet;
 };
 
-} // namespace
+} // namespace sta

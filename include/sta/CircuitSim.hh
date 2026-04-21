@@ -28,4 +28,4 @@ namespace sta {
 
 enum class CircuitSim { hspice, ngspice, xyce };
 
-} // namespace
+} // namespace sta

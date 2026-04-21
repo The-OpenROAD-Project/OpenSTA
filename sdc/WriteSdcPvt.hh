@@ -27,10 +27,10 @@
 #include <string>
 #include <string_view>
 
-#include "Zlib.hh"
-#include "NetworkClass.hh"
 #include "GraphClass.hh"
+#include "NetworkClass.hh"
 #include "Sdc.hh"
+#include "Zlib.hh"
 
 namespace sta {
 
@@ -46,7 +46,7 @@ public:
            bool native,
            int digits,
            bool no_timestamp);
-  virtual ~WriteSdc();
+  ~WriteSdc() override = default;
   void write(std::string_view filename,
              bool gzip);
 
@@ -72,9 +72,9 @@ public:
   void writeClock(Clock *clk) const;
   void writeGeneratedClock(Clock *clk) const;
   void writeClockPins(const Clock *clk) const;
-  void writeFloatSeq(FloatSeq *floats,
+  void writeFloatSeq(const FloatSeq &floats,
                      float scale) const;
-  void writeIntSeq(IntSeq *ints) const;
+  void writeIntSeq(const IntSeq &ints) const;
   void writeClockSlews(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk) const;
   void writeClockUncertainty(const Clock *clk,
@@ -275,4 +275,4 @@ protected:
   gzFile stream_;
 };
 
-} // namespace
+} // namespace sta

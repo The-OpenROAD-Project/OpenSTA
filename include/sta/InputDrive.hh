@@ -24,10 +24,11 @@
 
 #pragma once
 
-#include "MinMax.hh"
 #include "LibertyClass.hh"
+#include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "RiseFallMinMax.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 
@@ -58,7 +59,7 @@ public:
   void setDriveCell(const LibertyLibrary *library,
                     const LibertyCell *cell,
                     const LibertyPort *from_port,
-                    float *from_slews,
+                    const DriveCellSlews &from_slews,
                     const LibertyPort *to_port,
                     const RiseFallBoth *rf,
                     const MinMaxAll *min_max);
@@ -67,7 +68,7 @@ public:
                  // Return values.
                  const LibertyCell *&cell,
                  const LibertyPort *&from_port,
-                 float *&from_slews,
+                 const DriveCellSlews *&from_slews,
                  const LibertyPort *&to_port) const;
   InputDriveCell *driveCell(const RiseFall *rf,
                             const MinMax *min_max) const;
@@ -94,7 +95,7 @@ public:
   InputDriveCell(const LibertyLibrary *library,
                  const LibertyCell *cell,
                  const LibertyPort *from_port,
-                 float *from_slews,
+                 const DriveCellSlews &from_slews,
                  const LibertyPort *to_port);
   const LibertyLibrary *library() const { return library_; }
   void setLibrary(const LibertyLibrary *library);
@@ -102,8 +103,8 @@ public:
   void setCell(const LibertyCell *cell);
   const LibertyPort *fromPort() const { return from_port_; }
   void setFromPort(const LibertyPort *from_port);
-  float *fromSlews() { return from_slews_; }
-  void setFromSlews(float *from_slews);
+  const DriveCellSlews &fromSlews() const { return from_slews_; }
+  void setFromSlews(const DriveCellSlews &from_slews);
   const LibertyPort *toPort() const { return to_port_; }
   void setToPort(const LibertyPort *to_port);
   bool equal(const InputDriveCell *drive) const;
@@ -112,8 +113,8 @@ private:
   const LibertyLibrary *library_;
   const LibertyCell *cell_;
   const LibertyPort *from_port_;
-  float from_slews_[RiseFall::index_count];
+  DriveCellSlews from_slews_;
   const LibertyPort *to_port_;
 };
 
-} // namespace
+} // namespace sta

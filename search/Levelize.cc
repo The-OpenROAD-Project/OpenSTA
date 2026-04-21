@@ -30,30 +30,25 @@
 #include <limits>
 
 #include "ContainerHelpers.hh"
-#include "Report.hh"
 #include "Debug.hh"
-#include "Stats.hh"
-#include "TimingRole.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
 #include "Graph.hh"
 #include "GraphCmp.hh"
-#include "Variables.hh"
 #include "GraphDelayCalc.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Sdc.hh"
+#include "Stats.hh"
+#include "TimingRole.hh"
+#include "Variables.hh"
 
 namespace sta {
 
 Levelize::Levelize(StaState *sta) :
   StaState(sta),
-  levelized_(false),
-  levels_valid_(false),
-  max_level_(0),
-  level_space_(10),
   roots_(makeVertexSet(sta)),
   relevelize_from_(makeVertexSet(sta)),
-  observer_(nullptr),
   drvr_vertices_level_valid_(false)
 {
 }
@@ -110,7 +105,7 @@ Levelize::ensureLevelized()
     if (levelized_)
       relevelize();
     else
-      levelize();
+      findLevels();
   }
 }
 
@@ -118,7 +113,7 @@ Levelize::ensureLevelized()
 #define setOnPath(on_path) setVisited2(on_path)
 
 void
-Levelize::levelize()
+Levelize::findLevels()
 {
   Stats stats(debug_, report_);
   debugPrint(debug_, "levelize", 1, "levelize");

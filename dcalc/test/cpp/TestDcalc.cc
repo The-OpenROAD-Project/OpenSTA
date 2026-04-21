@@ -166,9 +166,8 @@ TEST_F(FindRootAdditionalTest, RootAtX1) {
     y = x - 5.0;
     dy = 1.0;
   };
-  bool fail = false;
   // y1 = 5-5 = 0, y2 = 10-5 = 5
-  double root = findRoot(func, 5.0, 0.0, 10.0, 5.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 5.0, 0.0, 10.0, 5.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 5.0, 1e-8);
 }
@@ -179,9 +178,8 @@ TEST_F(FindRootAdditionalTest, RootAtX2) {
     y = x - 5.0;
     dy = 1.0;
   };
-  bool fail = false;
   // y1 = 0-5 = -5, y2 = 5-5 = 0
-  double root = findRoot(func, 0.0, -5.0, 5.0, 0.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, -5.0, 5.0, 0.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 5.0, 1e-8);
 }
@@ -192,9 +190,8 @@ TEST_F(FindRootAdditionalTest, BothPositiveFails) {
     y = x * x + 1.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
   // y1 = 2, y2 = 5 -- both positive
-  findRoot(func, 1.0, 2.0, 2.0, 5.0, 1e-10, 100, fail);
+  auto [root_, fail] = findRoot(func, 1.0, 2.0, 2.0, 5.0, 1e-10, 100);
   EXPECT_TRUE(fail);
 }
 
@@ -204,8 +201,7 @@ TEST_F(FindRootAdditionalTest, BothNegativeFails) {
     y = -x * x - 1.0;
     dy = -2.0 * x;
   };
-  bool fail = false;
-  findRoot(func, 1.0, -2.0, 2.0, -5.0, 1e-10, 100, fail);
+  auto [root_, fail] = findRoot(func, 1.0, -2.0, 2.0, -5.0, 1e-10, 100);
   EXPECT_TRUE(fail);
 }
 
@@ -215,9 +211,8 @@ TEST_F(FindRootAdditionalTest, MaxIterationsExceeded) {
     y = x * x - 2.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
   // Very tight tolerance with only 1 iteration
-  findRoot(func, 0.0, 3.0, 1e-15, 1, fail);
+  auto [root_, fail] = findRoot(func, 0.0, 3.0, 1e-15, 1);
   EXPECT_TRUE(fail);
 }
 
@@ -227,9 +222,8 @@ TEST_F(FindRootAdditionalTest, SwapWhenY1Positive) {
     y = x - 3.0;
     dy = 1.0;
   };
-  bool fail = false;
   // y1 = 2.0 > 0, y2 = -2.0 < 0 => swap internally
-  double root = findRoot(func, 5.0, 2.0, 1.0, -2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 5.0, 2.0, 1.0, -2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }
@@ -240,8 +234,7 @@ TEST_F(FindRootAdditionalTest, CubicRoot) {
     y = x * x * x - 8.0;
     dy = 3.0 * x * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -252,8 +245,7 @@ TEST_F(FindRootAdditionalTest, TwoArgOverloadCubic) {
     y = x * x * x - 27.0;
     dy = 3.0 * x * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 2.0, 4.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.0, 4.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }
@@ -1467,15 +1459,14 @@ TEST_F(ArcDcalcResultTest, CopyResult) {
   EXPECT_FLOAT_EQ(delayAsFloat(copy.loadSlew(1)), 6e-12f);
 }
 
-// Test ArcDcalcArg assignment
-TEST_F(ArcDcalcArgTest, Assignment) {
+// Test ArcDcalcArg copy construction with alternate values
+TEST_F(ArcDcalcArgTest, CopyConstructionAltValues) {
   ArcDcalcArg arg;
   arg.setLoadCap(3.5e-12f);
   arg.setInputDelay(1.5e-9f);
   arg.setInSlew(200e-12f);
 
-  ArcDcalcArg other;
-  other = arg;
+  ArcDcalcArg other(arg);
   EXPECT_FLOAT_EQ(other.loadCap(), 3.5e-12f);
   EXPECT_FLOAT_EQ(other.inputDelay(), 1.5e-9f);
   EXPECT_FLOAT_EQ(other.inSlewFlt(), 200e-12f);
@@ -1503,9 +1494,8 @@ TEST_F(FindRootAdditionalTest, FlatDerivative) {
     y = (x - 2.0) * (x - 2.0) * (x - 2.0);
     dy = 3.0 * (x - 2.0) * (x - 2.0);
   };
-  bool fail = false;
   // y at x=1 = -1, y at x=3 = 1
-  double root = findRoot(func, 1.0, 3.0, 1e-8, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-8, 100);
   if (!fail) {
     EXPECT_NEAR(root, 2.0, 1e-4);
   }
@@ -1517,8 +1507,7 @@ TEST_F(FindRootAdditionalTest, LinearFunction) {
     y = 2.0 * x - 6.0;
     dy = 2.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.0, 10.0, 1e-12, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, 10.0, 1e-12, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }
@@ -1529,9 +1518,8 @@ TEST_F(FindRootAdditionalTest, FourArgNormalBracket) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
   // y1 = 1-4 = -3, y2 = 9-4 = 5
-  double root = findRoot(func, 1.0, -3.0, 3.0, 5.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, -3.0, 3.0, 5.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -1715,7 +1703,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(250.0f);
-    sta_->makeClock("clk", clk_pins, false, 500.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 500.0f, *waveform, "", sta_->cmdMode());
 
     design_loaded_ = true;
   }
@@ -2092,9 +2080,8 @@ TEST_F(FindRootAdditionalTest, TightBoundsLinear) {
     y = 2.0 * x - 6.0;
     dy = 2.0;
   };
-  bool fail = false;
   // y1 = 2*2.9-6 = -0.2, y2 = 2*3.1-6 = 0.2
-  double root = findRoot(func, 2.9, -0.2, 3.1, 0.2, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.9, -0.2, 3.1, 0.2, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }
@@ -2106,8 +2093,7 @@ TEST_F(FindRootAdditionalTest, NewtonOutOfBracket) {
     y = x * x * x - x - 2.0;
     dy = 3.0 * x * x - 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   // Root is near 1.52138
   EXPECT_NEAR(root, 1.52138, 1e-4);
@@ -2119,9 +2105,8 @@ TEST_F(FindRootAdditionalTest, SinRoot) {
     y = sin(x);
     dy = cos(x);
   };
-  bool fail = false;
   // Root near pi
-  double root = findRoot(func, 3.0, 3.3, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 3.0, 3.3, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, M_PI, 1e-8);
 }
@@ -2132,8 +2117,7 @@ TEST_F(FindRootAdditionalTest, ExpMinusConst) {
     y = exp(x) - 3.0;
     dy = exp(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 0.0, 2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, 2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, log(3.0), 1e-8);
 }
@@ -2395,8 +2379,7 @@ TEST_F(FindRootAdditionalTest, QuadraticExact) {
     y = x * x - 4.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -2407,9 +2390,8 @@ TEST_F(FindRootAdditionalTest, QuadraticFourArg) {
     y = x * x - 9.0;
     dy = 2.0 * x;
   };
-  bool fail = false;
   // y(2.5) = 6.25-9 = -2.75, y(3.5) = 12.25-9 = 3.25
-  double root = findRoot(func, 2.5, -2.75, 3.5, 3.25, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.5, -2.75, 3.5, 3.25, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-8);
 }
@@ -2590,8 +2572,7 @@ TEST_F(FindRootAdditionalTest, LinearFunction2) {
     y = 2.0 * x - 10.0;
     dy = 2.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.0, 10.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, 10.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 5.0, 1e-8);
 }
@@ -2601,9 +2582,8 @@ TEST_F(FindRootAdditionalTest, FourArgLinear) {
     y = 3.0 * x - 6.0;
     dy = 3.0;
   };
-  bool fail = false;
   // y(1.0) = -3, y(3.0) = 3
-  double root = findRoot(func, 1.0, -3.0, 3.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, -3.0, 3.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-8);
 }
@@ -2613,8 +2593,7 @@ TEST_F(FindRootAdditionalTest, HighOrderPoly) {
     y = x * x * x * x - 16.0;
     dy = 4.0 * x * x * x;
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 2.0, 1e-6);
 }
@@ -2624,8 +2603,7 @@ TEST_F(FindRootAdditionalTest, NegativeRoot) {
     y = x + 3.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -5.0, -1.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -5.0, -1.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -3.0, 1e-8);
 }
@@ -2635,9 +2613,8 @@ TEST_F(FindRootAdditionalTest, TrigFunction) {
     y = std::cos(x);
     dy = -std::sin(x);
   };
-  bool fail = false;
   // Root at pi/2
-  double root = findRoot(func, 1.0, 2.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 2.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, M_PI / 2.0, 1e-8);
 }
@@ -2647,8 +2624,7 @@ TEST_F(FindRootAdditionalTest, VeryTightBounds) {
     y = x - 5.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 4.999, 5.001, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 4.999, 5.001, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 5.0, 1e-8);
 }
@@ -2658,8 +2634,7 @@ TEST_F(FindRootAdditionalTest, ExpFunction) {
     y = std::exp(x) - 10.0;
     dy = std::exp(x);
   };
-  bool fail = false;
-  double root = findRoot(func, 1.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 1.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, std::log(10.0), 1e-8);
 }
@@ -2669,9 +2644,8 @@ TEST_F(FindRootAdditionalTest, FourArgSwap) {
     y = x - 7.0;
     dy = 1.0;
   };
-  bool fail = false;
   // y1 = 3.0 > 0, y2 = -7.0 < 0 => internal swap
-  double root = findRoot(func, 10.0, 3.0, 0.0, -7.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 10.0, 3.0, 0.0, -7.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 7.0, 1e-8);
 }
@@ -2829,14 +2803,13 @@ TEST_F(ArcDcalcArgTest, InputDelayConstructorZero) {
   EXPECT_FLOAT_EQ(arg.inputDelay(), 0.0f);
 }
 
-TEST_F(ArcDcalcArgTest, CopyAssignment) {
+TEST_F(ArcDcalcArgTest, CopyConstructionAltValues2) {
   ArcDcalcArg arg;
   arg.setLoadCap(3.0e-12f);
   arg.setInputDelay(2.0e-9f);
   arg.setInSlew(75e-12f);
 
-  ArcDcalcArg copy;
-  copy = arg;
+  ArcDcalcArg copy(arg);
   EXPECT_FLOAT_EQ(copy.loadCap(), 3.0e-12f);
   EXPECT_FLOAT_EQ(copy.inputDelay(), 2.0e-9f);
   EXPECT_FLOAT_EQ(copy.inSlewFlt(), 75e-12f);
@@ -3369,8 +3342,7 @@ TEST_F(FindRootAdditionalTest, SteepDerivative) {
     y = 1000.0 * x - 500.0;
     dy = 1000.0;
   };
-  bool fail = false;
-  double root = findRoot(func, 0.0, 1.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 0.0, 1.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 0.5, 1e-8);
 }
@@ -3381,8 +3353,7 @@ TEST_F(FindRootAdditionalTest, QuarticRoot) {
     y = x*x*x*x - 81.0;
     dy = 4.0*x*x*x;
   };
-  bool fail = false;
-  double root = findRoot(func, 2.0, 4.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, 2.0, 4.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, 3.0, 1e-6);
 }
@@ -3393,8 +3364,7 @@ TEST_F(FindRootAdditionalTest, FourArgNegBracket) {
     y = x + 5.0;
     dy = 1.0;
   };
-  bool fail = false;
-  double root = findRoot(func, -8.0, -3.0, -2.0, 3.0, 1e-10, 100, fail);
+  auto [root, fail] = findRoot(func, -8.0, -3.0, -2.0, 3.0, 1e-10, 100);
   EXPECT_FALSE(fail);
   EXPECT_NEAR(root, -5.0, 1e-8);
 }
@@ -4204,7 +4174,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     // Set input/output delay constraints to create constrained timing paths
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -4448,7 +4418,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     Clock *clk = sta_->cmdSdc()->findClock("clk");
     ASSERT_NE(clk, nullptr);
@@ -4629,7 +4599,7 @@ TEST_F(MultiDriverDcalcTest, IncrementalClockPeriodChange) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(1.0f);
-  sta_->makeClock("clk", clk_pins, false, 2.0f, waveform, "", sta_->cmdMode());
+  sta_->makeClock("clk", *clk_pins, false, 2.0f, *waveform, "", sta_->cmdMode());
   sta_->updateTiming(true);
   Slack slack2 = sta_->worstSlack(MinMax::max());
 
@@ -4765,7 +4735,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "", sta_->cmdMode());
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "", sta_->cmdMode());
 
     // Set input/output delay constraints to create constrained timing paths
     Clock *clk = sta_->cmdSdc()->findClock("clk");
@@ -4891,7 +4861,7 @@ TEST_F(DesignDcalcTest, IncrementalWithSpef) {
   FloatSeq *waveform = new FloatSeq;
   waveform->push_back(0.0f);
   waveform->push_back(50.0f);
-  sta_->makeClock("clk", clk_pins, false, 100.0f, waveform, "", sta_->cmdMode());
+  sta_->makeClock("clk", *clk_pins, false, 100.0f, *waveform, "", sta_->cmdMode());
   sta_->updateTiming(true);
   Slack slack2 = sta_->worstSlack(MinMax::max());
 

@@ -25,6 +25,8 @@
 #include "Sequential.hh"
 
 #include "FuncExpr.hh"
+#include "LibertyClass.hh"
+#include "NetworkClass.hh"
 
 namespace sta {
 
@@ -119,4 +121,4 @@ StatetableRow::StatetableRow(StateInputValues &input_values,
 {
 }
 
-} // namespace
+} // namespace sta

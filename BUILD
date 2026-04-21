@@ -272,7 +272,6 @@ cc_binary(
         "app/Main.cc",
         ":StaApp",
         ":StaTclInitVar",
-        "//bazel:runfiles",
     ],
     copts = [
         "-Wno-error",
@@ -297,6 +296,8 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":opensta_lib",
+        "//:tcl_readline_setup",
+        "//bazel:tcl_library_init",
         "@rules_cc//cc/runfiles",
         "@tcl_lang//:tcl",
     ],
@@ -338,15 +339,13 @@ cc_library(
         ],
     ) + [
         "app/StaMain.cc",
-        "util/Machine.cc",
         ":StaConfig",
-    ],
-    #+ select({
-    #        "@bazel_tools//src/conditions:windows": ["util/MachineWin32.cc"],
-    #        "@bazel_tools//src/conditions:darwin": ["util/MachineApple.cc"],
-    #        "@bazel_tools//src/conditions:linux": ["util/MachineLinux.cc"],
-    #        "//conditions:default": ["util/MachineUnknown.cc"],
-    #    })
+    ] + select({
+        "@platforms//os:osx": ["util/MachineApple.cc"],
+        "@platforms//os:linux": ["util/MachineLinux.cc"],
+        "@platforms//os:windows": ["util/MachineWin32.cc"],
+        "//conditions:default": ["util/MachineUnknown.cc"],
+    }),
     hdrs = glob(
         include = ["include/sta/*.hh"],
     ) + [
@@ -392,10 +391,6 @@ cc_library(
         "util",
         "verilog",
     ],
-    textual_hdrs = select({
-        "@platforms//os:osx": ["util/MachineApple.cc"],
-        "//conditions:default": ["util/MachineLinux.cc"],
-    }),
     visibility = ["//:__subpackages__"],
     deps = [
         "@cudd",

@@ -69,20 +69,22 @@ public:
   LibertyReader(std::string_view filename,
                 bool infer_latches,
                 Network *network);
-  virtual LibertyLibrary *readLibertyFile(std::string_view filename);
+  LibertyLibrary *readLibertyFile(std::string_view filename);
   LibertyLibrary *library() { return library_; }
   const LibertyLibrary *library() const { return library_; }
 
-  virtual void beginLibrary(const LibertyGroup *group,
-                            LibertyGroup *library_group);
-  virtual void endLibrary(const LibertyGroup *group,
-                          LibertyGroup *null_group);
-  virtual void visitAttr(const LibertySimpleAttr *attr);
-  virtual void visitAttr(const LibertyComplexAttr *attr);
-  virtual void visitVariable(LibertyVariable *var);
-  // Extension points for custom attributes (e.g. LibertyExt).
-  virtual void visitAttr1(const LibertySimpleAttr *) {}
-  virtual void visitAttr2(const LibertySimpleAttr *) {}
+  void beginLibrary(const LibertyGroup *group,
+                    LibertyGroup *library_group);
+  void endLibrary(const LibertyGroup *group,
+                  LibertyGroup *null_group);
+  void visitAttr(const LibertySimpleAttr *attr) override;
+  void visitAttr(const LibertyComplexAttr *attr) override;
+  void visitVariable(LibertyVariable *var) override;
+
+  void begin(const LibertyGroup *group,
+             LibertyGroup *parent_group) override;
+  void end(const LibertyGroup *group,
+           LibertyGroup *parent_group) override;
 
   void endCell(const LibertyGroup *group,
                LibertyGroup *library_group);
@@ -108,11 +110,6 @@ public:
                                 std::string_view name_attr);
 
 protected:
-  virtual void begin(const LibertyGroup *group,
-                     LibertyGroup *library_group);
-  virtual void end(const LibertyGroup *group,
-                   LibertyGroup *library_group);
-
   // Library gruops.
   void makeLibrary(const LibertyGroup *library_group);
   void readLibraryAttributes(const LibertyGroup *library_group);
@@ -146,7 +143,7 @@ protected:
   void readScaleFactors(const LibertyGroup *scale_group,
                         ScaleFactors *scale_factors);
   void readOcvDerateFactors(LibertyCell *cell,
-                            const LibertyGroup *library_group);
+                            const LibertyGroup *parent_group);
   void readDefaultOcvDerateGroup(const LibertyGroup *library_group);
   void readNormalizedDriverWaveform(const LibertyGroup *library_group);
   void readSlewDegradations(const LibertyGroup *library_group);
@@ -246,7 +243,7 @@ protected:
                              TableTemplateType template_type,
                              float scale,
                              ScaleFactorType scale_factor_type,
-                             const std::function<bool(TableModel *model)> check_axes);
+                             const std::function<bool(TableModel *model)> &check_axes);
   TableModelsEarlyLate
   readEarlyLateTableModels(const LibertyGroup *timing_group,
                            std::string_view table_group_name,
@@ -254,7 +251,7 @@ protected:
                            TableTemplateType template_type,
                            float scale,
                            ScaleFactorType scale_factor_type,
-                           const std::function<bool(TableModel *model)> check_axes);
+                           const std::function<bool(TableModel *model)> &check_axes);
   ReceiverModelPtr readReceiverCapacitance(const LibertyGroup *timing_group,
                                            const RiseFall *rf);
   void readReceiverCapacitance(const LibertyGroup *timing_group,
@@ -280,13 +277,13 @@ protected:
                           float scale);
   void makeTimingModels(LibertyCell *cell,
                         const LibertyGroup *timing_group,
-                        TimingArcAttrsPtr timing_attrs);
+                        TimingArcAttrs &timing_attrs);
   void makeLinearModels(LibertyCell *cell,
                         const LibertyGroup *timing_group,
-                        TimingArcAttrsPtr timing_attrs);
+                        TimingArcAttrs &timing_attrs);
   void makeTableModels(LibertyCell *cell,
                        const LibertyGroup *timing_group,
-                       TimingArcAttrsPtr timing_attrs);
+                       TimingArcAttrs &timing_attrs);
   void readLvfModels(const LibertyGroup *timing_group,
                      const std::string &sigma_group_name,
                      const std::string &std_dev_group_name,
@@ -294,7 +291,7 @@ protected:
                      const std::string &skewness_group_name,
                      const RiseFall *rf,
                      TableModels *table_models,
-                     const std::function<bool(TableModel *model)> check_axes);
+                     const std::function<bool(TableModel *model)> &check_axes);
 
   TableAxisPtr makeTableAxis(const LibertyGroup *table_group,
                              std::string_view index_attr_name,
@@ -305,16 +302,16 @@ protected:
                           float scale = 1.0F);
   void readTimingArcAttrs(LibertyCell *cell,
                           const LibertyGroup *timing_group,
-                          TimingArcAttrsPtr timing_attrs);
+                          TimingArcAttrs &timing_attrs);
   void readTimingSense(const LibertyGroup *timing_group,
-                       TimingArcAttrsPtr timing_attrs);
+                       TimingArcAttrs &timing_attrs);
   void readTimingType(const LibertyGroup *timing_group,
-                      TimingArcAttrsPtr timing_attrs);
+                      TimingArcAttrs &timing_attrs);
   void readTimingWhen(const LibertyCell *cell,
                       const LibertyGroup *timing_group,
-                      TimingArcAttrsPtr timing_attrs);
+                      TimingArcAttrs &timing_attrs);
   void readTimingMode(const LibertyGroup *timing_group,
-                      TimingArcAttrsPtr timing_attrs);
+                      TimingArcAttrs &timing_attrs);
   void makePortFuncs(LibertyCell *cell,
                      const LibertyPortSeq &ports,
                      const LibertyGroup *port_group);
@@ -356,26 +353,25 @@ protected:
                       LibertyPort *to_port,
                       LibertyPort *related_out_port,
                       bool one_to_one,
-                      TimingArcAttrsPtr timing_attrs,
+                      const TimingArcAttrsPtr &timing_attrs,
                       int timing_line);
   void makeTimingArcs(LibertyCell *cell,
                       LibertyPort *to_port,
                       LibertyPort *related_out_port,
-                      TimingArcAttrsPtr timing_attrs,
-                      int timing_line);
+                      const TimingArcAttrsPtr &timing_attrs);
 
   void readInternalPowerGroups(LibertyCell *cell,
                                const LibertyPortSeq &ports,
                                const LibertyGroup *port_group);
-  void readLeagageGrouops(LibertyCell *cell,
-                          const LibertyGroup *port_group);
+  void readLeakageGrouops(LibertyCell *cell,
+                          const LibertyGroup *cell_group);
 
   void readCellAttributes(LibertyCell *cell,
                           const LibertyGroup *cell_group);
   void readScaleFactors(LibertyCell *cell,
                         const LibertyGroup *cell_group);
   void readCellAttrString(std::string_view attr_name,
-                          void (LibertyCell::*set_func)(std::string value),
+                          void (LibertyCell::*set_func)(std::string_view value),
                           LibertyCell *cell,
                           const LibertyGroup *group);
   void readCellAttrFloat(std::string_view attr_name,
@@ -524,7 +520,7 @@ protected:
   Network *network_;
   LibertyBuilder builder_;
   LibertyVariableMap var_map_;
-  LibertyLibrary *library_;
+  LibertyLibrary *library_{nullptr};
   LibraryGroupVisitorMap group_begin_map_;
   LibraryGroupVisitorMap group_end_map_;
 
@@ -554,7 +550,7 @@ public:
                       std::string_view port_name,
                       LibertyReader *visitor,
                       int line);
-  ~PortNameBitIterator();
+  ~PortNameBitIterator() override;
   bool hasNext() override;
   LibertyPort *next() override;
   unsigned size() const { return size_; }
@@ -566,22 +562,22 @@ protected:
   LibertyCell *cell_;
   LibertyReader *visitor_;
   int line_;
-  LibertyPort *port_;
-  LibertyPortMemberIterator *bit_iterator_;
-  LibertyPort *range_bus_port_;
+  LibertyPort *port_{nullptr};
+  LibertyPortMemberIterator *bit_iterator_{nullptr};
+  LibertyPort *range_bus_port_{nullptr};
   std::string range_bus_name_;
-  LibertyPort *range_name_next_;
-  int range_from_;
-  int range_to_;
-  int range_bit_;
-  unsigned size_;
+  LibertyPort *range_name_next_{nullptr};
+  int range_from_{0};
+  int range_to_{0};
+  int range_bit_{0};
+  unsigned size_{0};
 };
 
 class OutputWaveform
 {
 public:
-  OutputWaveform(float axis_value1,
-                 float axis_value2,
+  OutputWaveform(float slew,
+                 float cap,
                  Table *currents,
                  float reference_time);
   float slew() const { return slew_; }
@@ -597,4 +593,4 @@ private:
   float reference_time_;
 };
 
-} // namespace
+} // namespace sta

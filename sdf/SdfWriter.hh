@@ -42,4 +42,4 @@ writeSdf(std::string_view filename,
          bool no_version,
          StaState *sta);
 
-} // namespace
+} // namespace sta

@@ -24,16 +24,26 @@
 
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "StringUtil.hh"
-#include "SearchClass.hh"
-#include "PathEnd.hh"
-#include "CheckMinPulseWidths.hh"
-#include "CheckMinPeriods.hh"
 #include "CheckMaxSkews.hh"
+#include "CheckMinPeriods.hh"
+#include "CheckMinPulseWidths.hh"
+#include "Clock.hh"
+#include "Delay.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "MinMax.hh"
+#include "Mode.hh"
+#include "NetworkClass.hh"
+#include "Path.hh"
+#include "PathEnd.hh"
+#include "Sdc.hh"
+#include "SearchClass.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -47,7 +57,7 @@ class ReportPath : public StaState
 {
 public:
   ReportPath(StaState *sta);
-  virtual ~ReportPath();
+  ~ReportPath() override;
   ReportPathFormat pathFormat() const { return format_; }
   void setPathFormat(ReportPathFormat format);
   void setReportFieldOrder(const StringSeq &field_names);
@@ -58,7 +68,8 @@ public:
                        bool report_slew,
                        bool report_fanout,
                        bool report_variation,
-                       bool report_src_attr);
+                       bool report_src_attr,
+                       bool report_orig_name);
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
@@ -159,6 +170,7 @@ public:
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
   ReportField *fieldSrcAttr() const { return field_src_attr_; }
+  ReportField *fieldOrigName() const { return field_orig_name_; }
 
 protected:
   void makeFields();
@@ -195,7 +207,7 @@ protected:
                        Arrival &borrow,
                        Arrival &time_given_to_startpoint) const;
   void reportEndpoint(const PathEndDataCheck *end) const;
-  std::string_view clkNetworkDelayIdealProp(bool is_ideal) const;
+  std::string_view clkNetworkDelayIdealProp(bool is_prop) const;
 
   std::string checkRoleReason(const PathEnd *end) const;
   std::string checkRoleString(const PathEnd *end) const;
@@ -286,13 +298,13 @@ protected:
                      Arrival clk_time,
                      const MinMax *min_max) const ;
   void reportRequired(const PathEnd *end,
-                      std::string margin_msg) const ;
+                      const std::string& margin_msg) const ;
   void reportSlack(const PathEnd *end) const ;
   void reportSlack(Slack slack) const ;
   void reportSpaceSlack(const PathEnd *end,
-                        std::string &line) const ;
+                        std::string &result) const ;
   void reportSpaceSlack(Slack slack,
-                        std::string &line) const ;
+                        std::string &result) const ;
   void reportSrcPathArrival(const PathEnd *end,
                             const PathExpanded &expanded) const ;
   void reportPath(const PathEnd *end,
@@ -370,6 +382,7 @@ protected:
                   const EarlyLate *early_late,
                   const RiseFall *rf,
                   std::string_view src_attr,
+                  std::string_view orig_name,
                   std::string_view line_case) const;
   void reportLineTotal(std::string_view what,
                        const Delay &incr,
@@ -383,38 +396,38 @@ protected:
                         const EarlyLate *early_late) const;
   void reportDashLineTotal() const;
   void reportDescription(std::string_view what,
-                         std::string &result) const;
+                         std::string &line) const;
   void reportDescription(std::string_view what,
                          bool first_field,
                          bool last_field,
-                         std::string &result) const;
+                         std::string &line) const;
   void reportFieldTime(float value,
                        ReportField *field,
-                       std::string &result) const;
+                       std::string &line) const;
   void reportSpaceFieldTime(float value,
-                            std::string &result) const;
+                            std::string &line) const;
   void reportSpaceFieldDelay(const Delay &value,
                              const EarlyLate *early_late,
-                             std::string &result) const;
+                             std::string &line) const;
   void reportFieldDelayMinus(const Delay &value,
                              const EarlyLate *early_late,
                              const ReportField *field,
-                             std::string &result) const;
+                             std::string &line) const;
   void reportTotalDelay(const Delay &value,
                         const EarlyLate *early_late,
-                        std::string &result) const;
+                        std::string &line) const;
   void reportFieldDelay(const Delay &value,
                         const EarlyLate *early_late,
                         const ReportField *field,
-                        std::string &result) const;
+                        std::string &line) const;
   void reportField(float value,
                    const ReportField *field,
-                   std::string &result) const;
+                   std::string &line) const;
   void reportField(std::string_view value,
                    const ReportField *field,
-                   std::string &result) const;
+                   std::string &line) const;
   void reportFieldBlank(const ReportField *field,
-                        std::string &result) const;
+                        std::string &line) const;
   void reportDashLine() const;
   void reportDashLine(int line_width) const;
   void reportBlankLine() const;
@@ -472,15 +485,15 @@ protected:
                   const MinMax *min_max) const;
 
   // Path options.
-  ReportPathFormat format_;
+  ReportPathFormat format_{ReportPathFormat::full};
   ReportFieldSeq fields_;
   bool report_input_pin_;
   bool report_hier_pins_;
   bool report_net_;
-  bool no_split_;
+  bool no_split_{false};
   int digits_;
 
-  size_t start_end_pt_width_;
+  size_t start_end_pt_width_{80};
 
   ReportField *field_description_;
   ReportField *field_total_;
@@ -490,13 +503,14 @@ protected:
   ReportField *field_fanout_;
   ReportField *field_variation_;
   ReportField *field_src_attr_;
+  ReportField *field_orig_name_;
   ReportField *field_edge_;
   ReportField *field_case_;
 
   std::string plus_zero_;
   std::string minus_zero_;
 
-  int field_width_extra_;
+  int field_width_extra_{5};
   static constexpr float field_blank_ = -1;
   static const float field_skip_;
 };
@@ -534,4 +548,4 @@ protected:
   std::string blank_;
 };
 
-} // namespace
+} // namespace sta

@@ -24,27 +24,27 @@
 
 #pragma once
 
-#include <vector>
+#include <functional>
 #include <string>
 #include <string_view>
-#include <functional>
+#include <vector>
 
-#include "StringUtil.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "SdcClass.hh"
-#include "Scene.hh"
-#include "GraphClass.hh"
-#include "ParasiticsClass.hh"
-#include "StaState.hh"
-#include "VertexVisitor.hh"
-#include "SearchClass.hh"
-#include "PowerClass.hh"
 #include "ArcDelayCalc.hh"
 #include "CircuitSim.hh"
-#include "Variables.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "NetworkClass.hh"
+#include "ParasiticsClass.hh"
+#include "PowerClass.hh"
 #include "Property.hh"
 #include "RiseFallMinMaxDelay.hh"
+#include "Scene.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
+#include "Variables.hh"
+#include "VertexVisitor.hh"
 
 struct Tcl_Interp;
 
@@ -81,7 +81,7 @@ using SlowDrvrIterator = Iterator<Instance*>;
 using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
 enum class CmdNamespace { sta, sdc };
-using ParasiticsNameMap = std::map<std::string, Parasitics*>;
+using ParasiticsNameMap = std::map<std::string, Parasitics*, std::less<>>;
 // Path::slack/arrival/required function.
 using PathDelayFunc = std::function<Delay (const Path *path)>;
 using GraphLoopSeq = std::vector<GraphLoop*>;
@@ -103,7 +103,6 @@ deleteAllMemory();
 class Sta : public StaState
 {
 public:
-  Sta();
   // The Sta is a FACTORY for the components.
   // makeComponents calls the make{Component} virtual functions.
   // Ideally this would be called by the Sta constructor, but a
@@ -114,7 +113,7 @@ public:
   // pointers to some components have changed.
   // This must be called after changing any of the StaState components.
   virtual void updateComponentsState();
-  virtual ~Sta();
+  ~Sta() override;
 
   // Singleton accessor used by tcl command interpreter.
   static Sta *sta();
@@ -155,7 +154,7 @@ public:
   // tmp public
   void readLibertyAfter(LibertyLibrary *liberty,
                         Scene *scene,
-                        const MinMax *min_max);
+                        const MinMaxAll *min_max);
   bool readVerilog(std::string_view filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.
@@ -232,7 +231,7 @@ public:
                          Sdc *sdc);
   // Set net wire capacitance (set_load -wire net).
   void setNetWireCap(const Net *net,
-                     bool subtract_pin_load,
+                     bool subtract_pin_cap,
                      const MinMaxAll *min_max,
                      float cap,
                      Sdc *sdc);
@@ -268,7 +267,7 @@ public:
                     const LibertyCell *cell,
                     const Port *port,
                     const LibertyPort *from_port,
-                    float *from_slews,
+                    const DriveCellSlews &from_slews,
                     const LibertyPort *to_port,
                     const RiseFallBoth *rf,
                     const MinMaxAll *min_max,
@@ -312,7 +311,7 @@ public:
                             Sdc *sdc);
   void setSlewLimit(Clock *clk,
                     const RiseFallBoth *rf,
-                    const PathClkOrData clk_data,
+                    PathClkOrData clk_data,
                     const MinMax *min_max,
                     float slew,
                     Sdc *sdc);
@@ -348,15 +347,15 @@ public:
                   Sdc *sdc);
 
   void makeClock(std::string_view name,
-                 PinSet *pins,
+                 const PinSet &pins,
                  bool add_to_pins,
                  float period,
-                 FloatSeq *waveform,
+                 const FloatSeq &waveform,
                  std::string_view comment,
                  const Mode *mode);
   // edges size must be 3.
   void makeGeneratedClock(std::string_view name,
-                          PinSet *pins,
+                          const PinSet &pins,
                           bool add_to_pins,
                           Pin *src_pin,
                           Clock *master_clk,
@@ -365,8 +364,8 @@ public:
                           float duty_cycle,
                           bool invert,
                           bool combinational,
-                          IntSeq *edges,
-                          FloatSeq *edge_shifts,
+                          const IntSeq &edges,
+                          const FloatSeq &edge_shifts,
                           std::string_view comment,
                           const Mode *mode);
   void removeClock(Clock *clk,
@@ -385,7 +384,7 @@ public:
                           const Mode *mode);
   void removePropagatedClock(Pin *pin,
                              const Mode *mode);
-  void setClockSlew(Clock *clock,
+  void setClockSlew(Clock *clk,
                     const RiseFallBoth *rf,
                     const MinMaxAll *min_max,
                     float slew,
@@ -441,12 +440,12 @@ public:
                               const RiseFallBoth *to_rf,
                               const SetupHoldAll *setup_hold,
                               Sdc *sdc);
-  ClockGroups *makeClockGroups(const std::string &name,
+  ClockGroups *makeClockGroups(std::string_view name,
                                bool logically_exclusive,
                                bool physically_exclusive,
                                bool asynchronous,
                                bool allow_paths,
-                               std::string comment,
+                               std::string_view comment,
                                Sdc *sdc);
   void removeClockGroupsLogicallyExclusive(Sdc *sdc);
   void removeClockGroupsLogicallyExclusive(const std::string &name,
@@ -700,7 +699,7 @@ public:
 
   InstanceSet findRegisterInstances(ClockSet *clks,
                                     const RiseFallBoth *clk_rf,
-                                    bool edge_triggered,
+                                    bool registers,
                                     bool latches,
                                     const Mode *mode);
   PinSet findRegisterDataPins(ClockSet *clks,
@@ -992,7 +991,8 @@ public:
                            bool report_slew,
                            bool report_fanout,
                            bool report_variation,
-                           bool report_src_attr);
+                           bool report_src_attr,
+                           bool report_orig_name);
   ReportField *findReportPathField(std::string_view name);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
@@ -1156,9 +1156,9 @@ public:
             const SceneSeq &scenes,
             const MinMax *min_max);
 
-  const ArcDelay arcDelay(Edge *edge,
-                          TimingArc *arc,
-                          DcalcAPIndex ap_index);
+  ArcDelay arcDelay(Edge *edge,
+                    TimingArc *arc,
+                    DcalcAPIndex ap_index);
   // True if the timing arc has been back-annotated.
   bool arcDelayAnnotated(Edge *edge,
                          TimingArc *arc,
@@ -1192,8 +1192,8 @@ public:
   // Instances sorted by max driver pin slew.
   InstanceSeq slowDrivers(int count);
 
-  Parasitics *makeConcreteParasitics(std::string name,
-                                     std::string filename);
+  Parasitics *makeConcreteParasitics(std::string_view name,
+                                     std::string_view filename);
   // Annotate hierarchical "instance" with parasitics.
   // The parasitic analysis point is ap_name.
   // The parasitic memory footprint is much smaller if parasitic
@@ -1524,23 +1524,23 @@ protected:
                            bool report_variance,
                            int digits,
                            bool find_required,
-                           PathDelayFunc get_path_delay);
+                           const PathDelayFunc &get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const Scene *scene,
                            bool report_variance,
                            int digits,
                            bool find_required,
-                           PathDelayFunc get_path_delay);
+                           const PathDelayFunc &get_path_delay);
   void reportDelaysWrtClks(Vertex *vertex,
                            const ClockEdge *clk_edge,
                            const Scene *scene,
                            bool report_variance,
                            int digits,
-                           PathDelayFunc get_path_delay);
+                           const PathDelayFunc &get_path_delay);
   RiseFallMinMaxDelay findDelaysWrtClks(Vertex *vertex,
                                         const ClockEdge *clk_edge,
                                         const Scene *scene,
-                                        PathDelayFunc get_path_delay);
+                                        const PathDelayFunc &get_path_delay);
   std::string formatDelay(const RiseFall *rf,
                           const MinMax *min_max,
                           const RiseFallMinMaxDelay &delays,
@@ -1604,6 +1604,9 @@ protected:
   void updateSceneLiberty(Scene *scene,
                           const StringSeq &liberty_min_files,
                           const StringSeq &liberty_max_files);
+  void updateSceneLiberty(Scene *scene,
+                          const StringSeq &liberty_files,
+                          const MinMaxAll *min_max);
 
   Scene *makeScene(const std::string &name,
                    Mode *mode,
@@ -1614,30 +1617,30 @@ protected:
                    Parasitics *parasitics);
   void deleteScenes();
 
-  Scene *cmd_scene_;
-  CmdNamespace cmd_namespace_;
-  Instance *current_instance_;
+  Scene *cmd_scene_{nullptr};
+  CmdNamespace cmd_namespace_{CmdNamespace::sdc};
+  Instance *current_instance_{nullptr};
   SceneNameMap scene_name_map_;
   ModeNameMap mode_name_map_;
   ParasiticsNameMap parasitics_name_map_;
-  VerilogReader *verilog_reader_;
-  CheckTiming *check_timing_;
-  CheckSlews *check_slews_;
-  CheckFanouts *check_fanouts_;
-  CheckCapacitances *check_capacitances_;
-  CheckMinPulseWidths *check_min_pulse_widths_;
-  CheckMinPeriods *check_min_periods_;
-  CheckMaxSkews *check_max_skews_;
-  ClkSkews *clk_skews_;
-  ReportPath *report_path_;
-  Power *power_;
-  Tcl_Interp *tcl_interp_;
-  bool update_genclks_;
-  EquivCells *equiv_cells_;
-  Properties properties_;
+  VerilogReader *verilog_reader_{nullptr};
+  CheckTiming *check_timing_{nullptr};
+  CheckSlews *check_slews_{nullptr};
+  CheckFanouts *check_fanouts_{nullptr};
+  CheckCapacitances *check_capacitances_{nullptr};
+  CheckMinPulseWidths *check_min_pulse_widths_{nullptr};
+  CheckMinPeriods *check_min_periods_{nullptr};
+  CheckMaxSkews *check_max_skews_{nullptr};
+  ClkSkews *clk_skews_{nullptr};
+  ReportPath *report_path_{nullptr};
+  Power *power_{nullptr};
+  Tcl_Interp *tcl_interp_{nullptr};
+  bool update_genclks_{false};
+  EquivCells *equiv_cells_{nullptr};
+  Properties properties_{this};
 
   // Singleton sta used by tcl command interpreter.
-  static Sta *sta_;
+  inline static Sta *sta_{nullptr};
 };
 
-} // namespace
+} // namespace sta

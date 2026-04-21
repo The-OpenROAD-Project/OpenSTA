@@ -29,9 +29,10 @@
 #include <vector>
 
 #include "LibertyClass.hh"
-#include "NetworkClass.hh"
 #include "MinMaxValues.hh"
+#include "NetworkClass.hh"
 #include "PinPair.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -126,11 +127,13 @@ using ExceptionStateSet = std::set<ExceptionState*, ExceptionStateLess>;
 // Constraint applies to clock or data paths.
 enum class PathClkOrData { clk, data };
 
-const int path_clk_or_data_count = 2;
+const size_t path_clk_or_data_count = 2;
 
 enum class TimingDerateType { cell_delay, cell_check, net_delay };
-constexpr int timing_derate_type_count = 3;
+constexpr size_t timing_derate_type_count = 3;
 enum class TimingDerateCellType { cell_delay, cell_check };
-constexpr int timing_derate_cell_type_count = 2;
+constexpr size_t timing_derate_cell_type_count = 2;
 
-} // namespace
+using DriveCellSlews = std::array<float, RiseFall::index_count>;
+
+} // namespace sta

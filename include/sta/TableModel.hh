@@ -30,10 +30,10 @@
 #include <string_view>
 #include <vector>
 
-#include "MinMax.hh"
-#include "Transition.hh"
 #include "LibertyClass.hh"
+#include "MinMax.hh"
 #include "TimingModel.hh"
+#include "Transition.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -73,7 +73,6 @@ public:
   GateTableModel(LibertyCell *cell,
                  TableModels *delay_models,
                  TableModels *slew_models);
-  ~GateTableModel() override;
   void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
@@ -96,6 +95,7 @@ public:
                               PocvMode pocv_mode,
                               int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
+  void setIsScaled(bool is_scaled) override;
 
   const TableModels *delayModels() const { return delay_models_.get(); }
   const TableModel *delayModel() const;
@@ -112,10 +112,9 @@ protected:
                   const Pvt *pvt,
                   float &slew,
                   float &cap) const;
-  void setIsScaled(bool is_scaled) override;
   float axisValue(const TableAxis *axis,
-                  float load_cap,
                   float in_slew,
+                  float load_cap,
                   float related_out_cap) const;
   float findValue(const Pvt *pvt,
                   const TableModel *model,
@@ -150,7 +149,6 @@ class CheckTableModel : public CheckTimingModel
 public:
   CheckTableModel(LibertyCell *cell,
                   TableModels *check_models);
-  ~CheckTableModel() override;
   ArcDelay checkDelay(const Pvt *pvt,
                       float from_slew,
                       float to_slew,
@@ -167,13 +165,13 @@ public:
                                int digits) const override;
   const TableModels *checkModels() const { return check_models_.get(); }
   const TableModel *checkModel() const;
+  void setIsScaled(bool is_scaled) override;
 
   // Check the axes before making the model.
   // Return true if the model axes are supported.
   static bool checkAxes(const TableModel *table);
 
 protected:
-  void setIsScaled(bool is_scaled) override;
   float findValue(const Pvt *pvt,
                   const TableModel *model,
                   float from_slew,
@@ -187,8 +185,8 @@ protected:
                       float &axis_value2,
                       float &axis_value3) const;
   float axisValue(const TableAxis *axis,
-                  float load_cap,
-                  float in_slew,
+                  float from_slew,
+                  float to_slew,
                   float related_out_cap) const;
   std::string reportTableDelay(std::string_view result_name,
                                const Pvt *pvt,
@@ -247,19 +245,19 @@ public:
         TableAxisPtr axis1,
         TableAxisPtr axis2,
         TableAxisPtr axis3);
-  Table(Table &&table);
+  Table(Table &&table) noexcept;
   Table(const Table &table);
-  Table &operator=(Table &&table);
+  Table &operator=(Table &&table) noexcept;
 
+  void setIsScaled(bool is_scaled);
   void setScaleFactorType(ScaleFactorType type);
   int order() const { return order_; }
   const TableAxis *axis1() const { return axis1_.get(); }
   const TableAxis *axis2() const { return axis2_.get(); }
   const TableAxis *axis3() const { return axis3_.get(); }
-  const TableAxisPtr axis1ptr() const { return axis1_; }
-  const TableAxisPtr axis2ptr() const { return axis2_; }
-  const TableAxisPtr axis3ptr() const { return axis3_; }
-  void setIsScaled(bool is_scaled);
+  TableAxisPtr axis1ptr() const { return axis1_; }
+  TableAxisPtr axis2ptr() const { return axis2_; }
+  TableAxisPtr axis3ptr() const { return axis3_; }
 
   float value(size_t axis_idx1,
               size_t axis_idx2,
@@ -440,7 +438,6 @@ protected:
 class ReceiverModel
 {
 public:
-  ~ReceiverModel();
   void setCapacitanceModel(TableModel table_model,
                            size_t segment,
                            const RiseFall *rf);
@@ -529,7 +526,7 @@ private:
   Table1Seq voltage_waveforms_;
   Table1Seq voltage_currents_;
   Table ref_times_;
-  float vdd_;
+  float vdd_{0.0F};
   static constexpr size_t voltage_waveform_step_count_ = 100;
 };
 
@@ -546,4 +543,4 @@ private:
   TablePtr waveforms_;
 };
 
-} // namespace
+} // namespace sta

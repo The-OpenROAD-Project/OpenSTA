@@ -24,31 +24,26 @@
 
 #include "PrimaDelayCalc.hh"
 
+#include <Eigen/LU>
+#include <Eigen/QR>
 #include <cmath>  // abs
 #include <string_view>
 
 #include "Debug.hh"
-#include "Units.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Scene.hh"
-#include "Graph.hh"
-#include "Parasitics.hh"
-#include "GraphDelayCalc.hh"
 #include "DmpDelayCalc.hh"
 #include "Format.hh"
-
-#include <Eigen/LU>
-#include <Eigen/QR>
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 
 namespace sta {
-
-using Eigen::ColPivHouseholderQR;
-using Eigen::HouseholderQR;
-using Eigen::SparseLU;
 
 // Lawrence Pillage - “Electronic Circuit & System Simulation Methods” 1998
 // McGraw-Hill, Inc. New York, NY.
@@ -61,17 +56,7 @@ makePrimaDelayCalc(StaState *sta)
 
 PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   DelayCalcBase(sta),
-  dcalc_args_(nullptr),
-  scene_(nullptr),
-  min_max_(nullptr),
-  parasitics_(nullptr),
-  parasitic_network_(nullptr),
-  load_pin_index_map_(nullptr),
   pin_node_map_(network_),
-  prima_order_(3),
-  make_waveforms_(false),
-  waveform_drvr_pin_(nullptr),
-  waveform_load_pin_(nullptr),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
@@ -79,20 +64,18 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
 
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   DelayCalcBase(dcalc),
-  dcalc_args_(nullptr),
-  load_pin_index_map_(nullptr),
   pin_node_map_(network_),
   node_index_map_(dcalc.node_index_map_),
   prima_order_(dcalc.prima_order_),
-  make_waveforms_(false),
-  waveform_drvr_pin_(nullptr),
-  waveform_load_pin_(nullptr),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
 {
 }
 
-PrimaDelayCalc::~PrimaDelayCalc() { delete table_dcalc_; }
+PrimaDelayCalc::~PrimaDelayCalc()
+{
+  delete table_dcalc_;
+}
 
 ArcDelayCalc *
 PrimaDelayCalc::copy()
@@ -194,8 +177,8 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap,
                           parasitic);
-  ArcDcalcResultSeq dcalc_results =
-      gateDelays(dcalc_args, load_pin_index_map, scene, min_max);
+  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map,
+                                               scene, min_max);
   return dcalc_results[0];
 }
 
@@ -216,48 +199,107 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   parasitics_ = scene->parasitics(min_max);
   node_index_map_ = NodeIndexMap(ParasiticNodeLess(parasitics_, network_));
 
-  bool failed = false;
-  output_waveforms_.resize(drvr_count_);
-  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
-    ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
-    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(scene, min_max);
-    if (table_model && dcalc_arg.parasitic()) {
-      OutputWaveforms *output_waveforms = table_model->outputWaveforms();
-      float in_slew = dcalc_arg.inSlewFlt();
-      if (output_waveforms
-          // Bounds check because extrapolating waveforms does not work for shit.
-          && output_waveforms->slewAxis()->inBounds(in_slew)
-          && output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
-        output_waveforms_[drvr_idx] = output_waveforms;
-        debugPrint(debug_, "ccs_dcalc", 1, "{} {}", dcalc_arg.drvrCell()->name(),
-                   drvr_rf_->shortName());
-        LibertyCell *drvr_cell = dcalc_arg.drvrCell();
-        const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-        bool vdd_exists;
-        drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
-        if (!vdd_exists)
-          report_->error(1720, "VDD not defined in library {}",
-                         drvr_library->name());
-        drvr_cell->ensureVoltageWaveforms(scenes_);
-        if (drvr_idx == 0) {
-          vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
-          vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
-          vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
-        }
-      }
-      else
-        failed = true;
-    }
-    else
-      failed = true;
-  }
-
-  if (failed)
+  bool arg_fail = checkArgs(dcalc_args, scene, min_max);
+  if (arg_fail)
     return tableDcalcResults();
   else {
     simulate();
     return dcalcResults();
   }
+}
+
+// Return true on failure.
+// Use falureReason() to get failure string.
+bool
+PrimaDelayCalc::checkArgs(ArcDcalcArgSeq &dcalc_args,
+                          const Scene *scene,
+                          const MinMax *min_max)
+{
+  drvr_count_ = dcalc_args.size();
+  output_waveforms_.resize(drvr_count_);
+  failure_reason_ = nullptr;
+  failure_arg_ = nullptr;
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+    ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
+    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(scene, min_max);
+    if (table_model) {
+      if (dcalc_arg.parasitic()) {
+        OutputWaveforms *output_waveforms = table_model->outputWaveforms();
+        float in_slew = dcalc_arg.inSlewFlt();
+        if (output_waveforms) {
+          const LibertyLibrary *drvr_library = dcalc_arg.drvrLibrary();
+          float vdd;
+          bool vdd_exists;
+          drvr_library->supplyVoltage("VDD", vdd, vdd_exists);
+          if (vdd_exists) {
+            if (drvr_idx == 0) {
+              // Assume drivers are in the same library.
+              const RiseFall *drvr_rf = dcalc_arg.drvrEdge();
+              vdd_ = vdd;
+              vth_ = drvr_library->outputThreshold(drvr_rf) * vdd_;
+              vl_ = drvr_library->slewLowerThreshold(drvr_rf) * vdd_;
+              vh_ = drvr_library->slewUpperThreshold(drvr_rf) * vdd_;
+            }
+          }
+          else {
+            failure_reason_ = "vdd not defined";
+            failure_arg_ = &dcalc_arg;
+          }
+
+          // Bounds check because extrapolating waveforms does not work for shit.
+          if (output_waveforms->slewAxis()->inBounds(in_slew)) {
+            if (output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
+              output_waveforms_[drvr_idx] = output_waveforms;
+              debugPrint(debug_, "prima", 1, "{} {}",
+                         dcalc_arg.drvrCell()->name(),
+                         dcalc_arg.drvrEdge()->to_string().c_str());
+              LibertyCell *drvr_cell = dcalc_arg.drvrCell();
+              drvr_cell->ensureVoltageWaveforms(scenes_);
+            }
+            else {
+              failure_reason_ = "load cap out of bounds";
+              failure_arg_ = &dcalc_arg;
+            }
+          }
+          else {
+            failure_reason_ = "input slew out of bounds";
+            failure_arg_ = &dcalc_arg;
+          }
+        }
+        else {
+          failure_reason_ = "no output waveforms";
+          failure_arg_ = &dcalc_arg;
+        }
+      }
+      else {
+        failure_reason_ = "no parasitic";
+        failure_arg_ = &dcalc_arg;
+      }
+    }
+    else {
+      failure_reason_ = "no table model";
+      failure_arg_ = &dcalc_arg;
+    }
+  }
+  if (failure_reason_) {
+    std::string reason = failureReason();
+    debugPrint(debug_,"prima", 1, "arg check failed {}.", reason.c_str());
+  }
+  return failure_reason_ != nullptr;
+}
+
+std::string
+PrimaDelayCalc::failureReason()
+{
+  const Pin *drvr_pin = failure_arg_->drvrPin();
+  const Instance *inst = network_->instance(drvr_pin);
+  LibertyPort *from = failure_arg_->arc()->from();
+  LibertyPort *to = failure_arg_->arc()->to();
+  return sta::format("{} {} -> {} {}",
+                     sdc_network_->pathName(inst),
+                     from->name(),
+                     to->name(),
+                     failure_reason_);
 }
 
 ArcDcalcResultSeq
@@ -300,7 +342,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
                           const Eigen::MatrixXd &B,
                           const Eigen::VectorXd &x_init,
                           const Eigen::MatrixXd &x_to_v,
-                          const size_t order)
+                          size_t order)
 {
   Eigen::VectorXd x(order);
   Eigen::VectorXd x_prev(order);
@@ -320,7 +362,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   MatrixSd A(order, order);
   A = G + (2.0 / time_step_) * C;
   A.makeCompressed();
-  SparseLU<MatrixSd> A_solver;
+  Eigen::SparseLU<MatrixSd> A_solver;
   A_solver.compute(A);
 
   // Initial time depends on ceff which impact delay, so use a sim step
@@ -344,7 +386,10 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   if (make_waveforms_)
     recordWaveformStep(time_begin);
 
-  for (double time = time_begin; time <= time_end; time += time_step_) {
+  for (size_t step = 0;; ++step) {
+    const double time = time_begin + step * time_step_;
+    if (time > time_end)
+      break;
     setPortCurrents();
     rhs = B * u_ + (1.0 / time_step_) * C * (3.0 * x_prev - x_prev2);
     x = A_solver.solve(rhs);
@@ -399,6 +444,7 @@ void
 PrimaDelayCalc::initSim()
 {
   ceff_.resize(drvr_count_);
+  ceff_vth_.resize(drvr_count_);
   drvr_current_.resize(drvr_count_);
 
   findNodeCount();
@@ -615,8 +661,12 @@ PrimaDelayCalc::updateCeffIdrvr()
     if (drvr_rf_ == RiseFall::rise()) {
       if (drvr_current != 0.0 && dv > 0.0) {
         double ceff = drvr_current * time_step_ / dv;
-        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff))
+        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff)) {
           ceff_[drvr_idx] = ceff;
+          // Record the Ceff at Vth.
+          if (v1 >= vth_ && v2 < vth_)
+            ceff_vth_[drvr_idx] = ceff;
+        }
       }
       if (v1 > (vdd_ - .01))
         // Whoa partner. Head'n for the weeds.
@@ -628,8 +678,12 @@ PrimaDelayCalc::updateCeffIdrvr()
     else {
       if (drvr_current != 0.0 && dv < 0.0) {
         double ceff = drvr_current * time_step_ / dv;
-        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff))
+        if (output_waveforms_[drvr_idx]->capAxis()->inBounds(ceff)) {
           ceff_[drvr_idx] = ceff;
+          // Record the Ceff at Vth.
+          if (v1 <= vth_ && v2 > vth_)
+            ceff_vth_[drvr_idx] = ceff;
+        }
       }
       if (v1 < 0.01) {
         // Whoa partner. Head'n for the weeds.
@@ -711,8 +765,13 @@ PrimaDelayCalc::dcalcResults()
     float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlewFlt());
     double gate_delay = drvr_times[threshold_vth] - ref_time;
     double drvr_slew = std::abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
-    dcalc_result.setGateDelay(gate_delay);
-    dcalc_result.setDrvrSlew(drvr_slew);
+
+    ArcDelay gate_delay2(gate_delay);
+    Slew drvr_slew2(drvr_slew);
+    delaySlewPocv(dcalc_arg, drvr_idx, gate_delay2, drvr_slew2);
+    dcalc_result.setGateDelay(gate_delay2);
+    dcalc_result.setDrvrSlew(drvr_slew2);
+
     debugPrint(debug_, "ccs_dcalc", 2, "{} gate delay {} slew {}",
                network_->pathName(drvr_pin), delayAsString(gate_delay, this),
                delayAsString(drvr_slew, this));
@@ -740,6 +799,28 @@ PrimaDelayCalc::dcalcResults()
   return dcalc_results;
 }
 
+// Fill in pocv parameters in gate_delay/drvr_slew.
+void
+PrimaDelayCalc::delaySlewPocv(ArcDcalcArg &dcalc_arg,
+                              size_t drvr_idx,
+                              ArcDelay &gate_delay,
+                              Slew &drvr_slew)
+{
+  if (variables_->pocvEnabled()) {
+    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(scene_, min_max_);
+    if (table_model) {
+      double ceff = ceff_vth_[drvr_idx];
+      if (ceff == 0.0)
+        ceff = dcalc_arg.loadCap();
+      float in_slew = delayAsFloat(dcalc_arg.inSlew());
+      const Pvt *pvt = pinPvt(dcalc_arg.drvrPin(), scene_, min_max_);
+      table_model->gateDelayPocv(pvt, in_slew, ceff, min_max_,
+                                 variables_->pocvMode(),
+                                 gate_delay, drvr_slew);
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
@@ -755,7 +836,7 @@ PrimaDelayCalc::primaReduce()
 {
   G_.makeCompressed();
   // Step 3: solve G*R = B for R
-  SparseLU<MatrixSd> G_solver(G_);
+  Eigen::SparseLU<MatrixSd> G_solver(G_);
   if (G_solver.info() != Eigen::Success)
     report_->error(1752, "G matrix is singular.");
   Eigen::MatrixXd R(order_, port_count_);
@@ -896,20 +977,35 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                 const TimingArc *arc,
                                 const Slew &in_slew,
                                 float load_cap,
-                                const Parasitic *,
-                                const LoadPinIndexMap &,
+                                const Parasitic *parasitic,
+                                const LoadPinIndexMap &load_pin_index_map,
                                 const Scene *scene,
                                 const MinMax *min_max,
                                 int digits)
 {
-  GateTimingModel *model = arc->gateModel(scene, min_max);
-  if (model) {
+  ArcDcalcArgSeq dcalc_args;
+  dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew,
+                          load_cap, parasitic);
+  bool arg_fail = checkArgs(dcalc_args, scene, min_max);
+  if (arg_fail) {
+    const RiseFall *rf = arc->toEdge()->asRiseFall();
+    const Parasitic *reduced = table_dcalc_->findParasitic(drvr_pin, rf,
+                                                           scene, min_max);
+    return table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
+                                         reduced, load_pin_index_map, scene,
+                                         min_max, digits);
+  }
+  else {
+    GateTimingModel *model = arc->gateModel(scene, min_max);
+    // Delay calc to find ceff.
+    gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
+              load_pin_index_map, scene, min_max);
     float in_slew1 = delayAsFloat(in_slew);
+    float ceff = ceff_vth_[0];
     return model->reportGateDelay(pinPvt(drvr_pin, scene, min_max),
-                                  in_slew1, load_cap, min_max,
+                                  in_slew1, ceff, min_max,
                                   PocvMode::scalar, digits);
   }
-  return "";
 }
 
 ////////////////////////////////////////////////////////////////
@@ -932,7 +1028,7 @@ PinSeq
 PrimaDelayCalc::watchPins() const
 {
   PinSeq pins;
-  for (auto pin_values : watch_pin_values_) {
+  for (const auto &pin_values : watch_pin_values_) {
     const Pin *pin = pin_values.first;
     pins.push_back(pin);
   }
@@ -1011,10 +1107,8 @@ void
 PrimaDelayCalc::reportMatrix(Eigen::VectorXd &matrix)
 {
   std::string line = "| ";
-  for (Eigen::Index i = 0; i < matrix.rows(); i++) {
-    std::string entry = 
+  for (Eigen::Index i = 0; i < matrix.rows(); i++)
     line += sta::format("{:10.3e}", matrix.coeff(i)) + " ";
-  }
   line += "|";
   report_->reportLine(line);
 }
@@ -1023,8 +1117,8 @@ void
 PrimaDelayCalc::reportVector(std::vector<double> &matrix)
 {
   std::string line = "| ";
-  for (size_t i = 0; i < matrix.size(); i++)
-    line += sta::format("{:10.3e}", matrix[i]) + " ";
+  for (const double &entry : matrix)
+    line += sta::format("{:10.3e}", entry) + " ";
   line += "|";
   report_->reportLine(line);
 }

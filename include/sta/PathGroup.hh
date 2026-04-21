@@ -24,17 +24,17 @@
 
 #pragma once
 
+#include <map>
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <map>
-#include <mutex>
 
-#include "SdcClass.hh"
-#include "StaState.hh"
-#include "SearchClass.hh"
-#include "StringUtil.hh"
 #include "PathEnd.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -52,20 +52,20 @@ class PathGroup
 public:
   // Path group that compares compare slacks.
   static PathGroup *makePathGroupArrival(std::string_view name,
-                                         int group_path_count,
-                                         int endpoint_path_count,
+                                         size_t group_path_count,
+                                         size_t endpoint_path_count,
                                          bool unique_pins,
                                          bool unique_edges,
                                          const MinMax *min_max,
                                          const StaState *sta);
   // Path group that compares arrival time, sorted by min_max.
   static PathGroup *makePathGroupSlack(std::string_view name,
-                                       int group_path_count,
-                                       int endpoint_path_count,
+                                       size_t group_path_count,
+                                       size_t endpoint_path_count,
                                        bool unique_pins,
                                        bool unique_edges,
-                                       float min_slack,
-                                       float max_slack,
+                                       float slack_min,
+                                       float slack_max,
                                        const StaState *sta);
   ~PathGroup();
   const std::string &name() const { return name_; }
@@ -77,19 +77,19 @@ public:
   // Predicate to determine if a PathEnd is worth saving.
   bool saveable(PathEnd *path_end);
   bool enumMinSlackUnderMin(PathEnd *path_end);
-  int maxPaths() const { return group_path_count_; }
+  size_t maxPaths() const { return group_path_count_; }
   // This does NOT delete the path ends.
   void clear();
-  static int group_path_count_max;
+  static size_t group_path_count_max;
   
 protected:
   PathGroup(std::string_view name,
-            int group_path_count,
-            int endpoint_path_count,
+            size_t group_path_count,
+            size_t endpoint_path_count,
             bool unique_pins,
             bool unique_edges,
-            float min_slack,
-            float max_slack,
+            float slack_min,
+            float slack_max,
             bool cmp_slack,
             const MinMax *min_max,
             const StaState *sta);
@@ -98,8 +98,8 @@ protected:
   void sort();
 
   std::string name_;
-  int group_path_count_;
-  int endpoint_path_count_;
+  size_t group_path_count_;
+  size_t endpoint_path_count_;
   bool unique_pins_;
   bool unique_edges_;
   float slack_min_;
@@ -116,8 +116,8 @@ protected:
 class PathGroups : public StaState
 {
 public:
-  PathGroups(int group_path_count,
-             int endpoint_path_count,
+  PathGroups(size_t group_path_count,
+             size_t endpoint_path_count,
              bool unique_pins,
              bool unique_edges,
              float slack_min,
@@ -131,7 +131,7 @@ public:
              bool clk_gating_hold,
              bool unconstrained,
              const Mode *mode);
-  ~PathGroups();
+  ~PathGroups() override;
   // Use scene nullptr to make PathEnds for all scenes.
   // The PathEnds in the vector are owned by the PathGroups.
   void makePathEnds(ExceptionTo *to,
@@ -155,8 +155,8 @@ public:
 
 protected:
   void makeGroupPathEnds(ExceptionTo *to,
-                         int group_path_count,
-                         int endpoint_path_count,
+                         size_t group_path_count,
+                         size_t endpoint_path_count,
                          bool unique_pins,
                          bool unique_edges,
                          const SceneSeq &scenes,
@@ -170,8 +170,8 @@ protected:
                          const MinMaxAll *min_max,
                          PathEndVisitor *visitor);
   void enumPathEnds(PathGroup *group,
-                    int group_path_count,
-                    int endpoint_path_count,
+                    size_t group_path_count,
+                    size_t endpoint_path_count,
                     bool unique_pins,
                     bool unique_edges,
                     bool cmp_slack);
@@ -180,8 +180,8 @@ protected:
   void pushUnconstrainedPathEnds(PathEndSeq &path_ends,
                                  const MinMaxAll *min_max);
 
-  void makeGroups(int group_path_count,
-                  int endpoint_path_count,
+  void makeGroups(size_t group_path_count,
+                  size_t endpoint_path_count,
                   bool unique_pins,
                   bool unique_edges,
                   float slack_min,
@@ -199,8 +199,8 @@ protected:
   StringSeq pathGroupNames();
 
   const Mode *mode_;
-  int group_path_count_;
-  int endpoint_path_count_;
+  size_t group_path_count_;
+  size_t endpoint_path_count_;
   bool unique_pins_;
   bool unique_edges_;
   float slack_min_;
@@ -226,4 +226,4 @@ protected:
   static constexpr std::string_view unconstrained_group_name_ = "unconstrained";
 };
 
-} // namespace
+} // namespace sta

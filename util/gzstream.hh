@@ -211,4 +211,4 @@ public:
     }
 };
 
-} // namespace GZSTREAM_NAMESPACE
+} // namespace gzstream

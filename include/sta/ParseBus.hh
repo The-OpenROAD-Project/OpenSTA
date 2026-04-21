@@ -32,8 +32,8 @@ namespace sta {
 // Return true if name is a bus.
 bool
 isBusName(std::string_view name,
-          const char brkt_left,
-          const char brkt_right,
+          char brkt_left,
+          char brkt_right,
           char escape);
 
 // Parse name as a bus.
@@ -45,8 +45,8 @@ isBusName(std::string_view name,
 // Caller must delete returned bus_name string.
 void
 parseBusName(std::string_view name,
-             const char brkt_left,
-             const char brkt_right,
+             char brkt_left,
+             char brkt_right,
              char escape,
              // Return values.
              bool &is_bus,
@@ -68,8 +68,8 @@ parseBusName(std::string_view name,
 // Caller must delete returned bus_name string.
 void
 parseBusName(std::string_view name,
-             const char brkt_left,
-             const char brkt_right,
+             char brkt_left,
+             char brkt_right,
              char escape,
              // Return values.
              bool &is_bus,
@@ -85,7 +85,7 @@ void
 parseBusName(std::string_view name,
              std::string_view brkts_left,
              std::string_view brkts_right,
-             const char escape,
+             char escape,
              // Return values.
              bool &is_bus,
              bool &is_range,
@@ -97,8 +97,8 @@ parseBusName(std::string_view name,
 // Insert escapes before ch1 and ch2 in token.
 std::string
 escapeChars(std::string_view token,
-            const char ch1,
-            const char ch2,
-            const char escape);
+            char ch1,
+            char ch2,
+            char escape);
 
-} // namespace
+} // namespace sta

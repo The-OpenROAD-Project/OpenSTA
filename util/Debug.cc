@@ -32,9 +32,7 @@ namespace sta {
 bool debug_on = false;
 
 Debug::Debug(Report *report) :
-  report_(report),
-  debug_on_(false),
-  stats_level_(0)
+  report_(report)
 {
 }
 
@@ -81,4 +79,4 @@ Debug::setLevel(std::string_view what,
   }
 }
 
-} // namespace
+} // namespace sta

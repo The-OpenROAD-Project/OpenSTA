@@ -92,7 +92,7 @@ report_checks -from [get_ports in1] -to [get_ports out]
 
 report_checks -from [get_ports in2] -to [get_ports out]
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 #---------------------------------------------------------------
 # Report parasitic annotation

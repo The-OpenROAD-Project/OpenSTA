@@ -24,20 +24,28 @@
 
 #include "PathEnum.hh"
 
+#include <cstddef>
+#include <map>
+#include <set>
+#include <utility>
+
 #include "Debug.hh"
+#include "Delay.hh"
 #include "Error.hh"
-#include "Fuzzy.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
 #include "Graph.hh"
-#include "Tag.hh"
-#include "Search.hh"
+#include "GraphClass.hh"
 #include "Latches.hh"
-#include "PathEnd.hh"
+#include "Mode.hh"
+#include "Network.hh"
 #include "Path.hh"
+#include "PathEnd.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "SearchClass.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
+#include "TimingRole.hh"
+#include "VertexVisitor.hh"
 
 namespace sta {
 
@@ -118,10 +126,7 @@ PathEnum::PathEnum(size_t group_path_count,
   endpoint_path_count_(endpoint_path_count),
   unique_pins_(unique_pins),
   unique_edges_(unique_edges),
-  div_queue_(DiversionGreater(sta)),
-  div_count_(0),
-  inserts_pruned_(false),
-  next_(nullptr)
+  div_queue_(DiversionGreater(sta))
 {
 }
 
@@ -260,6 +265,15 @@ public:
                        Arrival &to_arrival,
                        const MinMax *min_max) override;
 
+  void visit(Vertex *) override {}  // Not used.
+
+protected:
+  bool visitEdge(const Pin *from_pin,
+                 Vertex *from_vertex,
+                 Edge *edge,
+                 const Pin *to_pin,
+                 Vertex *to_vertex) override;
+
 private:
   void makeDivertedPathEnd(Path *after_div,
                            Edge *div_edge,
@@ -267,12 +281,6 @@ private:
                            // Return values.
                            PathEnd *&div_end,
                            Path *&after_div_copy);
-  bool visitEdge(const Pin *from_pin,
-                 Vertex *from_vertex,
-                 Edge *edge,
-                 const Pin *to_pin,
-                 Vertex *to_vertex) override;
-  void visit(Vertex *) override {}  // Not used.
   void insertUniqueEdgeDiv(Diversion *div);
   void reportDiversion(const Edge *edge,
                        const TimingArc *div_arc,
@@ -286,7 +294,7 @@ private:
 
   Slack path_end_slack_;
   Tag *before_div_tag_;
-  int before_div_rf_index_;
+  size_t before_div_rf_index_;
   Scene *scene_;
   const MinMax *min_max_;
   Arrival before_div_arrival_;
@@ -445,7 +453,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
       bool tag_march = !Tag::matchNoCrpr(to_tag, before_div_tag_);
       bool crpr =
           !(!crpr_active_
-            || visited_fanins_.find({from_vertex, arc}) == visited_fanins_.end());
+            || !visited_fanins_.contains({from_vertex, arc}));
       debugPrint(debug_, "path_enum", 3, "      pruned {}{}{}{}{} {} {}",
                  unique_pins ? "unique_pins " : "",
                  unique_edges ? "unique_edges " : "", same_arc ? "same_arc " : "",

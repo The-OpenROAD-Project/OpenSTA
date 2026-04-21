@@ -34,7 +34,7 @@
 #undef YY_DECL
 #define YY_DECL \
 int \
-sta::LibertyScanner::lex(sta::LibertyParse::semantic_type *const yylval, \
+sta::LibertyScanner::lex(sta::LibertyParse::semantic_type *yylval, \
                          sta::LibertyParse::location_type *loc)
 
 // update location on matching

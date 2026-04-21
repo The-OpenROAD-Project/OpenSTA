@@ -27,15 +27,15 @@
 #include <cmath>  // isnan
 
 #include "Debug.hh"
-#include "Units.hh"
+#include "GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Parasitics.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
 #include "TimingArc.hh"
 #include "TimingModel.hh"
-#include "Liberty.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Parasitics.hh"
-#include "GraphDelayCalc.hh"
+#include "Units.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -203,4 +203,4 @@ LumpedCapDelayCalc::reportGateDelay(const Pin *check_pin,
   return "";
 }
 
-} // namespace
+} // namespace sta

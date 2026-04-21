@@ -24,33 +24,30 @@
 
 #include "CheckTiming.hh"
 
-#include "Error.hh"
-#include "TimingRole.hh"
-#include "Network.hh"
-#include "NetworkCmp.hh"
-#include "PortDirection.hh"
-#include "Graph.hh"
-#include "PortDelay.hh"
-#include "ExceptionPath.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "SearchPred.hh"
-#include "Levelize.hh"
-#include "Bfs.hh"
-#include "Search.hh"
-#include "Genclks.hh"
-#include "Path.hh"
-#include "Sim.hh"
 #include "ClkNetwork.hh"
+#include "ExceptionPath.hh"
+#include "Format.hh"
+#include "Genclks.hh"
+#include "Graph.hh"
+#include "GraphClass.hh"
+#include "Levelize.hh"
+#include "Mode.hh"
+#include "Network.hh"
+#include "NetworkClass.hh"
+#include "NetworkCmp.hh"
+#include "Path.hh"
+#include "PortDelay.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
+#include "SdcClass.hh"
+#include "Sim.hh"
+#include "StaState.hh"
+#include "TimingRole.hh"
 
 namespace sta {
 
 CheckTiming::CheckTiming(StaState *sta) :
-  StaState(sta),
-  mode_(nullptr),
-  sdc_(nullptr),
-  sim_(nullptr),
-  clk_network_(nullptr)
+  StaState(sta)
 {
 }
 
@@ -224,12 +221,12 @@ CheckTiming::checkLoops()
           last_edge = edge;
         }
         if (last_edge) {
-          error->push_back("| loop cut point");
+          error->emplace_back("| loop cut point");
           const Pin *pin = last_edge->to(graph_)->pin();
           error->push_back(sdc_network_->pathName(pin));
 
           // Separator between loops.
-          error->push_back("--------------------------------");
+          error->emplace_back("--------------------------------");
         }
       }
     }
@@ -394,4 +391,4 @@ CheckTiming::pushClkErrors(const char *msg,
   }
 }
 
-} // namespace
+} // namespace sta

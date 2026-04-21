@@ -336,7 +336,7 @@ define_cmd_args "report_checks" \
      [-sort_by_slack]\
      [-path_group group_name]\
      [-format full|full_clock|full_clock_expanded|short|end|slack_only|summary|json]\
-     [-fields capacitance|slew|fanout|input_pin|net|src_attr]\
+     [-fields capacitance|slew|fanout|input_pin|net|src_attr|orig_name]\
      [-digits digits]\
      [-no_line_splits]\
      [> filename] [>> filename]}
@@ -366,6 +366,8 @@ define_cmd_args "report_check_types" \
      [> filename] [>> filename]}
 
 proc_redirect report_check_types {
+  variable float_inf
+  variable group_path_count_max
   variable path_options
 
   parse_key_args "report_check_types" args \
@@ -484,13 +486,13 @@ proc_redirect report_check_types {
       set path_min_max "min"
     }
     if { $violators } {
-      set group_path_count $sta::group_path_count_max
-      set slack_min [expr -$sta::float_inf]
+      set group_path_count $group_path_count_max
+      set slack_min [expr -$float_inf]
       set slack_max 0.0
     } else {
       set group_path_count 1
-      set slack_min [expr -$sta::float_inf]
-      set slack_max $sta::float_inf
+      set slack_min [expr -$float_inf]
+      set slack_max $float_inf
     }
 
     set path_ends [find_path_ends "NULL" {} "NULL" 0 \
@@ -722,6 +724,7 @@ proc parse_report_path_options { cmd args_var default_format
   set report_fanout 0
   set report_variation 0
   set report_src_attr 0
+  set report_orig_name 0
   if { [info exists path_options(-fields)] } {
     foreach field $path_options(-fields) {
       if { [string match "input*" $field] } {
@@ -740,6 +743,8 @@ proc parse_report_path_options { cmd args_var default_format
         set report_variation 1
       } elseif { [string match "src*" $field] } {
         set report_src_attr 1
+      } elseif { [string match "orig*" $field] } {
+        set report_orig_name 1
       } else {
         sta_warn 168 "unknown field $field."
       }
@@ -747,7 +752,8 @@ proc parse_report_path_options { cmd args_var default_format
   }
 
   set_report_path_fields $report_input_pin $report_hier_pins $report_net \
-    $report_cap $report_slew $report_fanout $report_variation $report_src_attr
+    $report_cap $report_slew $report_fanout $report_variation $report_src_attr \
+    $report_orig_name
 
   set_report_path_no_split [info exists path_options(-no_line_splits)]
 }
@@ -971,7 +977,7 @@ proc_redirect report_clock_min_period {
   set include_port_paths [info exists flags(-include_port_paths)]
 
   foreach clk $clks {
-    set min_period [sta::find_clk_min_period $clk $include_port_paths]
+    set min_period [find_clk_min_period $clk $include_port_paths]
     if { $min_period == 0.0 } {
       set min_period 0
       set fmax "INF"
@@ -979,7 +985,7 @@ proc_redirect report_clock_min_period {
       # max frequency in MHz
       set fmax [expr 1.0e-6 / $min_period]
     }
-    report_line "[get_name $clk] period_min = [sta::format_time $min_period 2] fmax = [format %.2f $fmax]"
+    report_line "[get_name $clk] period_min = [format_time $min_period 2] fmax = [format %.2f $fmax]"
   }
 }
 
@@ -1023,17 +1029,17 @@ proc unset_disable_inferred_clock_gating_cmd { objects } {
 
 # max slew slack / limit
 proc max_slew_check_slack_limit {} {
-  return [expr "[sta::max_slew_check_slack] / [sta::max_slew_check_limit]"]
+  return [expr "[max_slew_check_slack] / [max_slew_check_limit]"]
 }
 
 # max cap slack / limit
 proc max_capacitance_check_slack_limit {} {
-  return [expr [sta::max_capacitance_check_slack] / [sta::max_capacitance_check_limit]]
+  return [expr [max_capacitance_check_slack] / [max_capacitance_check_limit]]
 }
 
 # max fanout slack / limit
 proc max_fanout_check_slack_limit {} {
-  return [expr [sta::max_fanout_check_slack] / [sta::max_fanout_check_limit]]
+  return [expr [max_fanout_check_slack] / [max_fanout_check_limit]]
 }
 
 ################################################################

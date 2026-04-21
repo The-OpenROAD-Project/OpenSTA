@@ -24,14 +24,17 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
-#include "GraphClass.hh"
 #include "Delay.hh"
-#include "StaState.hh"
-#include "SearchClass.hh"
+#include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "NetworkClass.hh"
 #include "Path.hh"
-#include "MinMax.hh"
+#include "Scene.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -66,7 +69,6 @@ class CheckMaxSkews
 {
 public:
   CheckMaxSkews(StaState *sta);
-  ~CheckMaxSkews();
   void clear();
   // Return max skew checks.
   // net=null check all nets
@@ -95,4 +97,4 @@ protected:
   const StaState *sta_;
 };
 
-} // namespace
+} // namespace sta

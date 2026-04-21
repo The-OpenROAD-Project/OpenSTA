@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2025, Parallax Software, Inc.
+// Copyright (c) 2026, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@
 #include <cmath> // sqrt
 
 #include "Error.hh"
-#include "Fuzzy.hh"
-#include "Units.hh"
 #include "Format.hh"
+#include "Fuzzy.hh"
 #include "StaState.hh"
+#include "Units.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -229,4 +229,4 @@ DelayOpsNormal::asStringVariance(const Delay &delay,
                      unit->asString(delay.stdDev(), digits));
 }
 
-} // namespace
+} // namespace sta

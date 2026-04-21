@@ -89,4 +89,4 @@ fuzzyInf(float value)
     || fuzzyEqual(value, -INF);
 }
 
-} // namespace
+} // namespace sta

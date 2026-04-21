@@ -5,7 +5,6 @@ sta_module_tests("graph"
     delay_corners
     delete_modify
     incremental
-    make_verify
     modify
     operations
     timing_edges

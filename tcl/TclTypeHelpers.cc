@@ -40,9 +40,9 @@ tclListStringSeq(Tcl_Obj *const source,
   StringSeq seq;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
     for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      seq.push_back(str);
+      Tcl_Size length;
+      const char *arg = Tcl_GetStringFromObj(argv[i], &length);
+      seq.emplace_back(arg);
     }
   }
   return seq;
@@ -58,9 +58,9 @@ tclListStringSeqPtr(Tcl_Obj *const source,
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
     StringSeq *seq = new StringSeq;
     for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      seq->push_back(str);
+      Tcl_Size length;
+      const char *arg = Tcl_GetStringFromObj(argv[i], &length);
+      seq->emplace_back(arg);
     }
     return seq;
   }
@@ -78,9 +78,9 @@ tclListStringSet(Tcl_Obj *const source,
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
     StringSet *set = new StringSet;
     for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      set->insert(str);
+      Tcl_Size length;
+      const char *arg = Tcl_GetStringFromObj(argv[i], &length);
+      set->insert(arg);
     }
     return set;
   }
@@ -99,42 +99,6 @@ tclArgError(Tcl_Interp *interp,
     Sta::sta()->report()->error(id, msg, arg);
   } catch (const std::exception &e) {
     Tcl_SetResult(interp, const_cast<char*>(e.what()), TCL_VOLATILE);
-  }
-}
-
-void
-objectListNext(const char *list,
-               const char *type,
-               // Return values.
-               bool &type_match,
-               const char *&next)
-{
-  // Default return values (failure).
-  type_match = false;
-  next = nullptr;
-  // _hexaddress_p_type
-  const char *s = list;
-  char ch = *s++;
-  if (ch == '_') {
-    while (*s && isxdigit(*s))
-      s++;
-    if ((s - list - 1) == sizeof(void*) * 2
-        && *s && *s++ == '_'
-        && *s && *s++ == 'p'
-        && *s && *s++ == '_') {
-      const char *t = type;
-      while (*s && *s != ' ') {
-        if (*s != *t)
-          return;
-        s++;
-        t++;
-      }
-      type_match = true;
-      if (*s)
-        next = s + 1;
-      else
-        next = nullptr;
-    }
   }
 }
 
@@ -183,11 +147,11 @@ arcDcalcArgTcl(Tcl_Obj *obj,
 {
   Sta *sta = Sta::sta();
   sta->ensureGraph();
-  int list_argc;
+  Tcl_Size list_argc;
   Tcl_Obj **list_argv;
   if (Tcl_ListObjGetElements(interp, obj, &list_argc, &list_argv) == TCL_OK) {
     const char *input_delay = "0.0";
-    int length;
+    Tcl_Size length;
     if (list_argc == 6)
       input_delay = Tcl_GetStringFromObj(list_argv[5], &length);
     if (list_argc == 5 || list_argc == 6) {
@@ -204,4 +168,4 @@ arcDcalcArgTcl(Tcl_Obj *obj,
   return ArcDcalcArg();
 }
 
-} // namespace
+} // namespace sta

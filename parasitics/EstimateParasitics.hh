@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "StaState.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
-#include "SdcClass.hh"
 #include "ParasiticsClass.hh"
+#include "SdcClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -57,8 +57,8 @@ public:
 
 protected:
   void estimatePiElmoreBest(const Pin *drvr_pin,
-                            float net_pin_cap,
                             float wireload_cap,
+                            float net_pin_cap,
                             const RiseFall *rf,
                             const Scene *scene,
                             const MinMax *min_max,
@@ -95,4 +95,4 @@ protected:
                                 bool &elmore_use_load_cap);
 };
 
-} // namespace
+} // namespace sta

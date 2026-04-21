@@ -52,10 +52,10 @@ compareMax(float value1,
 const MinMax MinMax::min_("min", 0,  INF, std::numeric_limits<int>::max(), compareMin);
 const MinMax MinMax::max_("max", 1, -INF, std::numeric_limits<int>::min(), compareMax);
 const std::array<const MinMax*, 2> MinMax::range_{&min_, &max_};
-const std::array<int, 2> MinMax::range_index_{min_.index(), max_.index()};
+const std::array<size_t, 2> MinMax::range_index_{min_.index(), max_.index()};
 
-MinMax::MinMax(const char *name,
-               int index,
+MinMax::MinMax(std::string_view name,
+               size_t index,
                float init_value,
                int init_value_int,
                bool (*compare)(float value1, float value2)) :
@@ -86,7 +86,7 @@ MinMax::opposite() const
 }
 
 const MinMax *
-MinMax::find(const char *min_max)
+MinMax::find(std::string_view min_max)
 {
   if (stringEqual(min_max, "min")
       || stringEqual(min_max, "early"))
@@ -99,7 +99,7 @@ MinMax::find(const char *min_max)
 }
 
 const MinMax *
-MinMax::find(int index)
+MinMax::find(size_t index)
 {
   if (index == min_.index())
     return &min_;
@@ -133,10 +133,10 @@ const MinMaxAll MinMaxAll::max_("max", 1, {MinMax::max()}, {MinMax::max()->index
 const MinMaxAll MinMaxAll::all_("all", 2, {MinMax::min(), MinMax::max()},
                           {MinMax::min()->index(), MinMax::max()->index()});
 
-MinMaxAll::MinMaxAll(const char *name,
-                     int index,
-                     std::vector<const MinMax*> range,
-                     std::vector<int> range_index) :
+MinMaxAll::MinMaxAll(std::string_view name,
+                     size_t index,
+                     const std::vector<const MinMax*> &range,
+                     const std::vector<size_t> &range_index) :
   name_(name),
   index_(index),
   range_(range),
@@ -182,4 +182,4 @@ MinMaxAll::find(const char *min_max)
     return nullptr;
 }
 
-} // namespace
+} // namespace sta

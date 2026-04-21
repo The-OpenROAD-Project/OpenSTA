@@ -72,11 +72,17 @@ encapGetHandleProc(ClientData instanceData,
 static int
 encapBlockModeProc(ClientData instanceData, int mode);
 
+static int
+encapClose2Proc(ClientData instanceData,
+                Tcl_Interp *interp,
+                int flags);
+
 #if TCL_MAJOR_VERSION < 9
 static int
 encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
 static int
 encapSeekProc(ClientData instanceData,
+              // NOLINTNEXTLINE(google-runtime-int)  // Tcl_DriverSeekProc offset
               long offset,
               int seekMode,
               int *errorCodePtr);
@@ -85,43 +91,36 @@ encapSeekProc(ClientData instanceData,
 }  // extern "C"
 
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_5,
+  .typeName = "file",
+  .version = TCL_CHANNEL_VERSION_5,
 #if TCL_MAJOR_VERSION < 9
-  encapCloseProc,
+  .closeProc = encapCloseProc,
 #else
-  nullptr,  // closeProc unused
+  .closeProc = nullptr,  // closeProc unused
 #endif
-  encapInputProc,
-  encapOutputProc,
+  .inputProc = encapInputProc,
+  .outputProc = encapOutputProc,
 #if TCL_MAJOR_VERSION < 9
-  encapSeekProc,
+  .seekProc = encapSeekProc,
 #else
-  nullptr,  // close2Proc
+  .seekProc = nullptr,  // seekProc unused
 #endif
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,  // close2Proc
-  encapBlockModeProc,
-  nullptr,  // flushProc
-  nullptr,  // handlerProc
-  nullptr,  // wideSeekProc
-  nullptr,  // threadActionProc
-  nullptr   // truncateProc
+  .setOptionProc = encapSetOptionProc,
+  .getOptionProc = encapGetOptionProc,
+  .watchProc = encapWatchProc,
+  .getHandleProc = encapGetHandleProc,
+  .close2Proc = encapClose2Proc,
+  .blockModeProc = encapBlockModeProc,
+  .flushProc = nullptr,
+  .handlerProc = nullptr,
+  .wideSeekProc = nullptr,
+  .threadActionProc = nullptr,
+  .truncateProc = nullptr,
 };
 
 ////////////////////////////////////////////////////////////////
 
-ReportTcl::ReportTcl() :
-  Report(), interp_(nullptr),
-  tcl_stdout_(nullptr),
-  tcl_stderr_(nullptr),
-  tcl_encap_stdout_(nullptr),
-  tcl_encap_stderr_(nullptr)
-{
-}
+ReportTcl::ReportTcl() = default;
 
 ReportTcl::~ReportTcl()
 {
@@ -290,13 +289,10 @@ encapBlockModeProc(ClientData,
   return 0;
 }
 
-#if TCL_MAJOR_VERSION < 9
-
+// Close channel implementing CloseProc() or Close2Proc()
 static int
-encapCloseProc(ClientData instanceData,
-               Tcl_Interp *)
+closeChannel(ReportTcl *report)
 {
-  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
   report->logEnd();
   report->redirectFileEnd();
   report->redirectStringEnd();
@@ -304,7 +300,25 @@ encapCloseProc(ClientData instanceData,
 }
 
 static int
+encapClose2Proc(ClientData instanceData,
+                Tcl_Interp *,
+                int)
+{
+  return closeChannel(reinterpret_cast<ReportTcl *>(instanceData));
+}
+
+#if TCL_MAJOR_VERSION < 9
+
+static int
+encapCloseProc(ClientData instanceData,
+               Tcl_Interp *)
+{
+  return closeChannel(reinterpret_cast<ReportTcl *>(instanceData));
+}
+
+static int
 encapSeekProc(ClientData,
+              // NOLINTNEXTLINE(google-runtime-int)  // Tcl_DriverSeekProc offset
               long,
               int,
               int *)

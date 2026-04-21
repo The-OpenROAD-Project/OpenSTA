@@ -47,4 +47,4 @@ VertexPinCollector::visit(Vertex *vertex)
   pins_.insert(vertex->pin());
 }
 
-} // namespace
+} // namespace sta

@@ -60,6 +60,10 @@ sta::SaifParse::error(const location_type &loc,
 %define api.parser.class {SaifParse}
 %define api.value.type variant
 
+%code requires {
+#include "power/SaifReaderPvt.hh"
+}
+
 // expected shift/reduce conflicts
 %expect 2
 

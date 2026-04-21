@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <optional>
+#include <utility>
+
 #include "LibertyClass.hh"
 #include "LumpedCapDelayCalc.hh"
 
@@ -41,7 +44,7 @@ class DmpCeffDelayCalc : public LumpedCapDelayCalc
 {
 public:
   DmpCeffDelayCalc(StaState *sta);
-  virtual ~DmpCeffDelayCalc();
+  ~DmpCeffDelayCalc() override;
   bool reduceSupported() const override { return true; }
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
@@ -71,13 +74,10 @@ protected:
                              // Return values.
                              double &wire_delay,
                              double &load_slew) = 0;
-  void gateDelaySlew(// Return values.
-                     double &delay,
-                     double &slew);
-  void loadDelaySlewElmore(const Pin *load_pin,
-                           double elmore,
-                           double &delay,
-                           double &slew);
+  std::pair<double, double> gateDelaySlew();
+  std::optional<std::pair<double, double>>
+  loadDelaySlewElmore(const Pin *load_pin,
+                      double elmore);
   // Select the appropriate special case Dartu/Menezes/Pileggi algorithm.
   void setCeffAlgorithm(const LibertyLibrary *library,
                         const LibertyCell *cell,
@@ -98,7 +98,7 @@ private:
   DmpCap *dmp_cap_;
   DmpPi *dmp_pi_;
   DmpZeroC2 *dmp_zero_c2_;
-  DmpAlg *dmp_alg_;
+  DmpAlg *dmp_alg_{nullptr};
 };
 
-} // namespace
+} // namespace sta

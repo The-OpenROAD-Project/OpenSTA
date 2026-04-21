@@ -27,12 +27,12 @@
 #include <cstdlib>
 #include <string>
 
-#include "StringUtil.hh"
-#include "Units.hh"
-#include "Liberty.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
 #include "Graph.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "StringUtil.hh"
+#include "TimingArc.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -135,7 +135,7 @@ ArcDcalcArg::ArcDcalcArg(const Pin *in_pin,
                          const Pin *drvr_pin,
                          Edge *edge,
                          const TimingArc *arc,
-                         const Slew in_slew,
+                         Slew in_slew,
                          float load_cap,
                          const Parasitic *parasitic) :
   in_pin_(in_pin),
@@ -165,17 +165,7 @@ ArcDcalcArg::ArcDcalcArg(const Pin *in_pin,
 {
 }
 
-ArcDcalcArg::ArcDcalcArg(const ArcDcalcArg &arg) :
-  in_pin_(arg.in_pin_),
-  drvr_pin_(arg.drvr_pin_),
-  edge_(arg.edge_),
-  arc_(arg.arc_),
-  in_slew_(arg.in_slew_),
-  load_cap_(arg.load_cap_),
-  parasitic_(arg.parasitic_),
-  input_delay_(arg.input_delay_)
-{
-}
+ArcDcalcArg::ArcDcalcArg(const ArcDcalcArg &arg) = default;
 
 const RiseFall *
 ArcDcalcArg::inEdge() const
@@ -305,4 +295,4 @@ ArcDcalcResult::setLoadSlew(size_t load_idx,
   load_slews_[load_idx] = load_slew;
 }
 
-} // namespace
+} // namespace sta

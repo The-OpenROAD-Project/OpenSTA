@@ -148,4 +148,4 @@ unencode(const char *inits[])
   return unencoded;
 }
 
-} // namespace
+} // namespace sta

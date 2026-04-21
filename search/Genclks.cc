@@ -26,25 +26,25 @@
 
 #include <cmath>
 
-#include "ContainerHelpers.hh"
-#include "Stats.hh"
-#include "Debug.hh"
-#include "Report.hh"
-#include "Network.hh"
-#include "PortDirection.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "ExceptionPath.hh"
-#include "Clock.hh"
-#include "StaState.hh"
-#include "SearchPred.hh"
 #include "Bfs.hh"
-#include "TagGroup.hh"
-#include "Scene.hh"
+#include "Clock.hh"
+#include "ContainerHelpers.hh"
+#include "Debug.hh"
+#include "ExceptionPath.hh"
+#include "Graph.hh"
 #include "Levelize.hh"
+#include "Mode.hh"
+#include "Network.hh"
 #include "Path.hh"
+#include "PortDirection.hh"
+#include "Report.hh"
+#include "Scene.hh"
+#include "Sdc.hh"
 #include "Search.hh"
+#include "SearchPred.hh"
+#include "StaState.hh"
+#include "Stats.hh"
+#include "TagGroup.hh"
 #include "Variables.hh"
 
 namespace sta {
@@ -69,7 +69,7 @@ protected:
   Level gclk_level_;
   VertexSet fanins_;
   EdgeSet fdbk_edges_;
-  bool found_latch_fdbk_edges_;
+  bool found_latch_fdbk_edges_{false};
   FilterPath *src_filter_;
 };
 
@@ -80,7 +80,6 @@ GenclkInfo::GenclkInfo(Clock *gclk,
   gclk_(gclk),
   gclk_level_(gclk_level),
   fanins_(makeVertexSet(sta->graph())),
-  found_latch_fdbk_edges_(false),
   src_filter_(src_filter)
 {
 }
@@ -99,7 +98,6 @@ Genclks::Genclks(const Mode *mode,
                  StaState *sta) :
   StaState(sta),
   mode_(mode),
-  found_insertion_delays_(false),
   vertex_src_paths_map_(graph_)
 {
 }
@@ -229,8 +227,9 @@ GenClkMasterSearchPred::GenClkMasterSearchPred(const StaState *sta) :
 bool
 GenClkMasterSearchPred::searchThruAllow(const TimingRole *role) const
 {
-  return (role->isWire() || role == TimingRole::combinational()
-          || role->regClkToQ());
+  return role->isWire()
+    || role == TimingRole::combinational()
+    || role == TimingRole::regClkToQ();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -339,8 +338,9 @@ GenClkFaninSrchPred::GenClkFaninSrchPred(Clock *gclk,
 bool
 GenClkFaninSrchPred::searchThruAllow(const TimingRole *role) const
 {
-  return (role == TimingRole::combinational() || role == TimingRole::wire()
-          || !combinational_);
+  return role == TimingRole::combinational()
+    || role == TimingRole::wire()
+    || !combinational_;
 }
 
 void
@@ -682,6 +682,7 @@ bool
 GenClkArrivalSearchPred::searchTo(const Vertex *to_vertex,
                                   const Mode *mode) const
 {
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
   return SearchPred0::searchTo(to_vertex, mode);
 }
 
@@ -716,13 +717,11 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
                                                  BfsFwdIterator *insert_iter,
                                                  GenclkInfo *genclk_info,
                                                  const Mode *mode) :
-  ArrivalVisitor(mode),
+  ArrivalVisitor(mode->sta()),
   gclk_(gclk),
   insert_iter_(insert_iter),
   genclk_info_(genclk_info),
-  srch_pred_(gclk_,
-             genclk_info,
-             mode),
+  srch_pred_(gclk_, genclk_info, mode->sta()),
   mode_(mode),
   sdc_(mode->sdc()),
   genclks_(mode->genclks())
@@ -736,15 +735,11 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
                                                  bool always_to_endpoints,
                                                  SearchPred *pred,
                                                  const Mode *mode) :
-  ArrivalVisitor(always_to_endpoints,
-                 pred,
-                 mode),
+  ArrivalVisitor(always_to_endpoints, pred, this),
   gclk_(gclk),
   insert_iter_(insert_iter),
   genclk_info_(genclk_info),
-  srch_pred_(gclk,
-             genclk_info,
-             mode),
+  srch_pred_(gclk, genclk_info, this),
   mode_(mode),
   sdc_(mode->sdc()),
   genclks_(mode->genclks())
@@ -816,7 +811,7 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
 void
 Genclks::clearSrcPaths()
 {
-  for (auto [vertex, paths] : vertex_src_paths_map_) {
+  for (const auto& [vertex, paths] : vertex_src_paths_map_) {
     for (const Path *path : paths)
       delete path;
   }
@@ -838,7 +833,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 
   bool divide_by_1 = gclk->isDivideByOneCombinational();
   bool invert = gclk->invert();
-  bool has_edges = gclk->edges() != nullptr;
+  bool has_edges = !gclk->edges().empty();
 
   for (const Pin *gclk_pin : gclk->leafPins()) {
     std::vector<Path> &src_paths = genclk_src_paths_[ClockPinPair(gclk, gclk_pin)];
@@ -888,11 +883,14 @@ Genclks::recordSrcPaths(Clock *gclk)
       }
     }
     // Don't warn if the master clock is ideal.
-    if (!found_src_paths && gclk->masterClk() && gclk->masterClk()->isPropagated())
-      report_->warn(
-          1062,
-          "generated clock {} source pin {} missing paths from master clock {}.",
-          gclk->name(), network_->pathName(gclk_pin), gclk->masterClk()->name());
+    if (!found_src_paths
+        && gclk->masterClk()
+        && gclk->masterClk()->isPropagated())
+      report_->warn(1062,
+                    "generated clock {} source pin {} missing paths from master clock {}.",
+                    gclk->name(),
+                    network_->pathName(gclk_pin),
+                    gclk->masterClk()->name());
   }
   deleteGenclkSrcPaths(gclk);
 }
@@ -901,7 +899,7 @@ void
 Genclks::deleteGenclkSrcPaths(Clock *gclk)
 {
   GenclkInfo *genclk_info = genclkInfo(gclk);
-  GenClkInsertionSearchPred srch_pred(gclk, genclk_info, mode_);
+  GenClkInsertionSearchPred srch_pred(gclk, genclk_info, mode_->sta());
   BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
   FilterPath *src_filter = genclk_info->srcFilter();
   seedSrcPins(gclk, src_filter, insert_iter);

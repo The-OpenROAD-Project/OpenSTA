@@ -86,7 +86,7 @@ foreach from_idx {0 1 2 3} {
   puts "din\[$from_idx\]->dout\[$from_idx\]: done"
 }
 
-report_checks -fields {slew cap input_pins nets fanout}
+report_checks -fields {slew cap input_pins net fanout}
 
 #---------------------------------------------------------------
 # Test 3: Fanin/fanout through hierarchy and assigns

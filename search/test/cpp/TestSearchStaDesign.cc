@@ -130,7 +130,7 @@ protected:
     FloatSeq *waveform = new FloatSeq;
     waveform->push_back(0.0f);
     waveform->push_back(5.0f);
-    sta_->makeClock("clk", clk_pins, false, 10.0f, waveform, "",
+    sta_->makeClock("clk", *clk_pins, false, 10.0f, *waveform, "",
                      sta_->cmdMode());
 
     // Set input delays
@@ -1874,7 +1874,7 @@ TEST_F(StaDesignTest, SearchReportClkInfos) {
 
 TEST_F(StaDesignTest, SetReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
 
   }() ));
 }
@@ -2123,14 +2123,6 @@ TEST_F(StaDesignTest, ConnectDisconnectPin) {
 TEST_F(StaDesignTest, EndpointPins) {
   PinSet eps = sta_->endpointPins();
   EXPECT_GT(eps.size(), 0u);
-}
-
-// --- Sta: startpointPins ---
-
-TEST_F(StaDesignTest, StartpointPins) {
-  // startpointPins() is declared in Sta.hh but not defined - skip
-  // PinSet sps = sta_->startpointPins();
-  // EXPECT_GT(sps.size(), 0u);
 }
 
 // --- Search: arrivalsValid ---
@@ -3633,7 +3625,7 @@ TEST_F(StaDesignTest, ReportPathFieldOrder) {
 
 TEST_F(StaDesignTest, ReportPathFields) {
   ASSERT_NO_THROW(( [&](){
-  sta_->setReportPathFields(true, true, true, true, true, true, true, true);
+  sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
 
   }() ));
 }

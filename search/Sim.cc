@@ -54,12 +54,7 @@ findDrvrPin(const Pin *pin,
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
-  mode_(nullptr),
-  observer_(nullptr),
-  valid_(false),
-  incremental_(false),
   const_func_pins_(network_),
-  const_func_pins_valid_(false),
   invalid_insts_(network_),
   invalid_drvr_pins_(network_),
   invalid_load_pins_(network_),
@@ -179,7 +174,7 @@ logicNot(LogicValue value)
   static LogicValue logic_not[5] = {LogicValue::one, LogicValue::zero,
                                     LogicValue::unknown, LogicValue::unknown,
                                     LogicValue::unknown};
-  return logic_not[int(value)];
+  return logic_not[static_cast<size_t>(value)];
 }
 
 void
@@ -726,7 +721,7 @@ Sim::functionSense(const Instance *inst,
                    const Pin *from_pin,
                    const Pin *to_pin)
 {
-  if (isConstant((from_pin)))
+  if (isConstant(from_pin))
     return TimingSense::none;
   else {
     LibertyPort *from_port = network_->libertyPort(from_pin);
@@ -867,7 +862,7 @@ Sim::isDisabledMode(Edge *edge,
 {
   // Default values.
   is_disabled = false;
-  disable_cond = 0;
+  disable_cond = nullptr;
   TimingArcSet *arc_set = edge->timingArcSet();
   const std::string &mode_name = arc_set->modeName();
   const std::string &mode_value = arc_set->modeValue();

@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "MinMax.hh"
 #include "Error.hh"
+#include "MinMax.hh"
 
 namespace sta {
 
@@ -200,4 +200,4 @@ private:
 using MinMaxFloatValues = MinMaxValues<float>;
 using MinMaxIntValues = MinMaxValues<int>;
 
-} // namespace
+} // namespace sta

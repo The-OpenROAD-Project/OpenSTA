@@ -24,24 +24,24 @@
 
 #include "VisitPathEnds.hh"
 
-#include "Debug.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "TimingArc.hh"
-#include "ExceptionPath.hh"
-#include "PortDelay.hh"
-#include "Sdc.hh"
-#include "Mode.hh"
-#include "Graph.hh"
 #include "ClkInfo.hh"
-#include "Tag.hh"
+#include "Debug.hh"
+#include "ExceptionPath.hh"
+#include "GatedClk.hh"
+#include "Graph.hh"
+#include "Liberty.hh"
+#include "Mode.hh"
+#include "Network.hh"
 #include "Path.hh"
 #include "PathEnd.hh"
-#include "Search.hh"
-#include "GatedClk.hh"
-#include "Sim.hh"
-#include "Variables.hh"
+#include "PortDelay.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
+#include "Search.hh"
+#include "Sim.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
+#include "Variables.hh"
 
 namespace sta {
 
@@ -562,7 +562,7 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
       if (sdc->sameClockGroup(src_clk, tgt_clk)
           && !sdc->clkStopPropagation(from_pin, tgt_clk)
           // False paths and path delays override.
-          && (exception == 0
+          && (exception == nullptr
               || exception->isFilter()
               || exception->isGroupPath()
               || exception->isMultiCycle())
@@ -650,4 +650,4 @@ VisitPathEnds::exceptionTo(const Path *path,
                               min_max, false, false, path->sdc(this));
 }
 
-} // namespace
+} // namespace sta

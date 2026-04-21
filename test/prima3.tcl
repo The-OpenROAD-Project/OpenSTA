@@ -9,3 +9,4 @@ set_propagated_clock {clk1 clk2 clk3}
 read_spef reg1_asap7.spef
 sta::set_delay_calculator prima
 report_checks -fields {input_pins slew} -format full_clock
+report_dcalc -from u1/A -to u1/Y

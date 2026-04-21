@@ -47,7 +47,7 @@ proc define_scene { args } {
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
   } else {
-    set mode_name [sta::cmd_mode_name]
+    set mode_name [cmd_mode_name]
   }
 
   set liberty_min_files {}
@@ -300,7 +300,7 @@ proc get_timing_edges_cmd { cmd cmd_args } {
     cmd_usage_error $cmd
   }
   if [info exists keys(-filter)] {
-    set arcs [filter_timing_arcs $keys(-filter) $arcs 1]
+    set arcs [filter_timing_arcs $keys(-filter) $arcs]
   }
   return $arcs
 }

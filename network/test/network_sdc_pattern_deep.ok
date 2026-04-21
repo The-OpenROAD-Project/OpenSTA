@@ -216,7 +216,6 @@ Path Type: max
            6.82   slack (MET)
 
 
-Warning 168: network_sdc_pattern_deep.tcl line 1, unknown field nets.
 Startpoint: in1 (input port clocked by clk)
 Endpoint: out2 (output port clocked by clk)
 Path Group: clk
@@ -228,18 +227,25 @@ Fanout     Cap    Slew   Delay    Time   Description
                           0.00    0.00   clock network delay (ideal)
                           1.00    1.00 v input external delay
      1    0.88    0.10    0.00    1.00 v in1 (in)
+                                         in1 (net)
                   0.10    0.00    1.00 v buf_in/A (BUF_X1)
      1    0.87    0.01    0.06    1.06 v buf_in/Z (BUF_X1)
+                                         w1 (net)
                   0.01    0.00    1.06 v sub1/and_gate/A1 (AND2_X1)
      1    0.88    0.01    0.03    1.08 v sub1/and_gate/ZN (AND2_X1)
+                                         sub1/n1 (net)
                   0.01    0.00    1.08 v sub1/buf_gate/A (BUF_X1)
      1    0.87    0.00    0.02    1.11 v sub1/buf_gate/Z (BUF_X1)
+                                         w2 (net)
                   0.00    0.00    1.11 v sub2/and_gate/A1 (AND2_X1)
      1    0.88    0.01    0.02    1.13 v sub2/and_gate/ZN (AND2_X1)
+                                         sub2/n1 (net)
                   0.01    0.00    1.13 v sub2/buf_gate/A (BUF_X1)
      2    2.42    0.01    0.03    1.16 v sub2/buf_gate/Z (BUF_X1)
+                                         w3 (net)
                   0.01    0.00    1.16 v buf_out2/A (BUF_X1)
      1    0.00    0.00    0.02    1.18 v buf_out2/Z (BUF_X1)
+                                         out2 (net)
                   0.00    0.00    1.18 v out2 (out)
                                   1.18   data arrival time
 

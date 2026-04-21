@@ -24,17 +24,18 @@
 
 #pragma once
 
-#include <queue>
 #include <mutex>
+#include <queue>
 #include <unordered_map>
 #include <unordered_set>
 
-#include "StaConfig.hh"  // CUDD
-#include "NetworkClass.hh"
+#include "Bdd.hh"
 #include "GraphClass.hh"
+#include "LibertyClass.hh"
+#include "Mode.hh"
+#include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
-#include "Bdd.hh"
 
 namespace sta {
 
@@ -51,8 +52,8 @@ class Sim : public StaState
 {
 public:
   Sim(StaState *sta);
-  virtual ~Sim();
-  virtual void copyState(const StaState *sta);
+  ~Sim() override;
+  void copyState(const StaState *sta) override;
   void clear();
   void setMode(Mode *mode);
   // Set the observer for simulation value changes.
@@ -165,10 +166,10 @@ protected:
   DdNode *funcBddSim(const FuncExpr *expr,
                      const Instance *inst);
 
-  Mode *mode_;
-  SimObserver *observer_;
-  bool valid_;
-  bool incremental_;
+  Mode *mode_{nullptr};
+  SimObserver *observer_{nullptr};
+  bool valid_{false};
+  bool incremental_{false};
   // Constants propagated by Sim.cc
   SimValueMap sim_value_map_;
   EdgeDisabledCondSet edge_disabled_cond_set_;
@@ -176,7 +177,7 @@ protected:
   // Cache of pins that have constant functions (tie high and tie low
   // cell instances).
   PinSet const_func_pins_;
-  bool const_func_pins_valid_;
+  bool const_func_pins_valid_{false};
   // Instances that require incremental constant propagation.
   InstanceSet invalid_insts_;
   // Driver pins waiting to propagate constant to loads.
@@ -194,10 +195,9 @@ class SimObserver : public StaState
 {
 public:
   SimObserver(StaState *sta);
-  virtual ~SimObserver() {}
   virtual void valueChangeAfter(const Pin *pin) = 0;
   virtual void faninEdgesChangeAfter(const Pin *pin) = 0;
   virtual void fanoutEdgesChangeAfter(const Pin *pin) = 0;
 };
 
-} // namespace
+} // namespace sta
