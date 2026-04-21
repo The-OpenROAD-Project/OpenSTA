@@ -76,5 +76,7 @@ HeaderFilterRegex: '.*/(app|cmake|dcalc|graph|liberty|network|parasitics|power|s
 # util/gzstream.hh
 # util/FlexDisableRegister.hh
 # Bison-generated parser headers (build/{Liberty,Verilog,...}Parse.hh)
-ExcludeHeaderFilterRegex: '(.*/)?(gzstream\.hh|FlexDisableRegister\.hh|(Liberty|Verilog|Sdf|Spef|Saif|LibExpr)Parse\.hh)$'
+# Homebrew and MacPorts third-party headers.
+ExcludeHeaderFilterRegex: '(^/opt/(homebrew|local)/.*)|((.*/)?(gzstream\.hh|FlexDisableRegister\.hh|(Liberty|Verilog|Sdf|Spef|Saif|LibExpr)Parse\.hh)$)'
+SystemHeaders: false
 FormatStyle: none
