@@ -338,6 +338,12 @@ Sta::setThreadCount1(int thread_count)
     dispatch_queue_ = new DispatchQueue(thread_count);
 }
 
+uint64_t
+Sta::dispatchCallCount() const
+{
+  return dispatch_queue_ ? dispatch_queue_->dispatchCallCount() : 0;
+}
+
 void
 Sta::updateComponentsState()
 {

@@ -19,6 +19,7 @@ sta_module_tests("search"
     genclk_latch_deep
     genclk_property_report
     json_unconstrained
+    kahns_bfs_dispatch
     latch
     latch_timing
     levelize_loop_disabled
