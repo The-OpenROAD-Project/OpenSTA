@@ -2281,15 +2281,41 @@ Sta::setPocvMode(PocvMode mode)
       delay_ops_ = new DelayOpsScalar();
       break;
     case PocvMode::normal:
+      checkLibrarayPocv();
       delay_ops_ = new  DelayOpsNormal();
       break;
     case PocvMode::skew_normal:
+      checkLibrarayPocv();
       delay_ops_ = new DelayOpsSkewNormal();
       break;
     }
     updateComponentsState();
     delaysInvalid();
   }
+}
+
+void
+Sta::checkLibrarayPocv()
+{
+  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
+  while (lib_iter->hasNext()) {
+    LibertyLibrary *lib = lib_iter->next();
+    LibertyCellIterator cell_iter(lib);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      for (const TimingArcSet *arc_set : cell->timingArcSets()) {
+        for (const TimingArc *arc : arc_set->arcs()) {
+          GateTableModel *gate_model = arc->gateTableModel();
+          if (gate_model) {
+            const TableModels *models = gate_model->delayModels();
+            if (models->sigma(EarlyLate::early()) != nullptr)
+              return;
+          }
+        }
+      }
+    }
+  }
+  report_->warn(1578, "No liberty POCV/LVF models found.");
 }
 
 float

@@ -1609,6 +1609,7 @@ protected:
                    Mode *mode,
                    Parasitics *parasitics);
   void deleteScenes();
+  void checkLibrarayPocv();
 
   Scene *cmd_scene_{nullptr};
   CmdNamespace cmd_namespace_{CmdNamespace::sdc};
