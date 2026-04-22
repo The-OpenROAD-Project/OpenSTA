@@ -101,6 +101,13 @@ set_thread_count(int count)
   Sta::sta()->setThreadCount(count);
 }
 
+// See Sta::dispatchCallCount.
+unsigned long long
+dispatch_call_count()
+{
+  return Sta::sta()->dispatchCallCount();
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

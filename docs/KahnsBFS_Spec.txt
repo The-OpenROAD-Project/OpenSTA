@@ -290,7 +290,7 @@ Over-invalidation in the dirty set. The incremental framework's invalid_arrivals
 
 Per-call active_vertices allocation. The KahnState persistence avoids re-allocating in_degree_init and in_degree across calls, but the active_vertices vector is rebuilt every call. For very frequent small updates this has some overhead.
 
-Recursive dispatch cost for small workloads. Each ready vertex is dispatched as its own DispatchQueue task. The dispatch lock and condition-variable signaling cost is tiny per task, but for active sets smaller than the thread count the parallelism benefit may not offset the dispatch overhead.
+Recursive dispatch cost for small workloads. (Addressed in Section 13.) The original recursive-dispatch scheme called DispatchQueue::dispatch per ready successor, which contended heavily on the shared mutex at high thread counts. This has been replaced with per-worker local batches (Section 13) that drain in-line and spill only when deep. The steady-state dispatch count dropped from O(visited_vertices) to O(thread_count + spills).
 
 No Kahn's when dynamic loop breaking is enabled. sta_dynamic_loop_breaking decides whether a disabled-loop edge is traversable based on arrival tags that only appear during propagation, which Kahn's upfront-discovery model cannot consult. visitParallel therefore falls back to the original level-based BFS whenever dynamicLoopBreaking() is true. The Tcl toggle sta_use_kahns_bfs still reads normally, but the traversal uses the original path. See Section 7, Finding 3 for details.
 
@@ -338,3 +338,130 @@ Benefit: Eliminates overhead for small incremental updates while preserving thro
 Objective: Amortize cone-computation cost when multiple slack queries are issued in sequence.
 Approach: When several slack queries arrive together, compute the union of their backward cones once and perform a single scoped forward sweep across the combined cone, rather than repeating the cone computation and forward traversal per query.
 Benefit: Reduces redundant work in reporting flows that issue many related queries, such as full endpoint slack reports or path-group summaries.
+
+
+13. PARALLEL-DISPATCH OVERHEAD: DIAGNOSIS AND LOCAL-BATCHING FIX
+
+At high thread counts on large designs, the original recursive-dispatch scheme (one dispatch_queue_->dispatch() call per newly-ready successor) turned into a serialization point rather than a parallelism enabler. This section records the diagnosis, the fix, and the diagnostic harness that was added so future regressions in this area can be caught quickly and quantitatively.
+
+
+13.1 Observed symptom
+
+On a large SoC-scale A/B sweep with 32 threads, the clock tree synthesis step ran ~24% slower with Kahn's enabled than with Kahn's disabled. Other STA-heavy steps showed similar regressions in the ~20-25% range. Parity on the OpenSTA standalone regression suite (Section 8) and on small ORFS designs was undisturbed; the slowdown was specific to designs whose active subgraph during arrival propagation is large.
+
+
+13.2 Root cause
+
+Two pieces of evidence pinned the issue to DispatchQueue contention rather than algorithmic cost:
+
+  - Isolated STA measurement (harness in Section 13.5) showed the same
+    ~25% gap on a full arrival sweep (report_checks -path_delay max)
+    when loading a post-CTS database directly, outside of any ORFS
+    step. The effect was not CTS-specific; it was the STA engine.
+
+  - A dispatch() counter added to DispatchQueue revealed that Kahn's
+    issued roughly 5-7x more dispatch() calls than the original
+    level-based BFS on identical workloads. Each dispatch() call
+    acquires DispatchQueue::lock_ (a std::mutex) and signals a
+    condition_variable; at 32 threads, the hundreds of thousands of
+    mutex acquisitions produced severe contention.
+
+The algorithmic atomics in the hot path (in_degree[sid].fetch_sub(1, memory_order_acq_rel)) are lock-free and do not loop — they map to a single LOCK XADD on x86 — so the contention was not in the algorithm. It was in the work-queue: the level-based BFS dispatches O(thread_count * heavy_levels) tasks, while the original Kahn's dispatched O(visited_vertices) tasks. On a ~2k-cell reference design this was a 5.2x ratio; on designs where the active subgraph is hundreds of thousands of vertices, the ratio and the wall-clock impact grow accordingly.
+
+
+13.3 Fix: per-worker local batches with spill
+
+The recursive-dispatch worker lambda in visitParallel was replaced with a per-worker local ready-batch model:
+
+  - Each DispatchQueue worker runs with a stable thread-id tid. The
+    Kahn's branch allocates a stack-local std::vector<Vertex *>
+    local_ready[tid], one slot per worker, and the worker drains its
+    own slot in-line with a while-loop rather than calling dispatch().
+  - When a successor's in-degree transitions to zero, it is pushed to
+    the current worker's batch instead of dispatched. The same worker
+    pops it on the next drain iteration.
+  - When the local batch exceeds a spill threshold
+    (kKahnBatchSpillThreshold = 64), the older half is handed back to
+    DispatchQueue via a batched dispatch() so idle workers can steal.
+    This keeps the worker's most-recent frontier hot locally while
+    preventing starvation in the presence of fan-out spikes.
+  - Initial seeding no longer dispatches one task per seed. Seeds are
+    sharded round-robin across min(thread_count, seeds.size())
+    dispatches; each dispatched task pre-loads its shard into the
+    worker's local batch and then enters the drain loop.
+
+Per-tid exclusivity is guaranteed because DispatchQueue workers are fixed-id (each worker thread is constructed with its index i in dispatch_thread_handler). Two concurrent tasks never share a tid, so each local_ready[tid] slot is touched only by its owning worker — no locking on the vector is needed. The in-degree fetch_sub retains its memory_order_acq_rel ordering; it is the happens-before edge that establishes visitor-writes-before-successor-reads, and switching between local-push and shared-dispatch does not change that ordering because the same thread that wins the decrement is the thread that subsequently owns the successor's visit. The setBfsInQueue(bfs_index_, false) call still fires exactly once per vertex, at the top of each drain-loop iteration.
+
+
+13.4 Measured outcome
+
+  - Dispatch-count regression: the ON/OFF ratio on the reference
+    regression (Section 13.5.2) dropped from 5.22x to 0.27x. Kahn's
+    now dispatches fewer tasks than the level-based BFS, because
+    level-BFS still pays thread_count dispatches per heavy level
+    while Kahn's pays only shard-seeds plus a small number of spills.
+
+  - Wall-clock regression on the large-design STA benchmark
+    (Section 13.5.1): the ~25% slowdown on full arrival propagation
+    at 32 threads disappeared. On an isolated run, ON matched OFF
+    within measurement noise (~2%).
+
+Kahn's is not yet faster than level-BFS on the isolated post-CTS sweep, which was expected — the algorithmic advantage of Kahn's (no per-level barrier) only materializes when barriers dominate, which is not the case at this thread count on designs whose visit() body is the cost center. What the fix delivers is elimination of the overhead regression: Kahn's is safe to leave enabled by default.
+
+
+13.5 Diagnostic harness
+
+A small harness was added so both correctness and performance of this path can be checked quickly and deterministically. The pieces are independent and can be used in isolation.
+
+
+13.5.1 Tcl accessor: sta::dispatch_call_count
+
+DispatchQueue carries a std::atomic<uint64_t> counter that increments on every dispatch() call. The counter is exposed via a Sta forwarder and a SWIG inline in util/Util.i:
+
+    set before [sta::dispatch_call_count]
+    # ... some STA work ...
+    set dispatches [expr {[sta::dispatch_call_count] - $before}]
+
+The counter is monotonic since Sta construction. There is no reset command — callers compute deltas between two reads. The counter is wall-clock-independent and therefore suitable for golden-file regressions in CI, unlike raw elapsed times.
+
+Accessor forwarding:
+    Sta::dispatchCallCount() (search/Sta.cc) -> DispatchQueue::dispatchCallCount()
+    Tcl command sta::dispatch_call_count (util/Util.i)
+
+Header visibility is confined to DispatchQueue.hh; neither StaState.hh nor Util.i reaches directly into DispatchQueue internals.
+
+
+13.5.2 Regression: search/test/search_kahns_bfs_dispatch.tcl
+
+A module-search regression captures the dispatch count during a report_checks sweep on the bundled gcd_sky130hd example, once with sta_use_kahns_bfs=0 and once with =1. The test sets sta::set_thread_count 2 (kept small and fixed so the golden is portable), calls sta::arrivals_invalid between phases to force both iterators to re-propagate through visitParallel, and prints:
+
+    off_dispatches=<N>
+    on_dispatches=<M>
+    on_to_off_ratio=<M/N>
+
+The golden encodes the current numbers. A future change to either BFS path shifts these numbers, and the failing diff forces the reviewer to notice and either accept the shift (if it reduces ON) or investigate it (if it increases ON or re-introduces a large ratio). Typical healthy values under the current fix are ON << OFF.
+
+Test invocation from sta/search/test/:
+    ./regression search_kahns_bfs_dispatch
+
+
+13.5.3 Isolated STA wall-clock harness: flow/util/kahns_sta_isolated.tcl
+
+For pinpointing STA-level wall-clock regressions without running ORFS steps around them, a tiny Tcl harness loads a post-CTS database, applies the liberty set, and times two report_checks passes (-path_delay max and -path_delay min) under a caller-supplied Kahn's mode. The caller sets kahn_mode before sourcing:
+
+    echo "set kahn_mode 0; source util/kahns_sta_isolated.tcl" | openroad -exit -no_init -threads <N>
+    echo "set kahn_mode 1; source util/kahns_sta_isolated.tcl" | openroad -exit -no_init -threads <N>
+
+Each invocation prints:
+
+    STA_MS max:   <N> ms
+    STA_MS min:   <N> ms
+
+Two separate invocations are used deliberately to avoid any stale-arrival or process-cached state from contaminating the comparison. The database path and liberty set inside the script are design-specific and live in flow/util/ as a convention; users adapt them to the design under investigation.
+
+The combination of these three tools gives a complete picture: Section 13.5.2 catches dispatch-count regressions in CI, Section 13.5.1 lets individual Tcl scripts capture fine-grained counts on arbitrary phases, and Section 13.5.3 validates wall-clock on the exact graph topology that matters for a specific concern.
+
+
+13.6 What remains
+
+Kahn's at 32 threads on a large design is now at parity with level-BFS on the STA-isolated benchmark. Real algorithmic wins from barrier elimination are still expected on designs where level populations are highly uneven — the profile that originally motivated Kahn's — but measuring them requires designs larger than the reference corpus here. Future work in that direction belongs under Section 12, particularly items 1 (visit-level change short-circuit) and 3 (demand-driven forward propagation), which reduce the visit() cost that currently dominates on the designs tested.

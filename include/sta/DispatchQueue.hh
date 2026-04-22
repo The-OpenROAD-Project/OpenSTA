@@ -30,6 +30,11 @@ public:
   // Dispatch and move.
   void dispatch(fp_t&& op);
   void finishTasks();
+  // Monotonic total of dispatch() calls since construction. Exposed so
+  // the Kahn's BFS regression can measure concurrency overhead via
+  // dispatch-count deltas (Kahn's dispatches per ready-transition vs
+  // the original BFS's per level-chunk).
+  uint64_t dispatchCallCount() const;
 
   // Deleted operations
   DispatchQueue(const DispatchQueue& rhs) = delete;
@@ -47,6 +52,7 @@ private:
   std::condition_variable cv_;
   std::atomic<size_t> pending_task_count_;
   bool quit_ = false;
+  std::atomic<uint64_t> dispatch_call_count_{0};
 };
 
 } // namespace sta

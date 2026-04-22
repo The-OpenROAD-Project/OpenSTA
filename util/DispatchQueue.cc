@@ -62,9 +62,16 @@ DispatchQueue::finishTasks()
     std::this_thread::yield();
 }
 
+uint64_t
+DispatchQueue::dispatchCallCount() const
+{
+  return dispatch_call_count_.load(std::memory_order_relaxed);
+}
+
 void
 DispatchQueue::dispatch(const fp_t& op)
 {
+  dispatch_call_count_.fetch_add(1, std::memory_order_relaxed);
   std::unique_lock<std::mutex> lock(lock_);
   q_.push(op);
   pending_task_count_++;
@@ -78,6 +85,7 @@ DispatchQueue::dispatch(const fp_t& op)
 void
 DispatchQueue::dispatch(fp_t&& op)
 {
+  dispatch_call_count_.fetch_add(1, std::memory_order_relaxed);
   std::unique_lock<std::mutex> lock(lock_);
   q_.push(std::move(op));
   pending_task_count_++;

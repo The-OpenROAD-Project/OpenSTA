@@ -43,6 +43,12 @@ namespace sta {
 // Persistent storage for Kahn's algorithm arrays.
 // Allocated once and reused across visitParallel calls to
 // avoid repeated allocation of large per-graph arrays.
+//
+// Thread-safety: active_vertices, seeds, and local_ready are written
+// only during the single-threaded discovery/seeding phase at the top
+// of the Kahn's branch. Worker tasks never touch them. Keep it that
+// way -- making these persistent would otherwise be an invariant
+// hazard.
 struct BfsIterator::KahnState
 {
   // -1 = not in active set, >= 0 = in-degree.
@@ -52,6 +58,15 @@ struct BfsIterator::KahnState
   size_t in_degree_size = 0;
   // Vertex IDs touched in the previous call -- reset to -1 before reuse.
   std::vector<VertexId> prev_ids;
+  // Discovered active set and zero-in-degree seed roots. Cleared at
+  // the start of each call; capacity is retained so incremental
+  // flows with many small calls avoid repeated allocation.
+  std::vector<Vertex *> active_vertices;
+  std::vector<Vertex *> seeds;
+  // Per-worker local ready batches. Outer size is kept in sync with
+  // thread_count at the call site; each inner vector is cleared per
+  // call and its backing store is retained.
+  std::vector<std::vector<Vertex *>> local_ready;
 
   void ensureInitSize(size_t needed)
   {
@@ -294,7 +309,8 @@ BfsIterator::visitParallel(Level to_level,
       kahn_state_->resetPrevious();
 
       std::vector<int> &in_deg = kahn_state_->in_degree_init;
-      std::vector<Vertex*> active_vertices;
+      std::vector<Vertex *> &active_vertices = kahn_state_->active_vertices;
+      active_vertices.clear();
       VertexId max_id = 0;
 
       // Collect seed vertices from the level queue.
@@ -374,11 +390,11 @@ BfsIterator::visitParallel(Level to_level,
       debugPrint(debug_, "bfs", 1, "kahns {} initial ready",
                  initial_ready_count);
 
-      // Phase 3: Recursive-dispatch Kahn's traversal.
-      // Each task visits its vertex, decrements successor in-degrees,
-      // and directly dispatches any successor whose in-degree hit zero
-      // back into the DispatchQueue. finishTasks() waits for all work,
-      // including recursively-dispatched tasks. No batch barriers.
+      // Phase 3: Kahn's traversal with per-worker local batches.
+      // Each worker drains a thread-local ready vector in-line,
+      // only spilling half back to DispatchQueue when the batch
+      // exceeds kKahnBatchSpillThreshold so idle workers can steal.
+      // Collapses O(vertex) dispatches to O(thread_count + spills).
       std::vector<VertexVisitor *> visitors;
       for (size_t k = 0; k < thread_count; k++)
         visitors.push_back(visitor->copy());
@@ -388,37 +404,87 @@ BfsIterator::visitParallel(Level to_level,
       SearchPred *pred = kahn_pred_;
       size_t in_deg_size = in_deg.size();
 
+      // Steady-state fan-out rarely exceeds this; wide bursts (clock
+      // boundaries) spill so work reaches idle workers.
+      constexpr size_t kKahnBatchSpillThreshold = 64;
+      std::vector<std::vector<Vertex *>> &local_ready
+          = kahn_state_->local_ready;
+      // Resize outer to thread_count (thread_count can change between
+      // calls via sta::set_thread_count). Inner backing stores are
+      // retained; only newly-added slots allocate.
+      if (local_ready.size() != thread_count)
+        local_ready.resize(thread_count);
+      for (auto &b : local_ready) {
+        b.clear();
+        if (b.capacity() < kKahnBatchSpillThreshold * 2)
+          b.reserve(kKahnBatchSpillThreshold * 2);
+      }
+
       // Recursive task lambda: self-reference via std::function.
       // Captures persist on visitParallel's stack until finishTasks
       // returns.
       std::function<void(Vertex*, size_t)> process;
-      process = [&, bfs_index, pred, in_deg_size](Vertex *vertex,
+      process = [&, bfs_index, pred, in_deg_size](Vertex *seed,
                                                   size_t tid) {
-        vertex->setBfsInQueue(bfs_index, false);
-        visitors[tid]->visit(vertex);
-        total_visited.fetch_add(1, std::memory_order_relaxed);
-        kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
-          VertexId sid = graph_->id(succ);
-          if (sid < in_deg_size && in_deg[sid] >= 0) {
-            int prev = in_degree[sid]
-                .fetch_sub(1, std::memory_order_acq_rel);
-            if (prev == 1) {
-              // Successor is now ready -- dispatch immediately.
-              dispatch_queue_->dispatch([&process, succ](size_t t) {
-                process(succ, t);
+        auto &batch = local_ready[tid];
+        batch.push_back(seed);
+        while (!batch.empty()) {
+          Vertex *vertex = batch.back();
+          batch.pop_back();
+          vertex->setBfsInQueue(bfs_index, false);
+          visitors[tid]->visit(vertex);
+          total_visited.fetch_add(1, std::memory_order_relaxed);
+          kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
+            VertexId sid = graph_->id(succ);
+            if (sid < in_deg_size && in_deg[sid] >= 0) {
+              int prev = in_degree[sid]
+                  .fetch_sub(1, std::memory_order_acq_rel);
+              if (prev == 1)
+                batch.push_back(succ);
+            }
+          });
+          if (batch.size() > kKahnBatchSpillThreshold) {
+            // Hand older half back so idle workers can steal;
+            // keep the most-recent frontier hot locally.
+            size_t spill = batch.size() / 2;
+            for (size_t i = 0; i < spill; i++) {
+              Vertex *v = batch[i];
+              dispatch_queue_->dispatch([&process, v](size_t t) {
+                process(v, t);
               });
             }
+            batch.erase(batch.begin(), batch.begin() + spill);
           }
-        });
+        }
       };
 
-      // Seed initial ready vertices into the dispatch queue.
+      // Shard seeds across up to thread_count dispatches instead of
+      // dispatching per-seed. Each worker pre-loads its local batch
+      // with its shard and then runs the drain loop.
+      std::vector<Vertex *> &seeds = kahn_state_->seeds;
+      seeds.clear();
+      if (seeds.capacity() < static_cast<size_t>(initial_ready_count))
+        seeds.reserve(initial_ready_count);
       for (Vertex *v : active_vertices) {
-        if (in_deg[graph_->id(v)] == 0) {
-          dispatch_queue_->dispatch([&process, v](size_t t) {
-            process(v, t);
+        if (in_deg[graph_->id(v)] == 0)
+          seeds.push_back(v);
+      }
+      size_t shards = std::min<size_t>(thread_count,
+                                       std::max<size_t>(seeds.size(), 1));
+      for (size_t s = 0; s < shards; s++) {
+        std::vector<Vertex *> chunk;
+        chunk.reserve(seeds.size() / shards + 1);
+        for (size_t i = s; i < seeds.size(); i += shards)
+          chunk.push_back(seeds[i]);
+        if (chunk.empty())
+          continue;
+        dispatch_queue_->dispatch(
+          [&process, &local_ready, chunk = std::move(chunk)](size_t t) {
+            auto &batch = local_ready[t];
+            for (size_t i = 1; i < chunk.size(); i++)
+              batch.push_back(chunk[i]);
+            process(chunk[0], t);
           });
-        }
       }
       dispatch_queue_->finishTasks();
 

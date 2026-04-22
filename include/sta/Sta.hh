@@ -122,6 +122,9 @@ public:
   // Default number of threads to use.
   virtual int defaultThreadCount() const;
   void setThreadCount(int thread_count);
+  // Cumulative dispatch() calls on the worker queue. Used by the
+  // Kahn's BFS regression to measure parallel-dispatch overhead.
+  uint64_t dispatchCallCount() const;
 
   // define_corners compatibility.
   void makeScenes(const StringSeq &scene_names);
