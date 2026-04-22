@@ -773,6 +773,10 @@ public:
   void copyState(const StaState *sta) override;
   void visit(Vertex *vertex) override;
   VertexVisitor *copy() const override;
+  // Under clks_only, visit() uses postponeClkFanouts at reg CK
+  // boundaries. Kahn's Stage 1 needs the same stop so the discovered
+  // active set matches -- otherwise Kahn's eagerly walks past CK.
+  bool stopDiscoveryAtRegClk() const override { return clks_only_; }
   // Return false to stop visiting.
   bool visitFromToPath(const Pin *from_pin,
                        Vertex *from_vertex,

@@ -125,6 +125,10 @@ public:
   // Cumulative dispatch() calls on the worker queue. Used by the
   // Kahn's BFS regression to measure parallel-dispatch overhead.
   uint64_t dispatchCallCount() const;
+  // Cumulative vertices visited by the arrival BFS iterator. Used
+  // by the clks_only regression to observe Stage 1 discovery
+  // narrowing (one visit per active-set vertex).
+  uint64_t arrivalVisitCount() const;
 
   // define_corners compatibility.
   void makeScenes(const StringSeq &scene_names);

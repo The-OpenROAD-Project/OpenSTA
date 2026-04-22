@@ -288,9 +288,19 @@ Full forward sweep for slack queries. Slack at pin P is computed as required(P) 
 
 Over-invalidation in the dirty set. The incremental framework's invalid_arrivals_ and invalid_requireds_ sets are tracked conservatively. Some edge-delay or pin changes invalidate more vertices than strictly necessary; the visitor detects no change and does no further propagation, but we still paid for the visit. A more precise validity analysis could prune the seed set before the BFS starts.
 
-Per-call active_vertices allocation. The KahnState persistence avoids re-allocating in_degree_init and in_degree across calls, but the active_vertices vector is rebuilt every call. For very frequent small updates this has some overhead.
+Per-call active_vertices allocation. (Addressed in Section 13.) The active_vertices, seeds, and per-worker local_ready vectors used to be rebuilt every call. They now live in KahnState alongside in_degree_init and in_degree -- cleared per call, capacity retained -- so incremental flows with many small visitParallel invocations no longer pay a re-allocation on every call.
 
 Recursive dispatch cost for small workloads. (Addressed in Section 13.) The original recursive-dispatch scheme called DispatchQueue::dispatch per ready successor, which contended heavily on the shared mutex at high thread counts. This has been replaced with per-worker local batches (Section 13) that drain in-line and spill only when deep. The steady-state dispatch count dropped from O(visited_vertices) to O(thread_count + spills).
+
+Ref-pin-delay vertex orphaning in cleanup. (Addressed in Section 13.4.) ArrivalVisitor::enqueueRefPinInputDelays pushes vertices into queue_ during Stage 2 that are outside the precomputed Kahn active set. The post-Stage-2 cleanup used to call queue_[level].clear(), which dropped the pointer while leaving bfsInQueue=true stuck on the vertex and silently suppressing all future enqueue() calls for it. Cleanup now filters, keeping bfsInQueue=true entries for the next call.
+
+Eager Kahn's walk past reg CK under clks_only. (Addressed in Section 13.5.) Kahn's Stage 1 discovery used to follow graph successors unconditionally. Under findClkArrivals (ArrivalVisitor with clks_only=true) the original BFS stops at register CK via postponeClkFanouts; Kahn's now mirrors that stop via VertexVisitor::stopDiscoveryAtRegClk() so the discovered active set is narrowed identically. Kahn's itself still runs; only the reg-CK fanout is excluded.
+
+Eager visits in Kahn's traversal. Beyond the clks_only case fixed above, the general "every vertex in the active set is visited regardless of whether its arrival changes" limitation remains. This is a fundamental consequence of the in-degree counting model -- each predecessor must decrement each successor's counter exactly once, so skipping decrements is not allowed. The original BFS short-circuits via an "arrivals unchanged" check at the visitor level and avoids enqueuing downstream when no change occurred. We do not. For most designs the cost is small because the visitor itself detects no change and terminates quickly, but in deep-pipeline designs with many cascaded unchanged vertices the extra visits add up. Section 12 item 1 (visit-level change short-circuit) is the roadmap fix.
+
+Full forward sweep for slack queries. Slack at pin P is computed as required(P) minus arrival(P). The required-time backward BFS is already scoped to P's level. But the forward arrival BFS is not scoped to P's fanin cone -- it propagates from all dirty seeds to all endpoints they can reach. For a single-point slack query on a design with large independent cones, most of the forward work is spent on endpoints the query does not care about.
+
+Over-invalidation in the dirty set. The incremental framework's invalid_arrivals_ and invalid_requireds_ sets are tracked conservatively. Some edge-delay or pin changes invalidate more vertices than strictly necessary; the visitor detects no change and does no further propagation, but we still paid for the visit. A more precise validity analysis could prune the seed set before the BFS starts.
 
 No Kahn's when dynamic loop breaking is enabled. sta_dynamic_loop_breaking decides whether a disabled-loop edge is traversable based on arrival tags that only appear during propagation, which Kahn's upfront-discovery model cannot consult. visitParallel therefore falls back to the original level-based BFS whenever dynamicLoopBreaking() is true. The Tcl toggle sta_use_kahns_bfs still reads normally, but the traversal uses the original path. See Section 7, Finding 3 for details.
 
@@ -340,17 +350,19 @@ Approach: When several slack queries arrive together, compute the union of their
 Benefit: Reduces redundant work in reporting flows that issue many related queries, such as full endpoint slack reports or path-group summaries.
 
 
-13. PARALLEL-DISPATCH OVERHEAD: DIAGNOSIS AND LOCAL-BATCHING FIX
+13. POST-INTEGRATION FINDINGS AND FIXES
 
-At high thread counts on large designs, the original recursive-dispatch scheme (one dispatch_queue_->dispatch() call per newly-ready successor) turned into a serialization point rather than a parallelism enabler. This section records the diagnosis, the fix, and the diagnostic harness that was added so future regressions in this area can be caught quickly and quantitatively.
+After the initial Kahn's implementation shipped, three follow-up issues were identified: a performance regression on large designs (per-vertex dispatch overhead), a latent correctness bug with reference-pin input delays, and a performance regression under the clks_only (findClkArrivals) path. This section documents each, the fix, and the shared diagnostic harness used to catch future regressions.
 
 
-13.1 Observed symptom
+13.1 Parallel-dispatch overhead
+
+13.1.1 Observed symptom
 
 On a large SoC-scale A/B sweep with 32 threads, the clock tree synthesis step ran ~24% slower with Kahn's enabled than with Kahn's disabled. Other STA-heavy steps showed similar regressions in the ~20-25% range. Parity on the OpenSTA standalone regression suite (Section 8) and on small ORFS designs was undisturbed; the slowdown was specific to designs whose active subgraph during arrival propagation is large.
 
 
-13.2 Root cause
+13.1.2 Root cause
 
 Two pieces of evidence pinned the issue to DispatchQueue contention rather than algorithmic cost:
 
@@ -369,7 +381,7 @@ Two pieces of evidence pinned the issue to DispatchQueue contention rather than 
 The algorithmic atomics in the hot path (in_degree[sid].fetch_sub(1, memory_order_acq_rel)) are lock-free and do not loop — they map to a single LOCK XADD on x86 — so the contention was not in the algorithm. It was in the work-queue: the level-based BFS dispatches O(thread_count * heavy_levels) tasks, while the original Kahn's dispatched O(visited_vertices) tasks. On a ~2k-cell reference design this was a 5.2x ratio; on designs where the active subgraph is hundreds of thousands of vertices, the ratio and the wall-clock impact grow accordingly.
 
 
-13.3 Fix: per-worker local batches with spill
+13.1.3 Fix: per-worker local batches with spill
 
 The recursive-dispatch worker lambda in visitParallel was replaced with a per-worker local ready-batch model:
 
@@ -393,28 +405,79 @@ The recursive-dispatch worker lambda in visitParallel was replaced with a per-wo
 Per-tid exclusivity is guaranteed because DispatchQueue workers are fixed-id (each worker thread is constructed with its index i in dispatch_thread_handler). Two concurrent tasks never share a tid, so each local_ready[tid] slot is touched only by its owning worker — no locking on the vector is needed. The in-degree fetch_sub retains its memory_order_acq_rel ordering; it is the happens-before edge that establishes visitor-writes-before-successor-reads, and switching between local-push and shared-dispatch does not change that ordering because the same thread that wins the decrement is the thread that subsequently owns the successor's visit. The setBfsInQueue(bfs_index_, false) call still fires exactly once per vertex, at the top of each drain-loop iteration.
 
 
-13.4 Measured outcome
+13.1.4 Measured outcome
 
   - Dispatch-count regression: the ON/OFF ratio on the reference
-    regression (Section 13.5.2) dropped from 5.22x to 0.27x. Kahn's
+    regression (Section 13.4.2) dropped from 5.22x to 0.27x. Kahn's
     now dispatches fewer tasks than the level-based BFS, because
     level-BFS still pays thread_count dispatches per heavy level
     while Kahn's pays only shard-seeds plus a small number of spills.
 
   - Wall-clock regression on the large-design STA benchmark
-    (Section 13.5.1): the ~25% slowdown on full arrival propagation
+    (Section 13.4.5): the ~25% slowdown on full arrival propagation
     at 32 threads disappeared. On an isolated run, ON matched OFF
     within measurement noise (~2%).
 
 Kahn's is not yet faster than level-BFS on the isolated post-CTS sweep, which was expected — the algorithmic advantage of Kahn's (no per-level barrier) only materializes when barriers dominate, which is not the case at this thread count on designs whose visit() body is the cost center. What the fix delivers is elimination of the overhead regression: Kahn's is safe to leave enabled by default.
 
 
-13.5 Diagnostic harness
+13.2 Ref-pin-delay vertex orphaning in cleanup
+
+13.2.1 Observed symptom
+
+No runtime symptom in any ORFS flow since no shipped regression exercises set_input_delay -reference_pin. Flagged by external review. Manifests as missed required-time propagation on any subsequent invalidate + report_checks after a Kahn's run that triggered enqueueRefPinInputDelays.
+
+13.2.2 Root cause
+
+ArrivalVisitor::visit() on a clock-like vertex calls enqueueRefPinInputDelays(ref_pin, sdc), which iterates sdc->refPinInputDelays(ref_pin) and calls arrival_iter_->enqueue(target_vertex) for each. That enqueue sets bfsInQueue=true on the target vertex and appends a pointer into queue_[level]. If the target was outside Kahn's precomputed active set (in_deg[target_vid] stays -1), the Stage 2 worker never visits it and never clears bfsInQueue.
+
+The original post-Stage-2 cleanup was queue_[level].clear(). This dropped the pointer but left bfsInQueue stuck at true on the vertex. Every subsequent enqueue() on the same vertex short-circuited via the "already queued" check in BfsIterator::enqueue, silently suppressing its future propagation. A test that did arrivals_invalid and then report_checks produced reports missing paths through the ref-pin target.
+
+13.2.3 Fix: preserve-queued cleanup
+
+search/Bfs.cc now has a helper BfsIterator::dropProcessedEntries(first, last, to_level) that walks each level's queue_ entries, keeps those where v->bfsInQueue(bfs_index_) is still true, and drops the rest via erase-remove. It is called from both the active_count==0 early-return and the post-Stage-2 cleanup. The invariant enforced is "after visitParallel, queue_ contains exactly the vertices the caller can legitimately treat as queued" -- matching the enqueue/dequeue contract the rest of BfsIterator relies on.
+
+Ref-pin targets enqueued during Stage 2 with bfsInQueue=true now survive past cleanup and become seeds on the next call, so missed propagation is impossible.
+
+13.2.4 Verification: search/test/search_kahns_bfs_refpin.tcl
+
+See Section 13.4.3.
+
+
+13.3 Narrowed Kahn's discovery under clks_only
+
+13.3.1 Observed symptom
+
+Runtime regression on the findClkArrivals path (exercised by report_clock_skew, report_clock_latency, and any command routed through Sta::ensureClkArrivals). Flagged by external review. Level-BFS stops at reg CK via postponeClkFanouts (see ArrivalVisitor::visit at Search.cc:1179: if clks_only_ && vertex->isRegClk() then postpone, else enqueue fanout). Kahn's Stage 1 discovery walked graph successors unconditionally, so it pre-discovered the entire data fanout past every register CK even on a clocks-only pass. Stage 2 then visited all of it, turning a narrow clock-arrival pass into broad propagation work.
+
+13.3.2 Fix: visitor-directed stop at reg CK
+
+Added VertexVisitor::stopDiscoveryAtRegClk() (include/sta/VertexVisitor.hh), returning false by default. ArrivalVisitor overrides it to return clks_only_. search/Bfs.cc queries this once at the top of the Kahn's branch and captures it as stop_at_reg_clk. Two gates respect the flag:
+
+  - Stage 1 discovery (the disc_idx loop in visitParallel): if
+    stop_at_reg_clk && vertex->isRegClk(), the loop skips the
+    kahnForEachSuccessor recursion. The reg CK itself is still in
+    active_vertices (it was added when its predecessor discovered
+    it); only the successor walk is pruned.
+  - Stage 2 worker lambda (the process drain loop): same check
+    before the successor-decrement kahnForEachSuccessor call.
+    Redundant with the in_deg[sid] >= 0 guard for correctness --
+    successors past CK were never added, so every decrement would
+    short-circuit -- but it avoids iterating the edge list at all.
+
+Kahn's still runs under clks_only; only the reg-CK fanout is excluded from discovery, matching the level-BFS active set exactly. postpone semantics are unchanged: the reg CK vertex is visited, ArrivalVisitor::visit still calls postponeClkFanouts, and the next non-clks_only pass consumes pending_clk_endpoints_ via enqueuePendingClkFanouts.
+
+13.3.3 Verification: search/test/search_kahns_bfs_clks_only.tcl
+
+See Section 13.4.4.
+
+
+13.4 Diagnostic harness
 
 A small harness was added so both correctness and performance of this path can be checked quickly and deterministically. The pieces are independent and can be used in isolation.
 
 
-13.5.1 Tcl accessor: sta::dispatch_call_count
+13.4.1 Tcl accessor: sta::dispatch_call_count
 
 DispatchQueue carries a std::atomic<uint64_t> counter that increments on every dispatch() call. The counter is exposed via a Sta forwarder and a SWIG inline in util/Util.i:
 
@@ -431,37 +494,48 @@ Accessor forwarding:
 Header visibility is confined to DispatchQueue.hh; neither StaState.hh nor Util.i reaches directly into DispatchQueue internals.
 
 
-13.5.2 Regression: search/test/search_kahns_bfs_dispatch.tcl
+13.4.2 Regression: search/test/search_kahns_bfs_dispatch.tcl
 
-A module-search regression captures the dispatch count during a report_checks sweep on the bundled gcd_sky130hd example, once with sta_use_kahns_bfs=0 and once with =1. The test sets sta::set_thread_count 2 (kept small and fixed so the golden is portable), calls sta::arrivals_invalid between phases to force both iterators to re-propagate through visitParallel, and prints:
+Captures dispatch count during a report_checks (full propagation) sweep on the bundled gcd_sky130hd example, once with sta_use_kahns_bfs=0 and once with =1. thread_count=2 is fixed so the golden is portable. Prints off_dispatches, on_dispatches, and on_to_off_ratio. A future change to either BFS path shifts these numbers; the failing diff forces conscious review. Typical healthy values under the current fix are ON << OFF.
 
-    off_dispatches=<N>
-    on_dispatches=<M>
-    on_to_off_ratio=<M/N>
-
-The golden encodes the current numbers. A future change to either BFS path shifts these numbers, and the failing diff forces the reviewer to notice and either accept the shift (if it reduces ON) or investigate it (if it increases ON or re-introduces a large ratio). Typical healthy values under the current fix are ON << OFF.
-
-Test invocation from sta/search/test/:
+Invocation from sta/search/test/:
     ./regression search_kahns_bfs_dispatch
 
 
-13.5.3 Isolated STA wall-clock harness: flow/util/kahns_sta_isolated.tcl
+13.4.3 Regression: search/test/search_kahns_bfs_refpin.tcl
 
-For pinpointing STA-level wall-clock regressions without running ORFS steps around them, a tiny Tcl harness loads a post-CTS database, applies the liberty set, and times two report_checks passes (-path_delay max and -path_delay min) under a caller-supplied Kahn's mode. The caller sets kahn_mode before sourcing:
+Covers the ref-pin-delay orphaning fix (Section 13.2). Adds set_input_delay -reference_pin [get_ports clk] on a test design so that clock propagation fires enqueueRefPinInputDelays during Stage 2. Runs report_checks OFF (baseline), then Kahn's ON (triggers the cleanup-preservation path), then arrivals_invalid + report_checks OFF (the observation point). Asserts the two OFF reports are byte-identical and prints refpin_preservation=ok. A regression that reintroduces the blind queue_[level].clear() makes the second report miss the ref-pin path and the diff fires.
 
-    echo "set kahn_mode 0; source util/kahns_sta_isolated.tcl" | openroad -exit -no_init -threads <N>
-    echo "set kahn_mode 1; source util/kahns_sta_isolated.tcl" | openroad -exit -no_init -threads <N>
-
-Each invocation prints:
-
-    STA_MS max:   <N> ms
-    STA_MS min:   <N> ms
-
-Two separate invocations are used deliberately to avoid any stale-arrival or process-cached state from contaminating the comparison. The database path and liberty set inside the script are design-specific and live in flow/util/ as a convention; users adapt them to the design under investigation.
-
-The combination of these three tools gives a complete picture: Section 13.5.2 catches dispatch-count regressions in CI, Section 13.5.1 lets individual Tcl scripts capture fine-grained counts on arbitrary phases, and Section 13.5.3 validates wall-clock on the exact graph topology that matters for a specific concern.
+Invocation:
+    ./regression search_kahns_bfs_refpin
 
 
-13.6 What remains
+13.4.4 Regression: search/test/search_kahns_bfs_clks_only.tcl
+
+Covers the narrowed-discovery fix (Section 13.3). Runs report_clock_skew (which routes through clkSkewPreamble -> ensureClkArrivals -> findClkArrivals with clks_only=true) on gcd_sky130hd, captures the arrival-BFS cumulative visit count with Kahn's OFF and ON, and prints clks_only_off_visits, clks_only_on_visits, clks_only_on_to_off_ratio.
+
+Visit count -- not dispatch count -- is the correct observable for this regression: the wider Kahn's walk fills per-worker batches but rarely crosses the 64-vertex spill threshold on small designs, so the dispatch counter is blind to it. Every Kahn's-discovered vertex is visited exactly once in Stage 2, so the cumulative visit count tracks active-set size one-to-one.
+
+Under the fix the ratio is close to parity (Kahn's discovers the same narrowed set as level-BFS). A regression that removes the stop makes Kahn's visit every data-path vertex downstream of reg CK and the ON count jumps sharply.
+
+Accessor: Sta::arrivalVisitCount() forwards to BfsFwdIterator::visitCountCumulative(), a std::atomic<uint64_t> on BfsIterator that accumulates visit_count at the end of each visitParallel call. Exposed to Tcl as sta::arrival_visit_count via util/Util.i.
+
+Invocation:
+    ./regression search_kahns_bfs_clks_only
+
+
+13.4.5 Isolated STA wall-clock harness: flow/util/kahns_sta_isolated.tcl
+
+For pinpointing STA-level wall-clock regressions without running ORFS steps around them, a generic Tcl harness loads a post-step ORFS database, applies the liberty set (globbed from platform/objects dirs), and times two report_checks passes -- full cold arrival+required, then incremental required only -- under a caller-supplied Kahn's mode. Required Tcl vars are kahn_mode and kahn_design_path; kahn_step defaults to 4_cts. A bash wrapper flow/util/kahns_sta_repeat.sh runs N iterations per mode, parses the STA_MS full/incr lines, and reports median/min/max/stddev so small deltas can be distinguished from measurement noise. Modes 0, 1, or both are selectable via -m.
+
+Invocation from flow/:
+    util/kahns_sta_repeat.sh -d PLATFORM/DESIGN/VARIANT [-s step] [-m mode] [-n N] [-t threads]
+
+Two separate openroad invocations are used per iteration, deliberately, to avoid any stale-arrival or process-cached state from contaminating the comparison.
+
+The combination covers CI and investigation: Section 13.4.2 (full-propagation dispatch count) catches the most general overhead regression; Section 13.4.3 (ref-pin preservation) catches the cleanup invariant; Section 13.4.4 (clks_only dispatch count) catches the narrowed-discovery invariant; Section 13.4.1 exposes the raw counter for ad-hoc scripts; Section 13.4.5 validates wall-clock on real designs at full thread counts.
+
+
+13.5 What remains
 
 Kahn's at 32 threads on a large design is now at parity with level-BFS on the STA-isolated benchmark. Real algorithmic wins from barrier elimination are still expected on designs where level populations are highly uneven — the profile that originally motivated Kahn's — but measuring them requires designs larger than the reference corpus here. Future work in that direction belongs under Section 12, particularly items 1 (visit-level change short-circuit) and 3 (demand-driven forward propagation), which reduce the visit() cost that currently dominates on the designs tested.

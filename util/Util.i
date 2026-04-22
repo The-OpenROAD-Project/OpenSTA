@@ -108,6 +108,13 @@ dispatch_call_count()
   return Sta::sta()->dispatchCallCount();
 }
 
+// See Sta::arrivalVisitCount.
+unsigned long long
+arrival_visit_count()
+{
+  return Sta::sta()->arrivalVisitCount();
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

@@ -334,6 +334,11 @@ BfsIterator::visitParallel(Level to_level,
       std::vector<Vertex *> &active_vertices = kahn_state_->active_vertices;
       active_vertices.clear();
       VertexId max_id = 0;
+      // Under clks_only (findClkArrivals), the visitor uses
+      // postponeClkFanouts to stop at reg CK; mirror that at the
+      // discovery layer so the active set is narrowed instead of
+      // eagerly walking the full data fanout.
+      const bool stop_at_reg_clk = visitor->stopDiscoveryAtRegClk();
 
       // Collect seed vertices from the level queue.
       Level saved_first = first_level_;
@@ -357,9 +362,13 @@ BfsIterator::visitParallel(Level to_level,
       }
 
       // BFS discovery -- mirrors enqueueAdjacentVertices logic.
+      // Under stop_at_reg_clk, don't recurse past reg CK vertices
+      // (matches Search.cc:1179 postponeClkFanouts semantics).
       size_t disc_idx = 0;
       while (disc_idx < active_vertices.size()) {
         Vertex *vertex = active_vertices[disc_idx++];
+        if (stop_at_reg_clk && vertex->isRegClk())
+          continue;
         kahnForEachSuccessor(vertex, kahn_pred_,
                              [&](Vertex *succ) {
           if (!levelLessOrEqual(succ->level(), to_level))
@@ -440,8 +449,9 @@ BfsIterator::visitParallel(Level to_level,
       // Captures persist on visitParallel's stack until finishTasks
       // returns.
       std::function<void(Vertex*, size_t)> process;
-      process = [&, bfs_index, pred, in_deg_size](Vertex *seed,
-                                                  size_t tid) {
+      process = [&, bfs_index, pred, in_deg_size,
+                 stop_at_reg_clk](Vertex *seed,
+                                  size_t tid) {
         auto &batch = local_ready[tid];
         batch.push_back(seed);
         while (!batch.empty()) {
@@ -450,6 +460,10 @@ BfsIterator::visitParallel(Level to_level,
           vertex->setBfsInQueue(bfs_index, false);
           visitors[tid]->visit(vertex);
           total_visited.fetch_add(1, std::memory_order_relaxed);
+          // Skip the edge-list walk past reg CK under stop_at_reg_clk;
+          // per-edge in_deg guard below would reject each hit anyway.
+          if (stop_at_reg_clk && vertex->isRegClk())
+            continue;
           kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
             VertexId sid = graph_->id(succ);
             if (sid < in_deg_size && in_deg[sid] >= 0) {
@@ -512,6 +526,7 @@ BfsIterator::visitParallel(Level to_level,
       dropProcessedEntries(saved_first, saved_last, to_level);
     }
   }
+  visit_count_cumulative_.fetch_add(visit_count, std::memory_order_relaxed);
   return visit_count;
 }
 

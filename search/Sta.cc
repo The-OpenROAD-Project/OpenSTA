@@ -29,6 +29,7 @@
 #include <string>
 
 #include "ArcDelayCalc.hh"
+#include "Bfs.hh"
 #include "CheckCapacitances.hh"
 #include "CheckFanouts.hh"
 #include "CheckMaxSkews.hh"
@@ -342,6 +343,13 @@ uint64_t
 Sta::dispatchCallCount() const
 {
   return dispatch_queue_ ? dispatch_queue_->dispatchCallCount() : 0;
+}
+
+uint64_t
+Sta::arrivalVisitCount() const
+{
+  BfsFwdIterator *iter = search_ ? search_->arrivalIterator() : nullptr;
+  return iter ? iter->visitCountCumulative() : 0;
 }
 
 void

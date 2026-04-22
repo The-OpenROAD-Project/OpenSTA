@@ -19,6 +19,7 @@ sta_module_tests("search"
     genclk_latch_deep
     genclk_property_report
     json_unconstrained
+    kahns_bfs_clks_only
     kahns_bfs_dispatch
     kahns_bfs_refpin
     latch

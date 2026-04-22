@@ -37,6 +37,13 @@ public:
   virtual VertexVisitor *copy() const = 0;
   virtual void visit(Vertex *vertex) = 0;
   void operator()(Vertex *vertex) { visit(vertex); }
+  // If true, Kahn's Stage 1 discovery and successor decrement must
+  // stop at register-CK boundaries. Mirrors the clks_only branch in
+  // ArrivalVisitor::visit (postponeClkFanouts) at the discovery
+  // layer so Kahn's active set matches the narrowed one level-BFS
+  // walks under findClkArrivals. Kahn's itself still runs; only the
+  // reg-CK fanout is excluded.
+  virtual bool stopDiscoveryAtRegClk() const { return false; }
 };
 
 // Collect visited pins into a PinSet.

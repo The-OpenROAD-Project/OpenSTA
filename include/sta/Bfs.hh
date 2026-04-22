@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <atomic>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -97,6 +99,15 @@ public:
   // Returns the number of vertices that are visited.
   int visitParallel(Level to_level,
 		    VertexVisitor *visitor);
+  // Monotonic total of visits across all visitParallel calls since
+  // construction. Wall-clock-independent and therefore suitable for
+  // regression golden files. Used by the clks_only test to observe
+  // Stage 1 discovery narrowing directly (visits track active set
+  // size one-to-one).
+  uint64_t visitCountCumulative() const
+  {
+    return visit_count_cumulative_.load(std::memory_order_relaxed);
+  }
 
 protected:
   BfsIterator(BfsIndex bfs_index,
@@ -149,6 +160,7 @@ protected:
   // Max (min) level of queued vertices.
   Level last_level_;
   SearchPred *kahn_pred_ = nullptr;
+  std::atomic<uint64_t> visit_count_cumulative_{0};
 
   friend class BfsFwdIterator;
   friend class BfsBkwdIterator;
