@@ -125,6 +125,14 @@ protected:
                                     SearchPred *pred,
                                     const VertexFn &fn) = 0;
   void resetLevelBounds();
+  // Post-Kahn cleanup: drop already-visited entries (bfsInQueue=false)
+  // from each level in [first, min(last, to_level)] while keeping any
+  // that are still queued. Necessary because ArrivalVisitor::
+  // enqueueRefPinInputDelays() can push vertices into queue_ during
+  // Stage 2 that are outside the precomputed Kahn active set; their
+  // bfsInQueue flag is still true and they must survive for the next
+  // visitParallel to see them as seeds. Also calls resetLevelBounds.
+  void dropProcessedEntries(Level first, Level last, Level to_level);
 
   // Persistent Kahn's state to avoid per-call allocation.
   struct KahnState;

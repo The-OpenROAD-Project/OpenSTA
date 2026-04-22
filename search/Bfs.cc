@@ -225,6 +225,28 @@ BfsIterator::resetLevelBounds()
   }
 }
 
+void
+BfsIterator::dropProcessedEntries(Level first, Level last, Level to_level)
+{
+  Level level = first;
+  while (levelLessOrEqual(level, last)
+         && levelLessOrEqual(level, to_level)) {
+    VertexSeq &level_vertices = queue_[level];
+    if (!level_vertices.empty()) {
+      auto write = level_vertices.begin();
+      // remove() nulls out entries (see BfsIterator::remove), so the
+      // null check is required -- not defensive padding.
+      for (Vertex *v : level_vertices) {
+        if (v != nullptr && v->bfsInQueue(bfs_index_))
+          *write++ = v;
+      }
+      level_vertices.erase(write, level_vertices.end());
+    }
+    incrLevel(level);
+  }
+  resetLevelBounds();
+}
+
 int
 BfsIterator::visitParallel(Level to_level,
                            VertexVisitor *visitor)
@@ -361,13 +383,7 @@ BfsIterator::visitParallel(Level to_level,
 
       if (active_count == 0) {
         kahn_state_->prev_ids.clear();
-        level = saved_first;
-        while (levelLessOrEqual(level, saved_last)
-               && levelLessOrEqual(level, to_level)) {
-          queue_[level].clear();
-          incrLevel(level);
-        }
-        resetLevelBounds();
+        dropProcessedEntries(saved_first, saved_last, to_level);
         return 0;
       }
 
@@ -493,14 +509,7 @@ BfsIterator::visitParallel(Level to_level,
       for (VertexVisitor *v : visitors)
         delete v;
 
-      // Clear processed levels and update bounds for remaining entries.
-      level = saved_first;
-      while (levelLessOrEqual(level, saved_last)
-             && levelLessOrEqual(level, to_level)) {
-        queue_[level].clear();
-        incrLevel(level);
-      }
-      resetLevelBounds();
+      dropProcessedEntries(saved_first, saved_last, to_level);
     }
   }
   return visit_count;

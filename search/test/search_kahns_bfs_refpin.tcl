@@ -52,11 +52,10 @@ set baseline [capture_checks]
 # Step 2: full re-propagation under Kahn's ON. This is the call that
 # exercises enqueueRefPinInputDelays during Stage 2 and depends on
 # the post-finishTasks cleanup to preserve the ref-pin vertex's
-# bfsInQueue flag. The captured output is discarded; we only care
-# about the side effects on bfsInQueue state.
+# bfsInQueue flag.
 sta::arrivals_invalid
 set sta_use_kahns_bfs 1
-capture_checks
+set _ [capture_checks]   ;# output discarded, only side effects matter
 
 # Step 3: fall back to OFF and re-propagate. If Kahn's orphaned in1,
 # the arrivals_invalid below is a silent no-op for that vertex, and
