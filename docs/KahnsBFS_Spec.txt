@@ -569,7 +569,7 @@ DISPATCH and VISITS come from the Section 13.4.1 counters.
 
 13.4.6 VTune hotspot harness: flow/util/kahns_vtune.sh
 
-For attributing time to specific C++ functions, a wrapper runs Intel VTune hotspot collection twice -- once with Kahn's OFF, once with ON -- against the same isolated Tcl harness (13.4.5). It uses VTune's -start-paused option together with the collector's -command resume/pause to gate sampling to only the report_checks windows, so liberty parsing, read_db, and link_design do not pollute the profile. Both result directories (off/ and on/) are written under a timestamped parent so vtune -report hotspots can directly compare the two algorithms on the same propagation workload.
+For attributing time to specific C++ functions, a wrapper runs VTune hotspot collection twice -- once with Kahn's OFF, once with ON -- against the same isolated Tcl harness (13.4.5). It uses VTune's -start-paused option together with the collector's -command resume/pause to gate sampling to only the report_checks windows, so liberty parsing, read_db, and link_design do not pollute the profile. Both result directories (off/ and on/) are written under a timestamped parent so vtune -report hotspots can directly compare the two algorithms on the same propagation workload.
 
 Invocation from flow/:
     util/kahns_vtune.sh -d PLATFORM/DESIGN/VARIANT [-s step] [-m mode] [-t threads] [-o outdir]
