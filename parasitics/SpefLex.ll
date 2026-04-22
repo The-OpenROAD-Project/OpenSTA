@@ -73,11 +73,11 @@ FLOAT	{DECIMAL}|{FRACTION}|{EXP}
 HCHAR	"."|"/"|"|"|":"
 PREFIX_BUS_DELIM "["|"{"|"("|"<"
 SUFFIX_BUS_DELIM "]"|"}"|")"|">"
-SPECIAL_CHAR "!"|"#"|"$"|"%"|"&"|"`"|"("|")"|"*"|"+"|","|"-"|"."|"/"|":"|";"|"<"|"="|">"|"?"|"@"|"["|"\\"|"]"|"^"|"'"|"{"|"|"|"}"|"~"
+SPECIAL_CHAR "#"|"$"|"%"|"&"|"`"|"("|")"|"*"|"+"|","|"-"|"."|"/"|":"|";"|"<"|"="|">"|"?"|"@"|"["|"\\"|"]"|"^"|"'"|"{"|"|"|"}"|"~"
 ESCAPED_CHAR_SET {SPECIAL_CHAR}|\"
 ESCAPED_CHAR \\{ESCAPED_CHAR_SET}
 IDENT_ACHAR {ESCAPED_CHAR}|{ALPHA}|"_"
-IDENT_CHAR {IDENT_ACHAR}|{DIGIT}
+IDENT_CHAR {IDENT_ACHAR}|{DIGIT}|"!"
 ID {IDENT_ACHAR}{IDENT_CHAR}*
 BUS_SUB {DIGIT}|{ALPHA}|"_"
 BIT_IDENT {ID}({PREFIX_BUS_DELIM}{BUS_SUB}+{SUFFIX_BUS_DELIM})+
