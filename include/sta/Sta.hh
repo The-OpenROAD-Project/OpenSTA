@@ -1425,6 +1425,11 @@ public:
   // original level-based BFS when disabled.
   bool useKahnsBfs() const;
   void setUseKahnsBfs(bool use);
+  // TCL variable sta_kahn_visit_skip.
+  // Opt-in skip of the visitor body when no active-set predecessor
+  // of a vertex reported an arrival change. Default off.
+  bool useKahnsVisitSkip() const;
+  void setUseKahnsVisitSkip(bool use);
   // TCL variable sta_crpr_enabled.
   // Common Reconvergent Clock Removal (CRPR).
   // Timing check source/target common clock path overlap for search

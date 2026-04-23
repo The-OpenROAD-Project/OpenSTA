@@ -2260,6 +2260,18 @@ Sta::setUseKahnsBfs(bool use)
 }
 
 bool
+Sta::useKahnsVisitSkip() const
+{
+  return variables_->useKahnsVisitSkip();
+}
+
+void
+Sta::setUseKahnsVisitSkip(bool use)
+{
+  variables_->setUseKahnsVisitSkip(use);
+}
+
+bool
 Sta::crprEnabled() const
 {
   return variables_->crprEnabled();

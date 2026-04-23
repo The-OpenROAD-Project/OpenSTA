@@ -44,6 +44,13 @@ public:
   // walks under findClkArrivals. Kahn's itself still runs; only the
   // reg-CK fanout is excluded.
   virtual bool stopDiscoveryAtRegClk() const { return false; }
+  // Reports whether the most recent visit() call produced a change
+  // worth propagating (e.g. ArrivalVisitor returns whether arrivals
+  // changed). Consulted only when Kahn's visit-skip toggle
+  // (sta_kahn_visit_skip) is on; the default "true" means every
+  // visitor is treated as always-changing, so the skip optimization
+  // safely no-ops for visitors that haven't opted in.
+  virtual bool lastVisitChanged() const { return true; }
 };
 
 // Collect visited pins into a PinSet.

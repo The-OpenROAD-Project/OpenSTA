@@ -22,6 +22,7 @@ sta_module_tests("search"
     kahns_bfs_clks_only
     kahns_bfs_dispatch
     kahns_bfs_refpin
+    kahns_bfs_visit_skip
     latch
     latch_timing
     levelize_loop_disabled

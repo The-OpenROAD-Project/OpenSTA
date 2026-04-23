@@ -777,6 +777,11 @@ public:
   // boundaries. Kahn's Stage 1 needs the same stop so the discovered
   // active set matches -- otherwise Kahn's eagerly walks past CK.
   bool stopDiscoveryAtRegClk() const override { return clks_only_; }
+  // visit() stores arrivalsChanged() into last_arrivals_changed_ so
+  // Kahn's predecessor-based visit-skip can query it after the call
+  // without re-running the tag comparison. Default true keeps the
+  // skip optimization conservative before the first visit.
+  bool lastVisitChanged() const override { return last_arrivals_changed_; }
   // Return false to stop visiting.
   bool visitFromToPath(const Pin *from_pin,
                        Vertex *from_vertex,
@@ -809,6 +814,7 @@ protected:
   bool always_to_endpoints_;
   bool always_save_prev_paths_;
   bool clks_only_;
+  bool last_arrivals_changed_ = true;
   TagGroupBldr *tag_bldr_;
   TagGroupBldr *tag_bldr_no_crpr_;
   SearchPred *adj_pred_;

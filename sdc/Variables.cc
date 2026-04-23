@@ -33,6 +33,12 @@ Variables::setUseKahnsBfs(bool use)
 }
 
 void
+Variables::setUseKahnsVisitSkip(bool use)
+{
+  use_kahns_visit_skip_ = use;
+}
+
+void
 Variables::setCrprEnabled(bool enabled)
 {
   crpr_enabled_ = enabled;

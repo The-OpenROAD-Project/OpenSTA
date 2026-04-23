@@ -1169,6 +1169,7 @@ ArrivalVisitor::visit(Vertex *vertex)
 
   bool is_clk = tag_bldr_->hasClkTag();
   bool arrivals_changed = search_->arrivalsChanged(vertex, tag_bldr_);
+  last_arrivals_changed_ = arrivals_changed;
   // If vertex is a latch data input arrival that changed from the
   // previous eval pass enqueue the latch outputs to be re-evaled on the
   // next pass.

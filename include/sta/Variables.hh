@@ -39,6 +39,13 @@ public:
   // parallel arrival and required-time BFS passes.
   bool useKahnsBfs() const { return use_kahns_bfs_; }
   void setUseKahnsBfs(bool use);
+  // TCL variable sta_kahn_visit_skip.
+  // Opt-in: when on, Kahn's Stage 2 skips the visitor body on a
+  // vertex if none of its active-set predecessors reported a change
+  // via VertexVisitor::lastVisitChanged(). Default off so shipping
+  // default behavior is unchanged.
+  bool useKahnsVisitSkip() const { return use_kahns_visit_skip_; }
+  void setUseKahnsVisitSkip(bool use);
   // TCL variable sta_crpr_enabled.
   bool crprEnabled() const { return crpr_enabled_; }
   void setCrprEnabled(bool enabled);
@@ -86,6 +93,7 @@ public:
 
 private:
   bool use_kahns_bfs_{true};
+  bool use_kahns_visit_skip_{false};
   bool crpr_enabled_{true};
   CrprMode crpr_mode_{CrprMode::same_pin};
   bool propagate_gated_clock_enable_{true};

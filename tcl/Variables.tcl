@@ -55,6 +55,14 @@ proc trace_use_kahns_bfs { name1 name2 op } {
     use_kahns_bfs set_use_kahns_bfs
 }
 
+trace add variable ::sta_kahn_visit_skip {read write} \
+  sta::trace_kahn_visit_skip
+
+proc trace_kahn_visit_skip { name1 name2 op } {
+  trace_boolean_var $op ::sta_kahn_visit_skip \
+    use_kahns_visit_skip set_use_kahns_visit_skip
+}
+
 trace add variable ::sta_crpr_enabled {read write} \
   sta::trace_crpr_enabled
 

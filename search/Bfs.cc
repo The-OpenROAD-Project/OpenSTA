@@ -67,6 +67,10 @@ struct BfsIterator::KahnState
   // thread_count at the call site; each inner vector is cleared per
   // call and its backing store is retained.
   std::vector<std::vector<Vertex *>> local_ready;
+  // Atomic "any active-set predecessor reported a change" flag per
+  // vertex. Only allocated/used when sta_kahn_visit_skip is on.
+  std::unique_ptr<std::atomic<uint8_t>[]> pred_changed;
+  size_t pred_changed_size = 0;
 
   void ensureInitSize(size_t needed)
   {
@@ -79,6 +83,14 @@ struct BfsIterator::KahnState
     if (in_degree_size < needed) {
       in_degree = std::make_unique<std::atomic<int>[]>(needed);
       in_degree_size = needed;
+    }
+  }
+
+  void ensurePredChangedSize(size_t needed)
+  {
+    if (pred_changed_size < needed) {
+      pred_changed = std::make_unique<std::atomic<uint8_t>[]>(needed);
+      pred_changed_size = needed;
     }
   }
 
@@ -339,6 +351,9 @@ BfsIterator::visitParallel(Level to_level,
       // discovery layer so the active set is narrowed instead of
       // eagerly walking the full data fanout.
       const bool stop_at_reg_clk = visitor->stopDiscoveryAtRegClk();
+      // Opt-in: skip visitor body on vertices whose active-set
+      // predecessors all reported no arrival change.
+      const bool visit_skip = variables_->useKahnsVisitSkip();
 
       // Collect seed vertices from the level queue.
       Level saved_first = first_level_;
@@ -399,15 +414,26 @@ BfsIterator::visitParallel(Level to_level,
       // Size atomic array to cover max discovered ID.
       kahn_state_->ensureAtomicSize(max_id + 1);
       std::atomic<int> *in_degree = kahn_state_->in_degree.get();
+      std::atomic<uint8_t> *pred_changed = nullptr;
+      if (visit_skip) {
+        kahn_state_->ensurePredChangedSize(max_id + 1);
+        pred_changed = kahn_state_->pred_changed.get();
+      }
 
       // Copy active in-degrees to atomic array and record IDs
-      // for cleanup on the next call.
+      // for cleanup on the next call. Under visit_skip, init
+      // pred_changed: seeds (in_deg==0) start at 1 so they are
+      // always visited; non-seeds start at 0 and flip to 1 when
+      // any predecessor reports a change.
       kahn_state_->prev_ids.clear();
       kahn_state_->prev_ids.reserve(active_count);
       int initial_ready_count = 0;
       for (Vertex *v : active_vertices) {
         VertexId vid = graph_->id(v);
         in_degree[vid].store(in_deg[vid], std::memory_order_relaxed);
+        if (pred_changed != nullptr)
+          pred_changed[vid].store(in_deg[vid] == 0 ? 1 : 0,
+                                  std::memory_order_relaxed);
         kahn_state_->prev_ids.push_back(vid);
         if (in_deg[vid] == 0)
           initial_ready_count++;
@@ -450,16 +476,30 @@ BfsIterator::visitParallel(Level to_level,
       // returns.
       std::function<void(Vertex*, size_t)> process;
       process = [&, bfs_index, pred, in_deg_size,
-                 stop_at_reg_clk](Vertex *seed,
-                                  size_t tid) {
+                 stop_at_reg_clk, visit_skip,
+                 pred_changed](Vertex *seed,
+                               size_t tid) {
         auto &batch = local_ready[tid];
         batch.push_back(seed);
         while (!batch.empty()) {
           Vertex *vertex = batch.back();
           batch.pop_back();
           vertex->setBfsInQueue(bfs_index, false);
-          visitors[tid]->visit(vertex);
-          total_visited.fetch_add(1, std::memory_order_relaxed);
+          // visit_skip optimization: if no active-set predecessor
+          // reported a change, skip the visitor body. We still walk
+          // successors for the decrement so Kahn's invariant holds.
+          bool changed = true;
+          const bool skip = visit_skip
+              && pred_changed[graph_->id(vertex)]
+                     .load(std::memory_order_acquire) == 0;
+          if (skip) {
+            changed = false;
+          } else {
+            visitors[tid]->visit(vertex);
+            total_visited.fetch_add(1, std::memory_order_relaxed);
+            if (visit_skip)
+              changed = visitors[tid]->lastVisitChanged();
+          }
           // Skip the edge-list walk past reg CK under stop_at_reg_clk;
           // per-edge in_deg guard below would reject each hit anyway.
           if (stop_at_reg_clk && vertex->isRegClk())
@@ -467,6 +507,15 @@ BfsIterator::visitParallel(Level to_level,
           kahnForEachSuccessor(vertex, pred, [&](Vertex *succ) {
             VertexId sid = graph_->id(succ);
             if (sid < in_deg_size && in_deg[sid] >= 0) {
+              // Propagate change signal to successor before the
+              // fetch_sub's release so the winner observes it. The
+              // relaxed-load guard elides redundant stores when a
+              // prior predecessor already set the flag, avoiding
+              // cache-line bouncing on high-fan-in vertices.
+              if (visit_skip && changed
+                  && pred_changed[sid]
+                         .load(std::memory_order_relaxed) == 0)
+                pred_changed[sid].store(1, std::memory_order_release);
               int prev = in_degree[sid]
                   .fetch_sub(1, std::memory_order_acq_rel);
               if (prev == 1)

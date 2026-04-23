@@ -588,7 +588,94 @@ Invocation:
 ./regression search_kahns_bfs_visit_skip
 ```
 
-### 13.5 Summary of diagnostic coverage
+### 13.5 Opt-in predecessor-based visit-skip
+
+A prototype of Section 12 item 1 (visit-level change short-circuit) is available today behind the Tcl variable `sta_kahn_visit_skip` (default off). When on, Kahn's Stage 2 skips the visitor body on any vertex whose active-set predecessors all reported `arrivals_changed=false` via `VertexVisitor::lastVisitChanged()`. The decrement walk over successors still runs so Kahn's in-degree invariant holds; only the expensive visitor call (arrival/tag computation) is elided.
+
+#### 13.5.1 Mechanism
+
+A new atomic byte array lives in `KahnState` alongside `in_degree`:
+
+```cpp
+std::unique_ptr<std::atomic<uint8_t>[]> pred_changed;
+size_t pred_changed_size = 0;
+```
+
+It is allocated only when `visit_skip` is on — zero-cost when the flag is off. Initialization at the top of Stage 2 sets `pred_changed[vid] = 1` for every seed (in-degree 0) and `0` for every other active vertex. Seeds are always visited; non-seeds start skippable and flip to non-skippable as soon as any predecessor reports a change.
+
+The worker lambda's drain loop consults the flag once per pop and propagates on the successor side:
+
+```cpp
+// at pop time
+bool changed = true;
+const bool skip = visit_skip
+    && pred_changed[graph_->id(vertex)]
+           .load(std::memory_order_acquire) == 0;
+if (skip) {
+  changed = false;
+} else {
+  visitors[tid]->visit(vertex);
+  total_visited.fetch_add(1, std::memory_order_relaxed);
+  if (visit_skip)
+    changed = visitors[tid]->lastVisitChanged();
+}
+// ... in kahnForEachSuccessor callback:
+if (visit_skip && changed
+    && pred_changed[sid].load(std::memory_order_relaxed) == 0)
+  pred_changed[sid].store(1, std::memory_order_release);
+int prev = in_degree[sid].fetch_sub(1, std::memory_order_acq_rel);
+```
+
+The relaxed-load guard before the release-store elides the redundant writes that high-fan-in vertices would otherwise cause — when N predecessors all see `changed=true`, only the first actually writes `pred_changed[sid]` to 1, the rest see it already set and skip the store. This avoids cache-line bouncing on the shared byte.
+
+#### 13.5.2 Correctness argument
+
+**Invariant preserved.** The decrement of `in_degree[sid]` always runs, regardless of whether we skipped the current vertex's visitor. Every active predecessor therefore decrements its successors' counters exactly once, so every active vertex reaches `in_degree == 0` and enters the batch. Kahn's contract is intact; the skip only short-circuits the *visitor call*, not the scheduling step.
+
+**Sufficient but not necessary predicate.** Skipping is safe whenever no predecessor's arrival actually changed, because STA arrivals depend monotonically on predecessor arrivals plus (unchanged) edge delays. The converse is not guaranteed — we may visit a vertex whose arrivals wouldn't have changed, because the predecessor-changed flag is a conservative over-approximation. Worst case is identical to today; the optimization only *adds* skips, never incorrect visits.
+
+**Memory ordering.** The `pred_changed[sid].store(1, release)` happens before the same thread's `in_degree[sid].fetch_sub(1, acq_rel)`. The decrementer-to-zero observes its fetch_sub as the last in the total modification order, so its acquire synchronizes with every prior thread's release — including the pred_changed store. The subsequent `pred_changed[vid].load(acquire)` at pop time therefore sees all predecessors' signals. Explicit release/acquire on pred_changed is slightly stronger than strictly necessary (the adjacent `fetch_sub(acq_rel)` on in_degree carries the piggyback synchronization), but it makes intent self-documenting and costs nothing measurable.
+
+**Seed handling.** Seeds initialize to `pred_changed = 1` so they always run through the visitor. This is load-bearing: if seeds were skippable, we'd never verify whether the cached arrival on a dirty seed is still correct, and the whole downstream would silently skip with a stale cache.
+
+#### 13.5.3 Why opt-in and not default
+
+`Search::arrivalsChanged(vertex, tag_bldr)` compares the newly-computed tag_bldr against the vertex's existing `paths()`. `sta::arrivals_invalid` calls `Search::arrivalsInvalid()` which `deletePaths()`s everything — the comparison then takes the `paths == nullptr` branch and always returns true. From pure Tcl this means the skip never fires and the optimization is pure overhead.
+
+The real win is on **selective invalidation**: `Search::arrivalInvalid(Vertex*)` (singular) adds a vertex to `invalid_arrivals_` without wiping paths. This is what OpenROAD's `rsz`, `cts`, and other incremental flows trigger when they resize or insert cells. There, cached arrivals survive, `arrivalsChanged` can legitimately return false, and visit-skip short-circuits the redundant visitor work.
+
+Until the optimization has been soak-tested in those real flows, default-off is safer. Users who want to A/B it can flip the Tcl variable per session; the plumbing and regression tests are in place to support that without risking existing flows.
+
+#### 13.5.4 Files touched
+
+The implementation mirrors the existing `sta_use_kahns_bfs` plumbing across eleven files:
+
+- `include/sta/VertexVisitor.hh` — new virtual `lastVisitChanged()` default `true`.
+- `include/sta/Search.hh` — `ArrivalVisitor` override; new member `last_arrivals_changed_`.
+- `search/Search.cc` — one line in `ArrivalVisitor::visit` storing the existing `arrivals_changed` result.
+- `include/sta/Variables.hh` — `use_kahns_visit_skip_{false}` + getter + setter decl.
+- `sdc/Variables.cc` — setter definition.
+- `include/sta/Sta.hh` — `Sta::useKahnsVisitSkip/setUseKahnsVisitSkip` decls.
+- `search/Sta.cc` — forwarder definitions.
+- `search/Search.i` — SWIG inlines `use_kahns_visit_skip` / `set_use_kahns_visit_skip`.
+- `tcl/Variables.tcl` — Tcl variable trace for `sta_kahn_visit_skip`.
+- `search/Bfs.cc` — `KahnState` gains `pred_changed` + `ensurePredChangedSize`; `visitParallel` allocates and initializes on the opt-in path; worker lambda reads/writes the flag as above.
+- `search/test/CMakeLists.txt` — registers the new regression below.
+
+#### 13.5.5 Verification
+
+`search/test/search_kahns_bfs_visit_skip.tcl` is a **correctness** regression: it runs the same `report_checks` under Kahn's with `sta_kahn_visit_skip=0` and `=1` and asserts the reports are byte-identical. Any bug in the pred_changed plumbing that changes arrivals, slacks, or path ordering will make the two reports diverge.
+
+The test deliberately cannot exercise *effectiveness* — `sta::arrivals_invalid` wipes the path cache, so the skip never fires in this harness. That's fine: the test's job is to guard the shipping-critical invariant (the skip never corrupts output), not to measure wins on incremental flows. Effectiveness measurement lives outside Tcl:
+
+- Run a real ORFS flow (`rsz`, `cts`) with `set sta_kahn_visit_skip 1` in the injected Tcl and compare `DISPATCH` / `VISITS` counters against the skip-off baseline.
+- Or write a C++ unit test that calls `Search::arrivalInvalid(vertex)` on a chosen subset of a small graph and verifies the skip fires on the expected vertices.
+
+#### 13.5.6 How to A/B on a real design
+
+The isolated STA harness accepts a `kahn_visit_skip` Tcl variable that maps directly to `sta_kahn_visit_skip`. Set it alongside `kahn_mode` when sourcing the harness. See the wrappers under `flow/util/` for the command-line interface.
+
+### 13.6 Summary of diagnostic coverage
 
 | Section | Tool | Catches |
 | --- | --- | --- |
@@ -600,6 +687,6 @@ Invocation:
 | 13.4.6 | `kahns_vtune.sh` | Function-level attribution of residual cost structure |
 | 13.4.7 | `search_kahns_bfs_visit_skip.tcl` | Correctness of the opt-in visit-skip optimization |
 
-### 13.6 What remains
+### 13.7 What remains
 
-Kahn's at 32 threads on a large design is now at parity with level-BFS on the STA-isolated benchmark. Real algorithmic wins from barrier elimination are still expected on designs where level populations are highly uneven — the profile that originally motivated Kahn's — but measuring them requires designs larger than the reference corpus here. Future work in that direction belongs under Section 12, particularly items 1 (visit-level change short-circuit, prototyped behind `sta_kahn_visit_skip`) and 3 (demand-driven forward propagation), which reduce the `visit()` cost that currently dominates on the designs tested.
+Kahn's at 32 threads on a large design is now at parity with level-BFS on the STA-isolated benchmark. Real algorithmic wins from barrier elimination are still expected on designs where level populations are highly uneven — the profile that originally motivated Kahn's — but measuring them requires designs larger than the reference corpus here. Future work in that direction belongs under Section 12, particularly items 1 (visit-level change short-circuit, prototyped behind `sta_kahn_visit_skip` and documented in Section 13.5) and 3 (demand-driven forward propagation), which reduce the `visit()` cost that currently dominates on the designs tested.

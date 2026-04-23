@@ -942,6 +942,18 @@ set_use_kahns_bfs(bool use)
 }
 
 bool
+use_kahns_visit_skip()
+{
+  return Sta::sta()->useKahnsVisitSkip();
+}
+
+void
+set_use_kahns_visit_skip(bool use)
+{
+  Sta::sta()->setUseKahnsVisitSkip(use);
+}
+
+bool
 crpr_enabled()
 {
   return Sta::sta()->crprEnabled();
