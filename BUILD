@@ -341,8 +341,8 @@ cc_library(
         "app/StaMain.cc",
         ":StaConfig",
     ] + select({
-        "@platforms//os:osx": ["util/MachineApple.cc"],
         "@platforms//os:linux": ["util/MachineLinux.cc"],
+        "@platforms//os:osx": ["util/MachineApple.cc"],
         "@platforms//os:windows": ["util/MachineWin32.cc"],
         "//conditions:default": ["util/MachineUnknown.cc"],
     }),
