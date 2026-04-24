@@ -458,6 +458,12 @@ BfsIterator::visitParallel(Level to_level,
       // Steady-state fan-out rarely exceeds this; wide bursts (clock
       // boundaries) spill so work reaches idle workers.
       constexpr size_t kKahnBatchSpillThreshold = 64;
+      // A spill event hands the older half of a worker's batch back
+      // to DispatchQueue as this many shard-tasks (round-robin), so
+      // the dispatch mutex is hit a bounded small number of times
+      // per spill rather than once per spilled vertex. Mirrors the
+      // shard pattern used by the initial seeding dispatches below.
+      constexpr size_t kKahnSpillShardCount = 4;
       std::vector<std::vector<Vertex *>> &local_ready
           = kahn_state_->local_ready;
       // Resize outer to thread_count (thread_count can change between
@@ -523,14 +529,31 @@ BfsIterator::visitParallel(Level to_level,
             }
           });
           if (batch.size() > kKahnBatchSpillThreshold) {
-            // Hand older half back so idle workers can steal;
-            // keep the most-recent frontier hot locally.
-            size_t spill = batch.size() / 2;
-            for (size_t i = 0; i < spill; i++) {
-              Vertex *v = batch[i];
-              dispatch_queue_->dispatch([&process, v](size_t t) {
-                process(v, t);
-              });
+            // Hand older half back so idle workers can steal. Shard
+            // the spill into up to kKahnSpillShardCount chunks so the
+            // dispatch mutex is hit a small bounded number of times
+            // per spill event rather than once per spilled vertex.
+            // Mirrors the seeding shard pattern below: each chunk
+            // pre-loads into the receiving worker's local_ready and
+            // enters the drain loop via process(chunk[0], t).
+            const size_t spill = batch.size() / 2;
+            const size_t shards
+                = std::min<size_t>(kKahnSpillShardCount, spill);
+            for (size_t s = 0; s < shards; s++) {
+              std::vector<Vertex *> chunk;
+              chunk.reserve(spill / shards + 1);
+              for (size_t i = s; i < spill; i += shards)
+                chunk.push_back(batch[i]);
+              if (chunk.empty())
+                continue;
+              dispatch_queue_->dispatch(
+                [&process, &local_ready,
+                 chunk = std::move(chunk)](size_t t) {
+                  auto &nested = local_ready[t];
+                  for (size_t i = 1; i < chunk.size(); i++)
+                    nested.push_back(chunk[i]);
+                  process(chunk[0], t);
+                });
             }
             batch.erase(batch.begin(), batch.begin() + spill);
           }

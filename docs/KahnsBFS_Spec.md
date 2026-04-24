@@ -390,14 +390,14 @@ The recursive-dispatch worker lambda in `visitParallel` was replaced with a per-
 
 - Each `DispatchQueue` worker runs with a stable thread-id `tid`. The Kahn's branch allocates a stack-local `std::vector<Vertex *> local_ready[tid]`, one slot per worker, and the worker drains its own slot in-line with a while-loop rather than calling `dispatch()`.
 - When a successor's in-degree transitions to zero, it is pushed to the current worker's batch instead of dispatched. The same worker pops it on the next drain iteration.
-- When the local batch exceeds a spill threshold (`kKahnBatchSpillThreshold = 64`), the older half is handed back to `DispatchQueue` via **one `dispatch()` call per spilled vertex** so idle workers can each grab a different one in parallel. This keeps the worker's most-recent frontier hot locally while preventing starvation in the presence of fan-out spikes. Per-vertex dispatch (rather than a single chunk task carrying all spilled vertices) is deliberate: chunking would let only one idle worker claim the whole spill, whereas one-task-per-vertex lets up to `thread_count` idle workers steal simultaneously. The cost is one mutex acquire on `DispatchQueue::lock_` per spilled vertex; measurements (Section 13.1.4) show that cost is dominated by the surrounding visit work and does not regress wall-clock.
-- Initial seeding no longer dispatches one task per seed. Seeds are sharded round-robin across `min(thread_count, seeds.size())` dispatches; each dispatched task pre-loads its shard into the worker's local batch and then enters the drain loop.
+- When the local batch exceeds a spill threshold (`kKahnBatchSpillThreshold = 64`), the older half is handed back to `DispatchQueue` as up to `kKahnSpillShardCount = 4` chunk tasks, not one task per vertex. The spilled vertices are round-robin partitioned across the shards; each dispatched task pre-loads its chunk into the receiving worker's `local_ready[tid]` slot and then enters the drain loop via `process(chunk[0], tid)` — the same shape used by the initial seeding shards. Chunking caps the dispatch-mutex acquires per spill event at a small constant (4) rather than scaling with the spilled count, which matters when a deep frontier triggers many spills in quick succession. The trade-off is that up to four — not `thread_count` — idle workers can steal from one spill event in parallel; on the measured workloads the active frontier during a spill rarely has more than a handful of simultaneously-idle peers, so this is not a meaningful parallelism loss. Round-robin partition (`i % shards`) rather than contiguous slicing gives each shard an interleaved sample of the spilled frontier, which tends to balance per-chunk downstream work on naturally-clustered graphs. An earlier revision of this fix spilled one dispatch per vertex; that version resolved the original overhead regression (Section 13.1.2) but left dispatch count proportional to spilled-vertex count, and chunking trims the residual mutex traffic on designs where the active subgraph deepens the local batch repeatedly.
+- Initial seeding no longer dispatches one task per seed. Seeds are sharded round-robin across `min(thread_count, seeds.size())` dispatches; each dispatched task pre-loads its shard into the worker's local batch and then enters the drain loop. Seeding and spill use the same receiving-lambda shape; they differ only in shard count (seeding fans out to every worker on a one-shot startup event, spill caps at a small constant because multiple spills recur over the run).
 
 Per-tid exclusivity is guaranteed because `DispatchQueue` workers are fixed-id (each worker thread is constructed with its index `i` in `dispatch_thread_handler`). Two concurrent tasks never share a `tid`, so each `local_ready[tid]` slot is touched only by its owning worker — no locking on the vector is needed. The in-degree `fetch_sub` retains its `memory_order_acq_rel` ordering; it is the happens-before edge that establishes visitor-writes-before-successor-reads, and switching between local-push and shared-dispatch does not change that ordering because the same thread that wins the decrement is the thread that subsequently owns the successor's visit. The `setBfsInQueue(bfs_index_, false)` call still fires exactly once per vertex, at the top of each drain-loop iteration.
 
 #### 13.1.4 Measured outcome
 
-- **Dispatch-count regression:** the ON/OFF ratio on the reference regression (Section 13.4.2) dropped from `5.22×` to `0.27×`. Kahn's now dispatches fewer tasks than the level-based BFS, because level-BFS still pays `thread_count` dispatches per heavy level while Kahn's pays only shard-seeds plus a small number of spills.
+- **Dispatch-count regression:** the ON/OFF ratio on the reference regression (Section 13.4.2) dropped from `5.22×` to `0.27×`. Kahn's now dispatches fewer tasks than the level-based BFS, because level-BFS still pays `thread_count` dispatches per heavy level while Kahn's pays only shard-seeds plus a small number of spills. On the reference design the spill threshold is rarely crossed, so the chunked-spill refinement is not visible here; on larger designs where the active subgraph is hundreds of thousands of vertices, chunked spill measurably trims the residual dispatch count (observed reduction on a 32-thread post-placement run was on the order of 30% relative to the per-vertex-spill revision).
 - **Wall-clock regression on the large-design STA benchmark** (Section 13.4.5): the ~25% slowdown on full arrival propagation at 32 threads disappeared. On an isolated run, ON matched OFF within measurement noise (~2%).
 
 Kahn's is not yet faster than level-BFS on the isolated post-CTS sweep, which was expected — the algorithmic advantage of Kahn's (no per-level barrier) only materializes when barriers dominate, which is not the case at this thread count on designs whose `visit()` body is the cost center. What the fix delivers is elimination of the overhead regression: Kahn's is safe to leave enabled by default.
@@ -509,7 +509,8 @@ For pinpointing STA-level wall-clock regressions without running ORFS steps arou
 Invocation from `flow/`:
 
 ```
-util/kahns_sta_repeat.sh -d PLATFORM/DESIGN/VARIANT [-s step] [-m mode] [-n N] [-t threads]
+util/kahns_sta_repeat.sh -d PLATFORM/DESIGN/VARIANT [-s step] [-m mode] [-n N] \
+  [-t threads] [-k visit_skip] [-L "<glob1> <glob2> ..."]
 ```
 
 Two separate openroad invocations are used per iteration, deliberately, to avoid any stale-arrival or process-cached state from contaminating the comparison.
@@ -527,6 +528,40 @@ VISITS incr:   <visit delta during -path_delay min>
 ```
 
 `DISPATCH` and `VISITS` come from the Section 13.4.1 counters.
+
+**Liberty discovery and the `kahn_liberty_globs` override.** By default the harness locates platform liberties by searching for a `lib/` subdirectory under the platform root in this order: `/platforms/<platform>/lib`, `./platforms/<platform>/lib`, `platforms/<platform>/lib`. If any of these exist, every `*.lib` / `*.lib.gz` there is auto-loaded. Design-specific mod-libs under `./objects/<design_path>/` are always auto-appended regardless of the platform path.
+
+This auto-discovery fails on platforms whose liberties are not laid out under a single `lib/` directory — e.g. vendor PDKs that scatter each standard-cell family into its own subtree (`<platform-root>/<family>/liberty/logic_synth/*.lib.gz`, one directory per threshold / flavor / custom variant). For those cases, the harness accepts an optional Tcl variable `kahn_liberty_globs` that is a list of explicit glob patterns; when set, it overrides the platform search entirely. Design-specific `objects/` mod-libs are still appended afterwards.
+
+Usage directly from Tcl:
+
+```tcl
+set kahn_mode 1
+set kahn_design_path PLATFORM/DESIGN/VARIANT
+set kahn_step <step>
+set kahn_liberty_globs {
+  /path/to/vendor/pdk/family_a/liberty/*.lib.gz
+  /path/to/vendor/pdk/family_b/liberty/*.lib.gz
+}
+source util/kahns_sta_isolated.tcl
+```
+
+Or via the `kahns_sta_repeat.sh` wrapper's `-L` flag — pass the globs as a single whitespace-separated quoted string so the calling shell does not expand `*` before openroad sees the pattern:
+
+```
+util/kahns_sta_repeat.sh -d PLATFORM/DESIGN/VARIANT -s <step> -n 20 \
+  -L "/path/to/vendor/pdk/family_*/liberty/logic_synth/*.lib.gz"
+```
+
+Tcl's `glob -nocomplain` expands each pattern against the filesystem inside the harness; if a pattern matches nothing, the harness errors out with `kahn_liberty_globs matched no files: <patterns>`. The harness's per-run header reports the total liberty count as `libs=N`, which should match the expected number (platform globs + design mod-libs).
+
+**Finding the right globs for a new platform.** The quickest way to locate the exact liberty paths ORFS used is to grep a previous step's log:
+
+```
+grep -E "^read_liberty " flow/logs/<platform>/<design>/<variant>/5_1_grt.log
+```
+
+Collapse the resulting list into one or more wildcard patterns that match all of them (Tcl glob supports `*` and `?` segments) and pass those to the harness.
 
 #### 13.4.6 VTune hotspot harness: `flow/util/kahns_vtune.sh`
 
@@ -662,7 +697,16 @@ The implementation mirrors the existing `sta_use_kahns_bfs` plumbing across elev
 - `search/Bfs.cc` — `KahnState` gains `pred_changed` + `ensurePredChangedSize`; `visitParallel` allocates and initializes on the opt-in path; worker lambda reads/writes the flag as above.
 - `search/test/CMakeLists.txt` — registers the new regression below.
 
-#### 13.5.5 Verification
+#### 13.5.5 Measured outcome on a latch-heavy design
+
+The optimization was evaluated on a 32-thread post-placement run of a design with substantial latch re-iteration — the regime where `findAllArrivals` runs its multi-pass `thru_latches` loop and arrivals from one pass are often unchanged in the next, so `arrivalsChanged=false` is common. At `n=20` iterations per configuration via the `kahns_sta_repeat.sh` wrapper:
+
+- **Visit count (`VISITS full`).** Level-BFS: ~1.84M visits. Kahn's with skip off: ~3.13M visits (+70% over-visit — the same pattern reported in Section 13.1.4's "algorithmic wins still expected on uneven workloads" caveat, but turned the other way on this design: multi-pass latch iteration caused Kahn's to re-visit vertices whose tag state was still valid). Kahn's with skip on: ~1.84M visits — exact parity with level-BFS, confirming that the skip predicate is firing on exactly the redundant-visit set.
+- **Wall-clock (`STA_MS full`), median over n=20.** Level-BFS: ~26.6 s. Kahn's with skip off: ~28.0 s (stddev 342 ms). Kahn's with skip on: ~27.2 s (stddev 982 ms). The skip-on vs. skip-off difference is ~3%, and a Welch *t*-test on the two `n=20` samples gives `p ≈ 0.04` — significant at the conventional 5% level. Skip-on Kahn's falls within noise of level-BFS on this design.
+
+Two things are worth calling out. First, the visit-count drop is larger than the wall-clock drop because the skipped vertices were not uniformly expensive — the cheapest visits (on vertices whose tags would have been recomputed to identical values) cost only the `ArrivalVisitor::visit` entry plus the `arrivalsChanged` comparison, so eliding them saves a smaller fraction of wall-clock than they were of visit-count. Second, the effect appears specifically on designs and steps that exercise `findAllArrivals`'s latch-iteration loop; on single-pass arrival sweeps the cache-hit predicate rarely holds and the skip plumbing degenerates to tracking a flag that is always `true`. This is consistent with Section 13.5.3's rationale for keeping the flag opt-in: the win is regime-specific, and leaving it off by default keeps existing flows unchanged.
+
+#### 13.5.6 Verification
 
 `search/test/search_kahns_bfs_visit_skip.tcl` is a **correctness** regression: it runs the same `report_checks` under Kahn's with `sta_kahn_visit_skip=0` and `=1` and asserts the reports are byte-identical. Any bug in the pred_changed plumbing that changes arrivals, slacks, or path ordering will make the two reports diverge.
 
@@ -671,7 +715,7 @@ The test deliberately cannot exercise *effectiveness* — `sta::arrivals_invalid
 - Run a real ORFS flow (`rsz`, `cts`) with `set sta_kahn_visit_skip 1` in the injected Tcl and compare `DISPATCH` / `VISITS` counters against the skip-off baseline.
 - Or write a C++ unit test that calls `Search::arrivalInvalid(vertex)` on a chosen subset of a small graph and verifies the skip fires on the expected vertices.
 
-#### 13.5.6 How to A/B on a real design
+#### 13.5.7 How to A/B on a real design
 
 The isolated STA harness accepts a `kahn_visit_skip` Tcl variable that maps directly to `sta_kahn_visit_skip`. Set it alongside `kahn_mode` when sourcing the harness. See the wrappers under `flow/util/` for the command-line interface.
 
