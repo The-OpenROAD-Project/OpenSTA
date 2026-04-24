@@ -57,6 +57,7 @@
 #include "PortDelay.hh"
 #include "PortDirection.hh"
 #include "Report.hh"
+#include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
 #include "Sdc.hh"
 #include "SdcClass.hh"
@@ -3995,6 +3996,39 @@ Search::wnsSlack(Vertex *vertex,
   SlackSeq slacks(path_count);
   wnsSlacks(vertex, slacks);
   return slacks[path_ap_index];
+}
+
+////////////////////////////////////////////////////////////////
+
+DelaysWrtClks
+Search::arrivalsWrtClks(Vertex *vertex,
+                        const Scene *scene)
+{
+  return delaysWrtClks(vertex, scene,
+                       [] (const Path *path) {
+                         return path->arrival();
+                       });
+}
+
+DelaysWrtClks
+Search::delaysWrtClks(Vertex *vertex,
+                      const Scene *scene,
+                      const PathDelayFunc &get_path_delay)
+{
+  DelaysWrtClks delays_wrt_clks;
+  VertexPathIterator path_iter(vertex, scene, nullptr, nullptr, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    Delay delay = get_path_delay(path);
+    if (!delayInf(delay, this)) {
+      const RiseFall *rf = path->transition(this);
+      const MinMax *min_max = path->minMax(this);
+      const ClockEdge *clk_edge = path->clkEdge(this);
+      RiseFallMinMaxDelay &delays = delays_wrt_clks[clk_edge];
+      delays.mergeValue(rf, min_max, delay, this);
+    }
+  }
+  return delays_wrt_clks;
 }
 
 }  // namespace sta

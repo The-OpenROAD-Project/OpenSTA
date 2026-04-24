@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <map>
 #include <string>
 
 #include "ArcDelayCalc.hh"
@@ -3346,29 +3347,25 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
   else
     search_->findArrivals(vertex->level());
   const Sdc *sdc = scene->sdc();
-  reportDelaysWrtClks(vertex, nullptr, scene, report_variance, digits, get_path_delay);
+  DelaysWrtClks clk_delays = search_->delaysWrtClks(vertex, scene, get_path_delay);
+  reportDelaysWrtClks(nullptr, report_variance, digits, clk_delays);
   const ClockEdge *default_clk_edge = sdc->defaultArrivalClock()->edge(RiseFall::rise());
-  reportDelaysWrtClks(vertex, default_clk_edge, scene, report_variance,
-                      digits, get_path_delay);
+  reportDelaysWrtClks(default_clk_edge, report_variance, digits, clk_delays);
   for (const Clock *clk : sdc->sortedClocks()) {
     for (const RiseFall *rf : RiseFall::range()) {
       const ClockEdge *clk_edge = clk->edge(rf);
-      reportDelaysWrtClks(vertex, clk_edge, scene, report_variance, digits,
-                          get_path_delay);
+      reportDelaysWrtClks(clk_edge, report_variance, digits, clk_delays);
     }
   }
 }
 
 void
-Sta::reportDelaysWrtClks(Vertex *vertex,
-                         const ClockEdge *clk_edge,
-                         const Scene *scene,
+Sta::reportDelaysWrtClks(const ClockEdge *clk_edge,
                          bool report_variance,
                          int digits,
-                         const PathDelayFunc &get_path_delay)
+                         DelaysWrtClks &clk_delays)
 {
-  RiseFallMinMaxDelay delays =
-      findDelaysWrtClks(vertex, clk_edge, scene, get_path_delay);
+  const RiseFallMinMaxDelay &delays = clk_delays[clk_edge];
   if (!delays.empty()) {
     std::string clk_name;
     if (clk_edge)
@@ -3383,27 +3380,6 @@ Sta::reportDelaysWrtClks(Vertex *vertex,
                     formatDelay(RiseFall::fall(), MinMax::max(),
                                 delays, report_variance, digits));
   }
-}
-
-RiseFallMinMaxDelay
-Sta::findDelaysWrtClks(Vertex *vertex,
-                       const ClockEdge *clk_edge,
-                       const Scene *scene,
-                       const PathDelayFunc &get_path_delay)
-{
-  RiseFallMinMaxDelay delays;
-  VertexPathIterator path_iter(vertex, scene, nullptr, nullptr, this);
-  while (path_iter.hasNext()) {
-    Path *path = path_iter.next();
-    Delay delay = get_path_delay(path);
-    const RiseFall *rf = path->transition(this);
-    const MinMax *min_max = path->minMax(this);
-    const ClockEdge *path_clk_edge = path->clkEdge(this);
-    if (path_clk_edge == clk_edge
-        && !delayInf(delay, this))
-      delays.mergeValue(rf, min_max, delay, this);
-  }
-  return delays;
 }
 
 std::string
