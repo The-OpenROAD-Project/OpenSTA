@@ -1490,12 +1490,12 @@ VerilogReader::linkNetwork(std::string_view top_cell_name,
         return top_instance;
     }
     else {
-      report_->error(1398, "{} is not a verilog module.", top_cell_name);
+      report_->error(1390, "{} is not a verilog module.", top_cell_name);
       return nullptr;
     }
   }
   else {
-    report_->error(1399, "{} is not a verilog module.", top_cell_name);
+    report_->error(1391, "{} is not a verilog module.", top_cell_name);
     return nullptr;
   }
 }
