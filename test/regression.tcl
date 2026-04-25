@@ -156,11 +156,8 @@ proc expand_tests { argv } {
           lappend tests $test
         }
       }
-    } elseif { [lsearch [group_tests "all"] $arg] != -1 } {
-      lappend tests $arg
     } else {
-      puts "Error: test $arg not found."
-      incr errors(no_cmd)
+      lappend tests $arg
     }
   }
   return $tests
