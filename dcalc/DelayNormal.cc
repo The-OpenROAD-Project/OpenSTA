@@ -121,7 +121,7 @@ DelayOpsNormal::greater(const Delay &delay1,
                         const StaState *sta) const
 {
   return fuzzyGreater(delayAsFloat(delay1, EarlyLate::late(), sta),
-		      delayAsFloat(delay2, EarlyLate::late(), sta));
+                      delayAsFloat(delay2, EarlyLate::late(), sta));
 }
 
 bool
@@ -130,7 +130,7 @@ DelayOpsNormal::greaterEqual(const Delay &delay1,
                              const StaState *sta) const
 {
   return fuzzyGreaterEqual(delayAsFloat(delay1, EarlyLate::late(), sta),
-			   delayAsFloat(delay2, EarlyLate::late(), sta));
+                           delayAsFloat(delay2, EarlyLate::late(), sta));
 }
 
 Delay
@@ -138,7 +138,7 @@ DelayOpsNormal::sum(const Delay &delay1,
                     const Delay &delay2) const
 {
   return Delay(delay1.mean() + delay2.mean(),
-	       delay1.stdDev2() + delay2.stdDev2());
+               delay1.stdDev2() + delay2.stdDev2());
 }
 
 Delay
@@ -146,7 +146,7 @@ DelayOpsNormal::sum(const Delay &delay1,
                         float delay2) const
 {
   return Delay(delay1.mean() + delay2,
-	       delay1.stdDev2());
+               delay1.stdDev2());
 }
 
 Delay
