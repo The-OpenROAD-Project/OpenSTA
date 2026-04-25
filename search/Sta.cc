@@ -2309,13 +2309,16 @@ Sta::checkLibrarayPocv()
           GateTableModel *gate_model = arc->gateTableModel();
           if (gate_model) {
             const TableModels *models = gate_model->delayModels();
-            if (models->sigma(EarlyLate::early()) != nullptr)
+            if (models->sigma(EarlyLate::early()) != nullptr) {
+              delete lib_iter;
               return;
+            }
           }
         }
       }
     }
   }
+  delete lib_iter;
   report_->warn(1578, "No liberty POCV/LVF models found.");
 }
 
