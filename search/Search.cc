@@ -1547,7 +1547,7 @@ Search::seedClkArrival(const Pin *pin,
 
   const ClockUncertainties *uncertainties = sdc->clockUncertainties(pin);
   if (uncertainties == nullptr)
-    uncertainties = clk->uncertainties();
+    uncertainties = &clk->uncertainties();
   // Propagate liberty "pulse_clock" transition to transitive fanout.
   LibertyPort *port = network_->libertyPort(pin);
   const RiseFall *pulse_clk_sense = (port ? port->pulseClkSense() : nullptr);
@@ -1914,13 +1914,13 @@ Search::inputDelayTag(const Pin *pin,
   const Pin *clk_pin = nullptr;
   const RiseFall *clk_rf = nullptr;
   bool is_propagated = false;
-  ClockUncertainties *clk_uncertainties = nullptr;
+  const ClockUncertainties *clk_uncertainties = nullptr;
   if (clk_edge) {
     clk = clk_edge->clock();
     clk_rf = clk_edge->transition();
     clk_pin = clk->defaultPin();
     is_propagated = clk->isPropagated();
-    clk_uncertainties = clk->uncertainties();
+    clk_uncertainties = &clk->uncertainties();
   }
 
   Sdc *sdc = scene->sdc();

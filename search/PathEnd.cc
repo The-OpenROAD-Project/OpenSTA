@@ -379,7 +379,7 @@ PathEnd::checkTgtClkUncertainty(const Path *tgt_clk_path,
   if (tgt_clk_path && tgt_clk_path->isClock(sta))
     uncertainties = tgt_clk_path->clkInfo(sta)->uncertainties();
   else if (tgt_clk_edge)
-    uncertainties = tgt_clk_edge->clock()->uncertainties();
+    uncertainties = &tgt_clk_edge->clock()->uncertainties();
   float uncertainty = 0.0;
   if (uncertainties) {
     bool exists;
