@@ -89,7 +89,7 @@ protected:
   std::string name_;
   size_t index_;
   Mode *mode_;
-  LibertySeq liberty_[MinMax::index_count];
+  std::array<LibertySeq, MinMax::index_count> liberty_;
   std::array<Parasitics*, MinMax::index_count> parasitics_;
 
   friend class Scenes;
