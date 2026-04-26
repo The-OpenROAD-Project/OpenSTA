@@ -522,14 +522,10 @@ proc show_summary {} {
   if { $valgrind_shared_lib_failure } {
     puts "WARNING: valgrind failed because the executable is not statically linked."
   }
-  puts "See $result_dir for log files"
   set test_count [llength $tests]
   if { [found_errors] } {
     if { $errors(error) != 0 } {
       puts "Errored $errors(error)/$test_count"
-    }
-    if { $errors(fail) != 0 } {
-      puts "Failed $errors(fail)/$test_count"
     }
     if { $errors(leak) != 0 } {
       puts "Memory leaks in $errors(leak)/$test_count"
@@ -544,7 +540,7 @@ proc show_summary {} {
       puts "No cmd tcl file for $errors(no_cmd)/$test_count"
     }
     if { $errors(fail) != 0 } {
-      puts "See $diff_file for differences"
+      puts "Failed $errors(fail)/$test_count"
     }
   } else {
     puts "Passed $test_count"
