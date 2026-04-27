@@ -90,7 +90,7 @@ public:
                  // Return values.
                  float &slew,
                  bool &exists) const;
-  ClockUncertainties *uncertainties() const { return uncertainties_; }
+  const ClockUncertainties &uncertainties() const { return uncertainties_; }
   void uncertainty(const SetupHold *setup_hold,
                    // Return values.
                    float &uncertainty,
@@ -180,7 +180,7 @@ protected:
   bool is_propagated_{false};
   RiseFallMinMax slews_;
   RiseFallMinMax slew_limits_[path_clk_or_data_count];
-  ClockUncertainties *uncertainties_{nullptr};
+  ClockUncertainties uncertainties_;
   bool is_generated_{false};
   // Generated clock variables.
   Pin *src_pin_{nullptr};

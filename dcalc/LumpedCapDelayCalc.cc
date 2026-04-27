@@ -142,8 +142,10 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
     float gate_delay, drvr_slew;
     float in_slew1 = delayAsFloat(in_slew);
     // NaNs cause seg faults during table lookup.
-    if (std::isnan(load_cap) || std::isnan(in_slew.mean()))
-      report_->error(1350, "gate delay input variable is NaN");
+    if (std::isnan(load_cap))
+      report_->error(1350, "gate delay load cap is NaN");
+    if (std::isnan(in_slew.mean()))
+      report_->error(1351, "gate delay input slew is NaN");
     const Pvt *pvt = pinPvt(drvr_pin, scene, min_max);
     model->gateDelay(pvt, in_slew1, load_cap, gate_delay, drvr_slew);
 

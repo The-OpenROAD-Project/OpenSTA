@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <functional>
+#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -82,8 +82,6 @@ using CheckError = StringSeq;
 using CheckErrorSeq = std::vector<CheckError*>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*, std::less<>>;
-// Path::slack/arrival/required function.
-using PathDelayFunc = std::function<Delay (const Path *path)>;
 using GraphLoopSeq = std::vector<GraphLoop*>;
 
 // Initialize sta functions that are not part of the Sta class.
@@ -1531,16 +1529,10 @@ protected:
                            int digits,
                            bool find_required,
                            const PathDelayFunc &get_path_delay);
-  void reportDelaysWrtClks(Vertex *vertex,
-                           const ClockEdge *clk_edge,
-                           const Scene *scene,
+  void reportDelaysWrtClks(const ClockEdge *clk_edge,
                            bool report_variance,
                            int digits,
-                           const PathDelayFunc &get_path_delay);
-  RiseFallMinMaxDelay findDelaysWrtClks(Vertex *vertex,
-                                        const ClockEdge *clk_edge,
-                                        const Scene *scene,
-                                        const PathDelayFunc &get_path_delay);
+                           DelaysWrtClks &clk_delays);
   std::string formatDelay(const RiseFall *rf,
                           const MinMax *min_max,
                           const RiseFallMinMaxDelay &delays,
@@ -1616,6 +1608,7 @@ protected:
                    Mode *mode,
                    Parasitics *parasitics);
   void deleteScenes();
+  void checkLibrarayPocv();
 
   Scene *cmd_scene_{nullptr};
   CmdNamespace cmd_namespace_{CmdNamespace::sdc};

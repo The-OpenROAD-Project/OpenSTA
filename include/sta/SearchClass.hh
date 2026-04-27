@@ -24,14 +24,18 @@
 
 #pragma once
 
+#include <functional>
 #include <limits>
 #include <map>
 #include <vector>
 
 #include "Delay.hh"
 #include "GraphClass.hh"
+#include "LibertyClass.hh"
 #include "MinMaxValues.hh"
 #include "NetworkClass.hh"
+#include "RiseFallMinMaxDelay.hh"
+#include "SdcClass.hh"
 #include "VectorMap.hh"
 
 namespace sta {
@@ -111,6 +115,9 @@ using SlackSeq = std::vector<Slack>;
 using Crpr = Delay;
 using PathSeq = std::vector<Path*>;
 using ConstPathSeq = std::vector<const Path*>;
+// Path::slack/arrival/required function.
+using PathDelayFunc = std::function<Delay (const Path *path)>;
+using DelaysWrtClks = std::map<const ClockEdge*, RiseFallMinMaxDelay>;
 
 enum class ReportPathFormat { full,
                               full_clock,

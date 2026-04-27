@@ -193,7 +193,7 @@ WritePathSpice::WritePathSpice(const Path *path,
 void
 WritePathSpice::writeSpice()
 {
-  spice_stream_.open(std::string(spice_filename_));
+  spice_stream_.open(spice_filename_);
   if (spice_stream_.is_open()) {
     path_expanded_.expand(path_, true);
     // Find subckt port names as a side-effect of writeSubckts.

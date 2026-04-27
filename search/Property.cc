@@ -1265,70 +1265,70 @@ Properties::capacitancePropertyValue(float cap)
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Library *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Library *>::PropertyHandler &handler)
 {
   registry_library_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const LibertyLibrary *>::PropertyHandler &handler)
+                           const PropertyRegistry<const LibertyLibrary *>::PropertyHandler &handler)
 {
   registry_liberty_library_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Cell *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Cell *>::PropertyHandler &handler)
 {
   registry_cell_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const LibertyCell *>::PropertyHandler &handler)
+                           const PropertyRegistry<const LibertyCell *>::PropertyHandler &handler)
 {
   registry_liberty_cell_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Port *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Port *>::PropertyHandler &handler)
 {
   registry_port_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const LibertyPort *>::PropertyHandler &handler)
+                           const PropertyRegistry<const LibertyPort *>::PropertyHandler &handler)
 {
   registry_liberty_port_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Instance *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Instance *>::PropertyHandler &handler)
 {
   registry_instance_.defineProperty(property, handler);
 }  
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Pin *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Pin *>::PropertyHandler &handler)
 {
   registry_pin_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Net *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Net *>::PropertyHandler &handler)
 {
   registry_net_.defineProperty(property, handler);
 }
 
 void
 Properties::defineProperty(std::string_view property,
-                           PropertyRegistry<const Clock *>::PropertyHandler &handler)
+                           const PropertyRegistry<const Clock *>::PropertyHandler &handler)
 {
   registry_clock_.defineProperty(property, handler);
 }
@@ -1355,7 +1355,7 @@ void
 PropertyRegistry<TYPE>::defineProperty(std::string_view property,
                                        PropertyHandler handler)
 {
-  registry_[std::string(property)] = std::move(std::move(std::move(std::move(std::move(std::move(std::move(std::move(std::move(std::move(handler))))))))));
+  registry_[std::string(property)] = std::move(handler);
 }
 
 } // namespace sta

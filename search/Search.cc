@@ -57,6 +57,7 @@
 #include "PortDelay.hh"
 #include "PortDirection.hh"
 #include "Report.hh"
+#include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
 #include "Sdc.hh"
 #include "SdcClass.hh"
@@ -1546,7 +1547,7 @@ Search::seedClkArrival(const Pin *pin,
 
   const ClockUncertainties *uncertainties = sdc->clockUncertainties(pin);
   if (uncertainties == nullptr)
-    uncertainties = clk->uncertainties();
+    uncertainties = &clk->uncertainties();
   // Propagate liberty "pulse_clock" transition to transitive fanout.
   LibertyPort *port = network_->libertyPort(pin);
   const RiseFall *pulse_clk_sense = (port ? port->pulseClkSense() : nullptr);
@@ -1913,13 +1914,13 @@ Search::inputDelayTag(const Pin *pin,
   const Pin *clk_pin = nullptr;
   const RiseFall *clk_rf = nullptr;
   bool is_propagated = false;
-  ClockUncertainties *clk_uncertainties = nullptr;
+  const ClockUncertainties *clk_uncertainties = nullptr;
   if (clk_edge) {
     clk = clk_edge->clock();
     clk_rf = clk_edge->transition();
     clk_pin = clk->defaultPin();
     is_propagated = clk->isPropagated();
-    clk_uncertainties = clk->uncertainties();
+    clk_uncertainties = &clk->uncertainties();
   }
 
   Sdc *sdc = scene->sdc();
@@ -3995,6 +3996,39 @@ Search::wnsSlack(Vertex *vertex,
   SlackSeq slacks(path_count);
   wnsSlacks(vertex, slacks);
   return slacks[path_ap_index];
+}
+
+////////////////////////////////////////////////////////////////
+
+DelaysWrtClks
+Search::arrivalsWrtClks(Vertex *vertex,
+                        const Scene *scene)
+{
+  return delaysWrtClks(vertex, scene,
+                       [] (const Path *path) {
+                         return path->arrival();
+                       });
+}
+
+DelaysWrtClks
+Search::delaysWrtClks(Vertex *vertex,
+                      const Scene *scene,
+                      const PathDelayFunc &get_path_delay)
+{
+  DelaysWrtClks delays_wrt_clks;
+  VertexPathIterator path_iter(vertex, scene, nullptr, nullptr, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    Delay delay = get_path_delay(path);
+    if (!delayInf(delay, this)) {
+      const RiseFall *rf = path->transition(this);
+      const MinMax *min_max = path->minMax(this);
+      const ClockEdge *clk_edge = path->clkEdge(this);
+      RiseFallMinMaxDelay &delays = delays_wrt_clks[clk_edge];
+      delays.mergeValue(rf, min_max, delay, this);
+    }
+  }
+  return delays_wrt_clks;
 }
 
 }  // namespace sta
