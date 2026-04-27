@@ -1462,7 +1462,7 @@ Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoin
 }
 
 --- field properties ---
-Warning 1575: unknown report path field delay
+Warning 1591: unknown report path field delay
 Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk1)
 Endpoint: out1 (output port clocked by clk1)
 Path Group: clk1
