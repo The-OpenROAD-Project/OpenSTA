@@ -170,6 +170,11 @@ public:
                  const MinMaxValues *values2)
   {
     if (!values1->exists_[MinMax::minIndex()]
+        && !values2->exists_[MinMax::minIndex()]
+        && !values1->exists_[MinMax::maxIndex()]
+        && !values2->exists_[MinMax::maxIndex()])
+      return 0;
+    if (!values1->exists_[MinMax::minIndex()]
         && values2->exists_[MinMax::minIndex()])
       return -1;
     if (values1->exists_[MinMax::minIndex()]

@@ -231,7 +231,7 @@ MakeTimingModel::checkClock(Clock *clk)
 {
   for (const Pin *pin : clk->leafPins()) {
     if (!network_->isTopLevelPort(pin))
-      report_->warn(1355, "clock {} pin {} is inside model block.", clk->name(),
+      report_->warn(1380, "clock {} pin {} is inside model block.", clk->name(),
                     network_->pathName(pin));
   }
 }

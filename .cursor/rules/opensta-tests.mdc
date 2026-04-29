@@ -1,0 +1,13 @@
+---
+description: Where OpenSTA regression tests live (pvt/test vs public test/)
+alwaysApply: true
+---
+
+# OpenSTA tests and regression
+
+- **Primary suite:** Most regression tests, Tcl drivers, and golden `.ok` files live under **`pvt/test/`** (private / separate repo, often opened as a second workspace root alongside `master`).
+- **Public subset:** **`test/`** at the OpenSTA repo root holds a smaller set of tests shipped with the public tree (e.g. `test/regression`, `*.tcl`, `*.ok` there).
+
+When searching for a test name, regression lists, or updating goldens, **check `pvt/test` first**, then `test/`.
+
+Typical driver: `pvt/test/regression` (or `test/regression` for the public list). Built `sta` binary is usually `master/build/sta` relative to the main checkout.

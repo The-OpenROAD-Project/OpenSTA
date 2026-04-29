@@ -409,6 +409,11 @@ public:
   void saveEnumPath(Path *path);
   bool isSrchRoot(Vertex *vertex,
                   const Mode *mode) const;
+  DelaysWrtClks arrivalsWrtClks(Vertex *vertex,
+                                const Scene *scene);
+  DelaysWrtClks delaysWrtClks(Vertex *vertex,
+                              const Scene *scene,
+                              const PathDelayFunc &get_path_delay);
 
 protected:
   void initVars();

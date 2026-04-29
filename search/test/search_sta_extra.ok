@@ -249,7 +249,7 @@ Path Type: max
 
 
 --- set_report_path_field_properties ---
-Warning 1575: unknown report path field delay
+Warning 1591: unknown report path field delay
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

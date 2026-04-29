@@ -937,8 +937,12 @@ TEST_F(SdcInitTest, ClockUncertaintiesAccessor) {
                                *waveform, "");
   ASSERT_NE(clk, nullptr);
   // A freshly created clock has no uncertainties set yet
-  ClockUncertainties *unc = clk->uncertainties();
-  EXPECT_EQ(unc, nullptr);
+  float unc;
+  bool exists;
+  clk->uncertainty(SetupHold::min(), unc, exists);
+  EXPECT_FALSE(exists);
+  clk->uncertainty(SetupHold::max(), unc, exists);
+  EXPECT_FALSE(exists);
 }
 
 // Clock setUncertainty and removeUncertainty

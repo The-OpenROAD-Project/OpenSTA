@@ -237,7 +237,7 @@ endpoint_slack(const Pin *pin,
   sta->ensureLibLinked();
   if (!path_group_name.empty()
       && !sta->isPathGroupName(path_group_name, sta->cmdSdc()))  {
-    sta->report()->error(1577, "{} is not a known path group name.",
+    sta->report()->error(1590, "{} is not a known path group name.",
                          path_group_name);
     return INF;
   }
@@ -438,7 +438,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->warn(1575, "unknown report path field {}", field_name);
+    sta->report()->warn(1591, "unknown report path field {}", field_name);
 }
 
 void
@@ -963,7 +963,7 @@ set_crpr_mode(std::string mode)
   else if (stringEqual(mode, "same_transition"))
     sta->setCrprMode(CrprMode::same_transition);
   else
-    sta->report()->error(1573, "unknown common clk pessimism mode.");
+    sta->report()->error(1592, "unknown common clk pessimism mode.");
 }
 
 const std::string &

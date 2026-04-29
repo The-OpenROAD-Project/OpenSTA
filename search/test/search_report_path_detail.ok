@@ -267,10 +267,10 @@ Longest hash bucket length 1 hash=62
 22 default ^max clk ^ clk_src clk crpr_pin null
 23 default vmax clk ^ clk_src clk crpr_pin null
 Longest hash bucket length 1 hash=6
-default/min clk ^ clk_src clk
-default/max clk ^ clk_src clk
-default/min clk v clk_src clk
-default/max clk v clk_src clk
+default/min clk ^ clk_src clk uncertain 
+default/max clk ^ clk_src clk uncertain 
+default/min clk v clk_src clk uncertain 
+default/max clk v clk_src clk uncertain 
 4 clk infos
      4     11
      8      4
