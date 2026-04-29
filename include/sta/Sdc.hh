@@ -1035,6 +1035,10 @@ public:
   bool isPathDelayInternalTo(const Pin *pin) const;
   bool isPathDelayInternalToBreak(const Pin *pin) const;
   const ExceptionPathSet &exceptions() const { return exceptions_; }
+  const ClockGroupsNameMap &clockGroupsNameMap() const
+  {
+    return clk_groups_name_map_;
+  }
   void deleteExceptions();
   void deleteException(ExceptionPath *exception);
   void recordException(ExceptionPath *exception);
