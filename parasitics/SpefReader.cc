@@ -160,9 +160,9 @@ SpefReader::findInstanceRelative(std::string_view name)
   // both cases need.
   Instance *inst = sdc_network_->findInstanceRelative(instance_, name);
   if (inst == nullptr)
-    inst = network_->findInstance(name);
+    inst = network_->findChild(instance_, name);
   if (inst == nullptr && name.find('\\') != std::string_view::npos)
-    inst = network_->findInstance(stripped(name));
+    inst = network_->findChild(instance_, stripped(name));
   debugPrint(debug_, "spef_lookup", 1, "findInstance '{}' -> {}", name,
              inst ? "found" : "miss");
   return inst;
