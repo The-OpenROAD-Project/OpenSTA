@@ -99,25 +99,25 @@ public:
   //                              return PropertyValue("bar");
   //                            });
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Library *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Library *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const LibertyLibrary *>::PropertyHandler &handler);
+                      const PropertyRegistry<const LibertyLibrary *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Cell *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Cell *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const LibertyCell *>::PropertyHandler &handler);
+                      const PropertyRegistry<const LibertyCell *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Port *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Port *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const LibertyPort *>::PropertyHandler &handler);
+                      const PropertyRegistry<const LibertyPort *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Instance *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Instance *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Pin *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Pin *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Net *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Net *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
-                      PropertyRegistry<const Clock *>::PropertyHandler &handler);
+                      const PropertyRegistry<const Clock *>::PropertyHandler &handler);
 
 protected:
   PropertyValue portSlew(const Port *port,

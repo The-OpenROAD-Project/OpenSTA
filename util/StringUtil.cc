@@ -26,7 +26,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <charconv>
+#include <cstdlib>
 #include <system_error>
 #include <version>
 

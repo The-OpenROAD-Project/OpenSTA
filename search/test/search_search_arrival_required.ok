@@ -25,10 +25,10 @@ min violations: 0
 19 default vmax clk ^ clk_src clk crpr_pin null
 Longest hash bucket length 1 hash=6
 --- report_clk_infos ---
-default/min clk ^ clk_src clk
-default/max clk ^ clk_src clk
-default/min clk v clk_src clk
-default/max clk v clk_src clk
+default/min clk ^ clk_src clk uncertain 
+default/max clk ^ clk_src clk uncertain 
+default/min clk v clk_src clk uncertain 
+default/max clk v clk_src clk uncertain 
 4 clk infos
 --- report_tag_groups ---
 Group    0 hash = 2697898004198490802 (  79)

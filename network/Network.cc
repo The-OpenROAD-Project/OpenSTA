@@ -134,16 +134,16 @@ Network::readLibertyAfter(LibertyLibrary *)
 LibertyCell *
 Network::findLibertyCell(std::string_view name) const
 {
-  LibertyLibraryIterator *iter = libertyLibraryIterator();
-  while (iter->hasNext()) {
-    LibertyLibrary *lib = iter->next();
+  LibertyLibraryIterator *lib_iter = libertyLibraryIterator();
+  while (lib_iter->hasNext()) {
+    LibertyLibrary *lib = lib_iter->next();
     LibertyCell *cell = lib->findLibertyCell(name);
     if (cell) {
-      delete iter;
+      delete lib_iter;
       return cell;
     }
   }
-  delete iter;
+  delete lib_iter;
   return nullptr;
 }
 

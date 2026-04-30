@@ -43,11 +43,10 @@ namespace sta {
 // This is legacy C-style code.
 // NOLINTBEGIN(modernize-avoid-c-style-cast, bugprone-multi-level-implicit-pointer-conversion, bugprone-implicit-widening-of-multiplication-result)
 
-rcmodel::rcmodel()
+rcmodel::~rcmodel()
 {
+  free(pinV);
 }
-
-rcmodel::~rcmodel() { free(pinV); }
 
 float
 rcmodel::capacitance() const

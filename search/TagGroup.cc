@@ -311,7 +311,7 @@ TagGroupBldr::copyPaths(TagGroup *tag_group,
     if (exists2)
       paths[path_index2] = paths_[path_index1];
     else
-      sta_->report()->critical(1351, "tag group missing tag");
+      sta_->report()->critical(1360, "tag group missing tag");
   }
 }
 

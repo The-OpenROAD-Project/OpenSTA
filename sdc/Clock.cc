@@ -240,42 +240,27 @@ Clock::uncertainty(const SetupHold *setup_hold,
                    float &uncertainty,
                    bool &exists) const
 {
-  if (uncertainties_)
-    uncertainties_->value(setup_hold, uncertainty, exists);
-  else {
-    uncertainty = 0.0F;
-    exists = false;
-  }
+  uncertainties_.value(setup_hold, uncertainty, exists);
 }
 
 void
 Clock::setUncertainty(const SetupHoldAll *setup_hold,
                       float uncertainty)
 {
-  if (uncertainties_ == nullptr)
-    uncertainties_ = new ClockUncertainties;
-  uncertainties_->setValue(setup_hold, uncertainty);
+  uncertainties_.setValue(setup_hold, uncertainty);
 }
 
 void
 Clock::setUncertainty(const SetupHold *setup_hold,
                       float uncertainty)
 {
-  if (uncertainties_ == nullptr)
-    uncertainties_ = new ClockUncertainties;
-  uncertainties_->setValue(setup_hold, uncertainty);
+  uncertainties_.setValue(setup_hold, uncertainty);
 }
 
 void
 Clock::removeUncertainty(const SetupHoldAll *setup_hold)
 {
-  if (uncertainties_) {
-    uncertainties_->removeValue(setup_hold);
-    if (uncertainties_->empty()) {
-      delete uncertainties_;
-      uncertainties_ = nullptr;
-    }
-  }
+  uncertainties_.removeValue(setup_hold);
 }
 
 void
