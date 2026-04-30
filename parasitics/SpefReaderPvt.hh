@@ -121,6 +121,7 @@ private:
   Pin *findPortPinRelative(std::string_view name);
   Net *findNetRelative(std::string_view name);
   Instance *findInstanceRelative(std::string_view name);
+  std::string stripped(std::string_view spef_name) const;
   ParasiticNode *findParasiticNode(std::string_view name,
                                    bool local_only);
 

@@ -133,10 +133,39 @@ SpefReader::setBusBrackets(char left,
   bus_brkt_right_ = right;
 }
 
+std::string
+SpefReader::stripped(std::string_view spef_name) const
+{
+  std::string out;
+  out.reserve(spef_name.size());
+  for (size_t i = 0; i < spef_name.size(); i++) {
+    char ch = spef_name[i];
+    if (ch == '\\' && i + 1 < spef_name.size())
+      out += spef_name[++i];
+    else
+      out += ch;
+  }
+  return out;
+}
+
 Instance *
 SpefReader::findInstanceRelative(std::string_view name)
 {
-  return sdc_network_->findInstanceRelative(instance_, name);
+  // Network::findInstanceRelative splits at unescaped '/' and walks
+  // hierarchy. That misses flat instance names with a literal '/' (e.g.
+  // post-CTS buffers like "u_x/g1234") because there is no parent module
+  // matching the pre-'/' segment; it also misses bracket-escaped names
+  // ("bus\[0\]") whose unescaped form is what the DEF reader stored.
+  // dbNetwork::findInstance has a flat block_->findInst() fallback that
+  // both cases need.
+  Instance *inst = sdc_network_->findInstanceRelative(instance_, name);
+  if (inst == nullptr)
+    inst = network_->findChild(instance_, name);
+  if (inst == nullptr && name.find('\\') != std::string_view::npos)
+    inst = network_->findChild(instance_, stripped(name));
+  debugPrint(debug_, "spef_lookup", 1, "findInstance '{}' -> {}", name,
+             inst ? "found" : "miss");
+  return inst;
 }
 
 Net *
@@ -147,6 +176,14 @@ SpefReader::findNetRelative(std::string_view name)
   // don't follow the rules.
   if (net == nullptr)
     net = sdc_network_->findNetRelative(instance_, name);
+  // dbNetwork::findNet at top scope does a literal block_->findNet() which
+  // finds flat names with '/' that findNetRelative cannot.
+  if (net == nullptr)
+    net = network_->findNet(instance_, name);
+  if (net == nullptr && name.find('\\') != std::string_view::npos)
+    net = network_->findNet(instance_, stripped(name));
+  debugPrint(debug_, "spef_lookup", 1, "findNet '{}' -> {}", name,
+             net ? "found" : "miss");
   return net;
 }
 
