@@ -1041,6 +1041,13 @@ public:
                               const Scene *scene,
                               const MinMax *min_max,
                               int digits);
+  void writeSdc(std::string_view filename,
+                std::string_view mode_name,
+                bool leaf,
+                bool native,
+                int digits,
+                bool gzip,
+                bool no_timestamp);
   void writeSdc(const Sdc *sdc,
                 std::string_view filename,
                 // Map hierarchical pins and instances to leaf pins and instances.

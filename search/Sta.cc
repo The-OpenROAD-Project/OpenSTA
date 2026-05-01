@@ -2207,6 +2207,22 @@ Sta::checkExceptionToPins(ExceptionTo *to,
 }
 
 void
+Sta::writeSdc(std::string_view filename,
+              std::string_view mode_name,
+              bool leaf,
+              bool native,
+              int digits,
+              bool gzip,
+              bool no_timestamp)
+{
+  Mode *mode = findMode(mode_name);
+  if (mode)
+    writeSdc(mode->sdc(), filename, leaf, native, digits, gzip, no_timestamp);
+  else
+    report_->warn(1561, "mode {} not found.", mode_name);
+}
+
+void
 Sta::writeSdc(const Sdc *sdc,
               std::string_view filename,
               bool leaf,

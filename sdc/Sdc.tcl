@@ -62,13 +62,18 @@ proc_redirect read_sdc {
 ################################################################
 
 define_cmd_args "write_sdc" \
-  {[-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename}
+  {[-mode mode] [-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename}
 
 proc write_sdc { args } {
-  parse_key_args "write_sdc" args keys {-digits -significant_digits} \
+  parse_key_args "write_sdc" args keys {-mode -digits} \
     flags {-map_hpins -compatible -gzip -no_timestamp}
   check_argc_eq1 "write_sdc" $args
 
+  set mode [cmd_mode]
+  if { [info exists keys(-mode)] } {
+    set mode $keys(-mode)
+  }
+  
   set digits 4
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
@@ -80,7 +85,7 @@ proc write_sdc { args } {
   set no_timestamp [info exists flags(-no_timestamp)]
   set map_hpins [info exists flags(-map_hpins)]
   set native [expr ![info exists flags(-compatible)]]
-  write_sdc_cmd $filename $map_hpins $native $digits $gzip $no_timestamp
+  write_sdc_cmd $filename $mode $map_hpins $native $digits $gzip $no_timestamp
 }
 
 ################################################################
