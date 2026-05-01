@@ -817,7 +817,7 @@ cmd_mode_name()
 }
 
 void
-set_mode_cmd(std::string mode_name)
+set_cmd_mode(std::string mode_name)
 {
   Sta::sta()->setCmdMode(mode_name);
 }

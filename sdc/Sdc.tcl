@@ -42,18 +42,20 @@ proc_redirect read_sdc {
   check_argc_eq1 "read_sdc" $args
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
-  set mode_name {}
+
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
-  }
-  set prev_mode [cmd_mode_name]
-  try {
-    set_mode_cmd $mode_name
-    include_file $filename $echo 0
-  } finally {
-    if { $prev_mode != "default" } {
-      set_mode_cmd $prev_mode
+    set prev_mode [cmd_mode_name]
+    try {
+      set_cmd_mode $mode_name
+      include_file $filename $echo 0
+    } finally {
+      if { $prev_mode != "default" } {
+        set_cmd_mode $prev_mode
+      }
     }
+  } else {
+    include_file $filename $echo 0
   }
 }
 

@@ -570,30 +570,46 @@ Sta::clearNonSdc()
 Sdc *
 Sta::cmdSdc() const
 {
-  return cmdMode()->sdc();
+  return cmd_mode_->sdc();
 }
 
 void
 Sta::setCmdMode(std::string_view mode_name)
 {
-  if (!mode_name.empty()) {
-    if (!mode_name_map_.contains(mode_name)) {
-      if (modes_.size() == 1 && modes_[0]->name() == "default") {
-        // No need for default mode if one is defined.
-        delete modes_[0];
-        mode_name_map_.clear();
-        modes_.clear();
+  Mode *mode = findKey(mode_name_map_, std::string(mode_name));
+  if (mode) {
+    // Sync scene with mode. Note that multiple scenes can share a mode.
+    Scene *mode_scene = nullptr;
+    for (Scene *scene : scenes_) {
+      if (scene->mode() == mode) {
+        if (mode_scene) {
+          report_->warn(1556, "multiple scenes reference mode {}", mode_name);
+          break;
+        }
+        mode_scene = scene;
       }
-      Mode *mode = new Mode(mode_name, mode_name_map_.size(), this);
-      mode_name_map_[std::string(mode_name)] = mode;
-      modes_.push_back(mode);
-      mode->sim()->setMode(mode);
-      mode->sim()->setObserver(new StaSimObserver(this));
-
-      if (scenes_.size() == 1 && scenes_[0]->name() == "default")
-        scenes_[0]->setMode(mode);
-      updateComponentsState();
     }
+    if (mode_scene)
+      cmd_scene_ = mode_scene;
+    cmd_mode_ = mode;
+  }
+  else {
+    if (modes_.size() == 1 && modes_[0]->name() == "default") {
+      // No need for default mode if one is defined.
+      delete modes_[0];
+      mode_name_map_.clear();
+      modes_.clear();
+    }
+    Mode *mode = new Mode(mode_name, mode_name_map_.size(), this);
+    mode_name_map_[std::string(mode_name)] = mode;
+    modes_.push_back(mode);
+    mode->sim()->setMode(mode);
+    mode->sim()->setObserver(new StaSimObserver(this));
+    cmd_mode_ = mode;
+
+    if (scenes_.size() == 1 && scenes_[0]->name() == "default")
+      scenes_[0]->setMode(mode);
+    updateComponentsState();
   }
 }
 
@@ -2514,6 +2530,7 @@ Sta::makeDefaultScene()
   makeScene(name, mode, parasitics);
 
   cmd_scene_ = scenes_[0];
+  cmd_mode_ = mode;
 }
 
 // define_corners (before read_liberty).
@@ -2603,8 +2620,8 @@ Sta::makeScene(const std::string &name,
   if (scenes_.size() == 1 && findScene("default"))
     deleteScenes();
 
-  Scene *scene =
-      new Scene(name, scenes_.size(), mode, parasitics_min, parasitics_max);
+  Scene *scene = new Scene(name, scenes_.size(), mode,
+                           parasitics_min, parasitics_max);
   scene_name_map_[name] = scene;
   scenes_.push_back(scene);
   mode->addScene(scene);
@@ -2696,6 +2713,7 @@ void
 Sta::setCmdScene(Scene *scene)
 {
   cmd_scene_ = scene;
+  cmd_mode_ = scene->mode();
 }
 
 SceneSeq
@@ -3496,7 +3514,7 @@ Sta::findRequired(Vertex *vertex)
   search_->findAllArrivals();
   if (search_->isEndpoint(vertex)
       // Need to include downstream required times if there is fanout.
-      && !hasFanout(vertex, search_->searchAdj(), graph_, cmdMode()))
+      && !hasFanout(vertex, search_->searchAdj(), graph_, cmd_mode_))
     search_->seedRequired(vertex);
   else
     search_->findRequireds(vertex->level());
@@ -3894,14 +3912,14 @@ Sta::findLogicConstants()
 {
   ensureGraph();
   // Sdc independent constants so any mode should return the same values.
-  Sim *sim = cmdMode()->sim();
+  Sim *sim = cmd_mode_->sim();
   sim->findLogicConstants();
 }
 
 void
 Sta::clearLogicConstants()
 {
-  Sim *sim = cmdMode()->sim();
+  Sim *sim = cmd_mode_->sim();
   sim->clear();
 }
 
