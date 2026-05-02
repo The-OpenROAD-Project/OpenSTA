@@ -327,7 +327,7 @@ protected:
   bool has_downstream_clk_pin_:1;
   bool visited1_:1;
   bool visited2_:1;
-  bool has_sim_value_;
+  bool has_sim_value_:1;
 
 private:
   friend class Graph;
