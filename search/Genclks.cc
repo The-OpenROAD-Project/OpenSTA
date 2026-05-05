@@ -693,17 +693,11 @@ public:
                           BfsFwdIterator *insert_iter,
                           GenclkInfo *genclk_info,
                           const Mode *mode);
+  GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor);
   VertexVisitor *copy() const override;
   void visit(Vertex *vertex) override;
 
 protected:
-  GenclkSrcArrivalVisitor(Clock *gclk,
-                          BfsFwdIterator *insert_iter,
-                          GenclkInfo *genclk_info,
-                          bool always_to_endpoints,
-                          SearchPred *pred,
-                          const Mode *mode);
-
   Clock *gclk_;
   BfsFwdIterator *insert_iter_;
   GenclkInfo *genclk_info_;
@@ -728,29 +722,22 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
 {
 }
 
-// Copy constructor.
-GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
-                                                 BfsFwdIterator *insert_iter,
-                                                 GenclkInfo *genclk_info,
-                                                 bool always_to_endpoints,
-                                                 SearchPred *pred,
-                                                 const Mode *mode) :
-  ArrivalVisitor(always_to_endpoints, pred, this),
-  gclk_(gclk),
-  insert_iter_(insert_iter),
-  genclk_info_(genclk_info),
-  srch_pred_(gclk, genclk_info, this),
-  mode_(mode),
-  sdc_(mode->sdc()),
-  genclks_(mode->genclks())
+GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor) :
+  ArrivalVisitor(static_cast<const ArrivalVisitor &>(visitor)),
+  gclk_(visitor.gclk_),
+  insert_iter_(visitor.insert_iter_),
+  genclk_info_(visitor.genclk_info_),
+  srch_pred_(visitor.gclk_, visitor.genclk_info_, this),
+  mode_(visitor.mode_),
+  sdc_(visitor.sdc_),
+  genclks_(visitor.genclks_)
 {
 }
 
 VertexVisitor *
 GenclkSrcArrivalVisitor::copy() const
 {
-  return new GenclkSrcArrivalVisitor(gclk_, insert_iter_, genclk_info_,
-                                     always_to_endpoints_, pred_, mode_);
+  return new GenclkSrcArrivalVisitor(*this);
 }
 
 void

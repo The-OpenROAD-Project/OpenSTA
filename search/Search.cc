@@ -1090,14 +1090,11 @@ ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
   init(true, false, nullptr);
 }
 
-// Copy constructor.
-ArrivalVisitor::ArrivalVisitor(bool always_to_endpoints,
-                               SearchPred *pred,
-                               const StaState *sta) :
-  PathVisitor(pred, true, sta)
+ArrivalVisitor::ArrivalVisitor(const ArrivalVisitor &arrival_visitor) :
+  PathVisitor(arrival_visitor.pred_, true, &arrival_visitor)
 {
   init0();
-  init(always_to_endpoints, false, pred);
+  init(arrival_visitor.always_to_endpoints_, false, arrival_visitor.pred_);
 }
 
 void
@@ -1122,7 +1119,7 @@ ArrivalVisitor::init(bool always_to_endpoints,
 VertexVisitor *
 ArrivalVisitor::copy() const
 {
-  return new ArrivalVisitor(always_to_endpoints_, pred_, this);
+  return new ArrivalVisitor(*this);
 }
 
 void
@@ -1966,7 +1963,10 @@ PathVisitor::PathVisitor(SearchPred *pred,
 {
 }
 
-PathVisitor::~PathVisitor() { delete tag_cache_; }
+PathVisitor::~PathVisitor()
+{
+  delete tag_cache_;
+}
 
 void
 PathVisitor::visitFaninPaths(Vertex *to_vertex)
@@ -3447,13 +3447,10 @@ RequiredVisitor::RequiredVisitor(const StaState *sta) :
 {
 }
 
-RequiredVisitor::RequiredVisitor(bool make_tag_cache,
-                                 const StaState *sta) :
-  PathVisitor(sta->search()->evalPred(),
-              make_tag_cache,
-              sta),
+RequiredVisitor::RequiredVisitor(const RequiredVisitor &required_visitor) :
+  PathVisitor(required_visitor.search()->evalPred(), true, &required_visitor),
   required_cmp_(new RequiredCmp),
-  visit_path_ends_(new VisitPathEnds(sta))
+  visit_path_ends_(new VisitPathEnds(&required_visitor))
 {
 }
 
@@ -3466,7 +3463,7 @@ RequiredVisitor::~RequiredVisitor()
 VertexVisitor *
 RequiredVisitor::copy() const
 {
-  return new RequiredVisitor(true, this);
+  return new RequiredVisitor(*this);
 }
 
 void
