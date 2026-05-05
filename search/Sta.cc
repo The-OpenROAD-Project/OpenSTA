@@ -3277,7 +3277,7 @@ EndpointPathEndVisitor::EndpointPathEndVisitor(std::string_view path_group_name,
 PathEndVisitor *
 EndpointPathEndVisitor::copy() const
 {
-  return new EndpointPathEndVisitor(path_group_name_, min_max_, sta_);
+  return new EndpointPathEndVisitor(*this);
 }
 
 void

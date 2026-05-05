@@ -3334,7 +3334,7 @@ FindEndRequiredVisitor::~FindEndRequiredVisitor()
 PathEndVisitor *
 FindEndRequiredVisitor::copy() const
 {
-  return new FindEndRequiredVisitor(sta_);
+  return new FindEndRequiredVisitor(*this);
 }
 
 void

@@ -42,7 +42,7 @@ UnitDelayCalc::UnitDelayCalc(StaState *sta) :
 ArcDelayCalc *
 UnitDelayCalc::copy()
 {
-  return new UnitDelayCalc(this);
+  return new UnitDelayCalc(*this);
 }
 
 Parasitic *
