@@ -63,7 +63,6 @@ public:
   {
   }
 
-  // Copy constructor
   BoundedHeap(const BoundedHeap& other) :
     heap_(other.heap_),
     max_size_(other.max_size_),
