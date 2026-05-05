@@ -102,7 +102,7 @@ define_cmd_args "set_scene" {scene_name}
 
 proc set_scene { args } {
   check_argc_eq1 "set_scene" $args
-  set_scene_cmd [lindex $args 0]
+  set_cmd_scene [lindex $args 0]
 }
 
 ################################################################
@@ -141,7 +141,7 @@ define_cmd_args "set_mode" {mode_name}
 
 proc set_mode { args } {
   check_argc_eq1 "set_mode" $args
-  set_mode_cmd [lindex $args 0]
+  set_cmd_mode [lindex $args 0]
 }
 
 ################################################################

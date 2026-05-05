@@ -818,8 +818,14 @@ cmd_mode_name()
   return Sta::sta()->cmdMode()->name();
 }
 
+Mode *
+cmd_mode()
+{
+  return Sta::sta()->cmdMode();
+}
+
 void
-set_mode_cmd(std::string mode_name)
+set_cmd_mode(std::string mode_name)
 {
   Sta::sta()->setCmdMode(mode_name);
 }
@@ -828,6 +834,12 @@ ModeSeq
 find_modes(std::string mode_name)
 {
   return Sta::sta()->findModes(mode_name);
+}
+
+Mode *
+find_mode(std::string mode_name)
+{
+  return Sta::sta()->findMode(mode_name);
 }
 
 ////////////////////////////////////////////////////////////////
