@@ -113,6 +113,7 @@ void
 clear_network()
 {
   Sta *sta = Sta::sta();
+  sta->clear();
   sta->network()->clear();
 }
 
