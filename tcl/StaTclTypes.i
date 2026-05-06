@@ -269,7 +269,7 @@ using namespace sta;
 
 %inline %{
 
-bool
+inline bool
 is_object(const char *obj)
 {
   // _hexaddress_p_type
@@ -294,7 +294,7 @@ is_object(const char *obj)
 }
 
 // Assumes is_object is true.
-const char *
+inline const char *
 object_type(const char *obj)
 {
   if (is_object(obj))
