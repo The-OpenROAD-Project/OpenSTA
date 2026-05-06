@@ -861,7 +861,7 @@ public:
                        const MinMax *min_max) override;
 
 protected:
-  RequiredCmp *required_cmp_;
+  RequiredCmp required_cmp_;
   VisitPathEnds *visit_path_ends_;
 };
 
