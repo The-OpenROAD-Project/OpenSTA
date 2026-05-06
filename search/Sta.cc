@@ -5069,7 +5069,8 @@ Sta::clockDomains(const Pin *pin,
                   const Mode *mode)
 {
   searchPreamble();
-  search_->findAllArrivals();
+  Vertex *vertex = graph_->pinLoadVertex(pin);
+  search_->findArrivals(vertex->level());
   return search_->clockDomains(pin, mode);
 }
 
