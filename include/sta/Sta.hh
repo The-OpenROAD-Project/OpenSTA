@@ -138,7 +138,7 @@ public:
   void setCmdScene(Scene *scene);
   SceneSeq makeSceneSeq(Scene *scene) const;
 
-  Mode *cmdMode() const { return cmd_scene_->mode(); }
+  Mode *cmdMode() const { return cmd_mode_; }
   const std::string &cmdModeName();
   void setCmdMode(std::string_view mode_name);
   Mode *findMode(std::string_view mode_name) const;
@@ -1042,6 +1042,13 @@ public:
                               const Scene *scene,
                               const MinMax *min_max,
                               int digits);
+  void writeSdc(std::string_view filename,
+                std::string_view mode_name,
+                bool leaf,
+                bool native,
+                int digits,
+                bool gzip,
+                bool no_timestamp);
   void writeSdc(const Sdc *sdc,
                 std::string_view filename,
                 // Map hierarchical pins and instances to leaf pins and instances.
@@ -1611,6 +1618,7 @@ protected:
   void checkLibrarayPocv();
 
   Scene *cmd_scene_{nullptr};
+  Mode *cmd_mode_{nullptr};
   CmdNamespace cmd_namespace_{CmdNamespace::sdc};
   Instance *current_instance_{nullptr};
   SceneNameMap scene_name_map_;

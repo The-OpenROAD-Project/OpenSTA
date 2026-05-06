@@ -39,6 +39,7 @@ class CcsCeffDelayCalc : public LumpedCapDelayCalc,
 {
 public:
   CcsCeffDelayCalc(StaState *sta);
+  CcsCeffDelayCalc(const CcsCeffDelayCalc &dcalc);
   ~CcsCeffDelayCalc() override;
   ArcDelayCalc *copy() override;
   std::string_view name() const override { return "ccs_ceff"; }

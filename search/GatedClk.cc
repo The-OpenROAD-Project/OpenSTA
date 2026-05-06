@@ -107,7 +107,6 @@ GatedClk::isGatedClkEnable(Vertex *enable_vertex,
         }
       }
     }
-    
   }
 }
 

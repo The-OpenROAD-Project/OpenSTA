@@ -447,12 +447,13 @@ VerilogWriter::writeAssigns(const Instance *inst)
     if (term) {
       Net *net = network_->net(term);
       Port *port = network_->port(pin);
-      if (port
+      if (net
+          && port
           && (include_pwr_gnd_
               || !(network_->isPower(net) || network_->isGround(net)))
           && (network_->direction(port)->isAnyOutput()
               || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
-          && !stringEqual(network_->name(port), network_->name(net))) {
+          && network_->name(port) != network_->name(net)) {
         // Port name is different from net name.
         std::string port_vname = netVerilogName(std::string(network_->name(port)));
         std::string net_vname = netVerilogName(std::string(network_->name(net)));

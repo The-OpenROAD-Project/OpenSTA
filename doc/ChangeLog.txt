@@ -4,6 +4,13 @@ OpenSTA Timing Analyzer Release Notes
 This file summarizes user visible changes for each release.
 See ApiChangeLog.txt for changes to the STA api.
 
+2026/05/01
+----------
+
+The write_sdc command supports a -mode argument.
+
+  write_sdc [-mode mode]
+
 2026/03/23
 ----------
 

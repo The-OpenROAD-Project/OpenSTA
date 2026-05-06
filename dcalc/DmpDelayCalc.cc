@@ -77,7 +77,7 @@ DmpCeffElmoreDelayCalc::DmpCeffElmoreDelayCalc(StaState *sta) :
 ArcDelayCalc *
 DmpCeffElmoreDelayCalc::copy()
 {
-  return new DmpCeffElmoreDelayCalc(this);
+  return new DmpCeffElmoreDelayCalc(*this);
 }
 
 ArcDcalcResult
@@ -213,7 +213,7 @@ DmpCeffTwoPoleDelayCalc::DmpCeffTwoPoleDelayCalc(StaState *sta) :
 ArcDelayCalc *
 DmpCeffTwoPoleDelayCalc::copy()
 {
-  return new DmpCeffTwoPoleDelayCalc(this);
+  return new DmpCeffTwoPoleDelayCalc(*this);
 }
 
 Parasitic *

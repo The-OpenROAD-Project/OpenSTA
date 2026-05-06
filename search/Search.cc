@@ -1090,14 +1090,11 @@ ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
   init(true, false, nullptr);
 }
 
-// Copy constructor.
-ArrivalVisitor::ArrivalVisitor(bool always_to_endpoints,
-                               SearchPred *pred,
-                               const StaState *sta) :
-  PathVisitor(pred, true, sta)
+ArrivalVisitor::ArrivalVisitor(const ArrivalVisitor &arrival_visitor) :
+  PathVisitor(arrival_visitor.pred_, true, &arrival_visitor)
 {
   init0();
-  init(always_to_endpoints, false, pred);
+  init(arrival_visitor.always_to_endpoints_, false, arrival_visitor.pred_);
 }
 
 void
@@ -1122,7 +1119,7 @@ ArrivalVisitor::init(bool always_to_endpoints,
 VertexVisitor *
 ArrivalVisitor::copy() const
 {
-  return new ArrivalVisitor(always_to_endpoints_, pred_, this);
+  return new ArrivalVisitor(*this);
 }
 
 void
@@ -1966,7 +1963,10 @@ PathVisitor::PathVisitor(SearchPred *pred,
 {
 }
 
-PathVisitor::~PathVisitor() { delete tag_cache_; }
+PathVisitor::~PathVisitor()
+{
+  delete tag_cache_;
+}
 
 void
 PathVisitor::visitFaninPaths(Vertex *to_vertex)
@@ -2775,23 +2775,19 @@ Search::reportArrivals(Vertex *vertex,
       bool report_prev = false;
       std::string prev_str;
       if (report_prev) {
-        prev_str = "prev ";
         Path *prev_path = path->prevPath();
         if (prev_path) {
-          prev_str += prev_path->to_string(this);
-          prev_str += " ";
           const Edge *prev_edge = path->prevEdge(this);
           TimingArc *arc = path->prevArc(this);
-          prev_str += prev_edge->from(graph_)->to_string(this);
-          prev_str += " ";
-          prev_str += arc->fromEdge()->to_string();
-          prev_str += " -> ";
-          prev_str += prev_edge->to(graph_)->to_string(this);
-          prev_str += " ";
-          prev_str += arc->toEdge()->to_string();
+          prev_str = sta::format("prev {} {} {} -> {} {}",
+                                 prev_path->to_string(this),
+                                 prev_edge->from(graph_)->to_string(this),
+                                 arc->fromEdge()->to_string(),
+                                 prev_edge->to(graph_)->to_string(this),
+                                 arc->toEdge()->to_string());
         }
         else
-          prev_str += "NULL";
+          prev_str = "prev NULL";
       }
       report_->report(" {} {} {} / {} {}{}", rf->shortName(),
                       path->minMax(this)->to_string(),
@@ -3297,44 +3293,28 @@ Search::seedInvalidRequireds()
 class FindEndRequiredVisitor : public PathEndVisitor
 {
 public:
-  FindEndRequiredVisitor(RequiredCmp *required_cmp,
+  FindEndRequiredVisitor(RequiredCmp &required_cmp,
                          const StaState *sta);
   FindEndRequiredVisitor(const StaState *sta);
-  ~FindEndRequiredVisitor() override;
   PathEndVisitor *copy() const override;
   void visit(PathEnd *path_end) override;
 
 protected:
   const StaState *sta_;
-  RequiredCmp *required_cmp_;
-  bool own_required_cmp_;
+  RequiredCmp &required_cmp_;
 };
 
-FindEndRequiredVisitor::FindEndRequiredVisitor(RequiredCmp *required_cmp,
+FindEndRequiredVisitor::FindEndRequiredVisitor(RequiredCmp &required_cmp,
                                                const StaState *sta) :
   sta_(sta),
-  required_cmp_(required_cmp),
-  own_required_cmp_(false)
+  required_cmp_(required_cmp)
 {
-}
-
-FindEndRequiredVisitor::FindEndRequiredVisitor(const StaState *sta) :
-  sta_(sta),
-  required_cmp_(new RequiredCmp),
-  own_required_cmp_(true)
-{
-}
-
-FindEndRequiredVisitor::~FindEndRequiredVisitor()
-{
-  if (own_required_cmp_)
-    delete required_cmp_;
 }
 
 PathEndVisitor *
 FindEndRequiredVisitor::copy() const
 {
-  return new FindEndRequiredVisitor(sta_);
+  return new FindEndRequiredVisitor(*this);
 }
 
 void
@@ -3345,7 +3325,7 @@ FindEndRequiredVisitor::visit(PathEnd *path_end)
     const MinMax *min_max = path->minMax(sta_)->opposite();
     size_t path_index = path->pathIndex(sta_);
     Required required = path_end->requiredTime(sta_);
-    required_cmp_->requiredSet(path_index, required, min_max, sta_);
+    required_cmp_.requiredSet(path_index, required, min_max, sta_);
   }
 }
 
@@ -3355,7 +3335,7 @@ Search::seedRequired(Vertex *vertex)
   debugPrint(debug_, "search", 2, "required seed {}",
              vertex->to_string(this));
   RequiredCmp required_cmp;
-  FindEndRequiredVisitor seeder(&required_cmp, this);
+  FindEndRequiredVisitor seeder(required_cmp, this);
   required_cmp.requiredsInit(vertex, this);
   visit_path_ends_->visitPathEnds(vertex, &seeder);
   // Enqueue fanin vertices for back-propagating required times.
@@ -3367,7 +3347,7 @@ void
 Search::seedRequiredEnqueueFanin(Vertex *vertex)
 {
   RequiredCmp required_cmp;
-  FindEndRequiredVisitor seeder(&required_cmp, this);
+  FindEndRequiredVisitor seeder(required_cmp, this);
   required_cmp.requiredsInit(vertex, this);
   visit_path_ends_->visitPathEnds(vertex, &seeder);
   // Enqueue fanin vertices for back-propagating required times.
@@ -3442,31 +3422,25 @@ RequiredCmp::required(size_t path_index)
 
 RequiredVisitor::RequiredVisitor(const StaState *sta) :
   PathVisitor(sta),
-  required_cmp_(new RequiredCmp),
   visit_path_ends_(new VisitPathEnds(sta))
 {
 }
 
-RequiredVisitor::RequiredVisitor(bool make_tag_cache,
-                                 const StaState *sta) :
-  PathVisitor(sta->search()->evalPred(),
-              make_tag_cache,
-              sta),
-  required_cmp_(new RequiredCmp),
-  visit_path_ends_(new VisitPathEnds(sta))
+RequiredVisitor::RequiredVisitor(const RequiredVisitor &required_visitor) :
+  PathVisitor(required_visitor.search()->evalPred(), true, &required_visitor),
+  visit_path_ends_(new VisitPathEnds(&required_visitor))
 {
 }
 
 RequiredVisitor::~RequiredVisitor()
 {
-  delete required_cmp_;
   delete visit_path_ends_;
 }
 
 VertexVisitor *
 RequiredVisitor::copy() const
 {
-  return new RequiredVisitor(true, this);
+  return new RequiredVisitor(*this);
 }
 
 void
@@ -3474,7 +3448,7 @@ RequiredVisitor::visit(Vertex *vertex)
 {
   debugPrint(debug_, "search", 2, "find required {}",
              vertex->to_string(this));
-  required_cmp_->requiredsInit(vertex, this);
+  required_cmp_.requiredsInit(vertex, this);
   // Back propagate requireds from fanout.
   visitFanoutPaths(vertex);
   // Check for constraints at endpoints that set required times.
@@ -3482,7 +3456,7 @@ RequiredVisitor::visit(Vertex *vertex)
     FindEndRequiredVisitor seeder(required_cmp_, this);
     visit_path_ends_->visitPathEnds(vertex, &seeder);
   }
-  bool changed = required_cmp_->requiredsSave(vertex, this);
+  bool changed = required_cmp_.requiredsSave(vertex, this);
   search_->tnsInvalid(vertex);
 
   if (changed)
@@ -3528,8 +3502,8 @@ RequiredVisitor::visitFromToPath(const Pin *,
                  delayAsString(arc_delay, this),
                  delayAsString(from_required, this),
                  min_max == MinMax::max() ? "<" : ">",
-                 delayAsString(required_cmp_->required(path_index), this));
-      required_cmp_->requiredSet(path_index, from_required, req_min, this);
+                 delayAsString(required_cmp_.required(path_index), this));
+      required_cmp_.requiredSet(path_index, from_required, req_min, this);
     }
     else {
       if (search_->crprApproxMissingRequireds()) {
@@ -3552,8 +3526,8 @@ RequiredVisitor::visitFromToPath(const Pin *,
                        delayAsString(arc_delay, this),
                        delayAsString(from_required, this),
                        min_max == MinMax::max() ? "<" : ">",
-                       delayAsString(required_cmp_->required(path_index), this));
-            required_cmp_->requiredSet(path_index, from_required, req_min, this);
+                       delayAsString(required_cmp_.required(path_index), this));
+            required_cmp_.requiredSet(path_index, from_required, req_min, this);
             break;
           }
         }

@@ -738,15 +738,15 @@ protected:
                          Vertex *to_vertex);
   // Return false to stop visiting.
   [[nodiscard]] bool visitArc(const Pin *from_pin,
-                               Vertex *from_vertex,
-                               const RiseFall *from_rf,
-                               Path *from_path,
-                               Edge *edge,
-                               TimingArc *arc,
-                const Pin *to_pin,
-                Vertex *to_vertex,
-                const MinMax *min_max,
-                const Mode *mode);
+                              Vertex *from_vertex,
+                              const RiseFall *from_rf,
+                              Path *from_path,
+                              Edge *edge,
+                              TimingArc *arc,
+                              const Pin *to_pin,
+                              Vertex *to_vertex,
+                              const MinMax *min_max,
+                              const Mode *mode);
   // This calls visit below with everything required to make to_path.
   // Return false to stop visiting.
   virtual bool visitFromPath(const Pin *from_pin,
@@ -770,6 +770,7 @@ class ArrivalVisitor : public PathVisitor
 {
 public:
   ArrivalVisitor(const StaState *sta);
+  ArrivalVisitor(const ArrivalVisitor &arrival_visitor);
   ~ArrivalVisitor() override;
   // Initialize the visitor.
   void init(bool always_to_endpoints,
@@ -797,9 +798,6 @@ public:
   TagGroupBldr *tagBldr() const { return tag_bldr_; }
 
 protected:
-  ArrivalVisitor(bool always_to_endpoints,
-                 SearchPred *pred,
-                 const StaState *sta);
   void init0();
   void enqueueRefPinInputDelays(const Pin *ref_pin,
                                 const Sdc *sdc);
@@ -842,6 +840,7 @@ class RequiredVisitor : public PathVisitor
 {
 public:
   RequiredVisitor(const StaState *sta);
+  RequiredVisitor(const RequiredVisitor &required_visitor);
   ~RequiredVisitor() override;
   VertexVisitor *copy() const override;
   void visit(Vertex *vertex) override;
@@ -862,10 +861,7 @@ public:
                        const MinMax *min_max) override;
 
 protected:
-  RequiredVisitor(bool make_tag_cache,
-                  const StaState *sta);
-
-  RequiredCmp *required_cmp_;
+  RequiredCmp required_cmp_;
   VisitPathEnds *visit_path_ends_;
 };
 

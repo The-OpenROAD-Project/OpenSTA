@@ -292,6 +292,7 @@ class FindVertexDelays : public VertexVisitor
 {
 public:
   FindVertexDelays(GraphDelayCalc *graph_delay_calc1);
+  FindVertexDelays(const FindVertexDelays &find_vertex_delays);
   ~FindVertexDelays() override;
   void visit(Vertex *vertex) override;
   VertexVisitor *copy() const override;
@@ -308,6 +309,11 @@ FindVertexDelays::FindVertexDelays(GraphDelayCalc *graph_delay_calc) :
 {
 }
 
+FindVertexDelays::FindVertexDelays(const FindVertexDelays &find_vertex_delays) :
+  FindVertexDelays(find_vertex_delays.graph_delay_calc_)
+{
+}
+
 FindVertexDelays::~FindVertexDelays()
 {
   delete arc_delay_calc_;
@@ -318,7 +324,7 @@ FindVertexDelays::copy() const
 {
   // Copy StaState::arc_delay_calc_ because it needs separate state
   // for each thread.
-  return new FindVertexDelays(graph_delay_calc_);
+  return new FindVertexDelays(*this);
 }
 
 void

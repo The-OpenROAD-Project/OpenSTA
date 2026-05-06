@@ -127,6 +127,7 @@ class ArnoldiDelayCalc : public LumpedCapDelayCalc
 {
 public:
   ArnoldiDelayCalc(StaState *sta);
+  ArnoldiDelayCalc(const ArnoldiDelayCalc &dcalc);
   ~ArnoldiDelayCalc() override;
   ArcDelayCalc *copy() override;
   std::string_view name() const override { return "arnoldi"; }
@@ -262,10 +263,20 @@ ArnoldiDelayCalc::ArnoldiDelayCalc(StaState *sta) :
   _slewV = (double*)malloc(_pinNmax * sizeof(double));
 }
 
+ArnoldiDelayCalc::ArnoldiDelayCalc(const ArnoldiDelayCalc &dcalc) :
+  LumpedCapDelayCalc(dcalc),
+  reduce_(new ArnoldiReduce(this)),
+  delay_work_(delay_work_create())
+{
+  _pinNmax = dcalc._pinNmax;
+  _delayV = (double*)malloc(_pinNmax * sizeof(double));
+  _slewV = (double*)malloc(_pinNmax * sizeof(double));
+}
+
 ArcDelayCalc *
 ArnoldiDelayCalc::copy()
 {
-  return new ArnoldiDelayCalc(this);
+  return new ArnoldiDelayCalc(*this);
 }
 
 ArnoldiDelayCalc::~ArnoldiDelayCalc()
