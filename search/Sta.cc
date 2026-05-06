@@ -3310,7 +3310,7 @@ EndpointPathEndVisitor::EndpointPathEndVisitor(std::string_view path_group_name,
 PathEndVisitor *
 EndpointPathEndVisitor::copy() const
 {
-  return new EndpointPathEndVisitor(path_group_name_, min_max_, sta_);
+  return new EndpointPathEndVisitor(*this);
 }
 
 void
@@ -5102,7 +5102,8 @@ Sta::clockDomains(const Pin *pin,
                   const Mode *mode)
 {
   searchPreamble();
-  search_->findAllArrivals();
+  Vertex *vertex = graph_->pinLoadVertex(pin);
+  search_->findArrivals(vertex->level());
   return search_->clockDomains(pin, mode);
 }
 

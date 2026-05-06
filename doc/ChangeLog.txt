@@ -9,7 +9,7 @@ See ApiChangeLog.txt for changes to the STA api.
 
 The write_sdc command supports a -mode argument.
 
-  read_sdc [-mode mode]
+  write_sdc [-mode mode]
 
 2026/03/23
 ----------
