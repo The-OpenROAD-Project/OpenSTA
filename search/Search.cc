@@ -2775,23 +2775,19 @@ Search::reportArrivals(Vertex *vertex,
       bool report_prev = false;
       std::string prev_str;
       if (report_prev) {
-        prev_str = "prev ";
         Path *prev_path = path->prevPath();
         if (prev_path) {
-          prev_str += prev_path->to_string(this);
-          prev_str += " ";
           const Edge *prev_edge = path->prevEdge(this);
           TimingArc *arc = path->prevArc(this);
-          prev_str += prev_edge->from(graph_)->to_string(this);
-          prev_str += " ";
-          prev_str += arc->fromEdge()->to_string();
-          prev_str += " -> ";
-          prev_str += prev_edge->to(graph_)->to_string(this);
-          prev_str += " ";
-          prev_str += arc->toEdge()->to_string();
+          prev_str = sta::format("prev {} {} {} -> {} {}",
+                                 prev_path->to_string(this),
+                                 prev_edge->from(graph_)->to_string(this),
+                                 arc->fromEdge()->to_string(),
+                                 prev_edge->to(graph_)->to_string(this),
+                                 arc->toEdge()->to_string());
         }
         else
-          prev_str += "NULL";
+          prev_str = "prev NULL";
       }
       report_->report(" {} {} {} / {} {}{}", rf->shortName(),
                       path->minMax(this)->to_string(),
