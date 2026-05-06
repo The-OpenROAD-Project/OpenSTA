@@ -45,7 +45,7 @@ proc_redirect read_sdc {
 
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
-    set prev_mode [cmd_mode_name]
+    set prev_mode [cmd_mode]
     try {
       set_cmd_mode $mode_name
       include_file $filename $echo 0
