@@ -1101,6 +1101,32 @@ set_use_default_arrival_clock(bool enable)
   Sta::sta()->setUseDefaultArrivalClock(enable);
 }
 
+// For regression tests.
+void
+report_arrival_entries()
+{
+  Sta *sta = Sta::sta();
+  Search *search = sta->search();
+  search->arrivalIterator()->reportEntries();
+}
+
+// For regression tests.
+void
+report_required_entries()
+{
+  Sta *sta = Sta::sta();
+  Search *search = sta->search();
+  search->requiredIterator()->reportEntries();
+}
+
+// For regression tests.
+void
+levelize()
+{
+  Sta *sta = Sta::sta();
+  sta->levelize()->findLevels();
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////
