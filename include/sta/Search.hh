@@ -738,15 +738,15 @@ protected:
                          Vertex *to_vertex);
   // Return false to stop visiting.
   [[nodiscard]] bool visitArc(const Pin *from_pin,
-                               Vertex *from_vertex,
-                               const RiseFall *from_rf,
-                               Path *from_path,
-                               Edge *edge,
-                               TimingArc *arc,
-                const Pin *to_pin,
-                Vertex *to_vertex,
-                const MinMax *min_max,
-                const Mode *mode);
+                              Vertex *from_vertex,
+                              const RiseFall *from_rf,
+                              Path *from_path,
+                              Edge *edge,
+                              TimingArc *arc,
+                              const Pin *to_pin,
+                              Vertex *to_vertex,
+                              const MinMax *min_max,
+                              const Mode *mode);
   // This calls visit below with everything required to make to_path.
   // Return false to stop visiting.
   virtual bool visitFromPath(const Pin *from_pin,

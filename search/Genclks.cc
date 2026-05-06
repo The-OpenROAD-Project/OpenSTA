@@ -723,7 +723,7 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
 }
 
 GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor) :
-  ArrivalVisitor(static_cast<const ArrivalVisitor &>(visitor)),
+  ArrivalVisitor(visitor),
   gclk_(visitor.gclk_),
   insert_iter_(visitor.insert_iter_),
   genclk_info_(visitor.genclk_info_),
