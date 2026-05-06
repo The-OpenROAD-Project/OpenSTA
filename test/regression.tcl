@@ -66,9 +66,11 @@ proc setup {} {
   set valgrind_shared_lib_failure 0
 
   if { ![file exists $app_path] } {
-    error "$app_path not found."
+    puts "$app_path not found."
+    exit 1
   } elseif { ![file executable $app_path] } {
-    error "$app_path is not executable."
+    puts "$app_path is not executable."
+    exit 1
   }
 }
 
