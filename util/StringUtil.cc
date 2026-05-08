@@ -78,6 +78,32 @@ stringFloat(const std::string &str)
 #endif
 }
 
+std::pair<long long, bool>
+stringLong(const std::string &str,
+           int base)
+{
+  long long value;
+#if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
+  auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value, base);
+
+  // Check for success and that we consumed the entire string
+  if (ec == std::errc() && ptr == str.data() + str.size())
+    return {value, true};
+  else
+    return {0LL, false};
+#else
+  char *ptr;
+  errno = 0;
+  // strtoll handles "long long" specifically
+  value = std::strtoll(str.data(), &ptr, base);
+
+  if (errno == ERANGE || *ptr != '\0' || ptr == str.data())
+    return {0LL, false};
+  else
+    return {value, true};
+#endif
+}
+
 void
 trimRight(std::string &str)
 {

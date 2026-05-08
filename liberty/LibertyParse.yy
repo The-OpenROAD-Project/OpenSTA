@@ -62,7 +62,7 @@ sta::LibertyParse::error(const location_type &loc,
 %define api.parser.class {LibertyParse}
 %define api.value.type variant
 
-%expect 2
+%expect 0
 
 %token <std::string> STRING KEYWORD
 %token <float> FLOAT
@@ -75,8 +75,8 @@ sta::LibertyParse::error(const location_type &loc,
 %type <void *> statement complex_attr simple_attr variable group file
 %type <sta::LibertyAttrValueSeq *> attr_values
 %type <sta::LibertyAttrValue *> attr_value
-%type <std::string> string expr expr_term expr_term1 volt_expr
-%type <char> expr_op volt_op
+%type <std::string> string expr expr_term expr_term1
+%type <char> expr_op
 
 %start file
 
@@ -157,36 +157,8 @@ string:
 	;
 
 attr_value:
-	FLOAT
-	{ $$ = reader->makeAttrValueFloat($1); }
-|       expr
+	expr
 	{ $$ = reader->makeAttrValueString(std::move($1)); }
-|	volt_expr
-	{ $$ = reader->makeAttrValueString(std::move($1)); }
-	;
-
-/* Voltage expressions are ignored. */
-/* Crafted to avoid conflicts with expr */
-volt_expr:
-        FLOAT volt_op FLOAT
-	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
-|       string volt_op FLOAT
-	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
-|       FLOAT volt_op string
-	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
-|       volt_expr volt_op FLOAT
-	{ $$ = sta::format("{}{}{}", $1, $2, $3); }
-        ;
-
-volt_op:
-	'+'
-        { $$ = '+'; }
-|	'-'
-        { $$ = '-'; }
-|	'*'
-        { $$ = '*'; }
-|	'/'
-        { $$ = '/'; }
 	;
 
 expr:
@@ -197,6 +169,8 @@ expr:
 
 expr_term:
 	string
+|	FLOAT
+	{ $$ = sta::format("{}", $1); }
 |	'0'
 	{ $$ = std::string("0"); }
 |	'1'
@@ -224,6 +198,10 @@ expr_op:
         { $$ = '&'; }
 |	'^'
         { $$ = '^'; }
+|	'-'
+        { $$ = '-'; }
+|	'/'
+        { $$ = '/'; }
 	;
 
 semi_opt:

@@ -513,6 +513,13 @@ LibertyGroup::findAttrInt(std::string_view attr_name,
       exists = exists1;
       return;
     }
+    else {
+      const std::string &int_str = attr_value.stringValue();
+      auto [value1, valid1] = stringLong(int_str);
+      value = value1;
+      exists = valid1;
+      return;
+    }
   }
   exists = false;
 }
