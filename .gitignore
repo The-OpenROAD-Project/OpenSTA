@@ -28,3 +28,6 @@ doc/messages.txt
 
 # clangd turds
 .cache/
+
+# openroad ctest turds
+cmake_test*
