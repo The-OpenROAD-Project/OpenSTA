@@ -48,8 +48,7 @@ namespace sta {
 Levelize::Levelize(StaState *sta) :
   StaState(sta),
   roots_(makeVertexSet(sta)),
-  relevelize_from_(makeVertexSet(sta)),
-  drvr_vertices_level_valid_(false)
+  relevelize_from_(makeVertexSet(sta))
 {
 }
 
@@ -86,8 +85,6 @@ Levelize::clear()
   loops_.clear();
   loop_edges_.clear();
   max_level_ = 0;
-  drvr_vertices_level_valid_ = false;
-  levelized_drvr_vertices_.clear();
 }
 
 void
@@ -544,7 +541,6 @@ Levelize::setLevel(Vertex *vertex,
 void
 Levelize::invalid()
 {
-  drvr_vertices_level_valid_ = false;
   if (levelized_) {
     debugPrint(debug_, "levelize", 1, "levels invalid");
     levelized_ = false;
@@ -558,8 +554,6 @@ Levelize::deleteVertexBefore(Vertex *vertex)
   if (levelized_) {
     roots_.erase(vertex);
     relevelize_from_.erase(vertex);
-    drvr_vertices_level_valid_ = false;
-    levelized_drvr_vertices_.clear();
   }
 }
 
@@ -571,7 +565,6 @@ Levelize::relevelizeFrom(Vertex *vertex)
                vertex->to_string(this));
     relevelize_from_.insert(vertex);
     levels_valid_ = false;
-    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -586,7 +579,6 @@ Levelize::deleteEdgeBefore(Edge *edge)
     // fails because the DFS path will be missing.
     levelized_ = false;
     levels_valid_ = false;
-    drvr_vertices_level_valid_ = false;
   }
 }
 
@@ -711,36 +703,6 @@ Levelize::checkLevels()
                       vertex->name(network_), level);
     }
   }
-}
-
-void
-Levelize::levelizeDrvrVertices()
-{
-  levelized_drvr_vertices_.clear();
-  // Rough estimate: ~half of vertices are drivers
-  levelized_drvr_vertices_.reserve(graph_->vertexCount() / 2);
-  VertexIterator vertex_iter(graph_);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
-    if (vertex->isDriver(network_))
-      levelized_drvr_vertices_.emplace_back(vertex);
-  }
-  sort(levelized_drvr_vertices_,
-       [this](const Vertex *a, const Vertex *b) {
-         if (a->level() != b->level())
-           return a->level() < b->level();
-         return VertexNameLess(network_)(a, b);
-       });
-  drvr_vertices_level_valid_ = true;
-}
-
-const VertexSeq &
-Levelize::levelizedDrvrVertices()
-{
-  ensureLevelized();
-  if (!drvr_vertices_level_valid_)
-    levelizeDrvrVertices();
-  return levelized_drvr_vertices_;
 }
 
 ////////////////////////////////////////////////////////////////
