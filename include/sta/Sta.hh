@@ -83,6 +83,8 @@ using CheckErrorSeq = std::vector<CheckError*>;
 enum class CmdNamespace { sta, sdc };
 using ParasiticsNameMap = std::map<std::string, Parasitics*, std::less<>>;
 using GraphLoopSeq = std::vector<GraphLoop*>;
+using ReportFieldGetValue = std::function<std::string (const Path *path,
+                                                       const StaState *sta)>;
 
 // Initialize sta functions that are not part of the Sta class.
 void initSta();
@@ -982,15 +984,16 @@ public:
                           bool clk_gating_hold);
   void setReportPathFormat(ReportPathFormat format);
   void setReportPathFieldOrder(const StringSeq &field_names);
-  void setReportPathFields(bool report_input_pin,
-                           bool report_hier_pins,
-                           bool report_net,
-                           bool report_cap,
-                           bool report_slew,
-                           bool report_fanout,
-                           bool report_variation,
-                           bool report_src_attr);
+  void setReportPathFields(const StringSeq &fields);
   ReportField *findReportPathField(std::string_view name);
+  ReportField *findReportPathFieldAbrev(std::string_view name);
+  void makeReportPathField(std::string_view name,
+                           std::string_view name_abrev,
+                           std::string_view title,
+                           size_t width,
+                           bool left_justify,
+                           Unit *unit,
+                           const ReportFieldGetValue &get_value);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void reportPathEnd(PathEnd *end);
