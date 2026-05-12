@@ -180,7 +180,7 @@ define_cmd_args "write_sdf" \
 
 proc_redirect write_sdf {
   parse_key_args "write_sdf" args \
-    keys {-corner -scene -divider -digits -significant_digits} \
+    keys {-corner -scene -divider -digits} \
     flags {-include_typ -gzip -no_timestamp -no_version}
   check_argc_eq1 "write_sdf" $args
   set scene [parse_scene keys]

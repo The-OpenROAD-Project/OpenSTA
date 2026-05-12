@@ -246,6 +246,7 @@ public:
                        bool unique_pins,
                        bool unique_edges,
                        PathEnum *path_enum);
+  PathEnumFaninVisitor(const PathEnumFaninVisitor &visitor);
   VertexVisitor *copy() const override;
   void visitFaninPathsThru(Path *before_div,
                            Vertex *prev_vertex,
@@ -327,11 +328,16 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
 {
 }
 
+PathEnumFaninVisitor::PathEnumFaninVisitor(const PathEnumFaninVisitor &visitor) :
+  PathEnumFaninVisitor(visitor.path_end_, visitor.before_div_, visitor.unique_pins_,
+                       visitor.unique_edges_, visitor.path_enum_)
+{
+}
+
 VertexVisitor *
 PathEnumFaninVisitor::copy() const
 {
-  return new PathEnumFaninVisitor(path_end_, before_div_, unique_pins_,
-                                  unique_edges_, path_enum_);
+  return new PathEnumFaninVisitor(*this);
 }
 
 void

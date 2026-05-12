@@ -257,7 +257,6 @@ set(STA_TCL_FILES
   tcl/Property.tcl
   tcl/Sta.tcl
   tcl/Splash.tcl
-  tcl/Variables.tcl
   dcalc/DelayCalc.tcl
   graph/Graph.tcl
   liberty/Liberty.tcl
@@ -267,6 +266,7 @@ set(STA_TCL_FILES
   parasitics/Parasitics.tcl
   power/Power.tcl
   sdc/Sdc.tcl
+  sdc/Variables.tcl
   sdf/Sdf.tcl
   search/Search.tcl
   spice/WriteSpice.tcl

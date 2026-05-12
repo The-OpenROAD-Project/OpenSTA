@@ -60,12 +60,23 @@ CcsCeffDelayCalc::CcsCeffDelayCalc(StaState *sta) :
 {
 }
 
-CcsCeffDelayCalc::~CcsCeffDelayCalc() { delete table_dcalc_; }
+CcsCeffDelayCalc::CcsCeffDelayCalc(const CcsCeffDelayCalc &dcalc) :
+  LumpedCapDelayCalc(dcalc),
+  watch_pin_values_(dcalc.network_),
+  capacitance_unit_(dcalc.capacitance_unit_),
+  table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
+{
+}
+
+CcsCeffDelayCalc::~CcsCeffDelayCalc()
+{
+  delete table_dcalc_;
+}
 
 ArcDelayCalc *
 CcsCeffDelayCalc::copy()
 {
-  return new CcsCeffDelayCalc(this);
+  return new CcsCeffDelayCalc(*this);
 }
 
 ArcDcalcResult

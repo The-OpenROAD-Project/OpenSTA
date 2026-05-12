@@ -995,7 +995,7 @@ MakeEndpointPathEnds::~MakeEndpointPathEnds()
 VertexVisitor *
 MakeEndpointPathEnds::copy() const
 {
-  return new MakeEndpointPathEnds(path_end_visitor_, scenes_, min_max_, sta_);
+  return new MakeEndpointPathEnds(*this);
 }
 
 void

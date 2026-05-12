@@ -225,37 +225,6 @@ set_debug(const char *what,
 }
 
 ////////////////////////////////////////////////////////////////
-
-bool
-is_object(const char *obj)
-{
-  // _hexaddress_p_type
-  const char *s = obj;
-  char ch = *s++;
-  if (ch != '_')
-    return false;
-  while (*s && isxdigit(*s))
-    s++;
-  if ((s - obj - 1) == sizeof(void*) * 2
-      && *s && *s++ == '_'
-      && *s && *s++ == 'p'
-      && *s && *s++ == '_') {
-    while (*s && *s != ' ')
-      s++;
-    return *s == '\0';
-  }
-  else
-    return false;
-}
-
-// Assumes is_object is true.
-const char *
-object_type(const char *obj)
-{
-  return &obj[1 + sizeof(void*) * 2 + 3];
-}
-
-////////////////////////////////////////////////////////////////
 //
 // Units
 //

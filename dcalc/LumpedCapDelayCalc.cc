@@ -54,7 +54,7 @@ LumpedCapDelayCalc::LumpedCapDelayCalc(StaState *sta) :
 ArcDelayCalc *
 LumpedCapDelayCalc::copy()
 {
-  return new LumpedCapDelayCalc(this);
+  return new LumpedCapDelayCalc(*this);
 }
 
 Parasitic *

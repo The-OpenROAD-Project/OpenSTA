@@ -94,15 +94,15 @@ private:
 
 void
 write_sdc_cmd(std::string filename,
-             bool leaf,
-             bool compatible,
-             int digits,
-             bool gzip,
-             bool no_timestamp)
+              std::string mode_name,
+              bool leaf,
+              bool compatible,
+              int digits,
+              bool gzip,
+              bool no_timestamp)
 {
   Sta *sta = Sta::sta();
-  const Sdc *sdc = sta->cmdSdc();
-  sta->writeSdc(sdc, filename, leaf, compatible, digits, gzip, no_timestamp);
+  sta->writeSdc(filename, mode_name, leaf, compatible, digits, gzip, no_timestamp);
 }
 
 void

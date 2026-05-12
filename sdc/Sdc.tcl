@@ -42,31 +42,38 @@ proc_redirect read_sdc {
   check_argc_eq1 "read_sdc" $args
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
-  set mode_name {}
+
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
-  }
-  set prev_mode [cmd_mode_name]
-  try {
-    set_mode_cmd $mode_name
-    include_file $filename $echo 0
-  } finally {
-    if { $prev_mode != "default" } {
-      set_mode_cmd $prev_mode
+    set prev_mode [cmd_mode]
+    try {
+      set_cmd_mode $mode_name
+      include_file $filename $echo 0
+    } finally {
+      if { $prev_mode != "default" } {
+        set_cmd_mode $prev_mode
+      }
     }
+  } else {
+    include_file $filename $echo 0
   }
 }
 
 ################################################################
 
 define_cmd_args "write_sdc" \
-  {[-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename}
+  {[-mode mode] [-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename}
 
 proc write_sdc { args } {
-  parse_key_args "write_sdc" args keys {-digits -significant_digits} \
+  parse_key_args "write_sdc" args keys {-mode -digits} \
     flags {-map_hpins -compatible -gzip -no_timestamp}
   check_argc_eq1 "write_sdc" $args
 
+  set mode [cmd_mode]
+  if { [info exists keys(-mode)] } {
+    set mode $keys(-mode)
+  }
+  
   set digits 4
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
@@ -78,7 +85,7 @@ proc write_sdc { args } {
   set no_timestamp [info exists flags(-no_timestamp)]
   set map_hpins [info exists flags(-map_hpins)]
   set native [expr ![info exists flags(-compatible)]]
-  write_sdc_cmd $filename $map_hpins $native $digits $gzip $no_timestamp
+  write_sdc_cmd $filename $mode $map_hpins $native $digits $gzip $no_timestamp
 }
 
 ################################################################

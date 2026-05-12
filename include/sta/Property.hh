@@ -199,9 +199,7 @@ public:
   PropertyValue(ClockSet *value);
   PropertyValue(ConstPathSeq *value);
   PropertyValue(PwrActivity *value);
-  // Copy constructor.
   PropertyValue(const PropertyValue &value);
-  // Move constructor.
   PropertyValue(PropertyValue &&value) noexcept;
   ~PropertyValue();
   Type type() const { return type_; }

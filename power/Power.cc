@@ -575,6 +575,7 @@ public:
   PropActivityVisitor(Power *power,
                       const Mode *mode,
                       BfsFwdIterator *bfs);
+  PropActivityVisitor(const PropActivityVisitor &visitor);
   VertexVisitor *copy() const override;
   void visit(Vertex *vertex) override;
   InstanceSet &visitedRegs() { return visited_regs_; }
@@ -606,10 +607,15 @@ PropActivityVisitor::PropActivityVisitor(Power *power,
 {
 }
 
+PropActivityVisitor::PropActivityVisitor(const PropActivityVisitor &visitor) :
+  PropActivityVisitor(visitor.power_, visitor.mode_, visitor.bfs_)
+{
+}
+
 VertexVisitor *
 PropActivityVisitor::copy() const
 {
-  return new PropActivityVisitor(power_, mode_, bfs_);
+  return new PropActivityVisitor(*this);
 }
 
 void
