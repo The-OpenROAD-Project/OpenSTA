@@ -362,6 +362,8 @@ cc_library(
         "search/ReportPath.hh",
         "spice/WritePathSpice.hh",
         "dcalc/PrimaDelayCalc.hh",
+        # Needed by src/dbSta to synthesize LibertyCells programmatically.
+        "liberty/LibertyBuilder.hh",
     ],
     copts = [
         "-Wno-error",
