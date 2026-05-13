@@ -30,11 +30,11 @@
 
 #include "Graph.hh"
 #include "StaState.hh"
+#include "sta/LevelizeObserver.hh"
 
 namespace sta {
 
 class SearchPred;
-class LevelizeObserver;
 class GraphLoop;
 
 using VertexEdgeIterPair = std::pair<Vertex*,VertexOutEdgeIterator*>;
@@ -131,14 +131,6 @@ public:
 
 private:
   EdgeSeq *edges_;
-};
-
-class LevelizeObserver
-{
-public:
-  virtual ~LevelizeObserver() = default;
-  virtual void levelsChangedBefore() = 0;
-  virtual void levelChangedBefore(Vertex *vertex) = 0;
 };
 
 } // namespace sta

@@ -217,19 +217,6 @@ StaSimObserver::fanoutEdgesChangeAfter(const Pin *pin)
 
 ////////////////////////////////////////////////////////////////
 
-class StaLevelizeObserver : public LevelizeObserver
-{
-public:
-  StaLevelizeObserver(Search *search,
-                      GraphDelayCalc *graph_delay_calc);
-  void levelsChangedBefore() override;
-  void levelChangedBefore(Vertex *vertex) override;
-
-private:
-  Search *search_;
-  GraphDelayCalc *graph_delay_calc_;
-};
-
 StaLevelizeObserver::StaLevelizeObserver(Search *search,
                                          GraphDelayCalc *graph_delay_calc) :
   search_(search),
@@ -3753,6 +3740,12 @@ Sta::ensureLevelized()
 {
   ensureGraph();
   levelize_->ensureLevelized();
+}
+
+void
+Sta::setLevelizeObserver(LevelizeObserver *observer)
+{
+  levelize_->setObserver(observer);
 }
 
 void

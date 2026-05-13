@@ -73,6 +73,7 @@ class ClkSkews;
 class ReportField;
 class EquivCells;
 class StaSimObserver;
+class LevelizeObserver;
 class GraphLoop;
 
 using ModeNameMap = std::map<std::string, Mode*, std::less<>>;
@@ -1324,6 +1325,10 @@ public:
   // Ensure a network has been read, linked and liberty libraries exist.
   Network *ensureLibLinked();
   void ensureLevelized();
+  // Replace the Levelize observer. Takes ownership; deletes any prior
+  // observer. Subclass StaLevelizeObserver to extend the default behavior
+  // (Search + GraphDelayCalc forwarding) without re-implementing it.
+  void setLevelizeObserver(LevelizeObserver *observer);
   // Ensure that the timing graph has been built.
   Graph *ensureGraph();
   void ensureClkArrivals();
