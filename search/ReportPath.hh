@@ -25,6 +25,7 @@
 #pragma once
 
 #include <cstddef>
+#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -49,9 +50,51 @@ namespace sta {
 
 class Scene;
 class PathExpanded;
-class ReportField;
+
+using ReportFieldGetValue = std::function<std::string (const Path *path,
+                                                       const StaState *sta)>;
+
+class ReportField
+{
+public:
+  ReportField(std::string_view name,
+              std::string_view name_abrev,
+              std::string_view title,
+              size_t width,
+              bool left_justify,
+              Unit *unit,
+              ReportFieldGetValue get_value);
+  void setProperties(std::string_view title,
+                     size_t width,
+                     bool left_justify);
+  const std::string &name() const { return name_; }
+  const std::string &nameAbrev() const { return name_abrev_; }
+  const std::string &title() const { return title_; }
+  size_t width() const { return width_; }
+  void setWidth(size_t width);
+  bool leftJustify() const { return left_justify_; }
+  Unit *unit() const { return unit_; }
+  const std::string &blank() const { return blank_; }
+  void setEnabled(bool enabled);
+  bool enabled() const { return enabled_; }
+  std::string value(const Path *path,
+                    const StaState *sta) const;
+  const ReportFieldGetValue &getValue() const { return get_value_; }
+
+protected:
+  std::string name_;
+  std::string name_abrev_;
+  std::string title_;
+  size_t width_;
+  bool left_justify_;
+  Unit *unit_;
+  bool enabled_{false};
+  ReportFieldGetValue get_value_;
+  std::string blank_;
+};
 
 using ReportFieldSeq = std::vector<ReportField*>;
+using ReportFieldMap = std::map<std::string, ReportField*, std::less<>>;
 
 class ReportPath : public StaState
 {
@@ -61,19 +104,12 @@ public:
   ReportPathFormat pathFormat() const { return format_; }
   void setPathFormat(ReportPathFormat format);
   void setReportFieldOrder(const StringSeq &field_names);
-  void setReportFields(bool report_input_pin,
-                       bool report_hier_pins,
-                       bool report_net,
-                       bool report_cap,
-                       bool report_slew,
-                       bool report_fanout,
-                       bool report_variation,
-                       bool report_src_attr,
-                       bool report_orig_name);
+  void setReportFields(const StringSeq &fields);
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
-  ReportField *findField(std::string_view name) const;
+  ReportField *findField(std::string_view name);
+  ReportField *findFieldAbrev(std::string_view name);
 
   // Header above reportPathEnd results.
   void reportPathEndHeader() const;
@@ -166,6 +202,15 @@ public:
                           float slack,
                           const Scene *scene,
                           const MinMax *min_max) const;
+
+  ReportField *makeField(std::string_view name,
+                         std::string_view name_abrev,
+                         std::string_view title,
+                         size_t width,
+                         bool left_justify,
+                         // nullptr for string fields.
+                         Unit *unit,
+                         ReportFieldGetValue get_value);
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
@@ -175,11 +220,11 @@ public:
 protected:
   void makeFields();
   ReportField *makeField(std::string_view name,
+                         std::string_view name_abrev,
                          std::string_view title,
-                         int width,
+                         size_t width,
                          bool left_justify,
-                         Unit *unit,
-                         bool enabled);
+                         Unit *unit);
   void reportEndpointHeader(const PathEnd *end,
                             const PathEnd *prev_end) const;
   void reportShort(const PathEndUnconstrained *end,
@@ -372,6 +417,7 @@ protected:
                   const Delay &total,
                   const EarlyLate *early_late) const;
   void reportLine(std::string_view what,
+                  const Path *path,
                   float cap,
                   const Slew &slew,
                   float fanout,
@@ -486,15 +532,14 @@ protected:
 
   // Path options.
   ReportPathFormat format_{ReportPathFormat::full};
-  ReportFieldSeq fields_;
   bool report_input_pin_;
   bool report_hier_pins_;
   bool report_net_;
   bool no_split_{false};
   int digits_;
 
-  size_t start_end_pt_width_{80};
-
+  ReportFieldMap field_map_;
+  ReportFieldSeq fields_;
   ReportField *field_description_;
   ReportField *field_total_;
   ReportField *field_incr_;
@@ -511,41 +556,9 @@ protected:
   std::string minus_zero_;
 
   int field_width_extra_{5};
+  size_t start_end_pt_width_{80};
   static constexpr float field_blank_ = -1;
   static const float field_skip_;
-};
-
-class ReportField
-{
-public:
-  ReportField(std::string_view name,
-              std::string_view title,
-              size_t width,
-              bool left_justify,
-              Unit *unit,
-              bool enabled);
-  ~ReportField();
-  void setProperties(std::string_view title,
-                     size_t width,
-                     bool left_justify);
-  const std::string &name() const { return name_; }
-  const std::string &title() const { return title_; }
-  size_t width() const { return width_; }
-  void setWidth(size_t width);
-  bool leftJustify() const { return left_justify_; }
-  Unit *unit() const { return unit_; }
-  const std::string &blank() const { return blank_; }
-  void setEnabled(bool enabled);
-  bool enabled() const { return enabled_; }
-
-protected:
-  std::string name_;
-  std::string title_;
-  size_t width_;
-  bool left_justify_;
-  Unit *unit_;
-  bool enabled_;
-  std::string blank_;
 };
 
 } // namespace sta

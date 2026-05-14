@@ -2344,16 +2344,13 @@ LibertyReader::readReceiverCapacitance(const LibertyGroup *timing_group,
   std::string cap_group_name1 = sta::format("{}_{}", cap_group_name, rf->to_string());
   const LibertyGroup *cap_group = timing_group->findSubgroup(cap_group_name1);
   if (cap_group) {
-    const LibertySimpleAttr *segment_attr = cap_group->findSimpleAttr("segment");
-    if (segment_attr) {
-      // For receiver_capacitance groups with mulitiple segments this
-      // overrides the index passed in beginReceiverCapacitance1Rise/Fall.
-      int segment;
-      bool exists;
-      getAttrInt(segment_attr, segment, exists);
-      if (exists)
-        index = segment;
-    }
+    // For receiver_capacitance groups with mulitiple segments this
+    // overrides the index passed in beginReceiverCapacitance1Rise/Fall.
+    int segment;
+    bool exists;
+    cap_group->findAttrInt("segment", segment, exists);
+    if (exists)
+      index = segment;
     TableModel *model = readTableModel(cap_group, rf, TableTemplateType::delay,
                                        cap_scale_, ScaleFactorType::pin_cap);
     if (ReceiverModel::checkAxes(model)) {
@@ -3223,24 +3220,6 @@ LibertyReader::makeFloatTable(const LibertyComplexAttr *values_attr,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-LibertyReader::getAttrInt(const LibertySimpleAttr *attr,
-                          // Return values.
-                          int &value,
-                          bool &exists)
-{
-  value = 0;
-  exists = false;
-  const LibertyAttrValue &attr_value = attr->value();
-  if (attr_value.isFloat()) {
-    auto [float_val, valid] = attr_value.floatValue();
-    value = static_cast<int>(float_val);
-    exists = true;
-  }
-  else
-    warn(1268, attr, "{} attribute is not an integer.", attr->name());
-}
 
 // Get two floats in a complex attribute.
 //  attr(float1, float2);

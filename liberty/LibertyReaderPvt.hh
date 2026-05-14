@@ -418,10 +418,6 @@ protected:
   StateInternalValues parseStateInternalValues(StringSeq &states,
                                                const LibertySimpleAttr *attr);
 
-  void getAttrInt(const LibertySimpleAttr *attr,
-                  // Return values.
-                  int &value,
-                  bool &exists);
   void getAttrFloat2(const LibertyComplexAttr *attr,
                      // Return values.
                      float &value1,

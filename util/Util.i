@@ -504,4 +504,39 @@ fuzzy_equal(float value1,
   return fuzzyEqual(value1, value2);
 }
 
+////////////////////////////////////////////////////////////////
+
+bool
+is_object(const char *obj)
+{
+  // _hexaddress_p_type
+  const std::string s(obj);
+  if (s.empty() || s[0] != '_')
+    return false;
+  const size_t hex_digits = sizeof(void *) * 2;
+  if (s.size() < 1 + hex_digits + 3)
+    return false;
+  for (size_t i = 1; i < 1 + hex_digits; i++) {
+    if (!std::isxdigit(static_cast<unsigned char>(s[i])))
+      return false;
+  }
+  if (s.compare(1 + hex_digits, 3, "_p_") != 0)
+    return false;
+  for (size_t i = 1 + hex_digits + 3; i < s.size(); i++) {
+    char ch = s[i];
+    if (!(std::isalnum(ch) || ch == '_'))
+      return false;
+  }
+  return true;
+}
+
+// Assumes is_object is true.
+const char *
+object_type(const char *obj)
+{
+  if (is_object(obj))
+    return &obj[1 + sizeof(void*) * 2 + 3];
+  return "";
+}
+
 %} // inline

@@ -31,6 +31,5 @@ doc/messages.txt
 # clangd turds
 .cache/
 
-# test artifacts
-*/test/*.log
-**/Testing/
+# openroad ctest turds
+cmake_test*
