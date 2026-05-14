@@ -2469,11 +2469,6 @@ ReportPath::reportPathLine(const Path *path,
   std::string src_attr;
   if (inst)
     src_attr = network_->getAttribute(inst, "src");
-  std::string orig_name;
-  if (inst && field_orig_name_->enabled()) {
-    std::string port_name = network_->portName(pin);
-    orig_name = network_->getAttribute(inst, "orig_name_" + port_name);
-  }
   // Don't show capacitance field for input pins.
   if (is_driver && field_capacitance_->enabled())
     cap = graph_delay_calc_->loadCap(pin, rf, scene, min_max);
@@ -2756,11 +2751,6 @@ ReportPath::reportPath6(const Path *path,
     std::string src_attr;
     if (inst)
       src_attr = network_->getAttribute(inst, "src");
-    std::string orig_name;
-    if (inst && field_orig_name_->enabled()) {
-      std::string port_name = network_->portName(pin);
-      orig_name = network_->getAttribute(inst, "orig_name_" + port_name);
-    }
     // Always show the search start point (register clk pin).
     // Skip reporting the clk tree unless it is requested.
     if (is_clk_start
@@ -2853,13 +2843,13 @@ ReportPath::reportPath6(const Path *path,
         const std::string what = descriptionField(vertex);
         reportLine(what, path1, cap, slew, fanout,
                    incr, field_blank_, time, false, min_max, rf, src_attr,
-                   orig_name, line_case);
+                   line_case);
 
         if (report_net_) {
           const std::string what2 = descriptionNet(pin);
           reportLine(what2, path1, field_blank_, field_blank_, field_blank_,
                      field_blank_, field_blank_, field_blank_, false, min_max,
-                     nullptr, src_attr, "", "");
+                     nullptr, src_attr, "");
         }
         prev_time = time;
       }
@@ -2872,7 +2862,7 @@ ReportPath::reportPath6(const Path *path,
           const std::string what = descriptionField(vertex);
           reportLine(what, path1, field_blank_, slew, field_blank_,
                      incr, field_blank_, time, false, min_max, rf, src_attr,
-                     orig_name, line_case);
+                     line_case);
           prev_time = time;
         }
       }
@@ -2897,27 +2887,27 @@ ReportPath::reportVariation(const Path *path) const
         float std_dev = arc_delay.stdDev();
         reportLine("sigma", path, field_blank_, field_blank_, field_blank_,
                    field_blank_, std_dev, field_blank_, true, min_max,
-                   nullptr, "", "", "");
+                   nullptr, "", "");
         break;
       }
       case PocvMode::skew_normal: {
         float mean = arc_delay.mean();
         reportLine("mean", path, field_blank_, field_blank_, field_blank_,
                    field_blank_, mean, field_blank_, true, min_max,
-                   nullptr, "", "", "");
+                   nullptr, "", "");
         float mean_shift = arc_delay.meanShift();
         reportLine("mean_shift", path, field_blank_, field_blank_, field_blank_,
                    field_blank_, mean_shift, field_blank_, true, min_max,
-                   nullptr, "", "", "");
+                   nullptr, "", "");
         float std_dev = arc_delay.stdDev();
         reportLine("std_dev", path, field_blank_, field_blank_, field_blank_,
                    field_blank_, std_dev, field_blank_, true, min_max,
-                   nullptr, "", "", "");
+                   nullptr, "", "");
         // skewness is dimensionless, so scale it to the field's time units.
         float skewness = arc_delay.skewness() * units_->timeUnit()->scale();
         reportLine("skewness", path, field_blank_, field_blank_, field_blank_,
                    field_blank_, skewness, field_blank_, true, min_max,
-                   nullptr, "", "", "");
+                   nullptr, "", "");
         break;
       }
       default:
@@ -3149,7 +3139,7 @@ ReportPath::reportLineNegative(std::string_view what,
 {
   reportLine(what, nullptr, field_blank_, field_blank_, field_blank_,
              field_blank_, field_blank_, total, true /* tota_with_minus */,
-             early_late, nullptr, "", "", "");
+             early_late, nullptr, "", "");
 }
 
 // Report total, and transition suffix.
@@ -3211,7 +3201,6 @@ ReportPath::reportLine(std::string_view what,
                        const EarlyLate *early_late,
                        const RiseFall *rf,
                        std::string_view src_attr,
-                       std::string_view orig_name,
                        std::string_view line_case) const
 {
   std::string line;
@@ -3219,7 +3208,7 @@ ReportPath::reportLine(std::string_view what,
   bool first_field = true;
   for (const ReportField *field : fields_) {
     bool last_field = field_index == (fields_.size() - 1);
-
+    
     if (field->enabled()) {
       if (!first_field)
         line += ' ';
@@ -3259,12 +3248,6 @@ ReportPath::reportLine(std::string_view what,
       else if (field == field_src_attr_) {
         if (!src_attr.empty())
           reportField(src_attr, field, line);
-        else
-          reportFieldBlank(field, line);
-      }
-      else if (field == field_orig_name_) {
-        if (orig_name != "")
-          reportField(orig_name, field, line);
         else
           reportFieldBlank(field, line);
       }
