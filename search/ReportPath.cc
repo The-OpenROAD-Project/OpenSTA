@@ -3252,9 +3252,9 @@ ReportPath::reportLine(std::string_view what,
           reportFieldBlank(field, line);
       }
       else if (field == field_case_)
-        line += line_case;
+        reportField(line_case, field, line);
       else if (field->getValue())
-        line += field->value(path, this);
+        reportField(field->value(path, this), field, line);
 
       first_field = false;
     }
