@@ -4291,8 +4291,15 @@ Parasitics *
 Sta::makeConcreteParasitics(std::string_view name,
                             std::string_view filename)
 {
+  // Free the prior entry to avoid leaking it on overwrite.
+  std::string key(name);
+  auto it = parasitics_name_map_.find(key);
+  if (it != parasitics_name_map_.end()) {
+    delete it->second;
+    parasitics_name_map_.erase(it);
+  }
   Parasitics *parasitics = new ConcreteParasitics(name, filename, this);
-  parasitics_name_map_[std::string(name)] = parasitics;
+  parasitics_name_map_[key] = parasitics;
   return parasitics;
 }
 
