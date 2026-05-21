@@ -2,6 +2,7 @@
 #include <type_traits>
 #include <tcl.h>
 #include "MinMax.hh"
+#include "TestReportFields.hh"
 #include "Transition.hh"
 #include "Property.hh"
 #include "ExceptionPath.hh"
@@ -433,13 +434,13 @@ TEST_F(StaInitTest, SetReportPathFields) {
   ASSERT_NE(fanout_field, nullptr);
   ASSERT_NE(src_attr_field, nullptr);
 
-  sta_->setReportPathFields(true, true, true, true, true, true, true, true, true);
+  sta_->setReportPathFields(kAllReportFields);
   EXPECT_TRUE(cap_field->enabled());
   EXPECT_TRUE(slew_field->enabled());
   EXPECT_TRUE(fanout_field->enabled());
   EXPECT_TRUE(src_attr_field->enabled());
 
-  sta_->setReportPathFields(false, false, false, false, false, false, false, false, false);
+  sta_->setReportPathFields(StringSeq{});
   EXPECT_FALSE(cap_field->enabled());
   EXPECT_FALSE(slew_field->enabled());
   EXPECT_FALSE(fanout_field->enabled());
@@ -1613,8 +1614,8 @@ TEST_F(StaInitTest, ReportPathNoSplit) {
 
 TEST_F(StaInitTest, ReportPathSetReportFields) {
   ReportPath *rpt = sta_->reportPath();
-  rpt->setReportFields(true, true, true, true, true, true, true, true, true);
-  rpt->setReportFields(false, false, false, false, false, false, false, false, false);
+  rpt->setReportFields(kAllReportFields);
+  rpt->setReportFields(StringSeq{});
 
 }
 
@@ -3706,7 +3707,9 @@ TEST_F(StaInitTest, LogicValueStringOne) {
 
 // --- ReportPath.cc: ReportField constructor and setEnabled ---
 TEST_F(StaInitTest, ReportFieldConstruct) {
-  ReportField rf("test_field", "Test Field", 10, false, nullptr, true);
+  ReportField rf("test_field", "test_field", "Test Field", 10, false, nullptr,
+                 nullptr);
+  rf.setEnabled(true);
   EXPECT_EQ(rf.name(), "test_field");
   EXPECT_EQ(rf.title(), "Test Field");
   EXPECT_EQ(rf.width(), 10);
@@ -3716,7 +3719,8 @@ TEST_F(StaInitTest, ReportFieldConstruct) {
 }
 
 TEST_F(StaInitTest, ReportFieldSetEnabled) {
-  ReportField rf("f1", "F1", 8, true, nullptr, true);
+  ReportField rf("f1", "f1", "F1", 8, true, nullptr, nullptr);
+  rf.setEnabled(true);
   EXPECT_TRUE(rf.enabled());
   rf.setEnabled(false);
   EXPECT_FALSE(rf.enabled());
@@ -3725,14 +3729,14 @@ TEST_F(StaInitTest, ReportFieldSetEnabled) {
 }
 
 TEST_F(StaInitTest, ReportFieldSetWidth) {
-  ReportField rf("f2", "F2", 5, false, nullptr, true);
+  ReportField rf("f2", "f2", "F2", 5, false, nullptr, nullptr);
   EXPECT_EQ(rf.width(), 5);
   rf.setWidth(12);
   EXPECT_EQ(rf.width(), 12);
 }
 
 TEST_F(StaInitTest, ReportFieldSetProperties) {
-  ReportField rf("f3", "F3", 5, false, nullptr, true);
+  ReportField rf("f3", "f3", "F3", 5, false, nullptr, nullptr);
   rf.setProperties("New Title", 20, true);
   EXPECT_EQ(rf.title(), "New Title");
   EXPECT_EQ(rf.width(), 20);
@@ -3740,7 +3744,7 @@ TEST_F(StaInitTest, ReportFieldSetProperties) {
 }
 
 TEST_F(StaInitTest, ReportFieldBlank) {
-  ReportField rf("f4", "F4", 3, false, nullptr, true);
+  ReportField rf("f4", "f4", "F4", 3, false, nullptr, nullptr);
   const std::string &blank = rf.blank();
   EXPECT_FALSE(blank.empty());
 }

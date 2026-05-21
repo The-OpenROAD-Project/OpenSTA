@@ -158,8 +158,6 @@ proc find_timing_paths_cmd { cmd args_var } {
     sta_error 511 "$cmd command failed."
   }
 
-  check_for_key_args $cmd args
-
   if { [info exists flags(-unconstrained)] } {
     set unconstrained 1
   } elseif { [info exists sta_report_unconstrained_paths] } {
@@ -230,7 +228,6 @@ proc find_timing_paths_cmd { cmd args_var } {
       sta_error 515 "positional arguments not supported."
     }
   }
-
   set path_ends [find_path_ends $from $thrus $to $unconstrained \
                    $scenes $min_max \
                    $group_path_count $endpoint_path_count \
@@ -336,7 +333,7 @@ define_cmd_args "report_checks" \
      [-sort_by_slack]\
      [-path_group group_name]\
      [-format full|full_clock|full_clock_expanded|short|end|slack_only|summary|json]\
-     [-fields capacitance|slew|fanout|input_pin|net|src_attr|orig_name]\
+     [-fields capacitance|slew|fanout|input_pin|net|src_attr]\
      [-digits digits]\
      [-no_line_splits]\
      [> filename] [>> filename]}
@@ -716,45 +713,26 @@ proc parse_report_path_options { cmd args_var default_format
   set path_options(num_fmt) "%.${digits}f"
   set_report_path_digits $digits
 
-  set report_input_pin 0
-  set report_hier_pins 0
-  set report_cap 0
-  set report_net 0
-  set report_slew 0
-  set report_fanout 0
-  set report_variation 0
-  set report_src_attr 0
-  set report_orig_name 0
+  set fields {}
   if { [info exists path_options(-fields)] } {
     foreach field $path_options(-fields) {
       if { [string match "input*" $field] } {
-        set report_input_pin 1
+        lappend fields "input_pin"
       } elseif { [string match "hier*" $field] } {
-        set report_hier_pins 1
-      } elseif { [string match "cap*" $field] } {
-        set report_cap 1
+        lappend fields "hierarchical_pin"
       } elseif { [string match "net" $field] } {
-        set report_net 1
-      } elseif { [string match "slew" $field] } {
-        set report_slew 1
-      } elseif { [string match "fanout" $field] } {
-        set report_fanout 1
-      } elseif { [string match "variation" $field] } {
-        set report_variation 1
-      } elseif { [string match "src*" $field] } {
-        set report_src_attr 1
-      } elseif { [string match "orig*" $field] } {
-        set report_orig_name 1
+        lappend fields "net"
       } else {
-        sta_warn 168 "unknown field $field."
+        set field_name [find_report_path_field_abrev $field]
+        if { $field_name != "" } {
+          lappend fields $field_name
+        } else {
+          sta_warn 168 "unknown field $field."
+        }
       }
     }
   }
-
-  set_report_path_fields $report_input_pin $report_hier_pins $report_net \
-    $report_cap $report_slew $report_fanout $report_variation $report_src_attr \
-    $report_orig_name
-
+  set_report_path_fields $fields
   set_report_path_no_split [info exists path_options(-no_line_splits)]
 }
 

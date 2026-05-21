@@ -91,6 +91,9 @@ stringEqual(std::string_view s1,
 
 std::pair<float, bool>
 stringFloat(const std::string &str);
+std::pair<long long, bool>
+stringLong(const std::string &str,
+          int base = 10);
 
 bool
 isDigits(const char *str);

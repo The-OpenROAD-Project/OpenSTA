@@ -217,19 +217,6 @@ StaSimObserver::fanoutEdgesChangeAfter(const Pin *pin)
 
 ////////////////////////////////////////////////////////////////
 
-class StaLevelizeObserver : public LevelizeObserver
-{
-public:
-  StaLevelizeObserver(Search *search,
-                      GraphDelayCalc *graph_delay_calc);
-  void levelsChangedBefore() override;
-  void levelChangedBefore(Vertex *vertex) override;
-
-private:
-  Search *search_;
-  GraphDelayCalc *graph_delay_calc_;
-};
-
 StaLevelizeObserver::StaLevelizeObserver(Search *search,
                                          GraphDelayCalc *graph_delay_calc) :
   search_(search),
@@ -2816,26 +2803,33 @@ Sta::setReportPathFieldOrder(const StringSeq &field_names)
 }
 
 void
-Sta::setReportPathFields(bool report_input_pin,
-                         bool report_hier_pins,
-			 bool report_net,
-			 bool report_cap,
-			 bool report_slew,
-			 bool report_fanout,
-                         bool report_variation,
-			 bool report_src_attr,
-			 bool report_orig_name)
+Sta::setReportPathFields(const StringSeq &fields)
 {
-  report_path_->setReportFields(report_input_pin, report_hier_pins, report_net,
-                                report_cap, report_slew, report_fanout,
-                                report_variation, report_src_attr,
-                                report_orig_name);
+  report_path_->setReportFields(fields);
 }
 
 ReportField *
 Sta::findReportPathField(std::string_view name)
 {
   return report_path_->findField(name);
+}
+
+ReportField *
+Sta::findReportPathFieldAbrev(std::string_view name)
+{
+  return report_path_->findFieldAbrev(name);
+}
+
+void
+Sta::makeReportPathField(std::string_view name,
+                         std::string_view name_abrev,
+                         std::string_view title,
+                         size_t width,
+                         bool left_justify,
+                         Unit *unit,
+                         const ReportFieldGetValue &get_value)
+{
+  report_path_->makeField(name, name_abrev, title, width, left_justify, unit, get_value);
 }
 
 void
@@ -3771,6 +3765,12 @@ Sta::ensureLevelized()
 {
   ensureGraph();
   levelize_->ensureLevelized();
+}
+
+void
+Sta::setLevelizeObserver(LevelizeObserver *observer)
+{
+  levelize_->setObserver(observer);
 }
 
 void

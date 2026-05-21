@@ -401,31 +401,46 @@ set_report_path_format(ReportPathFormat format)
 }
     
 void
-set_report_path_field_order(const StringSeq &field_names)
+set_report_path_field_order(StringSeq field_names)
 {
   Sta::sta()->setReportPathFieldOrder(field_names);
 }
 
 void
-set_report_path_fields(bool report_input_pin,
-                       bool report_hier_pins,
-                       bool report_net,
-                       bool report_cap,
-                       bool report_slew,
-                       bool report_fanout,
-                       bool report_variation,
-                       bool report_src_attr,
-                       bool report_orig_name)
+set_report_path_fields(StringSeq fields)
 {
-  Sta::sta()->setReportPathFields(report_input_pin,
-                                  report_hier_pins,
-                                  report_net,
-                                  report_cap,
-                                  report_slew,
-                                  report_fanout,
-                                  report_variation,
-                                  report_src_attr,
-                                  report_orig_name);
+  Sta::sta()->setReportPathFields(fields);
+}
+
+void
+make_report_path_attr_field(std::string attr_name,
+                            int width)
+{
+  Sta *sta = Sta::sta();
+  sta->makeReportPathField(attr_name, attr_name, attr_name, width, true,
+                           nullptr,
+                           [attr_name] (const Path *path,
+                                        const StaState *sta) -> std::string {
+                             if (path) {
+                               const Network *network = sta->network();
+                               const Pin *pin = path->pin(sta);
+                               const Instance *inst = network->instance(pin);
+                               return network->getAttribute(inst, attr_name);
+                             }
+                             else
+                               return "";
+                           });
+}
+
+const char *
+find_report_path_field_abrev(const char *name)
+{
+  Sta *sta = Sta::sta();
+  ReportField *field = sta->findReportPathFieldAbrev(name);
+  if (field)
+    return field->name().c_str();
+  else
+    return "";
 }
 
 void
