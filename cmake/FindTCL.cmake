@@ -34,6 +34,7 @@ if (NOT TCL_LIB_PATHS)
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(TCL_LIB_PATHS
       #/opt/homebrew/Cellar/tcl-tk/9.0.3/lib
+      /opt/homebrew/Cellar/tcl-tk@8/8.6.18/lib
       /opt/homebrew/Cellar/tcl-tk@8/8.6.17/lib
       /opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib
       /opt/homebrew/opt/tcl-tk/lib /usr/local/lib)
