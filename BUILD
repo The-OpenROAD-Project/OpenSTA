@@ -396,11 +396,11 @@ cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "@cudd",
-        "@eigen",
-        "@openmp",
+        "@eigen",  # keep. Is used, but with <>-includes
+        "@openmp",  # keep. Is needed ? Nobody includes omp.h
         "@rules_flex//flex:current_flex_toolchain",
-        "@tcl_lang//:tcl",
-        "@zlib",
+        "@tcl_lang//:tcl",  # keep. Is used, but with <>-includes
+        "@zlib",  # keep. Is used, but with <>-includes
     ],
 )
 
