@@ -899,6 +899,10 @@ public:
                         const MinMaxAll *min_max,
                         const RiseFallBoth *rf,
                         float slew);
+  void unsetAnnotatedSlew(Vertex *vertex,
+                          const Scene *scene,
+                          const MinMaxAll *min_max,
+                          const RiseFallBoth *rf);
   void writeSdf(std::string_view filename,
                 const Scene *scene,
                 char divider,

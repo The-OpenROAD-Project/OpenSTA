@@ -3875,7 +3875,6 @@ Sta::setAnnotatedSlew(Vertex *vertex,
                       const RiseFallBoth *rf,
                       float slew)
 {
-  ensureGraph();
   for (const MinMax *mm : min_max->range()) {
     DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(mm);
     for (const RiseFall *rf1 : rf->range()) {
@@ -3885,6 +3884,24 @@ Sta::setAnnotatedSlew(Vertex *vertex,
     }
   }
   graph_delay_calc_->delayInvalid(vertex);
+}
+
+void
+Sta::unsetAnnotatedSlew(Vertex *vertex,
+                        const Scene *scene,
+                        const MinMaxAll *min_max,
+                        const RiseFallBoth *rf)
+{
+  for (const MinMax *mm : min_max->range()) {
+    DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(mm);
+    for (const RiseFall *rf1 : rf->range()) {
+      vertex->setSlewAnnotated(false, rf1, ap_index);
+    }
+  }
+  if (vertex->isDriver(network_))
+    graph_delay_calc_->delayInvalid(vertex);
+  else
+    delaysInvalidFromFanin(vertex);
 }
 
 void
