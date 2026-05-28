@@ -3900,7 +3900,6 @@ Sta::setAnnotatedSlew(Vertex *vertex,
                       const RiseFallBoth *rf,
                       float slew)
 {
-  ensureGraph();
   for (const MinMax *mm : min_max->range()) {
     DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(mm);
     for (const RiseFall *rf1 : rf->range()) {
@@ -3910,6 +3909,24 @@ Sta::setAnnotatedSlew(Vertex *vertex,
     }
   }
   graph_delay_calc_->delayInvalid(vertex);
+}
+
+void
+Sta::unsetAnnotatedSlew(Vertex *vertex,
+                        const Scene *scene,
+                        const MinMaxAll *min_max,
+                        const RiseFallBoth *rf)
+{
+  for (const MinMax *mm : min_max->range()) {
+    DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(mm);
+    for (const RiseFall *rf1 : rf->range()) {
+      vertex->setSlewAnnotated(false, rf1, ap_index);
+    }
+  }
+  if (vertex->isDriver(network_))
+    graph_delay_calc_->delayInvalid(vertex);
+  else
+    delaysInvalidFromFanin(vertex);
 }
 
 void
@@ -4316,8 +4333,15 @@ Parasitics *
 Sta::makeConcreteParasitics(std::string_view name,
                             std::string_view filename)
 {
+  // Free the prior entry to avoid leaking it on overwrite.
+  std::string key(name);
+  auto it = parasitics_name_map_.find(key);
+  if (it != parasitics_name_map_.end()) {
+    delete it->second;
+    parasitics_name_map_.erase(it);
+  }
   Parasitics *parasitics = new ConcreteParasitics(name, filename, this);
-  parasitics_name_map_[std::string(name)] = parasitics;
+  parasitics_name_map_[key] = parasitics;
   return parasitics;
 }
 

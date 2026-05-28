@@ -154,6 +154,7 @@ record_public_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  make_concrete_parasitics_leak
   package_require
   path_group_names
   power_json
