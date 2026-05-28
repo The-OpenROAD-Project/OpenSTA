@@ -353,7 +353,8 @@ public:
   TagGroup *tagGroup(const Vertex *vertex) const;
   TagGroup *tagGroup(TagGroupIndex index) const;
   void reportArrivals(Vertex *vertex,
-                      bool report_tag_index) const;
+                      bool report_tag_index,
+                      int digits) const;
   Slack wnsSlack(Vertex *vertex,
                  PathAPIndex path_ap_index);
   void levelsChangedBefore();

@@ -2754,7 +2754,8 @@ ReportPathLess::operator()(const Path *path1,
 
 void
 Search::reportArrivals(Vertex *vertex,
-                       bool report_tag_index) const
+                       bool report_tag_index,
+                       int digits) const
 {
   report_->report("Vertex {}", vertex->to_string(this));
   TagGroup *tag_group = tagGroup(vertex);
@@ -2771,7 +2772,6 @@ Search::reportArrivals(Vertex *vertex,
     for (const Path *path : paths) {
       const Tag *tag = path->tag(this);
       const RiseFall *rf = tag->transition();
-      std::string req = delayAsString(path->required(), this);
       bool report_prev = false;
       std::string prev_str;
       if (report_prev) {
@@ -2791,7 +2791,8 @@ Search::reportArrivals(Vertex *vertex,
       }
       report_->report(" {} {} {} / {} {}{}", rf->shortName(),
                       path->minMax(this)->to_string(),
-                      delayAsString(path->arrival(), this), req,
+                      delayAsString(path->arrival(), digits, this),
+                      delayAsString(path->required(), digits, this),
                       tag->to_string(report_tag_index, false, this), prev_str);
     }
   }
