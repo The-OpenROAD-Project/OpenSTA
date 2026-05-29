@@ -94,11 +94,12 @@ parseBusName(std::string_view name,
              int &to,
              bool &subscript_wild);
 
-// Insert escapes before ch1 and ch2 in token.
+// Insert escapes before ch1, ch2 or ch3 in token.
 std::string
 escapeChars(std::string_view token,
             char ch1,
             char ch2,
+            char ch3,
             char escape);
 
 } // namespace sta

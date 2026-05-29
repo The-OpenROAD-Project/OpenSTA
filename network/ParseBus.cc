@@ -163,9 +163,10 @@ parseBusName(std::string_view name,
 
 std::string
 escapeChars(std::string_view token,
-            const char ch1,
-            const char ch2,
-            const char escape)
+            char ch1,
+            char ch2,
+            char ch3,
+            char escape)
 {
   std::string escaped;
   escaped.reserve(token.size());
@@ -180,7 +181,7 @@ escapeChars(std::string_view token,
       else
         escaped += ch;
     }
-    else if (ch == ch1 || ch == ch2) {
+    else if (ch == ch1 || ch == ch2 || ch == ch3) {
       escaped += escape;
       escaped += ch;
     }
