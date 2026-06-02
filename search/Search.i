@@ -42,31 +42,51 @@
 
 using namespace sta;
 
-%}
+// Stale path-handle guard (OpenROAD #10210). Error on a dangling handle; throws.
+// Use directly inside %extend bodies (the global %exception catches the throw).
+static void
+reportStaleHandle()
+{
+  Sta::sta()->report()->error(2310,
+                              "stale path handle: a path or path end is only"
+                              " valid until the next timing search update.");
+}
 
-// Stale path-handle guard. One typemap validates every
-// PathEnd* crossing the Tcl boundary -- all %extend accessors (the self arg),
-// report_path_end, and any future ones. Declared before the PathEnd class so it
-// applies to the %extend methods below.
-%typemap(check) PathEnd * {
-  if (!Sta::sta()->search()->pathEndValid($1)) {
-    // A check typemap runs outside the global %exception try/catch
-    // (tcl/Exception.i), so catch report_'s ExceptionMsg locally and convert it
-    // to a Tcl error the same way -- giving the usual "Error: <id> ..." output.
-    try {
-      Sta::sta()->report()->error(2310,
-                                  "path end used after a timing search update;"
-                                  " a path object is only valid until the next"
-                                  " search update.");
-    }
-    catch (ExceptionMsg &excp) {
-      if (!excp.suppressed()) {
-        Tcl_ResetResult(interp);
-        Tcl_AppendResult(interp, "Error: ", excp.what(), nullptr);
-      }
-      SWIG_fail;
+// Same error for check typemaps, which run outside the global %exception: catch
+// and reformat to a Tcl error here. Follow with SWIG_fail at the call site.
+static void
+staleHandleError(Tcl_Interp *interp)
+{
+  try {
+    reportStaleHandle();
+  }
+  catch (ExceptionMsg &excp) {
+    if (!excp.suppressed()) {
+      Tcl_ResetResult(interp);
+      Tcl_AppendResult(interp, "Error: ", excp.what(), nullptr);
     }
   }
+}
+
+%}
+
+// Validate every PathEnd*/Path* entering Tcl (accessor self args + free
+// functions). Declared before the classes so it covers their %extend methods.
+// VertexPathIterator is guarded inline in has_next()/next() instead -- a typemap
+// would also block finish(), leaking a stale iterator that can't be deleted.
+%typemap(check) PathEnd *, Path * {
+  if (!Sta::sta()->search()->handleValid($1)) {
+    staleHandleError(interp);
+    SWIG_fail;
+  }
+}
+
+// Register every Path* returned to Tcl so the check above can detect staleness.
+// (PathEnds are registered in find_path_ends.)
+%typemap(out) Path *, const Path * {
+  Sta::sta()->search()->registerValidHandle($1);
+  Tcl_SetObjResult(interp, SWIG_NewInstanceObj(SWIG_as_voidptr($1),
+                                               SWIGTYPE_p_Path, 0));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -408,9 +428,10 @@ find_path_ends(ExceptionFrom *from,
                                       setup, hold,
                                       recovery, removal,
                                       clk_gating_setup, clk_gating_hold);
-  // Register for the Tcl stale-handle guard. Tcl-only:
-  // internal C++ Sta::findPathEnds callers do not register and pay no cost.
-  sta->search()->registerValidPathEnds(ends);
+  // Register for the Tcl stale-handle guard. Tcl-only: internal C++
+  // Sta::findPathEnds callers do not register and pay no cost.
+  for (PathEnd *end : ends)
+    sta->search()->registerValidHandle(end);
   return ends;
 }
 
@@ -1314,10 +1335,20 @@ start_path()
 }
 
 %extend VertexPathIterator {
-bool has_next() { return self->hasNext(); }
+// has_next()/next() deref the iterator's cached Path*, which a search update
+// frees, so validate the handle first (registered in Vertex::path_iterator).
+// finish() only deletes the iterator, so it stays unguarded.
+bool has_next()
+{
+  if (!Sta::sta()->search()->handleValid(self))
+    reportStaleHandle();
+  return self->hasNext();
+}
 Path *
 next()
 {
+  if (!Sta::sta()->search()->handleValid(self))
+    reportStaleHandle();
   return self->next();
 }
 

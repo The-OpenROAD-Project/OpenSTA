@@ -179,15 +179,16 @@ public:
   void deleteFilter();
   void deleteFilteredArrivals();
 
-  // Stale path-handle guard (OpenROAD #10210). PathEnds are freed when path
-  // groups are deleted, so a handle held across a search update dangles. These
-  // track the currently-valid PathEnds so the Tcl accessors report a clean
-  // error instead of crashing (best-effort: a reused address is not detected).
-  // The Tcl-only guard does not cover C++ callers holding a Path*/PathEnd*
-  // directly; the contract is that a path is valid only until the next search
-  // update, so copy stable fields out first (cf. the rsz Path::prevArc() fix).
-  void registerValidPathEnds(const PathEndSeq &ends);
-  bool pathEndValid(const PathEnd *path_end) const;
+  // Stale path-handle guard (OpenROAD #10210). PathEnds and the Paths they
+  // expose are freed/reallocated on a search update, so a handle held across
+  // one dangles. These track the handles currently handed to Tcl so the Tcl
+  // accessors report a clean error instead of crashing (best-effort: a reused
+  // address is not detected). The Tcl-only guard does not cover C++ callers
+  // holding a Path*/PathEnd* directly; the contract is that a path is valid
+  // only until the next search update, so copy stable fields out first (cf. the
+  // rsz Path::prevArc() fix).
+  void registerValidHandle(const void *handle);
+  bool handleValid(const void *handle) const;
 
   VertexSet &endpoints();
   void endpointsInvalid();
@@ -681,8 +682,8 @@ protected:
   bool postpone_latch_outputs_{false};
   std::vector<Path*> enum_paths_;
 
-  // Currently-valid PathEnds returned to external callers (see guard methods).
-  std::unordered_set<const PathEnd*> valid_path_ends_;
+  // PathEnd*/Path* handles currently handed to external callers (guard methods).
+  std::unordered_set<const void*> valid_handles_;
 
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;

@@ -1149,6 +1149,8 @@ using namespace sta;
   while (path_iter.hasNext()) {
     Path *path = &path_iter.next();
     Path *copy = new Path(path);
+    // Register for the stale-handle guard (see Search guard methods).
+    Sta::sta()->search()->registerValidHandle(copy);
     Tcl_Obj *obj = SWIG_NewInstanceObj(copy, SWIGTYPE_p_Path, false);
     Tcl_ListObjAppendElement(interp, list, obj);
   }
@@ -1399,6 +1401,8 @@ using namespace sta;
   case PropertyValue::Type::paths: {
     Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     for (const Path *path : *value.paths()) {
+      // Register for the stale-handle guard (see Search guard methods).
+      Sta::sta()->search()->registerValidHandle(path);
       Tcl_Obj *obj = SWIG_NewInstanceObj(const_cast<Path*>(path), SWIGTYPE_p_Path, false);
       Tcl_ListObjAppendElement(interp, list, obj);
     }

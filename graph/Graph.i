@@ -166,7 +166,10 @@ VertexPathIterator *
 path_iterator(const RiseFall *rf,
               const MinMax *min_max)
 {
-  return new VertexPathIterator(self, rf, min_max, Sta::sta());
+  VertexPathIterator *iter = new VertexPathIterator(self, rf, min_max, Sta::sta());
+  // The iterator caches a raw Path*; register it for the stale-handle guard.
+  Sta::sta()->search()->registerValidHandle(iter);
+  return iter;
 }
 
 } // Vertex methods
