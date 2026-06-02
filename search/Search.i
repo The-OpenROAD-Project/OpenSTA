@@ -44,6 +44,31 @@ using namespace sta;
 
 %}
 
+// Stale path-handle guard. One typemap validates every
+// PathEnd* crossing the Tcl boundary -- all %extend accessors (the self arg),
+// report_path_end, and any future ones. Declared before the PathEnd class so it
+// applies to the %extend methods below.
+%typemap(check) PathEnd * {
+  if (!Sta::sta()->search()->pathEndValid($1)) {
+    // A check typemap runs outside the global %exception try/catch
+    // (tcl/Exception.i), so catch report_'s ExceptionMsg locally and convert it
+    // to a Tcl error the same way -- giving the usual "Error: <id> ..." output.
+    try {
+      Sta::sta()->report()->error(2310,
+                                  "path end used after a timing search update;"
+                                  " a path object is only valid until the next"
+                                  " search update.");
+    }
+    catch (ExceptionMsg &excp) {
+      if (!excp.suppressed()) {
+        Tcl_ResetResult(interp);
+        Tcl_AppendResult(interp, "Error: ", excp.what(), nullptr);
+      }
+      SWIG_fail;
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 //
 // Empty class definitions to make swig happy.
@@ -383,6 +408,9 @@ find_path_ends(ExceptionFrom *from,
                                       setup, hold,
                                       recovery, removal,
                                       clk_gating_setup, clk_gating_hold);
+  // Register for the Tcl stale-handle guard. Tcl-only:
+  // internal C++ Sta::findPathEnds callers do not register and pay no cost.
+  sta->search()->registerValidPathEnds(ends);
   return ends;
 }
 
