@@ -86,8 +86,8 @@ if { $wv != "NULL" } {
   }
 
   # report_tag_arrivals
-  sta::report_tag_arrivals_cmd $wv 1
-  sta::report_tag_arrivals_cmd $wv 0
+  sta::report_tag_arrivals_cmd $wv 1 3
+  sta::report_tag_arrivals_cmd $wv 0 3
 }
 
 puts "--- worst_slack_vertex min ---"

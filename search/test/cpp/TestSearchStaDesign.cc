@@ -1838,7 +1838,7 @@ TEST_F(StaDesignTest, SearchReportArrivals) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
-  search->reportArrivals(v, false);
+  search->reportArrivals(v, false, 3);
 }
 
 // --- Search: reportPathCountHistogram ---
@@ -4143,8 +4143,8 @@ TEST_F(StaDesignTest, SearchReportArrivals2) {
   Search *search = sta_->search();
   Vertex *v = findVertex("r1/Q");
   ASSERT_NE(v, nullptr);
-  search->reportArrivals(v, false);
-  search->reportArrivals(v, true);
+  search->reportArrivals(v, false, 3);
+  search->reportArrivals(v, true, 3);
 }
 
 TEST_F(StaDesignTest, SearchSeedArrival) {
