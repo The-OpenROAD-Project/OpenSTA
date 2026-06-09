@@ -334,24 +334,8 @@ Search::clear()
 void
 Search::deletePathGroups()
 {
-  // PathEnds (including any handed to external callers) are destroyed here, so
-  // clear the stale-handle guard set at this free site.
-  valid_path_ends_.clear();
   for (Mode *mode : modes_)
     mode->deletePathGroups();
-}
-
-// Stale path-handle guard.
-void
-Search::registerValidPathEnds(const PathEndSeq &ends)
-{
-  valid_path_ends_.insert(ends.begin(), ends.end());
-}
-
-bool
-Search::pathEndValid(const PathEnd *path_end) const
-{
-  return valid_path_ends_.contains(path_end);
 }
 
 bool
