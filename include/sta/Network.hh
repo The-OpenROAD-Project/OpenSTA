@@ -502,6 +502,8 @@ class NetworkEdit : public Network
 public:
   NetworkEdit() = default;
   bool isEditable() const override { return true; }
+  virtual Port *makePort(Cell *cell,
+                         std::string_view name) = 0;
   virtual Instance *makeInstance(LibertyCell *cell,
                                  std::string_view name,
                                  Instance *parent) = 0;
@@ -556,8 +558,6 @@ public:
   virtual void setAttribute(Instance *instance,
                             std::string_view key,
                             std::string_view value) = 0;
-  virtual Port *makePort(Cell *cell,
-                         std::string_view name) = 0;
   virtual Port *makeBusPort(Cell *cell,
                             std::string_view name,
                             int from_index,
