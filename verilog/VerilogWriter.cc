@@ -33,6 +33,7 @@
 #include "Error.hh"
 #include "Format.hh"
 #include "Liberty.hh"
+#include "Zlib.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
 #include "ParseBus.hh"
@@ -47,7 +48,7 @@ public:
   VerilogWriter(const char *filename,
                 bool include_pwr_gnd,
                 CellSeq *remove_cells,
-                FILE *stream,
+                gzFile stream,
                 Network *network);
   void writeModules();
 
@@ -82,7 +83,7 @@ protected:
   const char *filename_;
   bool include_pwr_gnd_;
   CellSet remove_cells_;
-  FILE *stream_;
+  gzFile stream_;
   Network *network_;
   int unconnected_net_index_{1};
 };
@@ -94,12 +95,13 @@ writeVerilog(const char *filename,
              Network *network)
 {
   if (network->topInstance()) {
-    FILE *stream = fopen(filename, "w");
+    bool gzip = std::string_view(filename).ends_with(".gz");
+    gzFile stream = gzopen(filename, gzip ? "wb" : "wT");
     if (stream) {
       VerilogWriter writer(filename, include_pwr_gnd,
                            remove_cells, stream, network);
       writer.writeModules();
-      fclose(stream);
+      gzclose(stream);
     }
     else
       throw FileNotWritable(filename);
@@ -109,7 +111,7 @@ writeVerilog(const char *filename,
 VerilogWriter::VerilogWriter(const char *filename,
                              bool include_pwr_gnd,
                              CellSeq *remove_cells,
-                             FILE *stream,
+                             gzFile stream,
                              Network *network) :
   filename_(filename),
   include_pwr_gnd_(include_pwr_gnd),

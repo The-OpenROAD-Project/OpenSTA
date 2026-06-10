@@ -169,6 +169,7 @@ record_public_tests {
   verilog_well_supplies
   verilog_specify
   verilog_write_escape
+  verilog_write_gzip
   verilog_unconnected_hpin
 }
 
