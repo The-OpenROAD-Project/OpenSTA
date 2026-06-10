@@ -63,8 +63,7 @@ public:
   void makeGraph();
   ~Graph() override;
 
-  // Number of arc delays and slews from sdf or delay calculation.
-  void setDelayCount(DcalcAPIndex ap_count);
+  void delayCountChanged();
   size_t slewCount();
 
   // Vertex functions.
@@ -178,7 +177,6 @@ public:
   // Remove all delay and slew annotations.
   void removeDelaySlewAnnotations();
   VertexSet &regClkVertices() { return reg_clk_vertices_; }
-  void makeSceneAfter();
 
   static constexpr int vertex_level_bits = 24;
   static constexpr int vertex_level_max = (1<<vertex_level_bits)-1;
