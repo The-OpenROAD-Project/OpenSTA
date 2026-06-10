@@ -384,13 +384,6 @@ Graph::makeWireEdge(const Pin *from_pin,
   }
 }
 
-void
-Graph::makeSceneAfter()
-{
-  ap_count_ = dcalcAnalysisPtCount();
-  initSlews();
-}
-
 ////////////////////////////////////////////////////////////////
 
 Vertex *
@@ -782,17 +775,13 @@ Graph::removeDelayAnnotated(Edge *edge)
 
 ////////////////////////////////////////////////////////////////
 
-// This only gets called if the analysis type changes from single
-// to bc_wc/ocv or visa versa.
 void
-Graph::setDelayCount(DcalcAPIndex ap_count)
+Graph::delayCountChanged()
 {
-  if (ap_count != ap_count_) {
-    // Discard any existing delays.
-    removePeriodCheckAnnotations();
-    ap_count_ = ap_count;
-    initSlews();
-  }
+  ap_count_ = dcalcAnalysisPtCount();
+  // Discard any existing delays.
+  removePeriodCheckAnnotations();
+  initSlews();
 }
 
 void
