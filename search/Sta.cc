@@ -805,7 +805,7 @@ Sta::setAnalysisType(AnalysisType analysis_type,
     delaysInvalid();
     search_->deletePathGroups();
     if (graph_)
-      graph_->setDelayCount(dcalcAnalysisPtCount());
+      graph_->delayCountChanged();
   }
 }
 
@@ -2311,6 +2311,8 @@ Sta::setPocvMode(PocvMode mode)
     }
     updateComponentsState();
     delaysInvalid();
+    if (graph_)
+      graph_->delayCountChanged();
   }
 }
 
@@ -2554,7 +2556,7 @@ Sta::makeScenes(const StringSeq &scene_names)
   cmd_scene_ = scenes_[0];
   updateComponentsState();
   if (graph_)
-    graph_->makeSceneAfter();
+    graph_->delayCountChanged();
 }
 
 void
@@ -2583,7 +2585,7 @@ Sta::makeScene(const std::string &name,
     Scene *scene = makeScene(name, mode, parasitics_min, parasitics_max);
     updateComponentsState();
     if (graph_)
-      graph_->makeSceneAfter();
+      graph_->delayCountChanged();
     updateSceneLiberty(scene, liberty_min_files, liberty_max_files);
     cmd_scene_ = scene;
   }
@@ -3304,15 +3306,11 @@ EndpointPathEndVisitor::copy() const
 void
 EndpointPathEndVisitor::visit(PathEnd *path_end)
 {
-  if (path_end->minMax(sta_) == min_max_) {
-    StringSeq group_names = PathGroups::pathGroupNames(path_end, sta_);
-    for (std::string &group_name : group_names) {
-      if (group_name == path_group_name_) {
-        Slack end_slack = path_end->slack(sta_);
-        if (delayLess(end_slack, slack_, sta_))
-          slack_ = end_slack;
-      }
-    }
+  if (path_end->minMax(sta_) == min_max_
+      && PathGroups::inPathGroupNamed(path_end, path_group_name_, sta_)) {
+    Slack end_slack = path_end->slack(sta_);
+    if (delayLess(end_slack, slack_, sta_))
+      slack_ = end_slack;
   }
 }
 
@@ -4437,7 +4435,8 @@ Sta::makeNet(const char *name,
              Instance *parent)
 {
   NetworkEdit *network = networkCmdEdit();
-  Net *net = network->makeNet(name, parent);
+  std::string escaped = escapeBrackets(name, network);
+  Net *net = network->makeNet(escaped, parent);
   // Sta notification unnecessary.
   return net;
 }
@@ -4485,8 +4484,9 @@ Sta::makePortPin(const char *port_name,
   ensureLinked();
   NetworkReader *network = dynamic_cast<NetworkReader *>(network_);
   Instance *top_inst = network->topInstance();
+  std::string escaped = escapeBrackets(port_name, network);
   Cell *top_cell = network->cell(top_inst);
-  Port *port = network->makePort(top_cell, port_name);
+  Port *port = network->makePort(top_cell, escaped);
   network->setDirection(port, dir);
   Pin *pin = network->makePin(top_inst, port, nullptr);
   makePortPinAfter(pin);

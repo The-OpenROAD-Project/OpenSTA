@@ -3081,7 +3081,8 @@ libertyReaderFindPort(const LibertyCell *cell,
     char brkt_right = library->busBrktRight();
     const char escape = '\\';
     // Pins at top level with bus names have escaped brackets.
-    std::string escaped_port_name = escapeChars(port_name, brkt_left, brkt_right, escape);
+    std::string escaped_port_name = escapeChars(port_name, brkt_left, brkt_right,
+                                                '\0', escape);
     port = cell->findLibertyPort(escaped_port_name);
   }
   return port;

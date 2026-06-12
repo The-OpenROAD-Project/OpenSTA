@@ -242,13 +242,8 @@ stmt_seq:
 	continuous_assign
 	;
 
-/* specify blocks are used by some comercial tools to convey macro timing
- * and other metadata.
- * Their presence is not forbidden in structural verilog, this is a placeholder
- * that just ignores them and allows verilog processing to proceed
- * <<TODO>> if someone in the future wants implement support for timing info
- * via specify blocks, implement proper parsing here
- */
+// Specify blocks are used by some comercial tools to convey macro timing
+// and other metadata.
 specify_block:
 	SPECIFY specify_stmts ENDSPECIFY
 	{ $$ = nullptr; }

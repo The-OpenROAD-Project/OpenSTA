@@ -1,0 +1,46 @@
+FROM ubuntu:24.04
+LABEL author="James Cherry"
+LABEL maintainer="James Cherry <cherry@parallaxsw.com>"
+
+# Install basics
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y \
+    git \
+    wget \
+    cmake \
+    gcc \
+    gdb \
+    tcl-dev \
+    tcl-tclreadline \
+    swig \
+    bison \
+    flex \
+    automake \
+    autotools-dev \
+    libeigen3-dev \
+    libfmt-dev
+
+# Download CUDD
+RUN wget https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz && \
+    tar -xvf cudd-3.0.0.tar.gz && \
+    rm cudd-3.0.0.tar.gz
+
+# Build CUDD
+RUN cd cudd-3.0.0 && \
+    mkdir ../cudd && \
+    ./configure && \
+    make -j`nproc`
+
+# Copy files and install OpenSTA
+RUN mkdir OpenSTA
+COPY . OpenSTA
+RUN cd OpenSTA && \
+    rm -rf build && \
+    mkdir build && \
+    cd build && \
+    cmake -DCUDD_DIR=../cudd-3.0.0 .. && \
+    make -j`nproc`
+
+# Run sta on entry
+ENTRYPOINT ["OpenSTA/build/sta"]

@@ -1,15 +1,22 @@
 ---
 description: C++ coding standards and formatting for OpenSTA
 globs: ["**/*.cc", "**/*.hh", "**/*.h"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 # C++ Coding Standards
 
+## File-internal helpers (translation-unit local)
+
+- For helpers used only in one `.cc` file, put them in the **same namespace** as the rest of the implementation (e.g. `namespace sta { ... }`).
+- Mark them **`static`** at namespace scope so they have internal linkage.
+- **Do not** wrap them in an **anonymous namespace** in this project (no `namespace { ... }` file-static helpers). The user preference is `static` inside the real namespace, not a nested anonymous namespace inside `sta` or at file scope before `sta`.
+
 ## Line Width
 
 - **Keep lines under 90 characters** to match `.clang-format` (ColumnLimit: 90).
-- Break long lines at logical points: after commas, before operators, after opening parens.
+- Only break a line when it would exceed 90 characters. Do not introduce unnecessary line breaks when the expression fits on one line.
+- When a break is needed, break at logical points: after commas, before operators. Keep the first argument on the same line as the opening paren (do not break immediately after an opening paren).
 
 ## Naming Conventions
 
