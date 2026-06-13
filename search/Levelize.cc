@@ -117,6 +117,9 @@ Levelize::findLevels()
   if (observer_)
     observer_->levelsChangedBefore();
 
+  for (const Mode *mode : modes_)
+    mode->sdc()->ensureInputDelayRefPinEdges();
+
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();

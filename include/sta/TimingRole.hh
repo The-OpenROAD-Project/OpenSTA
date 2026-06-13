@@ -68,6 +68,7 @@ public:
   static const TimingRole *nonSeqHold() { return &non_seq_hold_; }
   static const TimingRole *clockTreePathMin() { return &clock_tree_path_min_; }
   static const TimingRole *clockTreePathMax() { return &clock_tree_path_max_; }
+  static const TimingRole *portDelayRefPin() { return &port_delay_ref_pin_; }
   const std::string &to_string() const { return name_; }
   int index() const { return index_; }
   bool isWire() const;
@@ -139,6 +140,8 @@ private:
   static const TimingRole non_seq_hold_;
   static const TimingRole clock_tree_path_min_;
   static const TimingRole clock_tree_path_max_;
+  // Artificial timing from input/output_delay ref_pin to the input/output.
+  static const TimingRole port_delay_ref_pin_;
   static TimingRoleMap timing_roles_;
 
   friend class TimingRoleLess;

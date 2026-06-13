@@ -1226,7 +1226,6 @@ ArrivalVisitor::seedArrivals(Vertex *vertex)
                  network_->pathName(pin));
       search_->makeUnclkedPaths(vertex, true, false, tag_bldr_, mode);
     }
-    enqueueRefPinInputDelays(pin, sdc);
   }
 }
 
@@ -1384,27 +1383,6 @@ ArrivalVisitor::pruneCrprArrivals()
     }
     if (!deleted_tag)
       path_itr++;
-  }
-}
-
-// Enqueue pins with input delays that use ref_pin as the clock
-// reference pin as if there is a timing arc from the reference pin to
-// the input delay pin.
-void
-ArrivalVisitor::enqueueRefPinInputDelays(const Pin *ref_pin,
-                                         const Sdc *sdc)
-{
-  InputDelaySet *input_delays = sdc->refPinInputDelays(ref_pin);
-  if (input_delays) {
-    BfsFwdIterator *arrival_iter = search_->arrivalIterator();
-    for (InputDelay *input_delay : *input_delays) {
-      const Pin *pin = input_delay->pin();
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      arrival_iter->enqueue(vertex);
-      if (bidirect_drvr_vertex)
-        arrival_iter->enqueue(bidirect_drvr_vertex);
-    }
   }
 }
 
