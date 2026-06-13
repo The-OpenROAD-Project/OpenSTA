@@ -1340,7 +1340,6 @@ protected:
 
   OutputDelaySet output_delays_;
   OutputDelaysPinMap output_delay_pin_map_;
-  OutputDelaysPinMap output_delay_ref_pin_map_;
   // Output delays on hierarchical pins are indexed by the load pins.
   OutputDelaysPinMap output_delay_leaf_pin_map_;
 

@@ -119,7 +119,6 @@ Sdc::Sdc(Mode *mode,
   input_delay_internal_pin_map_(PinIdLess(network_)),
 
   output_delay_pin_map_(PinIdLess(network_)),
-  output_delay_ref_pin_map_(PinIdLess(network_)),
   output_delay_leaf_pin_map_(PinIdLess(network_)),
 
   port_ext_cap_map_(network_),
@@ -290,7 +289,6 @@ Sdc::deleteConstraints()
 
   deleteContents(output_delays_);
   deleteContents(output_delay_pin_map_);
-  deleteContents(output_delay_ref_pin_map_);
   deleteContents(output_delay_leaf_pin_map_);
 
   deleteContents(clk_hpin_disables_);
@@ -2819,7 +2817,6 @@ Sdc::swapPortDelays(Sdc *sdc1,
 
   std::swap(sdc1->output_delays_, sdc2->output_delays_);
   std::swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
-  std::swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
   std::swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
 }
 
@@ -2871,16 +2868,7 @@ Sdc::setOutputDelay(const Pin *pin,
     delays->setValue(rf, min_max, delay);
   }
 
-  if (ref_pin) {
-    OutputDelaySet *ref_outputs = findKey(output_delay_ref_pin_map_, ref_pin);
-    if (ref_outputs == nullptr) {
-      ref_outputs = new OutputDelaySet;
-      output_delay_ref_pin_map_[ref_pin] = ref_outputs;
-    }
-    ref_outputs->insert(output_delay);
-  }
   output_delay->setRefPin(ref_pin);
-
   output_delay->setSourceLatencyIncluded(source_latency_included);
   output_delay->setNetworkLatencyIncluded(network_latency_included);
 }
