@@ -106,6 +106,8 @@ public:
   const Variables *variables() const { return variables_; }
   // Edge is default cond disabled by timing_disable_cond_default_arcs var.
   [[nodiscard]] bool isDisabledCondDefault(const Edge *edge) const;
+  // Edge is disabled internal bidirect output path.
+  [[nodiscard]] bool isDisabledBidirectInstPath(Edge *edge) const;
 
   const SceneSeq &scenes() { return scenes_; }
   const SceneSeq &scenes() const { return scenes_; }

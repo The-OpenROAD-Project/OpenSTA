@@ -1702,8 +1702,10 @@ Sta::disabledEdges(const Mode *mode)
     VertexOutEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
-      if (isDisabledConstant(edge, mode) || isDisabledCondDefault(edge)
-          || isDisabledConstraint(edge, sdc) || edge->isDisabledLoop()
+      if (isDisabledConstant(edge, mode)
+          || isDisabledCondDefault(edge)
+          || isDisabledConstraint(edge, sdc)
+          || edge->isDisabledLoop()
           || isDisabledPresetClr(edge))
         disabled_edges.push_back(edge);
     }
@@ -1839,12 +1841,6 @@ Sta::exprConstantPins(FuncExpr *expr,
         pins.insert(pin);
     }
   }
-}
-
-bool
-Sta::isDisabledBidirectInstPath(Edge *edge) const
-{
-  return !variables_->bidirectInstPathsEnabled() && edge->isBidirectInstPath();
 }
 
 bool
@@ -5217,8 +5213,10 @@ FanInOutSrchPred::searchThru(Edge *edge,
   const Sim *sim = mode->sim();
   return searchThruRole(edge)
       && (thru_disabled_
-          || !(sdc->isDisabledConstraint(edge) || sim->isDisabledCond(edge)
-               || sta_->isDisabledCondDefault(edge)))
+          || !(sdc->isDisabledConstraint(edge)
+               || sim->isDisabledCond(edge)
+               || sta_->isDisabledCondDefault(edge)
+               || sta_->isDisabledBidirectInstPath(edge)))
       && (thru_constants_ || sim->simTimingSense(edge) != TimingSense::none);
 }
 

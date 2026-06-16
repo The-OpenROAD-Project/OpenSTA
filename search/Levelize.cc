@@ -196,11 +196,13 @@ bool
 Levelize::searchThru(Edge *edge)
 {
   const TimingRole *role = edge->role();
-  return !role->isTimingCheck() && role != TimingRole::latchDtoQ()
-      && !edge->isDisabledLoop()
-      // Register/latch preset/clr edges are disabled by default.
-      && !(role == TimingRole::regSetClr() && !variables_->presetClrArcsEnabled())
-      && !(edge->isBidirectInstPath() && !variables_->bidirectInstPathsEnabled());
+  return !(role->isTimingCheck()
+           || role == TimingRole::latchDtoQ()
+           || edge->isDisabledLoop()
+           // Register/latch preset/clr edges are disabled by default.
+           || (role == TimingRole::regSetClr()
+               && !variables_->presetClrArcsEnabled())
+           || isDisabledBidirectInstPath(edge));
 }
 
 bool

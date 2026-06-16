@@ -184,13 +184,14 @@ SearchAdj::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   const Variables *variables = sta_->variables();
-  return !role->isTimingCheck()
-      && !role->isLatchDtoQ()
-      // Register/latch preset/clr edges are disabled by default.
-      && !(role == TimingRole::regSetClr() && !variables->presetClrArcsEnabled())
-      && !(edge->isBidirectInstPath() && !variables->bidirectInstPathsEnabled())
-      && (!edge->isDisabledLoop()
-          || (variables->dynamicLoopBreaking() && hasPendingLoopPaths(edge)));
+  return !(role->isTimingCheck()
+           || role->isLatchDtoQ()
+           // Register/latch preset/clr edges are disabled by default.
+           || (role == TimingRole::regSetClr()
+               && !variables->presetClrArcsEnabled())
+           || sta_->isDisabledBidirectInstPath(edge)
+           || (edge->isDisabledLoop()
+               && !(variables->dynamicLoopBreaking() && hasPendingLoopPaths(edge))));
 }
 
 bool
@@ -3228,8 +3229,10 @@ Search::isEndpoint(Vertex *vertex,
   const Pin *pin = vertex->pin();
   const Sdc *sdc = mode->sdc();
   return hasFanin(vertex, pred, graph_, mode)
-      && ((vertex->hasChecks() && hasEnabledChecks(vertex, mode))
-          || sdc->isConstrainedEnd(pin) || !hasFanout(vertex, pred, graph_, mode)
+      && ((vertex->hasChecks()
+           && hasEnabledChecks(vertex, mode))
+          || sdc->isConstrainedEnd(pin)
+          || !hasFanout(vertex, pred, graph_, mode)
           || sdc->isPathDelayInternalTo(pin)
           // Unconstrained paths at register clk pins.
           || (unconstrained_paths_ && vertex->isRegClk())

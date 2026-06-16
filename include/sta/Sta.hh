@@ -567,8 +567,6 @@ public:
                                           const Sdc *sdc);
   // Edge is disabled to break combinational loops.
   [[nodiscard]] bool isDisabledLoop(Edge *edge) const;
-  // Edge is disabled internal bidirect output path.
-  [[nodiscard]] bool isDisabledBidirectInstPath(Edge *edge) const;
   // Edge is disabled bidirect net path.
   [[nodiscard]] bool isDisabledBidirectNetPath(Edge *edge) const;
   [[nodiscard]] bool isDisabledPresetClr(Edge *edge) const;
