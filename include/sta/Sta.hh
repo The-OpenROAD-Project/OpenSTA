@@ -1042,6 +1042,7 @@ public:
   int endpointViolationCount(const MinMax *min_max);
   // Find all required times after updateTiming().
   void findRequireds();
+  void findRequired(Vertex *vertex);
   std::string reportDelayCalc(Edge *edge,
                               TimingArc *arc,
                               const Scene *scene,
@@ -1525,7 +1526,6 @@ protected:
                         const Mode *mode,
                         // Return value.
                         PinSet &pins);
-  void findRequired(Vertex *vertex);
 
   void reportDelaysWrtClks(const Pin *pin,
                            const Scene *scene,
