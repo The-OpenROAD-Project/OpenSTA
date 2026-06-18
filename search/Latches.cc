@@ -360,15 +360,6 @@ Latches::latchOutArrival(const Path *data_path,
                                         false, min_max, dcalc_ap, sdc);
       q_arrival = delaySum(data_path->arrival(),  arc_delay, this);
       // Copy the data tag but remove the crprClkPath.
-      // Levelization does not traverse latch D->Q edges, so in some cases
-      //  level(Q) < level(D)
-      // Note that
-      //  level(crprClkPath(data)) < level(D)
-      // The danger is that
-      //  level(crprClkPath(data)) == level(Q)
-      // or some other downstream vertex.
-      // This can lead to data races when finding arrivals at the same level
-      // with multiple threads.
       // Kill the crprClklPath to be safe.
       const ClkInfo *data_clk_info = data_path->clkInfo(this);
       const ClkInfo *q_clk_info =
