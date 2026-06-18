@@ -107,8 +107,7 @@ DcalcPred::searchThru(Edge *edge,
            || edge->isDisabledLoop()
            || sdc->isDisabledConstraint(edge)
            || sdc->isDisabledCondDefault(edge)
-           || (edge->isBidirectInstPath()
-               && !variables->bidirectInstPathsEnabled()));
+           || sta_->isDisabledBidirectInstPath(edge));
 }
 
 bool
@@ -1011,13 +1010,13 @@ GraphDelayCalc::findDriverEdgeDelays(Vertex *drvr_vertex,
     if (search_pred_->searchFrom(from_vertex, mode)
         && search_pred_->searchThru(edge, mode)) {
       for (const MinMax *min_max : MinMax::range()) {
-    for (const TimingArc *arc : arc_set->arcs()) {
-      delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
+        for (const TimingArc *arc : arc_set->arcs()) {
+          delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
                                                scene, min_max, arc_delay_calc,
-                                           load_pin_index_map);
-      delay_exists[arc->toEdge()->asRiseFall()->index()] = true;
-    }
-  }
+                                               load_pin_index_map);
+          delay_exists[arc->toEdge()->asRiseFall()->index()] = true;
+        }
+      }
     }
   }
   if (delay_changed && observer_) {

@@ -87,6 +87,14 @@ PortDelay::refTransition() const
     return RiseFall::rise();
 }
 
+void
+PortDelay::setRefPinEdgesExist(bool exists)
+{
+  ref_pin_edges_exist_ = exists;
+}
+
+////////////////////////////////////////////////////////////////
+
 InputDelay::InputDelay(const Pin *pin,
                        const ClockEdge *clk_edge,
                        int index,
@@ -96,6 +104,8 @@ InputDelay::InputDelay(const Pin *pin,
 {
   findLeafLoadPins(pin, network, &leaf_pins_);
 }
+
+////////////////////////////////////////////////////////////////
 
 OutputDelay::OutputDelay(const Pin *pin,
                          const ClockEdge *clk_edge,

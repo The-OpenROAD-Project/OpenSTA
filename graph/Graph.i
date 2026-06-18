@@ -128,6 +128,7 @@ remove_delay_slew_annotations()
 Pin *pin() { return self->pin(); }
 bool is_bidirect_driver() { return self->isBidirectDriver(); }
 int level() { return Sta::sta()->vertexLevel(self); }
+bool is_root() { return self->isRoot(); }
 int tag_group_index() { return self->tagGroupIndex(); }
 
 float

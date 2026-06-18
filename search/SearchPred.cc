@@ -184,6 +184,7 @@ ClkTreeSearchPred::searchThru(Edge *edge,
          || sdc->isDisabledConstraint(edge)
          || sdc->isDisabledCondDefault(edge)
          || edge->isBidirectInstPath()
+         || edge->isBidirectPortPath()
          || edge->isDisabledLoop());
 }
 

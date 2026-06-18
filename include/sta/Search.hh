@@ -800,8 +800,6 @@ public:
 
 protected:
   void init0();
-  void enqueueRefPinInputDelays(const Pin *ref_pin,
-                                const Sdc *sdc);
   void seedArrivals(Vertex *vertex);
   void pruneCrprArrivals();
   void constrainedRequiredsInvalid(Vertex *vertex,
