@@ -1388,9 +1388,9 @@ ArrivalVisitor::pruneCrprArrivals()
 }
 
 void
-Search::enqueueLatchDataOutputs(Vertex *vertex)
+Search::enqueueLatchDataOutputs(Vertex *latch_data)
 {
-  VertexOutEdgeIterator edge_iter(vertex, graph_);
+  VertexOutEdgeIterator edge_iter(latch_data, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     if (edge->role() == TimingRole::latchDtoQ()) {
@@ -2068,9 +2068,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
       if (gclk) {
         Genclks *genclks = mode->genclks();
         VertexSet *fanins = genclks->fanins(gclk);
-        // Note: encountering a latch d->q edge means find the
-        // latch feedback edges, but they are referenced for
-        // other edges in the gen clk fanout.
+        // Note: encountering a latch d->q edge means we need to find
+        // latch feedback edges.
         if (role == TimingRole::latchDtoQ())
           genclks->findLatchFdbkEdges(gclk);
         EdgeSet &fdbk_edges = genclks->latchFdbkEdges(gclk);
