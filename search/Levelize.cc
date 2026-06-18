@@ -187,9 +187,7 @@ Levelize::isRoot(Vertex *vertex)
     if (searchThru(edge))
       return false;
   }
-  // Levelize bidirect driver as if it was a fanout of the bidirect load.
-  return !(graph_delay_calc_->bidirectDrvrSlewFromLoad(vertex->pin())
-           && vertex->isBidirectDriver());
+  return true;
 }
 
 bool
