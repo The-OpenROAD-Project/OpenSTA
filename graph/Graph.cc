@@ -250,6 +250,13 @@ Graph::makeInstDrvrWireEdges(const Instance *inst,
     if (network_->isDriver(pin)
         && !visited_drvrs.contains(pin))
       makeWireEdgesFromPin(pin, visited_drvrs);
+    if (network_->isTopInstance(inst)
+        && network_->direction(pin)->isBidirect()) {
+      Vertex *bidir_load, *bidir_drvr;
+      pinVertices(pin, bidir_load, bidir_drvr);
+      Edge *edge = makeEdge(bidir_load, bidir_drvr, TimingArcSet::wireTimingArcSet());
+      edge->setIsBidirectPortPath(true);
+    }
   }
   delete pin_iter;
 }
@@ -1211,6 +1218,7 @@ Edge::init(VertexId from,
   vertex_out_prev_ = edge_id_null;
   is_bidirect_inst_path_ = false;
   is_bidirect_net_path_ = false;
+  is_bidirect_port_path_ = false;
 
   arc_delays_ = nullptr;
   arc_delay_annotated_is_bits_ = true;
@@ -1366,6 +1374,12 @@ void
 Edge::setIsBidirectNetPath(bool is_bidir)
 {
   is_bidirect_net_path_ = is_bidir;
+}
+
+void
+Edge::setIsBidirectPortPath(bool is_bidir)
+{
+  is_bidirect_port_path_ = is_bidir;
 }
 
 void

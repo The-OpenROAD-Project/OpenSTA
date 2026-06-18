@@ -204,6 +204,9 @@ public:
   static int wireArcIndex(const RiseFall *rf);
   static int wireArcCount() { return 2; }
 
+  // Psuedo definition for port ref_pin arcs.
+  static TimingArcSet *portRefPinTimingArcSet() { return port_refpin_timing_arc_set_; }
+
 protected:
   TimingArcSet(const TimingRole *role,
                TimingArcAttrsPtr attrs);
@@ -230,6 +233,7 @@ protected:
 
   static TimingArcAttrsPtr wire_timing_arc_attrs_;
   static TimingArcSet *wire_timing_arc_set_;
+  static TimingArcSet *port_refpin_timing_arc_set_;
 };
 
 // A timing arc is a single from/to transition between two ports.

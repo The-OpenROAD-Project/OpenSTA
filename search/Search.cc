@@ -184,13 +184,14 @@ SearchAdj::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   const Variables *variables = sta_->variables();
-  return !role->isTimingCheck()
-      && !role->isLatchDtoQ()
-      // Register/latch preset/clr edges are disabled by default.
-      && !(role == TimingRole::regSetClr() && !variables->presetClrArcsEnabled())
-      && !(edge->isBidirectInstPath() && !variables->bidirectInstPathsEnabled())
-      && (!edge->isDisabledLoop()
-          || (variables->dynamicLoopBreaking() && hasPendingLoopPaths(edge)));
+  return !(role->isTimingCheck()
+           || role->isLatchDtoQ()
+           // Register/latch preset/clr edges are disabled by default.
+           || (role == TimingRole::regSetClr()
+               && !variables->presetClrArcsEnabled())
+           || sta_->isDisabledBidirectInstPath(edge)
+           || (edge->isDisabledLoop()
+               && !(variables->dynamicLoopBreaking() && hasPendingLoopPaths(edge))));
 }
 
 bool
@@ -1226,7 +1227,6 @@ ArrivalVisitor::seedArrivals(Vertex *vertex)
                  network_->pathName(pin));
       search_->makeUnclkedPaths(vertex, true, false, tag_bldr_, mode);
     }
-    enqueueRefPinInputDelays(pin, sdc);
   }
 }
 
@@ -1384,27 +1384,6 @@ ArrivalVisitor::pruneCrprArrivals()
     }
     if (!deleted_tag)
       path_itr++;
-  }
-}
-
-// Enqueue pins with input delays that use ref_pin as the clock
-// reference pin as if there is a timing arc from the reference pin to
-// the input delay pin.
-void
-ArrivalVisitor::enqueueRefPinInputDelays(const Pin *ref_pin,
-                                         const Sdc *sdc)
-{
-  InputDelaySet *input_delays = sdc->refPinInputDelays(ref_pin);
-  if (input_delays) {
-    BfsFwdIterator *arrival_iter = search_->arrivalIterator();
-    for (InputDelay *input_delay : *input_delays) {
-      const Pin *pin = input_delay->pin();
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      arrival_iter->enqueue(vertex);
-      if (bidirect_drvr_vertex)
-        arrival_iter->enqueue(bidirect_drvr_vertex);
-    }
   }
 }
 
@@ -3250,8 +3229,10 @@ Search::isEndpoint(Vertex *vertex,
   const Pin *pin = vertex->pin();
   const Sdc *sdc = mode->sdc();
   return hasFanin(vertex, pred, graph_, mode)
-      && ((vertex->hasChecks() && hasEnabledChecks(vertex, mode))
-          || sdc->isConstrainedEnd(pin) || !hasFanout(vertex, pred, graph_, mode)
+      && ((vertex->hasChecks()
+           && hasEnabledChecks(vertex, mode))
+          || sdc->isConstrainedEnd(pin)
+          || !hasFanout(vertex, pred, graph_, mode)
           || sdc->isPathDelayInternalTo(pin)
           // Unconstrained paths at register clk pins.
           || (unconstrained_paths_ && vertex->isRegClk())

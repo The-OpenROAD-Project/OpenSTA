@@ -51,6 +51,8 @@ public:
   const Pin *refPin() const { return ref_pin_; }
   void setRefPin(const Pin *ref_pin);
   const RiseFall *refTransition() const;
+  bool refPinEdgesExist() const { return ref_pin_edges_exist_; }
+  void setRefPinEdgesExist(bool exists);
 
 protected:
   PortDelay(const Pin *pin,
@@ -62,6 +64,7 @@ protected:
   bool source_latency_included_{false};
   bool network_latency_included_{false};
   const Pin *ref_pin_{nullptr};
+  bool ref_pin_edges_exist_{false};
   RiseFallMinMax delays_;
   PinSet leaf_pins_;
 };

@@ -115,12 +115,10 @@ Sdc::Sdc(Mode *mode,
   cycle_acctings_(this),
 
   input_delay_pin_map_(PinIdLess(network_)),
-  input_delay_ref_pin_map_(PinIdLess(network_)),
   input_delay_leaf_pin_map_(PinIdLess(network_)),
   input_delay_internal_pin_map_(PinIdLess(network_)),
 
   output_delay_pin_map_(PinIdLess(network_)),
-  output_delay_ref_pin_map_(PinIdLess(network_)),
   output_delay_leaf_pin_map_(PinIdLess(network_)),
 
   port_ext_cap_map_(network_),
@@ -191,9 +189,9 @@ Sdc::clear()
   input_delays_.clear();
   input_delay_pin_map_.clear();
   input_delay_index_ = 0;
-  input_delay_ref_pin_map_.clear();
   input_delay_leaf_pin_map_.clear();
   input_delay_internal_pin_map_.clear();
+  have_input_delay_ref_pins_ = false;
 
   output_delays_.clear();
   output_delay_pin_map_.clear();
@@ -287,12 +285,10 @@ Sdc::deleteConstraints()
   deleteContents(input_delays_);
   deleteContents(input_delay_pin_map_);
   deleteContents(input_delay_leaf_pin_map_);
-  deleteContents(input_delay_ref_pin_map_);
   deleteContents(input_delay_internal_pin_map_);
 
   deleteContents(output_delays_);
   deleteContents(output_delay_pin_map_);
-  deleteContents(output_delay_ref_pin_map_);
   deleteContents(output_delay_leaf_pin_map_);
 
   deleteContents(clk_hpin_disables_);
@@ -2671,16 +2667,9 @@ Sdc::setInputDelay(const Pin *pin,
     delays->setValue(rf, min_max, delay);
   }
 
-  if (ref_pin) {
-    InputDelaySet *ref_inputs = findKey(input_delay_ref_pin_map_, ref_pin);
-    if (ref_inputs == nullptr) {
-      ref_inputs = new InputDelaySet;
-      input_delay_ref_pin_map_[ref_pin] = ref_inputs;
-    }
-    ref_inputs->insert(input_delay);
-  }
   input_delay->setRefPin(ref_pin);
-
+  if (ref_pin)
+    have_input_delay_ref_pins_ = true;
   input_delay->setSourceLatencyIncluded(source_latency_included);
   input_delay->setNetworkLatencyIncluded(network_latency_included);
 }
@@ -2767,12 +2756,6 @@ Sdc::deleteInputDelays(const Pin *pin,
 }
 
 InputDelaySet *
-Sdc::refPinInputDelays(const Pin *ref_pin) const
-{
-  return findKey(input_delay_ref_pin_map_, ref_pin);
-}
-
-InputDelaySet *
 Sdc::inputDelaysLeafPin(const Pin *leaf_pin) const
 {
   return findKey(input_delay_leaf_pin_map_, leaf_pin);
@@ -2828,15 +2811,33 @@ Sdc::swapPortDelays(Sdc *sdc1,
 {
   std::swap(sdc1->input_delays_, sdc2->input_delays_);
   std::swap(sdc1->input_delay_pin_map_, sdc2->input_delay_pin_map_);
-  std::swap(sdc1->input_delay_ref_pin_map_, sdc2->input_delay_ref_pin_map_);
   std::swap(sdc1->input_delay_leaf_pin_map_, sdc2->input_delay_leaf_pin_map_);
   std::swap(sdc1->input_delay_internal_pin_map_, sdc2->input_delay_internal_pin_map_);
   std::swap(sdc1->input_delay_index_, sdc2->input_delay_index_);
 
   std::swap(sdc1->output_delays_, sdc2->output_delays_);
   std::swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
-  std::swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
   std::swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
+}
+
+void
+Sdc::ensureInputDelayRefPinEdges()
+{
+  if (have_input_delay_ref_pins_) {
+    for (InputDelay *input_delay : input_delays_) {
+      const Pin *ref_pin = input_delay->refPin();
+      if (ref_pin
+          && !input_delay->refPinEdgesExist()) {
+        Vertex *ref_pin_vertex = graph_->pinLoadVertex(ref_pin);
+        for (const Pin *pin : input_delay->leafPins()) {
+          Vertex *input_vertex = graph_->pinDrvrVertex(pin);
+          graph_->makeEdge(ref_pin_vertex, input_vertex,
+                           TimingArcSet::portRefPinTimingArcSet());
+        }
+        input_delay->setRefPinEdgesExist(true);
+      }
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2867,16 +2868,7 @@ Sdc::setOutputDelay(const Pin *pin,
     delays->setValue(rf, min_max, delay);
   }
 
-  if (ref_pin) {
-    OutputDelaySet *ref_outputs = findKey(output_delay_ref_pin_map_, ref_pin);
-    if (ref_outputs == nullptr) {
-      ref_outputs = new OutputDelaySet;
-      output_delay_ref_pin_map_[ref_pin] = ref_outputs;
-    }
-    ref_outputs->insert(output_delay);
-  }
   output_delay->setRefPin(ref_pin);
-
   output_delay->setSourceLatencyIncluded(source_latency_included);
   output_delay->setNetworkLatencyIncluded(network_latency_included);
 }
