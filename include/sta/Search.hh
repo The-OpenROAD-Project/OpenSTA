@@ -75,6 +75,8 @@ using ExceptionPathSeq = std::vector<ExceptionPath*>;
 class Search : public StaState
 {
 public:
+  bool postpone_latch_outputs_{false};
+
   Search(StaState *sta);
   ~Search() override;
   void copyState(const StaState *sta) override;
@@ -530,9 +532,6 @@ protected:
                              const MinMax *min_max) const;
   void seedRequireds();
   void seedInvalidRequireds();
-  [[nodiscard]] bool havePendingLatchOutputs();
-  void clearPendingLatchOutputs();
-  void enqueuePendingLatchOutputs();
   void findFilteredArrivals(bool thru_latches);
   void findArrivalsSeed();
   void seedFilterStarts();
@@ -669,7 +668,6 @@ protected:
   std::mutex filtered_arrivals_lock_;
 
   bool found_downstream_clk_pins_{false};
-  bool postpone_latch_outputs_{false};
   std::vector<Path*> enum_paths_;
 
   VisitPathEnds *visit_path_ends_;

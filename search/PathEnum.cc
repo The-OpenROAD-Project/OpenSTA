@@ -356,7 +356,9 @@ PathEnumFaninVisitor::visitFaninPathsThru(Path *before_div,
   prev_vertex_ = prev_vertex;
   visited_fanins_.clear();
   unique_edge_divs_.clear();
+  search_->postpone_latch_outputs_ = false;
   visitFaninPaths(before_div_->vertex(this));
+  search_->postpone_latch_outputs_ = true;
 
   if (unique_edges_) {
     for (auto [vertex_edge, div] : unique_edge_divs_)
@@ -422,6 +424,14 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
                                       Arrival & /* to_arrival */,
                                       const MinMax *)
 {
+    debugPrint(debug_, "path_enum", 3, "visit fanin {} -> {} {} {}",
+               from_path->to_string(this),
+               to_vertex->to_string(this), to_rf->shortName(),
+               delayAsString(
+                   search_->deratedDelay(
+                       from_vertex, arc, edge, false, from_path->minMax(this),
+                       from_path->dcalcAnalysisPtIndex(this), from_path->sdc(this)),
+                   this));
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
       && (!unique_edges_ || from_vertex != prev_vertex_
