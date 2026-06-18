@@ -75,8 +75,6 @@ using ExceptionPathSeq = std::vector<ExceptionPath*>;
 class Search : public StaState
 {
 public:
-  bool postpone_latch_outputs_{false};
-
   Search(StaState *sta);
   ~Search() override;
   void copyState(const StaState *sta) override;
@@ -408,7 +406,6 @@ public:
   void checkPrevPaths() const;
   void deletePaths(Vertex *vertex);
   void deleteTagGroup(TagGroup *group);
-  bool postponeLatchOutputs() const { return postpone_latch_outputs_; }
   void saveEnumPath(Path *path);
   bool isSrchRoot(Vertex *vertex,
                   const Mode *mode) const;
@@ -710,7 +707,8 @@ public:
               bool make_tag_cache,
               const StaState *sta);
   ~PathVisitor() override;
-  virtual void visitFaninPaths(Vertex *to_vertex);
+  virtual void visitFaninPaths(Vertex *to_vertex,
+                               bool with_latch_edges);
   virtual void visitFanoutPaths(Vertex *from_vertex);
   // Return false to stop visiting.
   virtual bool visitFromToPath(const Pin *from_pin,
@@ -777,6 +775,8 @@ public:
             SearchPred *pred);
   void copyState(const StaState *sta) override;
   void visit(Vertex *vertex) override;
+  void visit(Vertex *vertex,
+             bool with_latch_edges);
   VertexVisitor *copy() const override;
   // Return false to stop visiting.
   bool visitFromToPath(const Pin *from_pin,

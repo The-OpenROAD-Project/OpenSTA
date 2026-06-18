@@ -356,9 +356,7 @@ PathEnumFaninVisitor::visitFaninPathsThru(Path *before_div,
   prev_vertex_ = prev_vertex;
   visited_fanins_.clear();
   unique_edge_divs_.clear();
-  search_->postpone_latch_outputs_ = false;
-  visitFaninPaths(before_div_->vertex(this));
-  search_->postpone_latch_outputs_ = true;
+  visitFaninPaths(before_div_->vertex(this), true);
 
   if (unique_edges_) {
     for (auto [vertex_edge, div] : unique_edge_divs_)

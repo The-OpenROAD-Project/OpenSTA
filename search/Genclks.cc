@@ -748,7 +748,7 @@ GenclkSrcArrivalVisitor::visit(Vertex *vertex)
   tag_bldr_->init(vertex);
   has_fanin_one_ = graph_->hasFaninOne(vertex);
   genclks_->copyGenClkSrcPaths(vertex, tag_bldr_);
-  visitFaninPaths(vertex);
+  visitFaninPaths(vertex, true);
   // Propagate beyond the clock tree to reach generated clk roots.
   insert_iter_->enqueueAdjacentVertices(vertex, &srch_pred_, mode_);
   search_->setVertexArrivals(vertex, tag_bldr_);
