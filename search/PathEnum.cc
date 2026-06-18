@@ -381,7 +381,8 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
       Path *from_path = from_iter.next();
       const Mode *mode = from_path->mode(this);
       const Sdc *sdc = mode->sdc();
-      if (pred_->searchFrom(from_vertex, mode) && pred_->searchThru(edge, mode)
+      if (pred_->searchFrom(from_vertex, mode)
+          && pred_->searchThru(edge, mode)
           && pred_->searchTo(to_vertex, mode)
           // Fanin paths are broken by path delay internal pin startpoints.
           && !sdc->isPathDelayInternalFromBreak(to_pin)) {
