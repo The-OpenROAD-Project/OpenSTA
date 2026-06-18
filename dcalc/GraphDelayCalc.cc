@@ -378,7 +378,7 @@ void
 GraphDelayCalc::seedInvalidDelays()
 {
   for (Vertex *vertex : invalid_delays_)
-	iter_->enqueue(vertex);
+    iter_->enqueue(vertex);
   invalid_delays_.clear();
 }
 
