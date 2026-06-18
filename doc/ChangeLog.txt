@@ -55,7 +55,7 @@ link_design top
 create_clock -period 50 clk
 set_input_delay -clock clk 1 {in1 in2}
 set sta_pocv_mode skew_normal
-report_checks -fields {slew variation input_pin variation} -digits 3
+report_checks -fields {slew variation input_pin} -digits 3
 
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
