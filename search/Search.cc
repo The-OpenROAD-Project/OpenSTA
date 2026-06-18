@@ -1132,15 +1132,10 @@ ArrivalVisitor::setAlwaysToEndpoints(bool to_endpoints)
 void
 ArrivalVisitor::visit(Vertex *vertex)
 {
-  VertexInEdgeIterator edge_iter(vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    if (edge->role()->isLatchDtoQ()) {
-      search_->enqueueLatchOutput(vertex);
-      return;
-    }
-  }
-  visit(vertex, false);
+  if (network_->isLatchOutput(vertex->pin()))
+    search_->enqueueLatchOutput(vertex);
+  else
+    visit(vertex, false);
 }
 
 void

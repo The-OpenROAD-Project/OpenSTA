@@ -636,6 +636,16 @@ Network::isLatchData(const Pin *pin) const
     return false;
 }
 
+bool
+Network::isLatchOutput(const Pin *pin) const
+{
+  LibertyPort *port = libertyPort(pin);
+  if (port)
+    return port->isLatchOutput();
+  else
+    return false;
+}
+
 ////////////////////////////////////////////////////////////////
 
 std::string
