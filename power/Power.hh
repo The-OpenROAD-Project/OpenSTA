@@ -224,6 +224,8 @@ protected:
                                const LibertyCell *test_cell,
                                const SequentialSeq &seqs,
                                BfsFwdIterator &bfs);
+  void seedClkGateOutputActivities(const Instance *inst,
+                                   BfsFwdIterator &bfs);
   PwrActivity evalActivity(FuncExpr *expr,
 			   const Instance *inst);
   PwrActivity evalActivity(FuncExpr *expr,

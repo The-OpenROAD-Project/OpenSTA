@@ -701,10 +701,8 @@ PropActivityVisitor::visit(Vertex *vertex)
         if (cell->isClockGate()) {
           const Pin *enable, *clk, *gclk;
           power_->clockGatePins(inst, enable, clk, gclk);
-          if (gclk) {
-            Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
-            bfs_->enqueue(gclk_vertex);
-          }
+          if (gclk)
+            visited_regs_.insert(inst);
         }
       }
       bfs_->enqueueAdjacentVertices(vertex, mode_);
@@ -972,6 +970,8 @@ Power::seedRegOutputActivities(const Instance *inst,
       const SequentialSeq &seqs = test_cell->sequentials();
       seedRegOutputActivities(inst, test_cell, seqs, bfs);
     }
+    else if (cell->isClockGate())
+      seedClkGateOutputActivities(inst, bfs);
   }
 }
 
@@ -1043,6 +1043,23 @@ Power::seedRegOutputActivities(const Instance *reg,
     PwrActivity out_activity(out_density, out_duty, PwrActivityOrigin::propagated);
     setSeqActivity(reg, output, out_activity);
   }
+}
+
+void
+Power::seedClkGateOutputActivities(const Instance *inst,
+                                   BfsFwdIterator &bfs)
+{
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    LibertyPort *port = network_->libertyPort(pin);
+    if (port && port->isClockGateOut()) {
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (vertex)
+        bfs.enqueue(vertex);
+    }
+  }
+  delete pin_iter;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1566,8 +1583,12 @@ Power::findActivity(const Pin *pin)
     if (activity && activity->origin() != PwrActivityOrigin::unknown)
       return *activity;
     const Clock *clk = findClk(pin);
-    float duty = clockDuty(clk);
-    return PwrActivity(2.0 / clk->period(), duty, PwrActivityOrigin::clock);
+    if (clk) {
+      float duty = clockDuty(clk);
+      return PwrActivity(2.0 / clk->period(), duty, PwrActivityOrigin::clock);
+    }
+    else
+      return PwrActivity();
   }
   else if (global_activity_.isSet())
     return global_activity_;
