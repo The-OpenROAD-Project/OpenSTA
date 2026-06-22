@@ -248,7 +248,7 @@ GraphDelayCalc::delayInvalid(Vertex *vertex)
 {
   debugPrint(debug_, "delay_calc", 2, "delay invalid {}",
              vertex->to_string(this));
-  if (graph_ && incremental_) {
+  if (incremental_) {
     invalid_delays_.insert(vertex);
     // Invalidate driver that triggers dcalc for multi-driver nets.
     MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
@@ -338,40 +338,38 @@ FindVertexDelays::visit(Vertex *vertex)
 void
 GraphDelayCalc::findDelays(Level level)
 {
-  if (arc_delay_calc_) {
-    Stats stats(debug_, report_);
-    int dcalc_count = 0;
-    debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
-    if (!delays_seeded_) {
-      iter_->clear();
-      seedRootSlews();
-      delays_seeded_ = true;
-    }
-    else
-      iter_->ensureSize();
-    if (incremental_)
-      seedInvalidDelays();
-
-    if (!iter_->empty()) {
-      FindVertexDelays visitor(this);
-      dcalc_count += iter_->visitParallel(level, &visitor);
-    }
-
-    // Timing checks require slews at both ends of the arc,
-    // so find their delays after all slews are known.
-    for (Edge *check_edge : invalid_check_edges_)
-      findCheckEdgeDelays(check_edge, arc_delay_calc_);
-    invalid_check_edges_.clear();
-
-    for (Edge *latch_edge : invalid_latch_edges_)
-      findLatchEdgeDelays(latch_edge);
-    invalid_latch_edges_.clear();
-
-    delays_exist_ = true;
-    incremental_ = true;
-    debugPrint(debug_, "delay_calc", 1, "found {} delays", dcalc_count);
-    stats.report("Delay calc");
+  Stats stats(debug_, report_);
+  int dcalc_count = 0;
+  debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
+  if (!delays_seeded_) {
+    iter_->clear();
+    seedRootSlews();
+    delays_seeded_ = true;
   }
+  else
+    iter_->ensureSize();
+  if (incremental_)
+    seedInvalidDelays();
+
+  if (!iter_->empty()) {
+    FindVertexDelays visitor(this);
+    dcalc_count += iter_->visitParallel(level, &visitor);
+  }
+
+  // Timing checks require slews at both ends of the arc,
+  // so find their delays after all slews are known.
+  for (Edge *check_edge : invalid_check_edges_)
+    findCheckEdgeDelays(check_edge, arc_delay_calc_);
+  invalid_check_edges_.clear();
+
+  for (Edge *latch_edge : invalid_latch_edges_)
+    findLatchEdgeDelays(latch_edge);
+  invalid_latch_edges_.clear();
+
+  delays_exist_ = true;
+  incremental_ = true;
+  debugPrint(debug_, "delay_calc", 1, "found {} delays", dcalc_count);
+  stats.report("Delay calc");
 }
 
 void
