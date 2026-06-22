@@ -26,7 +26,6 @@
 
 #include <cmath>
 
-#include "Bfs.hh"
 #include "Clock.hh"
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
@@ -347,32 +346,34 @@ Genclks::findFanin(Clock *gclk,
 {
   // Search backward from generated clock source pin to a clock pin.
   GenClkFaninSrchPred srch_pred(gclk, this);
-  BfsBkwdIterator iter(BfsIndex::other, &srch_pred, this);
-  seedClkVertices(gclk, iter, fanins);
-  while (iter.hasNext()) {
-    Vertex *vertex = iter.next();
+  VertexQueue fanin_queue;
+  seedClkVertices(gclk, fanin_queue, fanins, srch_pred);
+  while (!fanin_queue.empty()) {
+    Vertex *vertex = fanin_queue.front();
+    fanin_queue.pop();
     if (!fanins.contains(vertex)) {
       fanins.insert(vertex);
       debugPrint(debug_, "genclk", 2, "gen clk {} fanin {}", gclk->name(),
                  vertex->to_string(this));
-      iter.enqueueAdjacentVertices(vertex, mode_);
+      enqueueFanin(vertex, fanin_queue, srch_pred);
     }
   }
 }
 
 void
 Genclks::seedClkVertices(Clock *clk,
-                         BfsBkwdIterator &iter,
-                         VertexSet &fanins)
+                         VertexQueue &fanin_queue,
+                         VertexSet &fanins,
+                         SearchPred &srch_pred)
 {
   for (const Pin *pin : clk->leafPins()) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     fanins.insert(vertex);
-    iter.enqueueAdjacentVertices(vertex, mode_);
+    enqueueFanin(vertex, fanin_queue, srch_pred);
     if (bidirect_drvr_vertex) {
       fanins.insert(bidirect_drvr_vertex);
-      iter.enqueueAdjacentVertices(bidirect_drvr_vertex, mode_);
+      enqueueFanin(bidirect_drvr_vertex, fanin_queue, srch_pred);
     }
   }
 }

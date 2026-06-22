@@ -43,8 +43,6 @@
 namespace sta {
 
 class GenclkInfo;
-class BfsFwdIterator;
-class BfsBkwdIterator;
 class SearchPred;
 class TagGroupBldr;
 
@@ -104,8 +102,9 @@ private:
   void recordSrcPaths(Clock *gclk);
   void findInsertionDelays(Clock *gclk);
   void seedClkVertices(Clock *clk,
-                       BfsBkwdIterator &iter,
-                       VertexSet &dfanins);
+                       VertexQueue &fanin_queue,
+                       VertexSet &fanins,
+                       SearchPred &srch_pred);
   size_t srcPathIndex(const RiseFall *clk_rf,
                       const MinMax *min_max) const;
   bool matchesSrcFilter(Path *path,
