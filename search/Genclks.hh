@@ -26,6 +26,7 @@
 
 #include <cstddef>
 #include <map>
+#include <queue>
 #include <utility>
 #include <vector>
 
@@ -59,6 +60,7 @@ public:
 using GenclkInfoMap = std::map<Clock*, GenclkInfo*>;
 using GenclkSrcPathMap = std::map<ClockPinPair, std::vector<Path>, ClockPinPairLess>;
 using VertexGenclkSrcPathsMap = std::map<Vertex*, std::vector<const Path*>, VertexIdLess>;
+using VertexQueue = std::queue<Vertex*>;
 
 class Genclks : public StaState
 {
@@ -110,10 +112,11 @@ private:
                         const Clock *gclk) const;
   void seedSrcPins(Clock *gclk,
                    FilterPath *src_filter,
-                   BfsFwdIterator &insert_iter);
+                   VertexQueue &insert_queue,
+                   SearchPred &srch_pred);
   void findSrcArrivals(Clock *gclk,
-                       BfsFwdIterator &insert_iter,
-                       GenclkInfo *genclk_info);
+                       GenclkInfo *genclk_info,
+                       VertexQueue &insert_queue);
   FilterPath *makeSrcFilter(Clock *gclk,
                             Sdc *sdc);
   void deleteGenClkInfo();
@@ -128,6 +131,9 @@ private:
   void seedSrcPins(Clock *clk,
                    BfsBkwdIterator &iter);
   void findInsertionDelay(Clock *gclk);
+  void enqueueFanout(Vertex *vertex,
+                     VertexQueue &insert_queue,
+                     SearchPred &srch_pred);
   GenclkInfo *makeGenclkInfo(Clock *gclk);
   FilterPath *srcFilter(Clock *gclk);
   void findFanin(Clock *gclk,
@@ -147,6 +153,8 @@ private:
   GenclkSrcPathMap genclk_src_paths_;
   GenclkInfoMap genclk_info_map_;
   VertexGenclkSrcPathsMap vertex_src_paths_map_;
+
+  friend class GenclkSrcArrivalVisitor;
 };
 
 } // namespace sta

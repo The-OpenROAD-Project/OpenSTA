@@ -457,11 +457,11 @@ Genclks::findInsertionDelays(Clock *gclk)
   debugPrint(debug_, "genclk", 2, "find gen clk {} insertion", gclk->name());
   GenclkInfo *genclk_info = makeGenclkInfo(gclk);
   FilterPath *src_filter = genclk_info->srcFilter();
+  VertexQueue insert_queue;
   GenClkInsertionSearchPred srch_pred(gclk, genclk_info, this);
-  BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
-  seedSrcPins(gclk, src_filter, insert_iter);
+  seedSrcPins(gclk, src_filter, insert_queue, srch_pred);
   // Propagate arrivals to generated clk root pin level.
-  findSrcArrivals(gclk, insert_iter, genclk_info);
+  findSrcArrivals(gclk, genclk_info, insert_queue);
   // Unregister the filter so that it is not triggered by other searches.
   // The exception itself has to stick around because the source path
   // tags reference it.
@@ -591,7 +591,8 @@ Genclks::makeSrcFilter(Clock *gclk,
 void
 Genclks::seedSrcPins(Clock *gclk,
                      FilterPath *src_filter,
-                     BfsFwdIterator &insert_iter)
+                     VertexQueue &insert_queue,
+                     SearchPred &srch_pred)
 {
   Clock *master_clk = gclk->masterClk();
   for (const Pin *master_pin : master_clk->leafPins()) {
@@ -613,10 +614,25 @@ Genclks::seedSrcPins(Clock *gclk,
             tag_bldr.setArrival(tag, insert);
           }
         }
-        search_->setVertexArrivals(vertex, &tag_bldr);
-        insert_iter.enqueueAdjacentVertices(vertex, mode_);
       }
+      search_->setVertexArrivals(vertex, &tag_bldr);
+      enqueueFanout(vertex, insert_queue, srch_pred);
     }
+  }
+}
+
+void
+Genclks::enqueueFanout(Vertex *vertex,
+                       VertexQueue &insert_queue,
+                       SearchPred &srch_pred)
+{
+  VertexOutEdgeIterator edge_iter(vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    Vertex *to_vertex = edge->to(graph_);
+    if (srch_pred.searchThru(edge, mode_)
+        && srch_pred.searchTo(to_vertex, mode_))
+      insert_queue.push(to_vertex);
   }
 }
 
@@ -690,8 +706,8 @@ class GenclkSrcArrivalVisitor : public ArrivalVisitor
 {
 public:
   GenclkSrcArrivalVisitor(Clock *gclk,
-                          BfsFwdIterator *insert_iter,
                           GenclkInfo *genclk_info,
+                          VertexQueue &insert_queue,
                           const Mode *mode);
   GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor);
   VertexVisitor *copy() const override;
@@ -699,7 +715,7 @@ public:
 
 protected:
   Clock *gclk_;
-  BfsFwdIterator *insert_iter_;
+  VertexQueue &insert_queue_;
   GenclkInfo *genclk_info_;
   GenClkInsertionSearchPred srch_pred_;
   const Mode *mode_;
@@ -708,12 +724,12 @@ protected:
 };
 
 GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
-                                                 BfsFwdIterator *insert_iter,
                                                  GenclkInfo *genclk_info,
+                                                 VertexQueue &insert_queue,
                                                  const Mode *mode) :
   ArrivalVisitor(mode->sta()),
   gclk_(gclk),
-  insert_iter_(insert_iter),
+  insert_queue_(insert_queue),
   genclk_info_(genclk_info),
   srch_pred_(gclk_, genclk_info, mode->sta()),
   mode_(mode),
@@ -725,7 +741,7 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
 GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor) :
   ArrivalVisitor(visitor),
   gclk_(visitor.gclk_),
-  insert_iter_(visitor.insert_iter_),
+  insert_queue_(visitor.insert_queue_),
   genclk_info_(visitor.genclk_info_),
   srch_pred_(visitor.gclk_, visitor.genclk_info_, this),
   mode_(visitor.mode_),
@@ -749,23 +765,27 @@ GenclkSrcArrivalVisitor::visit(Vertex *vertex)
   has_fanin_one_ = graph_->hasFaninOne(vertex);
   genclks_->copyGenClkSrcPaths(vertex, tag_bldr_);
   visitFaninPaths(vertex, true);
-  // Propagate beyond the clock tree to reach generated clk roots.
-  insert_iter_->enqueueAdjacentVertices(vertex, &srch_pred_, mode_);
   search_->setVertexArrivals(vertex, tag_bldr_);
+  // Propagate beyond the clock tree to reach generated clk roots.
+  genclks_->enqueueFanout(vertex, insert_queue_, srch_pred_);
 }
 
 void
 Genclks::findSrcArrivals(Clock *gclk,
-                         BfsFwdIterator &insert_iter,
-                         GenclkInfo *genclk_info)
+                         GenclkInfo *genclk_info,
+                         VertexQueue &insert_queue)
 {
   GenClkArrivalSearchPred eval_pred(gclk, this);
-  GenclkSrcArrivalVisitor arrival_visitor(gclk, &insert_iter, genclk_info, mode_);
+  GenclkSrcArrivalVisitor arrival_visitor(gclk, genclk_info, insert_queue, mode_);
   arrival_visitor.init(true, false, &eval_pred);
   // This cannot restrict the search level because loops in the clock tree
   // can circle back to the generated clock src pin.
   // Parallel visit is slightly slower (at last check).
-  insert_iter.visit(levelize_->maxLevel(), &arrival_visitor);
+  while (!insert_queue.empty()) {
+    Vertex *vertex = insert_queue.front();
+    insert_queue.pop();
+    arrival_visitor.visit(vertex);
+  }
 }
 
 // Copy generated clock source paths to tag_bldr.
@@ -886,15 +906,15 @@ void
 Genclks::deleteGenclkSrcPaths(Clock *gclk)
 {
   GenclkInfo *genclk_info = genclkInfo(gclk);
-  GenClkInsertionSearchPred srch_pred(gclk, genclk_info, mode_->sta());
-  BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
+  VertexQueue insert_queue;
+  GenClkInsertionSearchPred srch_pred(gclk, genclk_info, this);
   FilterPath *src_filter = genclk_info->srcFilter();
-  seedSrcPins(gclk, src_filter, insert_iter);
-  GenClkArrivalSearchPred eval_pred(gclk, this);
-  while (insert_iter.hasNext()) {
-    Vertex *vertex = insert_iter.next();
+  seedSrcPins(gclk, src_filter, insert_queue, srch_pred);
+  while (!insert_queue.empty()) {
+    Vertex *vertex = insert_queue.front();
+    insert_queue.pop();
     search_->deletePaths(vertex);
-    insert_iter.enqueueAdjacentVertices(vertex, &srch_pred, mode_);
+    enqueueFanout(vertex, insert_queue, srch_pred);
   }
 }
 
