@@ -128,9 +128,10 @@ private:
                        Arrival insert,
                        Scene *scene,
                        const MinMax *min_max);
-  void seedSrcPins(Clock *clk,
-                   BfsBkwdIterator &iter);
   void findInsertionDelay(Clock *gclk);
+  void enqueueFanin(Vertex *vertex,
+                    VertexQueue &insert_queue,
+                    SearchPred &srch_pred);
   void enqueueFanout(Vertex *vertex,
                      VertexQueue &insert_queue,
                      SearchPred &srch_pred);

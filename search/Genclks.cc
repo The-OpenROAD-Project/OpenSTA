@@ -270,30 +270,38 @@ Genclks::ensureMaster(Clock *gclk,
     }
     if (!found_master) {
       // Search backward from generated clock source pin to a clock pin.
-      GenClkMasterSearchPred pred(this);
-      BfsBkwdIterator iter(BfsIndex::other, &pred, this);
-      seedSrcPins(gclk, iter);
-      while (iter.hasNext()) {
-        Vertex *vertex = iter.next();
-        Pin *pin = vertex->pin();
-        if (sdc->isLeafPinClock(pin)) {
-          ClockSet *master_clks = sdc->findLeafPinClocks(pin);
-          if (master_clks) {
-            ClockSet::iterator master_iter = master_clks->begin();
-            if (master_iter != master_clks->end()) {
-              master_clk = *master_iter++;
-              // Master source pin can actually be a clock source pin.
-              if (master_clk != gclk) {
-                gclk->setInferedMasterClk(master_clk);
-                debugPrint(debug_, "genclk", 2, " {} master clk {}", gclk->name(),
-                           master_clk->name());
-                master_clk_count++;
-                break;
+      GenClkMasterSearchPred srch_pred(this);
+      VertexQueue master_queue;
+      VertexSet visited = makeVertexSet(this);
+      VertexSet src_vertices = makeVertexSet(this);
+      gclk->srcPinVertices(src_vertices, network_, graph_);
+      for (Vertex *vertex : src_vertices)
+        master_queue.push(vertex);
+      while (!master_queue.empty()) {
+        Vertex *vertex = master_queue.front();
+        master_queue.pop();
+        if (!visited.contains(vertex)) {
+          visited.insert(vertex);
+          Pin *pin = vertex->pin();
+          if (sdc->isLeafPinClock(pin)) {
+            ClockSet *master_clks = sdc->findLeafPinClocks(pin);
+            if (master_clks) {
+              ClockSet::iterator master_iter = master_clks->begin();
+              if (master_iter != master_clks->end()) {
+                master_clk = *master_iter++;
+                // Master source pin can actually be a clock source pin.
+                if (master_clk != gclk) {
+                  gclk->setInferedMasterClk(master_clk);
+                  debugPrint(debug_, "genclk", 2, " {} master clk {}", gclk->name(),
+                             master_clk->name());
+                  master_clk_count++;
+                  break;
+                }
               }
             }
           }
+          enqueueFanin(vertex, master_queue, srch_pred);
         }
-        iter.enqueueAdjacentVertices(vertex, mode_);
       }
     }
     if (master_clk_count > 1)
@@ -301,16 +309,6 @@ Genclks::ensureMaster(Clock *gclk,
                     "generated clock {} pin {} is in the fanout of multiple clocks.",
                     gclk->name(), network_->pathName(src_pin));
   }
-}
-
-void
-Genclks::seedSrcPins(Clock *clk,
-                     BfsBkwdIterator &iter)
-{
-  VertexSet src_vertices = makeVertexSet(this);
-  clk->srcPinVertices(src_vertices, network_, graph_);
-  for (Vertex *vertex : src_vertices)
-    iter.enqueue(vertex);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -617,6 +615,23 @@ Genclks::seedSrcPins(Clock *gclk,
       }
       search_->setVertexArrivals(vertex, &tag_bldr);
       enqueueFanout(vertex, insert_queue, srch_pred);
+    }
+  }
+}
+
+void
+Genclks::enqueueFanin(Vertex *vertex,
+                      VertexQueue &insert_queue,
+                      SearchPred &srch_pred)
+{
+  if (srch_pred.searchTo(vertex, mode_)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *from_vertex = edge->from(graph_);
+      if (srch_pred.searchFrom(from_vertex, mode_)
+          && srch_pred.searchThru(edge, mode_))
+        insert_queue.push(from_vertex);
     }
   }
 }
