@@ -1414,6 +1414,16 @@ ConcreteParasitics::value(const ParasiticCapacitor *capacitor) const
   return ccapacitor->value();
 }
 
+// OpenROAD-fork: SI-window
+void
+ConcreteParasitics::setCapacitorValue(ParasiticCapacitor *capacitor,
+                                      float value)
+{
+  ConcreteParasiticCapacitor *ccapacitor =
+    static_cast<ConcreteParasiticCapacitor*>(capacitor);
+  ccapacitor->setValue(value);
+}
+
 ParasiticNode *
 ConcreteParasitics::node1(const ParasiticCapacitor *capacitor) const
 {
