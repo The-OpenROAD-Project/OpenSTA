@@ -72,6 +72,27 @@ using WorstSlacksSeq = std::vector<WorstSlacks>;
 using DelayDblSeq = std::vector<DelayDbl>;
 using ExceptionPathSeq = std::vector<ExceptionPath*>;
 
+// OpenROAD-fork: AOCV
+// Abstract depth->derate hook for AOCV-style depth-dependent OCV derating
+// during forward arrival propagation. OpenSTA core does not depend on the
+// concrete dbSta AocvDerateTable; the implementation lives in OpenROAD
+// (src/dbSta) and is installed on Search via setAocvDepthDerate(). When no hook
+// is installed (the default), timing propagation is byte-identical to upstream.
+class AocvDepthDerate
+{
+ public:
+  virtual ~AocvDepthDerate() = default;
+  // depth is the number of combinational data-path stages traversed so far
+  // (including the arc being derated).
+  virtual float lateDerate(int depth) const = 0;
+  virtual float earlyDerate(int depth) const = 0;
+  // When false for a side, deratedDelayData keeps the flat SDC derate for that
+  // side instead of overriding it (e.g. a late-only table must not silently
+  // zero out a user's set_timing_derate -early on the min path).
+  virtual bool lateActive() const = 0;
+  virtual bool earlyActive() const = 0;
+};
+
 class Search : public StaState
 {
 public:
@@ -349,6 +370,24 @@ public:
                         const MinMax *min_max,
                         DcalcAPIndex dcalc_ap,
                         const Sdc *sdc);
+  // OpenROAD-fork: AOCV
+  // Data-path arc delay that, when an AocvDepthDerate hook is installed, applies
+  // a depth-dependent derate (selected by the combinational depth of from_path)
+  // instead of the flat SDC derate. With no hook installed this forwards
+  // verbatim to deratedDelay(...) so the result is byte-identical to upstream.
+  ArcDelay deratedDelayData(const Path *from_path,
+                            const Vertex *from_vertex,
+                            const TimingArc *arc,
+                            const Edge *edge,
+                            const MinMax *min_max,
+                            DcalcAPIndex dcalc_ap,
+                            const Sdc *sdc);
+  // Install (or clear, with nullptr) the AOCV depth-derate hook. Not owned.
+  void setAocvDepthDerate(const AocvDepthDerate *derate);
+  const AocvDepthDerate *aocvDepthDerate() const { return aocv_depth_derate_; }
+  // Combinational depth of the data arrival reaching from_path's vertex,
+  // including the arc currently being applied (so the first data stage == 1).
+  int aocvDataDepth(const Path *from_path) const;
 
   TagGroup *tagGroup(const Vertex *vertex) const;
   TagGroup *tagGroup(TagGroupIndex index) const;
@@ -670,6 +709,11 @@ protected:
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;
   CheckCrpr *check_crpr_;
+
+  // OpenROAD-fork: AOCV
+  // Optional depth-dependent OCV derate hook. nullptr (the default) means the
+  // feature is OFF and propagation is byte-identical to upstream. Not owned.
+  const AocvDepthDerate *aocv_depth_derate_{nullptr};
 };
 
 // Eval across latch D->Q edges.
