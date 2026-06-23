@@ -389,6 +389,27 @@ public:
   // including the arc currently being applied (so the first data stage == 1).
   int aocvDataDepth(const Path *from_path) const;
 
+  // OpenROAD-fork: POCV
+  // Parametric on-chip-variation (POCV/LVF) parameters, first slice. These are
+  // PURELY a default-OFF state holder read by the OpenROAD-side report-only
+  // command (report_checks_pocv / pocvAdjustPathEnd in src/dbSta). No code on
+  // the forward-search / arrival-propagation path reads them, so when POCV is
+  // inactive (the default) timing is byte-identical to upstream. POCV uses
+  // QUADRATURE (root-sum-square) accumulation of per-stage variation, which does
+  // not compose with the additive arrival sum the search propagates; hence it is
+  // intentionally NOT a propagation hook.
+  struct PocvSigma
+  {
+    bool enabled = false;     // master flag; false => feature OFF (default)
+    float per_stage = 0.0f;   // fractional per-stage delay sigma (k); 0 => off
+    float n_sigma = 0.0f;     // sign-off sigma multiple (e.g. 3 for 3-sigma)
+    // Active only when explicitly enabled with non-zero coefficients. With this
+    // false the POCV slack equals the flat slack exactly (baseline).
+    bool active() const { return enabled && per_stage != 0.0f && n_sigma != 0.0f; }
+  };
+  const PocvSigma &pocvSigma() const { return pocv_sigma_; }
+  void setPocvSigma(const PocvSigma &sigma) { pocv_sigma_ = sigma; }
+
   TagGroup *tagGroup(const Vertex *vertex) const;
   TagGroup *tagGroup(TagGroupIndex index) const;
   void reportArrivals(Vertex *vertex,
@@ -714,6 +735,12 @@ protected:
   // Optional depth-dependent OCV derate hook. nullptr (the default) means the
   // feature is OFF and propagation is byte-identical to upstream. Not owned.
   const AocvDepthDerate *aocv_depth_derate_{nullptr};
+
+  // OpenROAD-fork: POCV
+  // Parametric OCV (POCV/LVF) parameters. Default-constructed => inactive, so
+  // the feature is OFF and nothing on the propagation path reads it. Only the
+  // OpenROAD-side report-only command consumes this (see pocvSigma()).
+  PocvSigma pocv_sigma_;
 };
 
 // Eval across latch D->Q edges.
