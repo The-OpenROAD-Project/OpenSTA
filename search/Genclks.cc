@@ -625,16 +625,10 @@ Genclks::enqueueFanin(Vertex *vertex,
                       VertexQueue &insert_queue,
                       SearchPred &srch_pred)
 {
-  if (srch_pred.searchTo(vertex, mode_)) {
-    VertexInEdgeIterator edge_iter(vertex, graph_);
-    while (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      Vertex *from_vertex = edge->from(graph_);
-      if (srch_pred.searchFrom(from_vertex, mode_)
-          && srch_pred.searchThru(edge, mode_))
-        insert_queue.push(from_vertex);
-    }
-  }
+  graph_->visitFanins(vertex, &srch_pred,
+                      [&insert_queue] (Vertex *fanin) {
+                        insert_queue.push(fanin);
+                      });
 }
 
 void
@@ -642,14 +636,10 @@ Genclks::enqueueFanout(Vertex *vertex,
                        VertexQueue &insert_queue,
                        SearchPred &srch_pred)
 {
-  VertexOutEdgeIterator edge_iter(vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    Vertex *to_vertex = edge->to(graph_);
-    if (srch_pred.searchThru(edge, mode_)
-        && srch_pred.searchTo(to_vertex, mode_))
-      insert_queue.push(to_vertex);
-  }
+  graph_->visitFanouts(vertex, &srch_pred,
+                       [&insert_queue] (Vertex *fanout) {
+                         insert_queue.push(fanout);
+                       });
 }
 
 Tag *

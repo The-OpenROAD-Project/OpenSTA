@@ -87,6 +87,19 @@ public:
   bool hasFaninOne(Vertex *vertex) const;
   VertexId vertexCount() { return vertices_->size(); }
 
+  void visitFanouts(Vertex *vertex,
+                    SearchPred *pred,
+                    const VertexFn &fn);
+  void visitFanins(Vertex *vertex,
+                   SearchPred *pred,
+                   const VertexFn &fn);
+  void visitFanoutEdges(Vertex *vertex,
+                        SearchPred *pred,
+                        const EdgeFn &fn);
+  void visitFaninEdges(Vertex *vertex,
+                       SearchPred *pred,
+                       const EdgeFn &fn);
+
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
   // Measured slews are between slew_lower_threshold and slew_upper_threshold.
@@ -394,7 +407,7 @@ protected:
   TimingArcSet *arc_set_;
   VertexId from_;
   VertexId to_;
-  EdgeId vertex_in_link_;               // Vertex in edges list.
+  EdgeId vertex_in_next_;               // Vertex in edges list.
   EdgeId vertex_out_next_;              // Vertex out edges doubly linked list.
   EdgeId vertex_out_prev_;
   float *arc_delays_;
