@@ -24,6 +24,11 @@
 
 This file summarizes STA API changes for each release.
 
+2026/06/22
+----------
+
+Liberty::hasSequentials has been renamed isSequential.
+
 Release 3.1.0 2026/03/25
 ------------------------
 

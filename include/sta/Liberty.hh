@@ -536,7 +536,9 @@ public:
   bool leakagePowerExists() const { return leakage_power_exists_; }
 
   // Register, Latch or Statetable.
-  bool hasSequentials() const;
+  bool isSequential() const;
+  // deprecated 2026-06-22 (use isSequential)
+  bool hasSequentials() const __attribute__ ((deprecated));
   const SequentialSeq &sequentials() const { return sequentials_; }
   // Find the sequential with the output connected to an (internal) port.
   Sequential *outputPortSequential(LibertyPort *port);

@@ -443,7 +443,7 @@ Power::power(const Scene *scene,
         pad.incr(inst_power);
       else if (inClockNetwork(inst, clk_network))
         clock.incr(inst_power);
-      else if (cell->hasSequentials())
+      else if (cell->isSequential())
         sequential.incr(inst_power);
       else
         combinational.incr(inst_power);
@@ -695,7 +695,8 @@ PropActivityVisitor::visit(Vertex *vertex)
     if (cell) {
       LibertyCell *test_cell = cell->libertyCell()->testCell();
       if (network_->isLoad(pin)) {
-        if (cell->hasSequentials() || (test_cell && test_cell->hasSequentials())) {
+        if (cell->isSequential()
+            || (test_cell && test_cell->isSequential())) {
           debugPrint(debug_, "power_activity", 3, "pending seq {}",
                      network_->pathName(inst));
           visited_regs_.insert(inst);
