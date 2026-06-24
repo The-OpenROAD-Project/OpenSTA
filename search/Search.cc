@@ -3062,6 +3062,49 @@ Search::deratedDelayData(const Path *from_path,
                          DcalcAPIndex dcalc_ap,
                          const Sdc *sdc)
 {
+  // First compute the scalar (flat or AOCV-depth) data-path delay. This block
+  // is byte-identical to the AOCV slice; nothing here changes the mean delay.
+  ArcDelay delay = deratedDelayDataMean(from_path, from_vertex, arc, edge,
+                                        min_max, dcalc_ap, sdc);
+
+  // OpenROAD-fork: LVF -- propagation-time POCV variance injection.
+  // When the synthetic per-stage sigma model is in -propagate mode, attach a
+  // statistical variance (k*d_i)^2 to this stage's delay so the native
+  // DelayOpsNormal accumulates it in quadrature through delaySum during the
+  // forward search. The mean is left untouched (above), so with the feature
+  // off this is a no-op and timing is byte-identical. Only combinational cell
+  // arcs carry per-stage variation (matches the report-only slice; clock /
+  // CRPR / check arcs keep their flat scalar treatment).
+  if (pocv_sigma_.propagateActive()
+      && edge->role() == TimingRole::combinational()) {
+    const float k = pocv_sigma_.per_stage;
+    const float d = delayAsFloat(delay);  // nominal stage delay mean
+    if (d > 0.0f) {
+      const float stage_sigma = k * d;  // per-stage sigma = k * d_i
+      // makeDelay(mean, std_dev) stores std_dev^2 == (k*d_i)^2 as the variance,
+      // which is exactly the per-stage contribution the path accumulates in
+      // quadrature. The mean is preserved so the nominal arrival is unchanged.
+      // Any prior arc variance (e.g. from LVF liberty) is replaced by the
+      // synthetic model on purpose -- they are mutually exclusive configs.
+      delay = makeDelay(delayAsFloat(delay), stage_sigma);
+    }
+  }
+  return delay;
+}
+
+// OpenROAD-fork: AOCV -- scalar (mean) data-path delay: flat SDC derate, or the
+// AOCV depth-derate when that hook is installed. Factored out of
+// deratedDelayData so the LVF variance injection can layer on top without
+// changing the mean. Byte-identical to the original AOCV body.
+ArcDelay
+Search::deratedDelayDataMean(const Path *from_path,
+                             const Vertex *from_vertex,
+                             const TimingArc *arc,
+                             const Edge *edge,
+                             const MinMax *min_max,
+                             DcalcAPIndex dcalc_ap,
+                             const Sdc *sdc)
+{
   // Feature OFF: identical to the original data-path derate call.
   if (aocv_depth_derate_ == nullptr)
     return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);

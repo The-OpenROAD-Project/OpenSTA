@@ -382,6 +382,16 @@ public:
                             const MinMax *min_max,
                             DcalcAPIndex dcalc_ap,
                             const Sdc *sdc);
+  // OpenROAD-fork: LVF -- scalar (mean) component of deratedDelayData (flat or
+  // AOCV-depth derate). Factored out so the LVF synthetic POCV variance can be
+  // layered on top without altering the mean.
+  ArcDelay deratedDelayDataMean(const Path *from_path,
+                                const Vertex *from_vertex,
+                                const TimingArc *arc,
+                                const Edge *edge,
+                                const MinMax *min_max,
+                                DcalcAPIndex dcalc_ap,
+                                const Sdc *sdc);
   // Install (or clear, with nullptr) the AOCV depth-derate hook. Not owned.
   void setAocvDepthDerate(const AocvDepthDerate *derate);
   const AocvDepthDerate *aocvDepthDerate() const { return aocv_depth_derate_; }
@@ -403,9 +413,17 @@ public:
     bool enabled = false;     // master flag; false => feature OFF (default)
     float per_stage = 0.0f;   // fractional per-stage delay sigma (k); 0 => off
     float n_sigma = 0.0f;     // sign-off sigma multiple (e.g. 3 for 3-sigma)
+    // OpenROAD-fork: LVF -- when true AND active(), the synthetic per-stage
+    // variance (k*d_i)^2 is injected into the data-path arc delay's stdDev2 in
+    // deratedDelayData so the native statistical delay-ops accumulate it in
+    // quadrature during the forward search (propagation-time POCV). Default
+    // false => purely the report-only slice => byte-identical baseline timing.
+    bool propagate = false;
     // Active only when explicitly enabled with non-zero coefficients. With this
     // false the POCV slack equals the flat slack exactly (baseline).
     bool active() const { return enabled && per_stage != 0.0f && n_sigma != 0.0f; }
+    // OpenROAD-fork: LVF -- propagation-time injection gate.
+    bool propagateActive() const { return propagate && active(); }
   };
   const PocvSigma &pocvSigma() const { return pocv_sigma_; }
   void setPocvSigma(const PocvSigma &sigma) { pocv_sigma_ = sigma; }
