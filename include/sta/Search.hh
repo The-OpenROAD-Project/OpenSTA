@@ -419,11 +419,28 @@ public:
     // quadrature during the forward search (propagation-time POCV). Default
     // false => purely the report-only slice => byte-identical baseline timing.
     bool propagate = false;
+    // OpenROAD-fork: LVF-lib -- library-driven POCV. When true the per-stage
+    // sigma comes from the real Liberty LVF ocv_sigma_* tables via the NATIVE
+    // delay calc (GateTableModel::gateDelayPocv under PocvMode::normal), NOT
+    // from the synthetic global per_stage. In this mode the synthetic variance
+    // injection in deratedDelayData is suppressed so it cannot overwrite the
+    // library-derived stdDev. Default false => byte-identical baseline.
+    bool from_liberty = false;
     // Active only when explicitly enabled with non-zero coefficients. With this
-    // false the POCV slack equals the flat slack exactly (baseline).
+    // false the POCV slack equals the flat slack exactly (baseline). Unchanged:
+    // this governs only the global synthetic-sigma model (per_stage based).
     bool active() const { return enabled && per_stage != 0.0f && n_sigma != 0.0f; }
-    // OpenROAD-fork: LVF -- propagation-time injection gate.
-    bool propagateActive() const { return propagate && active(); }
+    // OpenROAD-fork: LVF-lib -- library-driven mode gate. Independent of the
+    // synthetic per_stage; needs only enabled + a sign-off quantile (n_sigma).
+    bool libertyActive() const { return enabled && from_liberty && n_sigma != 0.0f; }
+    // OpenROAD-fork: LVF -- propagation-time SYNTHETIC injection gate. Fires
+    // only for the global-sigma model; in library-driven mode the variance
+    // comes from the native LVF delay calc, so the synthetic injection is
+    // suppressed (from_liberty => false) to avoid overwriting the library stdDev.
+    bool propagateActive() const
+    {
+      return propagate && active() && !from_liberty;  // OpenROAD-fork: LVF-lib
+    }
   };
   const PocvSigma &pocvSigma() const { return pocv_sigma_; }
   void setPocvSigma(const PocvSigma &sigma) { pocv_sigma_ = sigma; }
