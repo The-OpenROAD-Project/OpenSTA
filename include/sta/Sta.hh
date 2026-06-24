@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <string_view>
@@ -148,7 +149,22 @@ public:
   ModeSeq findModes(const std::string &mode_name) const;
   Sdc *cmdSdc() const;
 
+  // Read a Liberty file from a file.
+  //
+  // filename should be the path to the file, if ZLIB is included it may be
+  // either compressed or uncompressed.
   virtual LibertyLibrary *readLiberty(std::string_view filename,
+                                      Scene *scene,
+                                      const MinMaxAll *min_max,
+                                      bool infer_latches);
+  // Read a Liberty file from an input stream.
+  //
+  // filename is used only as a label in diagnostic messages; it may but need
+  // not correspond to a file on disk.
+  //
+  // The input stream should provide uncompressed text.
+  virtual LibertyLibrary *readLiberty(std::istream& stream,
+                                      std::string_view filename,
                                       Scene *scene,
                                       const MinMaxAll *min_max,
                                       bool infer_latches);
@@ -1513,6 +1529,11 @@ protected:
   NetworkEdit *networkCmdEdit();
 
   LibertyLibrary *readLibertyFile(std::string_view filename,
+                                  Scene *scene,
+                                  const MinMaxAll *min_max,
+                                  bool infer_latches);
+  LibertyLibrary *readLibertyFile(std::istream& stream,
+                                  std::string_view filename,
                                   Scene *scene,
                                   const MinMaxAll *min_max,
                                   bool infer_latches);

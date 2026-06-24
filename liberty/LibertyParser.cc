@@ -61,7 +61,6 @@ parseLibertyFile(std::istream& file_contents,
                  LibertyGroupVisitor *library_visitor,
                  Report *report)
 {
- 
   LibertyParser reader(filename, library_visitor, report);
   LibertyScanner scanner(&file_contents, filename, &reader, report);
   LibertyParse parser(&scanner, &reader);

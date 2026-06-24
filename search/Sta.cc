@@ -707,6 +707,24 @@ Sta::readLiberty(std::string_view filename,
   return library;
 }
 
+LibertyLibrary* Sta::readLiberty(std::istream& stream,
+                                 std::string_view filename, Scene* scene,
+                                 const MinMaxAll* min_max, bool infer_latches) {
+  Stats stats(debug_, report_);
+  LibertyLibrary* library =
+      readLibertyFile(stream, filename, scene, min_max, infer_latches);
+  if (library
+      // The default library is the first library read.
+      // This corresponds to a link_path of '*'.
+      && network_->defaultLibertyLibrary() == nullptr) {
+    network_->setDefaultLibertyLibrary(library);
+    // Set units from default (first) library.
+    *units_ = *library->units();
+  }
+  stats.report("Read liberty");
+  return library;
+}
+
 LibertyLibrary *
 Sta::readLibertyFile(std::string_view filename,
                      Scene *scene,
@@ -714,6 +732,22 @@ Sta::readLibertyFile(std::string_view filename,
                      bool infer_latches)
 {
   LibertyLibrary *liberty = sta::readLibertyFile(filename, infer_latches, network_);
+  if (liberty) {
+    // Don't map liberty cells if they are redefined by reading another
+    // library with the same cell names.
+    readLibertyAfter(liberty, scene, min_max);
+    network_->readLibertyAfter(liberty);
+  }
+  return liberty;
+}
+
+
+LibertyLibrary* Sta::readLibertyFile(std::istream& stream,
+                                     std::string_view filename, Scene* scene,
+                                     const MinMaxAll* min_max,
+                                     bool infer_latches) {
+  LibertyLibrary* liberty =
+      sta::readLibertyFile(stream, filename, infer_latches, network_);
   if (liberty) {
     // Don't map liberty cells if they are redefined by reading another
     // library with the same cell names.
