@@ -180,7 +180,7 @@ genrule(
     outs = ["include/sta/StaConfig.hh"],
     cmd = """echo -e '
     #pragma once
-    #define STA_VERSION "2.7.0"
+    #define STA_VERSION "3.1.0"
     #define STA_GIT_SHA1 "f21d4a3878e2531e3af4930818d9b5968aad9416"
     #define SSTA 0
     #define ZLIB_FOUND
