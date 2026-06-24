@@ -95,8 +95,8 @@ EvalPred::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   return SearchPred0::searchThru(edge, mode)
-    && (sta_->variables()->dynamicLoopBreaking() || !edge->isDisabledLoop())
-    && (search_thru_latches_ || role->isLatchDtoQ()
+    && (search_thru_latches_
+        || role->isLatchDtoQ()
         || sta_->latches()->latchDtoQState(edge, mode) == LatchEnableState::open);
 }
 
@@ -133,54 +133,56 @@ bool
 SearchThru::searchThru(Edge *edge,
                        const Mode *mode) const
 {
-  return EvalPred::searchThru(edge, mode) && !edge->role()->isLatchDtoQ();
+  return EvalPred::searchThru(edge, mode)
+    && !edge->role()->isLatchDtoQ();
 }
 
 ////////////////////////////////////////////////////////////////
 
 // SearchAdj is mode independent. Search unless
-//  disabled to break combinational loop
 //  latch D->Q edge
 //  timing check edge
-//  dynamic loop breaking pending tags
+//  register set/clear
+//  bidirect load->driver
 class SearchAdj : public SearchPred
 {
 public:
-  SearchAdj(TagGroupBldr *tag_bldr,
-            const StaState *sta);
+  SearchAdj(const StaState *sta);
+  bool searchFrom(const Vertex *from_vertex) const override;
   bool searchFrom(const Vertex *from_vertex,
                   const Mode *mode) const override;
+  bool searchThru(Edge *edge) const override;
   bool searchThru(Edge *edge,
                   const Mode *mode) const override;
+  bool searchTo(const Vertex *to_vertex) const override;
   bool searchTo(const Vertex *to_vertex,
                 const Mode *mode) const override;
 
 protected:
-  bool loopEnabled(Edge *edge) const;
-  bool hasPendingLoopPaths(Edge *edge) const;
-
-  TagGroupBldr *tag_bldr_;
   const StaState *sta_;
 };
 
-SearchAdj::SearchAdj(TagGroupBldr *tag_bldr,
-                     const StaState *sta) :
+SearchAdj::SearchAdj(const StaState *sta) :
   SearchPred(sta),
-  tag_bldr_(tag_bldr),
   sta_(sta)
 {
 }
 
 bool
-SearchAdj::searchFrom(const Vertex * /* from_vertex */,
+SearchAdj::searchFrom(const Vertex *) const
+{
+  return true;
+}
+
+bool
+SearchAdj::searchFrom(const Vertex *,
                       const Mode *) const
 {
   return true;
 }
 
 bool
-SearchAdj::searchThru(Edge *edge,
-                      const Mode *) const
+SearchAdj::searchThru(Edge *edge) const
 {
   const TimingRole *role = edge->role();
   const Variables *variables = sta_->variables();
@@ -189,42 +191,24 @@ SearchAdj::searchThru(Edge *edge,
            // Register/latch preset/clr edges are disabled by default.
            || (role == TimingRole::regSetClr()
                && !variables->presetClrArcsEnabled())
-           || sta_->isDisabledBidirectInstPath(edge)
-           || (edge->isDisabledLoop()
-               && !(variables->dynamicLoopBreaking() && hasPendingLoopPaths(edge))));
+           || sta_->isDisabledBidirectInstPath(edge));
 }
 
 bool
-SearchAdj::loopEnabled(Edge *edge) const
+SearchAdj::searchThru(Edge *edge,
+                       const Mode *) const
 {
-  return !edge->isDisabledLoop()
-      || (sta_->variables()->dynamicLoopBreaking() && hasPendingLoopPaths(edge));
+  return searchThru(edge);
 }
 
 bool
-SearchAdj::hasPendingLoopPaths(Edge *edge) const
+SearchAdj::searchTo(const Vertex *) const
 {
-  if (tag_bldr_ && tag_bldr_->hasLoopTag()) {
-    const Graph *graph = sta_->graph();
-    Search *search = sta_->search();
-    Vertex *from_vertex = edge->from(graph);
-    TagGroup *prev_tag_group = search->tagGroup(from_vertex);
-    for (auto const [from_tag, path_index] : tag_bldr_->pathIndexMap()) {
-      if (from_tag->isLoop()) {
-        // Loop false path exceptions apply to rise/fall edges so to_rf
-        // does not matter.
-        Tag *to_tag = search->thruTag(from_tag, edge, RiseFall::rise(), nullptr);
-        if (to_tag
-            && (prev_tag_group == nullptr || !prev_tag_group->hasTag(from_tag)))
-          return true;
-      }
-    }
-  }
-  return false;
+  return true;
 }
 
 bool
-SearchAdj::searchTo(const Vertex * /* to_vertex */,
+SearchAdj::searchTo(const Vertex *,
                     const Mode *) const
 {
   return true;
@@ -236,8 +220,7 @@ Search::Search(StaState *sta) :
   StaState(sta),
 
   search_thru_(new SearchThru(this)),
-  search_adj_(new SearchAdj(nullptr,
-                            this)),
+  search_adj_(new SearchAdj(this)),
   eval_pred_(new EvalPred(this)),
 
   invalid_arrivals_(makeVertexSet(this)),
@@ -247,9 +230,7 @@ Search::Search(StaState *sta) :
   arrival_visitor_(new ArrivalVisitor(this)),
 
   invalid_requireds_(makeVertexSet(this)),
-  required_iter_(new BfsBkwdIterator(BfsIndex::required,
-                                     search_adj_,
-                                     this)),
+  required_iter_(new BfsBkwdIterator(BfsIndex::required, search_adj_, this)),
 
   invalid_tns_(makeVertexSet(this)),
   clk_info_set_(new ClkInfoSet(ClkInfoLess(this))),
@@ -261,8 +242,8 @@ Search::Search(StaState *sta) :
   tag_group_capacity_(tag_capacity_),
   tag_groups_(new TagGroup *[tag_group_capacity_]),
   tag_group_set_(new TagGroupSet(tag_group_capacity_)),
-  pending_latch_outputs_(makeVertexSet(this)),
-  pending_clk_endpoints_(makeVertexSet(this)),
+  postponed_arrivals_(makeVertexSet(this)),
+  postponed_clk_endpoints_(makeVertexSet(this)),
   endpoints_(makeVertexSet(this)),
   invalid_endpoints_(makeVertexSet(this)),
 
@@ -326,8 +307,8 @@ Search::clear()
   deletePathGroups();
   deletePaths();
   deleteTags();
-  pending_latch_outputs_.clear();
-  pending_clk_endpoints_.clear();
+  postponed_arrivals_.clear();
+  postponed_clk_endpoints_.clear();
   deleteFilter();
   found_downstream_clk_pins_ = false;
 }
@@ -655,10 +636,10 @@ Search::findFilteredArrivals(bool thru_latches)
     int arrival_count = arrival_iter_->visitParallel(max_level, arrival_visitor_);
     debugPrint(debug_, "search", 1, "found {} arrivals", arrival_count);
 
-    have_pending_latch_outputs = !pending_latch_outputs_.empty();
-    for (Vertex *latch_output : pending_latch_outputs_)
+    have_pending_latch_outputs = !postponed_arrivals_.empty();
+    for (Vertex *latch_output : postponed_arrivals_)
       arrival_visitor_->visit(latch_output, true);
-    pending_latch_outputs_.clear();
+    postponed_arrivals_.clear();
 
     deleteTagsPrev();
   }
@@ -997,29 +978,30 @@ Search::findAllArrivals(bool thru_latches,
 
     findArrivals1(levelize_->maxLevel());
 
-    have_pending_latch_outputs = !pending_latch_outputs_.empty();
-    for (Vertex *latch_output : pending_latch_outputs_)
+    have_pending_latch_outputs = !postponed_arrivals_.empty();
+    for (Vertex *latch_output : postponed_arrivals_)
       arrival_visitor_->visit(latch_output, true);
-    pending_latch_outputs_.clear();
+    postponed_arrivals_.clear();
   }
 }
 
+// Pick up where the search stopped at the clock network boundary.
 void
 Search::enqueuePendingClkFanouts()
 {
-  for (Vertex *vertex : pending_clk_endpoints_) {
+  for (Vertex *vertex : postponed_clk_endpoints_) {
     debugPrint(debug_, "search", 2, "enqueue clk fanout {}",
                vertex->to_string(this));
     arrival_iter_->enqueueAdjacentVertices(vertex, search_adj_);
   }
-  pending_clk_endpoints_.clear();
+  postponed_clk_endpoints_.clear();
 }
 
 void
 Search::postponeClkFanouts(Vertex *vertex)
 {
-  LockGuard lock(pending_clk_endpoints_lock_);
-  pending_clk_endpoints_.insert(vertex);
+  LockGuard lock(postponed_clk_endpoints_lock_);
+  postponed_clk_endpoints_.insert(vertex);
 }
 
 void
@@ -1089,7 +1071,7 @@ ArrivalVisitor::init0()
 {
   tag_bldr_ = new TagGroupBldr(true, this);
   tag_bldr_no_crpr_ = new TagGroupBldr(false, this);
-  adj_pred_ = new SearchAdj(tag_bldr_, this);
+  adj_pred_ = new SearchAdj(this);
 }
 
 void
@@ -1133,7 +1115,7 @@ void
 ArrivalVisitor::visit(Vertex *vertex)
 {
   if (network_->isLatchOutput(vertex->pin()))
-    search_->enqueueLatchOutput(vertex);
+    search_->postponeArrivals(vertex);
   else
     visit(vertex, false);
 }
@@ -1167,15 +1149,25 @@ ArrivalVisitor::visit(Vertex *vertex,
   // previous eval pass enqueue the latch outputs to be re-evaled on the
   // next pass.
   if (arrivals_changed && network_->isLatchData(pin))
-    search_->enqueueLatchDataOutputs(vertex);
+    search_->postponeLatchDataOutputs(vertex);
 
   if ((always_to_endpoints_ || arrivals_changed)) {
     if (clks_only_ && vertex->isRegClk()) {
       debugPrint(debug_, "search", 3, "postponing clk fanout");
       search_->postponeClkFanouts(vertex);
     }
-    else
-      search_->arrivalIterator()->enqueueAdjacentVertices(vertex, adj_pred_);
+    else {
+      graph_->visitFanoutEdges(vertex, adj_pred_,
+                               [this] (Edge *edge,
+                                       Vertex *fanout) {
+                                 if (edge->isDisabledLoop()) {
+                                   if (hasPendingLoopPaths(edge))
+                                     search_->postponeArrivals(fanout);
+                                 }
+                                 else
+                                   search_->arrivalIterator()->enqueue(fanout);
+                               });
+    }
   }
   if (arrivals_changed) {
     debugPrint(debug_, "search", 4, "arrivals changed");
@@ -1183,6 +1175,26 @@ ArrivalVisitor::visit(Vertex *vertex,
     search_->tnsInvalid(vertex);
     constrainedRequiredsInvalid(vertex, is_clk);
   }
+}
+
+bool
+ArrivalVisitor::hasPendingLoopPaths(Edge *edge) const
+{
+  if (tag_bldr_ && tag_bldr_->hasLoopTag()) {
+    Vertex *from_vertex = edge->from(graph_);
+    TagGroup *prev_tag_group = search_->tagGroup(from_vertex);
+    for (auto const [from_tag, path_index] : tag_bldr_->pathIndexMap()) {
+      if (from_tag->isLoop()) {
+        // Loop false path exceptions apply to rise/fall edges so to_rf
+        // does not matter.
+        Tag *to_tag = search_->thruTag(from_tag, edge, RiseFall::rise(), nullptr);
+        if (to_tag
+            && (prev_tag_group == nullptr || !prev_tag_group->hasTag(from_tag)))
+          return true;
+      }
+    }
+  }
+  return false;
 }
 
 void
@@ -1385,24 +1397,24 @@ ArrivalVisitor::pruneCrprArrivals()
 }
 
 void
-Search::enqueueLatchDataOutputs(Vertex *latch_data)
+Search::postponeLatchDataOutputs(Vertex *latch_data)
 {
   VertexOutEdgeIterator edge_iter(latch_data, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     if (edge->role() == TimingRole::latchDtoQ()) {
       Vertex *out_vertex = edge->to(graph_);
-      LockGuard lock(pending_latch_outputs_lock_);
-      pending_latch_outputs_.insert(out_vertex);
+      LockGuard lock(postponed_arrivals_lock_);
+      postponed_arrivals_.insert(out_vertex);
     }
   }
 }
 
 void
-Search::enqueueLatchOutput(Vertex *vertex)
+Search::postponeArrivals(Vertex *vertex)
 {
-  LockGuard lock(pending_latch_outputs_lock_);
-  pending_latch_outputs_.insert(vertex);
+  LockGuard lock(postponed_arrivals_lock_);
+  postponed_arrivals_.insert(vertex);
 }
 
 void
@@ -1995,7 +2007,8 @@ PathVisitor::visitEdge(const Pin *from_pin,
       Path *from_path = from_iter.next();
       const Mode *mode = from_path->mode(this);
       if (mode == prev_mode
-          || (pred_->searchFrom(from_vertex, mode) && pred_->searchThru(edge, mode)
+          || (pred_->searchFrom(from_vertex, mode)
+              && pred_->searchThru(edge, mode)
               && pred_->searchTo(to_vertex, mode))) {
         prev_mode = mode;
         const MinMax *min_max = from_path->minMax(this);

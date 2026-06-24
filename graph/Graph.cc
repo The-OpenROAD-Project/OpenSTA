@@ -585,7 +585,8 @@ Graph::visitFanouts(Vertex *vertex,
          edge;
          edge = this->edge(edge->vertex_out_next_)) {
       Vertex *to_vertex = this->vertex(edge->to_);
-      if (pred->searchThru(edge) && pred->searchTo(to_vertex))
+      if (pred->searchThru(edge)
+          && pred->searchTo(to_vertex))
         fn(to_vertex);
     }
   }
@@ -601,7 +602,8 @@ Graph::visitFanoutEdges(Vertex *vertex,
          edge;
          edge = this->edge(edge->vertex_out_next_)) {
       Vertex *to_vertex = this->vertex(edge->to_);
-      if (pred->searchThru(edge) && pred->searchTo(to_vertex))
+      if (pred->searchThru(edge)
+          && pred->searchTo(to_vertex))
         fn(edge, to_vertex);
     }
   }
@@ -617,7 +619,8 @@ Graph::visitFanins(Vertex *vertex,
          edge;
          edge = this->edge(edge->vertex_in_next_)) {
       Vertex *from_vertex = this->vertex(edge->from_);
-      if (pred->searchThru(edge) && pred->searchFrom(from_vertex))
+      if (pred->searchThru(edge)
+          && pred->searchFrom(from_vertex))
         fn(from_vertex);
     }
   }
@@ -633,7 +636,8 @@ Graph::visitFaninEdges(Vertex *vertex,
          edge;
          edge = this->edge(edge->vertex_in_next_)) {
       Vertex *from_vertex = this->vertex(edge->from_);
-      if (pred->searchThru(edge) && pred->searchFrom(from_vertex))
+      if (pred->searchThru(edge)
+          && pred->searchFrom(from_vertex))
         fn(edge, from_vertex);
     }
   }
