@@ -4407,9 +4407,15 @@ Sta::makeNet(const char *name,
 {
   NetworkEdit *network = networkCmdEdit();
   std::string escaped = escapeBrackets(name, network);
-  Net *net = network->makeNet(escaped, parent);
-  // Sta notification unnecessary.
-  return net;
+  if (network->findNet(parent, escaped)) {
+    report_->warn(1557, "net {} already exists.", name);
+    return nullptr;
+  }
+  else {
+    Net *net = network->makeNet(escaped, parent);
+    // Sta notification unnecessary.
+    return net;
+  }
 }
 
 void
