@@ -544,6 +544,8 @@ Sta::clearNonSdc()
   for (Mode *mode : modes_) {
     mode->clkNetwork()->clkPinsInvalid();
     mode->sim()->clear();
+    // ref_pin edges are owned by the graph deleted below; force a rebuild.
+    mode->sdc()->inputDelayRefPinEdgesInvalid();
   }
   search_->clear();
 

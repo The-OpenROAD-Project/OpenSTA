@@ -2840,6 +2840,18 @@ Sdc::ensureInputDelayRefPinEdges()
   }
 }
 
+// The ref_pin edges are owned by the graph. When the graph is deleted the
+// edges go with it, so the existence flags must be reset to force them to be
+// rebuilt by ensureInputDelayRefPinEdges() with the new graph.
+void
+Sdc::inputDelayRefPinEdgesInvalid()
+{
+  if (have_input_delay_ref_pins_) {
+    for (InputDelay *input_delay : input_delays_)
+      input_delay->setRefPinEdgesExist(false);
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
