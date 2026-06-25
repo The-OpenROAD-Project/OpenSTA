@@ -1092,7 +1092,7 @@ ArrivalVisitor::init0()
 {
   tag_bldr_ = new TagGroupBldr(true, this);
   tag_bldr_no_crpr_ = new TagGroupBldr(false, this);
-  srch_adj_ = new SearchAdjLoop(this);
+  search_adj_ = new SearchAdjLoop(this);
 }
 
 void
@@ -1116,14 +1116,14 @@ void
 ArrivalVisitor::copyState(const StaState *sta)
 {
   StaState::copyState(sta);
-  srch_adj_->copyState(sta);
+  search_adj_->copyState(sta);
 }
 
 ArrivalVisitor::~ArrivalVisitor()
 {
   delete tag_bldr_;
   delete tag_bldr_no_crpr_;
-  delete srch_adj_;
+  delete search_adj_;
 }
 
 void
@@ -1178,7 +1178,7 @@ ArrivalVisitor::visit(Vertex *vertex,
       search_->postponeClkFanouts(vertex);
     }
     else {
-      graph_->visitFanoutEdges(vertex, srch_adj_,
+      graph_->visitFanoutEdges(vertex, search_adj_,
                                [this] (Edge *edge,
                                        Vertex *fanout) {
                                  if (edge->isDisabledLoop()) {
