@@ -139,15 +139,15 @@ SearchThru::searchThru(Edge *edge,
 
 ////////////////////////////////////////////////////////////////
 
-// SearchAdj is mode independent. Search unless
+// SearchAdjLoop is mode independent. Search unless
 //  latch D->Q edge
 //  timing check edge
 //  register set/clear
 //  bidirect load->driver
-class SearchAdj : public SearchPred
+class SearchAdjLoop : public SearchPred
 {
 public:
-  SearchAdj(const StaState *sta);
+  SearchAdjLoop(const StaState *sta);
   bool searchFrom(const Vertex *from_vertex) const override;
   bool searchFrom(const Vertex *from_vertex,
                   const Mode *mode) const override;
@@ -162,27 +162,27 @@ protected:
   const StaState *sta_;
 };
 
-SearchAdj::SearchAdj(const StaState *sta) :
+SearchAdjLoop::SearchAdjLoop(const StaState *sta) :
   SearchPred(sta),
   sta_(sta)
 {
 }
 
 bool
-SearchAdj::searchFrom(const Vertex *) const
+SearchAdjLoop::searchFrom(const Vertex *) const
 {
   return true;
 }
 
 bool
-SearchAdj::searchFrom(const Vertex *,
-                      const Mode *) const
+SearchAdjLoop::searchFrom(const Vertex *,
+                          const Mode *) const
 {
   return true;
 }
 
 bool
-SearchAdj::searchThru(Edge *edge) const
+SearchAdjLoop::searchThru(Edge *edge) const
 {
   const TimingRole *role = edge->role();
   const Variables *variables = sta_->variables();
@@ -195,23 +195,44 @@ SearchAdj::searchThru(Edge *edge) const
 }
 
 bool
-SearchAdj::searchThru(Edge *edge,
-                       const Mode *) const
+SearchAdjLoop::searchThru(Edge *edge,
+                          const Mode *) const
 {
   return searchThru(edge);
 }
 
 bool
-SearchAdj::searchTo(const Vertex *) const
+SearchAdjLoop::searchTo(const Vertex *) const
 {
   return true;
 }
 
 bool
-SearchAdj::searchTo(const Vertex *,
-                    const Mode *) const
+SearchAdjLoop::searchTo(const Vertex *,
+                        const Mode *) const
 {
   return true;
+}
+
+// SearchAdj is mode independent. Search unless
+// SearchAdjLoop but not thru disabled loop edges.
+class SearchAdj : public SearchAdjLoop
+{
+public:
+  SearchAdj(const StaState *sta);
+  bool searchThru(Edge *edge) const override;
+};
+
+SearchAdj::SearchAdj(const StaState *sta) :
+  SearchAdjLoop(sta)
+{
+}
+
+bool
+SearchAdj::searchThru(Edge *edge) const
+{
+  return SearchAdjLoop::searchThru(edge)
+    && !edge->isDisabledLoop();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1071,7 +1092,7 @@ ArrivalVisitor::init0()
 {
   tag_bldr_ = new TagGroupBldr(true, this);
   tag_bldr_no_crpr_ = new TagGroupBldr(false, this);
-  adj_pred_ = new SearchAdj(this);
+  srch_adj_ = new SearchAdjLoop(this);
 }
 
 void
@@ -1095,14 +1116,14 @@ void
 ArrivalVisitor::copyState(const StaState *sta)
 {
   StaState::copyState(sta);
-  adj_pred_->copyState(sta);
+  srch_adj_->copyState(sta);
 }
 
 ArrivalVisitor::~ArrivalVisitor()
 {
   delete tag_bldr_;
   delete tag_bldr_no_crpr_;
-  delete adj_pred_;
+  delete srch_adj_;
 }
 
 void
@@ -1157,7 +1178,7 @@ ArrivalVisitor::visit(Vertex *vertex,
       search_->postponeClkFanouts(vertex);
     }
     else {
-      graph_->visitFanoutEdges(vertex, adj_pred_,
+      graph_->visitFanoutEdges(vertex, srch_adj_,
                                [this] (Edge *edge,
                                        Vertex *fanout) {
                                  if (edge->isDisabledLoop()) {

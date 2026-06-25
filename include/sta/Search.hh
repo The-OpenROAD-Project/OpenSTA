@@ -809,7 +809,7 @@ protected:
   bool clks_only_;
   TagGroupBldr *tag_bldr_;
   TagGroupBldr *tag_bldr_no_crpr_;
-  SearchPred *adj_pred_;
+  SearchPred *srch_adj_;
   bool crpr_active_;
   bool has_fanin_one_;
 };
