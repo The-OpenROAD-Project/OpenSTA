@@ -366,10 +366,10 @@ protected:
   ConcretePort *port_;
   ConcreteNet *net_;
   ConcreteTerm *term_{nullptr};
-  ObjectId id_;
   // Doubly linked list of net pins.
   ConcretePin *net_next_{nullptr};
   ConcretePin *net_prev_{nullptr};
+  ObjectId id_;
   VertexId vertex_id_{vertex_id_null};
 
 private:
