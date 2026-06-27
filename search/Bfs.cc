@@ -343,11 +343,7 @@ BfsIterator::remove(Vertex *vertex)
 BfsFwdIterator::BfsFwdIterator(BfsIndex bfs_index,
                                SearchPred *search_pred,
                                StaState *sta) :
-  BfsIterator(bfs_index,
-              0,
-              level_max,
-              search_pred,
-              sta)
+  BfsIterator(bfs_index, 0, Graph::vertex_level_max, search_pred, sta)
 {
 }
 
@@ -415,11 +411,7 @@ BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
 BfsBkwdIterator::BfsBkwdIterator(BfsIndex bfs_index,
                                  SearchPred *search_pred,
                                  StaState *sta) :
-  BfsIterator(bfs_index,
-              level_max,
-              0,
-              search_pred,
-              sta)
+  BfsIterator(bfs_index, Graph::vertex_level_max, 0, search_pred, sta)
 {
 }
 

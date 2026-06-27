@@ -50,9 +50,9 @@ namespace sta {
 Graph::Graph(StaState *sta,
              DcalcAPIndex ap_count) :
   StaState(sta),
-  ap_count_(ap_count),
   period_check_annotations_(network_),
-  reg_clk_vertices_(makeVertexSet(this))
+  reg_clk_vertices_(makeVertexSet(this)),
+  ap_count_(ap_count)
 {
   // For the benifit of reg_clk_vertices_ that references graph_.
   graph_ = this;
@@ -1040,22 +1040,22 @@ Vertex::init(Pin *pin,
              bool is_reg_clk)
 {
   pin_ = pin;
-  is_reg_clk_ = is_reg_clk;
-  is_bidirect_drvr_ = is_bidirect_drvr;
   in_edges_ = edge_id_null;
   out_edges_ = edge_id_null;
   slews_ = nullptr;
   paths_ = nullptr;
   tag_group_index_ = tag_group_index_max;
-  slew_annotated_ = false;
+  bfs_in_queue_ = 0;
+  is_bidirect_drvr_ = is_bidirect_drvr;
+  is_reg_clk_ = is_reg_clk;
   has_checks_ = false;
   is_check_clk_ = false;
   has_downstream_clk_pin_ = false;
-  level_ = 0;
   visited1_ = false;
   visited2_ = false;
   has_sim_value_ = false;
-  bfs_in_queue_ = 0;
+  level_ = 0;
+  slew_annotated_ = false;
 }
 
 Vertex::~Vertex()
@@ -1281,20 +1281,19 @@ Edge::init(VertexId from,
            VertexId to,
            TimingArcSet *arc_set)
 {
-  from_ = from;
-  to_ = to;
   arc_set_ = arc_set;
-  vertex_in_next_ = edge_id_null;
-  vertex_out_next_ = edge_id_null;
-  vertex_out_prev_ = edge_id_null;
-  is_bidirect_inst_path_ = false;
-  is_bidirect_net_path_ = false;
-  is_bidirect_port_path_ = false;
-
   arc_delays_ = nullptr;
   arc_delay_annotated_is_bits_ = true;
   arc_delay_annotated_.bits_ = 0;
+  from_ = from;
+  to_ = to;
+  vertex_in_next_ = edge_id_null;
+  vertex_out_next_ = edge_id_null;
+  vertex_out_prev_ = edge_id_null;
   delay_annotation_is_incremental_ = false;
+  is_bidirect_inst_path_ = false;
+  is_bidirect_net_path_ = false;
+  is_bidirect_port_path_ = false;
   is_disabled_loop_ = false;
   has_sim_sense_ = false;
   has_disabled_cond_ = false;
