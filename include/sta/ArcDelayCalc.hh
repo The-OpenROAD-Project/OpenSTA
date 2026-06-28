@@ -259,6 +259,12 @@ public:
                                        const MinMax *min_max,
                                        int digits) = 0;
   virtual void finishDrvrPin() = 0;
+
+  // OpenROAD-fork: ccs-delay2 -- effective capacitance the most recent
+  // gateDelay() converged to. Meaningful only for CCS Ceff calculators; the
+  // base returns a negative sentinel (no Ceff / not a Ceff-solving calc).
+  // Read-only; does not affect any delay value or the active delay path.
+  virtual double effectiveCapacitance() const { return -1.0; }
 };
 
 } // namespace sta

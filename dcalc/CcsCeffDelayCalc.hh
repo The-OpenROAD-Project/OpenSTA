@@ -62,6 +62,14 @@ public:
                               const MinMax *min_max,
                               int digits) override;
 
+  // OpenROAD-fork: ccs-delay2 -- read-only accessor exposing the effective
+  // capacitance (region 0) that the most recent successful CCS gateDelay()
+  // converged to. Returns a negative value if the last gateDelay() fell back
+  // to the NLDM table calculator (no CCS waveforms / out-of-bounds / no
+  // pi-model parasitic). Purely additive: does not affect any delay value or
+  // the active delay path.
+  double effectiveCapacitance() const override { return last_ceff_; }
+
   // Record waveform for drvr/load pin.
   void watchPin(const Pin *pin) override;
   void clearWatchPins() override;
@@ -148,6 +156,9 @@ protected:
   Region region_ramp_times_;
   Region region_ramp_slopes_;
   bool vl_fail_{false};
+  // OpenROAD-fork: ccs-delay2 -- last converged effective cap (region 0), or
+  // a negative sentinel when the previous gateDelay() used the NLDM fallback.
+  double last_ceff_{-1.0};
   // Waveform recording.
   WatchPinValuesMap watch_pin_values_;
 

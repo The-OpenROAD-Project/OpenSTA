@@ -94,6 +94,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   parasitics_ = scene->parasitics(min_max);
   parasitic_ = parasitic;
   output_waveforms_ = nullptr;
+  last_ceff_ = -1.0;  // OpenROAD-fork: ccs-delay2 -- reset; set on CCS path.
 
   const GateTableModel *table_model = arc->gateTableModel(scene, min_max);
   if (table_model && parasitic) {
@@ -126,6 +127,8 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
 
       double gate_delay, drvr_slew;
       gateDelaySlew(drvr_library, gate_delay, drvr_slew);
+      // OpenROAD-fork: ccs-delay2 -- expose the converged effective cap.
+      last_ceff_ = region_ceff_[0];
       debugPrint(debug_, "ccs_dcalc", 2, "gate_delay {} drvr_slew {}",
                  delayAsString(gate_delay, this), delayAsString(drvr_slew, this));
 
