@@ -443,7 +443,25 @@ public:
                            const RiseFall *rf);
   static bool checkAxes(const TableModel *table);
 
+  // OpenROAD-fork: ccs-delay -- read-only accessors so the OpenROAD (dbSta)
+  // layer can SURFACE the CCS receiver-capacitance that OpenSTA already
+  // parses but never evaluates. These do NOT participate in delay calc; the
+  // NLDM delay path is unchanged. See src/dbSta/src/CcsReceiverReport.cc.
+  //
+  // hasCapacitanceModel: true if segment/rf has a parsed receiver-cap table.
+  // capacitance: interpolated receiver capacitance (library cap units) at the
+  //   given input transition (in_slew) and, for 2D tables, output net cap
+  //   (out_cap). segment 0 = receiver_capacitance1 (Cr1), 1 = Cr2.
+  bool hasCapacitanceModel(size_t segment, const RiseFall *rf) const;
+  float capacitance(size_t segment,
+                    const RiseFall *rf,
+                    float in_slew,
+                    float out_cap) const;
+
 private:
+  const TableModel *capacitanceModel(size_t segment,
+                                     const RiseFall *rf) const;
+
   std::vector<TableModel> capacitance_models_;
 };
 

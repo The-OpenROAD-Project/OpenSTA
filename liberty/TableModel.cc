@@ -446,6 +446,48 @@ ReceiverModel::checkAxes(const TableModel *table)
           && axis3 == nullptr);
 }
 
+// OpenROAD-fork: ccs-delay -- read-only accessors. These evaluate the CCS
+// receiver-capacitance tables that OpenSTA already parses into
+// capacitance_models_ but never consumes. They are used only by the additive
+// OpenROAD report (report_ccs_receiver_delta); the NLDM delay path does not
+// call them, so default/flag-off behavior is byte-identical to baseline.
+const TableModel *
+ReceiverModel::capacitanceModel(size_t segment,
+                                const RiseFall *rf) const
+{
+  const size_t idx = segment * RiseFall::index_count + rf->index();
+  if (idx >= capacitance_models_.size())
+    return nullptr;
+  const TableModel &model = capacitance_models_[idx];
+  // Empty (default-constructed) slots have no backing table.
+  if (model.table() == nullptr)
+    return nullptr;
+  return &model;
+}
+
+bool
+ReceiverModel::hasCapacitanceModel(size_t segment,
+                                   const RiseFall *rf) const
+{
+  return capacitanceModel(segment, rf) != nullptr;
+}
+
+float
+ReceiverModel::capacitance(size_t segment,
+                           const RiseFall *rf,
+                           float in_slew,
+                           float out_cap) const
+{
+  const TableModel *model = capacitanceModel(segment, rf);
+  if (model == nullptr)
+    return 0.0f;
+  // ReceiverModel::checkAxes guarantees axis1 is input_net_transition (1D) or
+  // input_net_transition x total_output_net_capacitance (2D, canonicalized).
+  // Table::findValue ignores trailing args for lower-order tables, so passing
+  // (in_slew, out_cap, 0) is correct for both 1D and 2D receiver-cap tables.
+  return model->findValue(in_slew, out_cap, 0.0f);
+}
+
 ////////////////////////////////////////////////////////////////
 
 CheckTableModel::CheckTableModel(LibertyCell *cell,
