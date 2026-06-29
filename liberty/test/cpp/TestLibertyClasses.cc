@@ -3230,7 +3230,7 @@ TEST(TestCellTest, HasInferedRegTimingArcs) {
 TEST(TestCellTest, HasSequentials) {
   LibertyLibrary lib("test_lib", "test.lib");
   TestCell cell(&lib, "CELL1", "test.lib");
-  EXPECT_FALSE(cell.hasSequentials());
+  EXPECT_FALSE(cell.isSequential());
 }
 
 TEST(TestCellTest, SequentialsEmpty) {
