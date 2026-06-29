@@ -81,12 +81,12 @@ protected:
   void removeCell(ConcreteCell *cell);
 
   std::string name_;
-  ObjectId id_;
   std::string filename_;
+  ConcreteCellMap cell_map_;
+  ObjectId id_;
   bool is_liberty_;
   char bus_brkt_left_{'['};
   char bus_brkt_right_{']'};
-  ConcreteCellMap cell_map_;
 
 private:
   friend class ConcreteCell;

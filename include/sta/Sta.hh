@@ -1518,7 +1518,6 @@ protected:
                                   bool infer_latches);
   void delayCalcPreamble();
   void delaysInvalidFrom(const Port *port);
-  void delaysInvalidFromFanin(const Port *port);
   void deleteEdge(Edge *edge);
   void netParasiticCaps(Net *net,
                         const RiseFall *rf,

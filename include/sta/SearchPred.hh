@@ -51,19 +51,19 @@ public:
   // Search is allowed from from_vertex.
   virtual bool searchFrom(const Vertex *from_vertex,
                           const Mode *mode) const = 0;
-  bool searchFrom(const Vertex *from_vertex) const;
+  virtual bool searchFrom(const Vertex *from_vertex) const;
   // Search is allowed through edge.
   // from/to pins are NOT checked.
   // inst can be either the from_pin or to_pin instance because it
   // is only referenced when they are the same (non-wire edge).
   virtual bool searchThru(Edge *edge,
                           const Mode *mode) const = 0;
-  bool searchThru(Edge *edge) const;
+  virtual bool searchThru(Edge *edge) const;
   // Search is allowed to to_pin.
   virtual bool searchTo(const Vertex *to_vertex,
                         const Mode *mode) const = 0;
-  bool searchTo(const Vertex *to_vertex) const;
-  void copyState(const StaState *sta);
+  virtual bool searchTo(const Vertex *to_vertex) const;
+  virtual void copyState(const StaState *sta);
 
 protected:
   const StaState *sta_;
