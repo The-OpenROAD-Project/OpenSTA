@@ -70,6 +70,20 @@ public:
   // the active delay path.
   double effectiveCapacitance() const override { return last_ceff_; }
 
+  // OpenROAD-fork: ccs-receiver -- process-global toggle for the CCS
+  // receiver-capacitance model in the Ceff/charge solve. Default OFF so the
+  // ccs_ceff engine is byte-identical to the constant-Cp behavior. When ON,
+  // the per-region far-cap contribution of any load pin that carries a CCS
+  // receiver_capacitance model is swapped from its constant NLDM pin cap to
+  // the library's region-dependent receiver cap (Cr1 in the active/Miller
+  // region below the receiver threshold, Cr2 in the settled region). Pins
+  // without a receiver model keep their constant NLDM contribution. The flag
+  // is static because the active ArcDelayCalc is selected by name and copied
+  // per-thread; a process-global toggle keeps every copy consistent without
+  // threading new state through the copy ctor.
+  static void setReceiverModelEnabled(bool enabled);
+  static bool receiverModelEnabled();
+
   // Record waveform for drvr/load pin.
   void watchPin(const Pin *pin) override;
   void clearWatchPins() override;
@@ -159,6 +173,26 @@ protected:
   // OpenROAD-fork: ccs-delay2 -- last converged effective cap (region 0), or
   // a negative sentinel when the previous gateDelay() used the NLDM fallback.
   double last_ceff_{-1.0};
+  // OpenROAD-fork: ccs-receiver -- per-solve receiver-capacitance contributions
+  // summed over the load pins that carry a CCS receiver_capacitance model.
+  // recv_has_model_ is true when at least one load pin contributed; when false
+  // the Ceff solve falls back to the constant-Cp behavior (byte-identical).
+  //   recv_nldm_cap_ : sum of the NLDM static pin caps of those pins (the
+  //                    quantity already folded into c1_, to be removed).
+  //   recv_cr1_cap_  : sum of segment-0 (Cr1) receiver caps  (active/Miller).
+  //   recv_cr2_cap_  : sum of segment-1 (Cr2) receiver caps  (settled region).
+  // These are only consulted when receiverModelEnabled() is true.
+  bool recv_has_model_{false};
+  double recv_nldm_cap_{0.0};
+  double recv_cr1_cap_{0.0};
+  double recv_cr2_cap_{0.0};
+  // Compute the per-segment far-cap (c1) value for region/segment seg_idx,
+  // applying the receiver model when enabled; otherwise returns c1_.
+  double regionFarCap(size_t seg_idx) const;
+  // Populate recv_* from the load pins; no-op (clears) when the flag is off.
+  void initReceiverModel(const LoadPinIndexMap &load_pin_index_map,
+                         const Scene *scene,
+                         const MinMax *min_max);
   // Waveform recording.
   WatchPinValuesMap watch_pin_values_;
 
