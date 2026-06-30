@@ -57,6 +57,10 @@ proc get_object_property { object prop } {
       return [net_property $object $prop]
     } elseif { $object_type == "Clock" } {
       return [clock_property $object $prop]
+    } elseif { $object_type == "Scene" } {
+      return [scene_property $object $prop]
+    } elseif { $object_type == "Mode" } {
+      return [mode_property $object $prop]
     } elseif { $object_type == "Port" } {
       return [port_property $object $prop]
     } elseif { $object_type == "LibertyPort" } {

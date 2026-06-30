@@ -1,0 +1,6 @@
+[get_scenes *]
+scene1
+scene2
+[get_modes *]
+mode1
+mode2

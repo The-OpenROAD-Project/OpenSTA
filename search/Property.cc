@@ -33,6 +33,7 @@
 #include "Graph.hh"
 #include "Liberty.hh"
 #include "MinMax.hh"
+#include "Mode.hh"
 #include "Network.hh"
 #include "Path.hh"
 #include "PathEnd.hh"
@@ -1192,6 +1193,32 @@ Properties::getProperty(const Clock *clk,
     else
       throw PropertyUnknown("clock", property);
   }
+}
+
+////////////////////////////////////////////////////////////////
+
+PropertyValue
+Properties::getProperty(const Scene *scene,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(scene->name());
+  else
+    throw PropertyUnknown("scene", property);
+}
+
+////////////////////////////////////////////////////////////////
+
+PropertyValue
+Properties::getProperty(const Mode *mode,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(mode->name());
+  else
+    throw PropertyUnknown("mode", property);
 }
 
 ////////////////////////////////////////////////////////////////

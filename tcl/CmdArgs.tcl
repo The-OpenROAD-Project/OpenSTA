@@ -536,14 +536,23 @@ proc parse_scenes_or_all { keys_var } {
   }
 }
 
-proc find_scenes { scene_names } {
+proc find_scenes { scenes_arg } {
   set scenes {}
-  foreach scene_name $scene_names {
-    set scene [find_scene $scene_name]
-    if { $scene == "NULL" } {
-      sta_error 134 "$scene_name is not the name of a scene."
+  foreach scene_arg $scenes_arg {
+    if { [is_object $scene_arg] } {
+      set object_type [object_type $scene_arg]
+      if { $object_type == "Scene" } {
+        lappend scenes $scene_arg
+      } else {
+        sta_error 135 "scene object type '$object_type' is not a scene."
+      }
     } else {
-      lappend scenes $scene
+      set scene [find_scene $scene_arg]
+      if { $scene == "NULL" } {
+        sta_error 134 "$scene_arg is not the name of a scene."
+      } else {
+        lappend scenes $scene
+      }
     }
   }
   return $scenes
