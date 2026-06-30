@@ -3967,7 +3967,7 @@ Sta::setPortExtPinCap(const Port *port,
     for (const MinMax *mm : min_max->range())
       sdc->setPortExtPinCap(port, rf1, mm, cap);
   }
-  delaysInvalidFrom(port);
+  delaysInvalidFromFanin(port);
 }
 
 void
@@ -4022,7 +4022,7 @@ Sta::setPortExtWireCap(const Port *port,
     for (const MinMax *mm : min_max->range())
       sdc->setPortExtWireCap(port, rf1, mm, cap);
   }
-  delaysInvalidFrom(port);
+  delaysInvalidFromFanin(port);
 }
 
 void
@@ -4040,7 +4040,7 @@ Sta::setPortExtFanout(const Port *port,
 {
   for (const MinMax *mm : min_max->range())
     sdc->setPortExtFanout(port, mm, fanout);
-  delaysInvalidFrom(port);
+  delaysInvalidFromFanin(port);
 }
 
 void
@@ -5023,6 +5023,20 @@ Sta::delaysInvalidFrom(Vertex *vertex)
   search_->arrivalInvalid(vertex);
   search_->requiredInvalid(vertex);
   graph_delay_calc_->delayInvalid(vertex);
+}
+
+void
+Sta::delaysInvalidFromFanin(const Port *port)
+{
+  if (graph_) {
+    Instance *top_inst = network_->topInstance();
+    Pin *pin = network_->findPin(top_inst, port);
+    Vertex *vertex, *bidirect_drvr_vertex;
+    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+    delaysInvalidFromFanin(vertex);
+    if (bidirect_drvr_vertex)
+      delaysInvalidFromFanin(bidirect_drvr_vertex);
+  }
 }
 
 void
