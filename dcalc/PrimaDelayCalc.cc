@@ -65,7 +65,11 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   DelayCalcBase(dcalc),
   pin_node_map_(network_),
-  node_index_map_(dcalc.node_index_map_),
+  // node_index_map_ is intentionally not copied. Its keys are raw
+  // ParasiticNode* whose pointees may already be freed when this copy is made
+  // (parasitic networks are rebuilt during repair), and copying the map would
+  // dereference them via the ParasiticNodeLess comparator. It is transient
+  // state rebuilt by findNodeCount() before any read.
   prima_order_(dcalc.prima_order_),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
