@@ -122,6 +122,22 @@ clock_property(Clock *clk,
 }
 
 PropertyValue
+scene_property(Scene *scene,
+              const char *property)
+{
+  Properties &properties = Sta::sta()->properties();
+  return properties.getProperty(scene, property);
+}
+
+PropertyValue
+mode_property(Mode *mode,
+              const char *property)
+{
+  Properties &properties = Sta::sta()->properties();
+  return properties.getProperty(mode, property);
+}
+
+PropertyValue
 path_end_property(PathEnd *end,
                   const char *property)
 {

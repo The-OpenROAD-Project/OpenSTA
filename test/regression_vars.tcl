@@ -147,6 +147,7 @@ record_public_tests {
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
+  get_scenes
   get_objrefs
   input_delay_ref_pin_rebuild
   liberty_arcs_one2one_1

@@ -45,7 +45,7 @@ proc_redirect read_sdc {
 
   if { [info exists keys(-mode)] } {
     set mode_name $keys(-mode)
-    set prev_mode [cmd_mode]
+    set prev_mode [cmd_mode_name]
     try {
       set_cmd_mode $mode_name
       include_file $filename $echo 0
@@ -69,7 +69,7 @@ proc write_sdc { args } {
     flags {-map_hpins -compatible -gzip -no_timestamp}
   check_argc_eq1 "write_sdc" $args
 
-  set mode [cmd_mode]
+  set mode [cmd_mode_name]
   if { [info exists keys(-mode)] } {
     set mode $keys(-mode)
   }
