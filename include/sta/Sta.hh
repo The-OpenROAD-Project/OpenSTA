@@ -947,6 +947,11 @@ public:
   // from/thrus/to are owned and deleted by Search.
   // PathEnds in the returned PathEndSeq are owned by Search PathGroups
   // and deleted on next call.
+  //
+  // IMPORTANT: THIS IS NOT THE DROID YOU ARE LOOKING FOR.
+  // This function is specifically designed to support the many options
+  // and results of timing reports. It is NOT a good option to find paths
+  // for optimization.
   PathEndSeq findPathEnds(ExceptionFrom *from,
                           ExceptionThruSeq *thrus,
                           ExceptionTo *to,
