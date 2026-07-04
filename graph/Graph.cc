@@ -581,9 +581,9 @@ Graph::visitFanouts(Vertex *vertex,
                     const VertexFn &fn)
 {
   if (pred->searchFrom(vertex)) {
-    for (Edge *edge = this->edge(vertex->out_edges_);
-         edge;
-         edge = this->edge(edge->vertex_out_next_)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
       Vertex *to_vertex = this->vertex(edge->to_);
       if (pred->searchThru(edge)
           && pred->searchTo(to_vertex))
@@ -598,9 +598,9 @@ Graph::visitFanoutEdges(Vertex *vertex,
                         const EdgeFn &fn)
 {
   if (pred->searchFrom(vertex)) {
-    for (Edge *edge = this->edge(vertex->out_edges_);
-         edge;
-         edge = this->edge(edge->vertex_out_next_)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
       Vertex *to_vertex = this->vertex(edge->to_);
       if (pred->searchThru(edge)
           && pred->searchTo(to_vertex))
@@ -615,9 +615,9 @@ Graph::visitFanins(Vertex *vertex,
                    const VertexFn &fn)
 {
   if (pred->searchFrom(vertex)) {
-    for (Edge *edge = this->edge(vertex->in_edges_);
-         edge;
-         edge = this->edge(edge->vertex_in_next_)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
       Vertex *from_vertex = this->vertex(edge->from_);
       if (pred->searchThru(edge)
           && pred->searchFrom(from_vertex))
@@ -632,9 +632,9 @@ Graph::visitFaninEdges(Vertex *vertex,
                        const EdgeFn &fn)
 {
   if (pred->searchFrom(vertex)) {
-    for (Edge *edge = this->edge(vertex->in_edges_);
-         edge;
-         edge = this->edge(edge->vertex_in_next_)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
       Vertex *from_vertex = this->vertex(edge->from_);
       if (pred->searchThru(edge)
           && pred->searchFrom(from_vertex))

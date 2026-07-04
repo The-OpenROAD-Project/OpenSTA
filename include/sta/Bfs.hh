@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <functional>
 #include <mutex>
 #include <vector>
 
@@ -38,6 +39,8 @@ class SearchPred;
 class BfsFwdIterator;
 class BfsBkwdIterator;
 
+using VertexFn = std::function<void(Vertex*)>;
+
 // LevelQueue is a vector of vertex vectors indexed by logic level.
 using LevelQueue = std::vector<VertexSeq>;
 
@@ -50,36 +53,29 @@ using LevelQueue = std::vector<VertexSeq>;
 // Vertices are marked as being in the queue by using a flag on
 // the vertex indexed by bfs_index.  A unique flag is only needed
 // if the BFS in in use when other BFS's are simultaneously in use.
-class BfsIterator : public StaState,
-                    public Iterator<Vertex*>
+class BfsIterator : public StaState
 {
 public:
   // Make sure that the BFS queue is deep enough for the max logic level.
   void ensureSize();
   // Reset to virgin state.
   void clear();
+  // Apply fn to each vertex and clear.
+  void clear(const VertexFn &fn);
   [[nodiscard]] bool empty() const;
   // Enqueue a vertex to search from.
   void enqueue(Vertex *vertex);
   // Enqueue vertices adjacent to a vertex.
-  void enqueueAdjacentVertices(Vertex *vertex);
+  virtual void enqueueAdjacentVertices(Vertex *vertex) = 0;
   virtual void enqueueAdjacentVertices(Vertex *vertex,
-                                       const Mode *mode);
-  virtual void enqueueAdjacentVertices(Vertex *vertex,
-				       SearchPred *search_pred,
                                        const Mode *mode) = 0;
-  virtual void enqueueAdjacentVertices(Vertex *vertex,
-                                       SearchPred *search_pred) = 0;
+
   [[nodiscard]] bool inQueue(Vertex *vertex);
   void checkInQueue(Vertex *vertex);
   // Notify iterator that vertex will be deleted.
   void deleteVertexBefore(Vertex *vertex);
   void remove(Vertex *vertex);
   void reportEntries() const;
-
-  bool hasNext() override;
-  bool hasNext(Level to_level);
-  Vertex *next() override;
 
   // Apply visitor to all vertices in the queue in level order.
   // Returns the number of vertices that are visited.
@@ -90,6 +86,10 @@ public:
   // Returns the number of vertices that are visited.
   int visitParallel(Level to_level,
 		    VertexVisitor *visitor);
+
+  bool hasNext();
+  bool hasNext(Level to_level);
+  Vertex *next();
 
 protected:
   BfsIterator(BfsIndex bfs_index,
@@ -104,10 +104,10 @@ protected:
   virtual bool levelLessOrEqual(Level level1,
 				Level level2) const = 0;
   virtual void incrLevel(Level &level) const = 0;
-  void findNext(Level to_level);
   void deleteEntries();
   void checkLevel(Vertex *vertex,
                   Level level);
+  void findNext(Level to_level);
 
   BfsIndex bfs_index_;
   Level level_min_;
@@ -131,12 +131,13 @@ public:
 		 SearchPred *search_pred,
 		 StaState *sta);
   ~BfsFwdIterator() override;
+  void enqueueAdjacentVertices(Vertex *vertex) override;
   void enqueueAdjacentVertices(Vertex *vertex,
-                              SearchPred *search_pred) override;
-  void enqueueAdjacentVertices(Vertex *vertex,
-			       SearchPred *search_pred,
                                const Mode *mode) override;
   using BfsIterator::enqueueAdjacentVertices;
+  void enqueueFanout(Vertex *vertex);
+  void enqueueFanout(Vertex *vertex,
+                     const Mode *mode);
 
 protected:
   bool levelLessOrEqual(Level level1,
@@ -153,14 +154,17 @@ public:
 		  SearchPred *search_pred,
 		  StaState *sta);
   ~BfsBkwdIterator() override;
+  void enqueueAdjacentVertices(Vertex *vertex) override;
   void enqueueAdjacentVertices(Vertex *vertex,
-                              SearchPred *search_pred) override;
-  void enqueueAdjacentVertices(Vertex *vertex,
-			       SearchPred *search_pred,
                                const Mode *mode) override;
   using BfsIterator::enqueueAdjacentVertices;
+  void enqueueFanin(Vertex *vertex);
+  void enqueueFanin(Vertex *vertex,
+                    const Mode *mode);
 
 protected:
+  void enqueueFanin(Vertex *vertex,
+                    SearchPred *search_pred);
   bool levelLessOrEqual(Level level1,
 			Level level2) const override;
   bool levelLess(Level level1,

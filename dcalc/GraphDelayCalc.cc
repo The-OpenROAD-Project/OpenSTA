@@ -395,7 +395,7 @@ GraphDelayCalc::seedRootSlew(Vertex *vertex,
     seedDrvrSlew(vertex, arc_delay_calc);
   else
     seedLoadSlew(vertex);
-  iter_->enqueueAdjacentVertices(vertex);
+  iter_->enqueueFanout(vertex);
 }
 
 void
@@ -703,7 +703,7 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
 	  // change when non-incremental to stride past annotations.
 	  if (!incremental_
               || loadSlewsChanged(load_slews_prev, load_pin_index_map))
-	    iter_->enqueueAdjacentVertices(vertex);
+	    iter_->enqueueFanout(vertex);
 	}
       }
       else {
@@ -711,7 +711,7 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
 	enqueueTimingChecksEdges(vertex);
 	// Enqueue driver vertices from this input load.
 	if (propagate)
-	  iter_->enqueueAdjacentVertices(vertex);
+	  iter_->enqueueFanout(vertex);
       }
     }
     // Bidirect port drivers are enqueued by their load vertex in
