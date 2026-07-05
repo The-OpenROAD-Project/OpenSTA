@@ -3157,6 +3157,7 @@ Search::findRequireds(Level level)
   Stats stats(debug_, report_);
   debugPrint(debug_, "search", 1, "find requireds to level {}", level);
   RequiredVisitor req_visitor(this);
+  required_iter_->ensureSize();
   if (!requireds_seeded_)
     seedRequireds();
   seedInvalidRequireds();
@@ -3171,7 +3172,6 @@ void
 Search::seedRequireds()
 {
   ensureDownstreamClkPins();
-  required_iter_->ensureSize();
   for (Vertex *vertex : endpoints())
     seedRequired(vertex);
   requireds_seeded_ = true;
