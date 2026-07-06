@@ -3688,7 +3688,7 @@ library(test_r11_latch) {
     LibertyCell *cell = lib->findLibertyCell("LATCH1");
     EXPECT_NE(cell, nullptr);
     if (cell) {
-      EXPECT_TRUE(cell->hasSequentials());
+      EXPECT_TRUE(cell->isSequential());
     }
   }
   remove(tmp_path.c_str());
@@ -4338,7 +4338,7 @@ library(test_mbff_statetable) {
   // But it has a statetable, so it IS sequential.
   EXPECT_NE(mbff->statetable(), nullptr);
   // hasSequentials() must return true for statetable-only cells.
-  EXPECT_TRUE(mbff->hasSequentials())
+  EXPECT_TRUE(mbff->isSequential())
     << "MBFF2 uses statetable (no ff/latch) but hasSequentials() "
        "returned false — statetable cells are misclassified as "
        "combinational";

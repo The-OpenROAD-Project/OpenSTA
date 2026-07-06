@@ -810,7 +810,7 @@ TEST_F(StaLibertyTest, LibraryDelayModelType) {
 TEST_F(StaLibertyTest, CellHasSequentials) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   if (dff) {
-    EXPECT_TRUE(dff->hasSequentials());
+    EXPECT_TRUE(dff->isSequential());
     auto &seqs = dff->sequentials();
     EXPECT_GT(seqs.size(), 0u);
   }
@@ -3266,10 +3266,10 @@ TEST_F(StaLibertyTest, CellIsInverter2) {
 TEST_F(StaLibertyTest, CellHasSequentials2) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  EXPECT_FALSE(buf->hasSequentials());
+  EXPECT_FALSE(buf->isSequential());
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   if (dff) {
-    EXPECT_TRUE(dff->hasSequentials());
+    EXPECT_TRUE(dff->isSequential());
   }
 }
 

@@ -32,6 +32,7 @@
 #include "Mutex.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
+#include "SearchPred.hh"
 #include "Stats.hh"
 #include "TimingArc.hh"
 #include "TimingRole.hh"
@@ -49,9 +50,9 @@ namespace sta {
 Graph::Graph(StaState *sta,
              DcalcAPIndex ap_count) :
   StaState(sta),
-  ap_count_(ap_count),
   period_check_annotations_(network_),
-  reg_clk_vertices_(makeVertexSet(this))
+  reg_clk_vertices_(makeVertexSet(this)),
+  ap_count_(ap_count)
 {
   // For the benifit of reg_clk_vertices_ that references graph_.
   graph_ = this;
@@ -487,7 +488,7 @@ Graph::deleteVertex(Vertex *vertex)
   EdgeId edge_id, next_id;
   for (edge_id = vertex->in_edges_; edge_id; edge_id = next_id) {
     Edge *edge = Graph::edge(edge_id);
-    next_id = edge->vertex_in_link_;
+    next_id = edge->vertex_in_next_;
     deleteOutEdge(edge->from(this), edge);
     edge->clear();
     edges_->destroy(edge);
@@ -508,7 +509,7 @@ bool
 Graph::hasFaninOne(Vertex *vertex) const
 {
   return vertex->in_edges_
-    && edge(vertex->in_edges_)->vertex_in_link_ == 0;
+    && edge(vertex->in_edges_)->vertex_in_next_ == 0;
 }
 
 void
@@ -519,12 +520,12 @@ Graph::deleteInEdge(Vertex *vertex,
   EdgeId prev = 0;
   for (EdgeId i = vertex->in_edges_;
        i && i != edge_id;
-       i = Graph::edge(i)->vertex_in_link_)
+       i = Graph::edge(i)->vertex_in_next_)
     prev = i;
   if (prev)
-    Graph::edge(prev)->vertex_in_link_ = edge->vertex_in_link_;
+    Graph::edge(prev)->vertex_in_next_ = edge->vertex_in_next_;
   else
-    vertex->in_edges_ = edge->vertex_in_link_;
+    vertex->in_edges_ = edge->vertex_in_next_;
 }
 
 void
@@ -570,6 +571,76 @@ Graph::gateEdgeArc(const Pin *in_pin,
   }
   edge = nullptr;
   arc = nullptr;
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Graph::visitFanouts(Vertex *vertex,
+                    SearchPred *pred,
+                    const VertexFn &fn)
+{
+  if (pred->searchFrom(vertex)) {
+    for (Edge *edge = this->edge(vertex->out_edges_);
+         edge;
+         edge = this->edge(edge->vertex_out_next_)) {
+      Vertex *to_vertex = this->vertex(edge->to_);
+      if (pred->searchThru(edge)
+          && pred->searchTo(to_vertex))
+        fn(to_vertex);
+    }
+  }
+}
+
+void
+Graph::visitFanoutEdges(Vertex *vertex,
+                        SearchPred *pred,
+                        const EdgeFn &fn)
+{
+  if (pred->searchFrom(vertex)) {
+    for (Edge *edge = this->edge(vertex->out_edges_);
+         edge;
+         edge = this->edge(edge->vertex_out_next_)) {
+      Vertex *to_vertex = this->vertex(edge->to_);
+      if (pred->searchThru(edge)
+          && pred->searchTo(to_vertex))
+        fn(edge, to_vertex);
+    }
+  }
+}
+
+void
+Graph::visitFanins(Vertex *vertex,
+                   SearchPred *pred,
+                   const VertexFn &fn)
+{
+  if (pred->searchFrom(vertex)) {
+    for (Edge *edge = this->edge(vertex->in_edges_);
+         edge;
+         edge = this->edge(edge->vertex_in_next_)) {
+      Vertex *from_vertex = this->vertex(edge->from_);
+      if (pred->searchThru(edge)
+          && pred->searchFrom(from_vertex))
+        fn(from_vertex);
+    }
+  }
+}
+
+void
+Graph::visitFaninEdges(Vertex *vertex,
+                       SearchPred *pred,
+                       const EdgeFn &fn)
+{
+  if (pred->searchFrom(vertex)) {
+    for (Edge *edge = this->edge(vertex->in_edges_);
+         edge;
+         edge = this->edge(edge->vertex_in_next_)) {
+      Vertex *from_vertex = this->vertex(edge->from_);
+      if (pred->searchThru(edge)
+          && pred->searchFrom(from_vertex))
+        fn(edge, from_vertex);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -650,7 +721,7 @@ Graph::makeEdge(Vertex *from,
   from->out_edges_ = edge_id;
 
   // Add in edge to to vertex.
-  edge->vertex_in_link_ = to->in_edges_;
+  edge->vertex_in_next_ = to->in_edges_;
   to->in_edges_ = edge_id;
 
   initArcDelays(edge);
@@ -969,22 +1040,22 @@ Vertex::init(Pin *pin,
              bool is_reg_clk)
 {
   pin_ = pin;
-  is_reg_clk_ = is_reg_clk;
-  is_bidirect_drvr_ = is_bidirect_drvr;
   in_edges_ = edge_id_null;
   out_edges_ = edge_id_null;
   slews_ = nullptr;
   paths_ = nullptr;
   tag_group_index_ = tag_group_index_max;
-  slew_annotated_ = false;
+  bfs_in_queue_ = 0;
+  is_bidirect_drvr_ = is_bidirect_drvr;
+  is_reg_clk_ = is_reg_clk;
   has_checks_ = false;
   is_check_clk_ = false;
   has_downstream_clk_pin_ = false;
-  level_ = 0;
   visited1_ = false;
   visited2_ = false;
   has_sim_value_ = false;
-  bfs_in_queue_ = 0;
+  level_ = 0;
+  slew_annotated_ = false;
 }
 
 Vertex::~Vertex()
@@ -1210,20 +1281,19 @@ Edge::init(VertexId from,
            VertexId to,
            TimingArcSet *arc_set)
 {
-  from_ = from;
-  to_ = to;
   arc_set_ = arc_set;
-  vertex_in_link_ = edge_id_null;
-  vertex_out_next_ = edge_id_null;
-  vertex_out_prev_ = edge_id_null;
-  is_bidirect_inst_path_ = false;
-  is_bidirect_net_path_ = false;
-  is_bidirect_port_path_ = false;
-
   arc_delays_ = nullptr;
   arc_delay_annotated_is_bits_ = true;
   arc_delay_annotated_.bits_ = 0;
+  from_ = from;
+  to_ = to;
+  vertex_in_next_ = edge_id_null;
+  vertex_out_next_ = edge_id_null;
+  vertex_out_prev_ = edge_id_null;
   delay_annotation_is_incremental_ = false;
+  is_bidirect_inst_path_ = false;
+  is_bidirect_net_path_ = false;
+  is_bidirect_port_path_ = false;
   is_disabled_loop_ = false;
   has_sim_sense_ = false;
   has_disabled_cond_ = false;
@@ -1464,6 +1534,8 @@ VertexIterator::findNext()
     findNextPin();
 }
 
+////////////////////////////////////////////////////////////////
+
 VertexInEdgeIterator::VertexInEdgeIterator(Vertex *vertex,
                                            const Graph *graph) :
   next_(graph->edge(vertex->in_edges_)),
@@ -1483,7 +1555,7 @@ VertexInEdgeIterator::next()
 {
   Edge *next = next_;
   if (next_)
-    next_ = graph_->edge(next_->vertex_in_link_);
+    next_ = graph_->edge(next_->vertex_in_next_);
   return next;
 }
 

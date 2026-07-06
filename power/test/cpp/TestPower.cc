@@ -1326,7 +1326,7 @@ TEST_F(PowerDesignTest, SequentialCellClassification) {
     Instance *inst = child_iter->next();
     LibertyCell *cell = network->libertyCell(inst);
     ASSERT_NE(cell, nullptr);
-    if (cell->hasSequentials()) {
+    if (cell->isSequential()) {
       seq_count++;
     } else {
       comb_count++;

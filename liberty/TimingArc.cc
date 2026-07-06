@@ -536,6 +536,9 @@ TimingArcSet::destroy()
   delete wire_timing_arc_set_;
   wire_timing_arc_set_ = nullptr;
   wire_timing_arc_attrs_ = nullptr;
+
+  delete port_refpin_timing_arc_set_;
+  port_refpin_timing_arc_set_ = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -34,6 +34,13 @@ alwaysApply: true
 - Prefer `std::string` over `char*` for string members.
 - Prefer pass-by-value and move for sink parameters (parameters that get stored).
 
+## Control flow
+
+- Prefer positive `if` conditions that wrap the main logic instead of early
+  `continue` or `return` to skip work.
+- Example: use `if (!visited.contains(vertex)) { ... }` rather than
+  `if (visited.contains(vertex)) continue;`.
+
 ## File Extensions
 
 - C++ source: `.cc`

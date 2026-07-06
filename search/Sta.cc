@@ -544,6 +544,8 @@ Sta::clearNonSdc()
   for (Mode *mode : modes_) {
     mode->clkNetwork()->clkPinsInvalid();
     mode->sim()->clear();
+    // ref_pin edges are owned by the graph deleted below; force a rebuild.
+    mode->sdc()->inputDelayRefPinEdgesInvalid();
   }
   search_->clear();
 
@@ -4432,9 +4434,15 @@ Sta::makeNet(const char *name,
 {
   NetworkEdit *network = networkCmdEdit();
   std::string escaped = escapeBrackets(name, network);
-  Net *net = network->makeNet(escaped, parent);
-  // Sta notification unnecessary.
-  return net;
+  if (network->findNet(parent, escaped)) {
+    report_->warn(1557, "net {} already exists.", name);
+    return nullptr;
+  }
+  else {
+    Net *net = network->makeNet(escaped, parent);
+    // Sta notification unnecessary.
+    return net;
+  }
 }
 
 void
@@ -5095,9 +5103,11 @@ Sta::delaysInvalidFromFanin(Vertex *vertex)
   VertexInEdgeIterator edge_iter(vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    Vertex *from_vertex = edge->from(graph_);
-    delaysInvalidFrom(from_vertex);
-    search_->requiredInvalid(from_vertex);
+    if (edge->isWire()) {
+      Vertex *from_vertex = edge->from(graph_);
+      delaysInvalidFrom(from_vertex);
+      search_->requiredInvalid(from_vertex);
+    }
   }
 }
 

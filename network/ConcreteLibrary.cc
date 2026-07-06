@@ -42,8 +42,8 @@ ConcreteLibrary::ConcreteLibrary(std::string_view name,
                                  std::string_view filename,
                                  bool is_liberty) :
   name_(name),
-  id_(ConcreteNetwork::nextObjectId()),
   filename_(filename),
+  id_(ConcreteNetwork::nextObjectId()),
   is_liberty_(is_liberty)
 {
 }

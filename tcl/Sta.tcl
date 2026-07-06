@@ -102,7 +102,12 @@ define_cmd_args "set_scene" {scene_name}
 
 proc set_scene { args } {
   check_argc_eq1 "set_scene" $args
-  set_cmd_scene [lindex $args 0]
+  set scene_name [lindex $args 0]
+  set scene [find_scene $scene_name]
+  if { $scene == "NULL" } {
+    sta_error 578 "$scene_name is not the name of a scene."
+  }
+  set_cmd_scene $scene
 }
 
 ################################################################
@@ -118,10 +123,16 @@ proc get_scenes { args } {
   } else {
     set scene_name [lindex $args 0]
   }
-  set mode_names {}
   if { [info exists keys(-modes)] } {
-    set mode_names $keys(-modes)
-    return [find_mode_scenes_matching $scene_name $mode_names]
+    set modes {}
+    foreach mode_name $keys(-modes) {
+      set mode [find_mode $mode_name]
+      if { $mode == "NULL" } {
+        sta_error 579 "$mode_name is not the name of a mode."
+      }
+      lappend modes $mode
+    }
+    return [find_mode_scenes_matching $scene_name $modes]
   } else {
     return [find_scenes_matching $scene_name]
   }
