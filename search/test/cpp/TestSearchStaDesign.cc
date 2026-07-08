@@ -1322,7 +1322,9 @@ TEST_F(StaDesignTest, SearchPredNonReg2SearchThru) {
   VertexInEdgeIterator edge_iter(v, sta_->graph());
   if (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    pred.searchThru(edge);
+    bool search_thru = pred.searchThru(edge);
+    // searchThru is a pure predicate; result must be stable across calls.
+    EXPECT_EQ(search_thru, pred.searchThru(edge));
   }
 }
 
