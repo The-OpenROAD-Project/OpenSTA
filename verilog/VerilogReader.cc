@@ -1468,8 +1468,7 @@ VerilogReader::linkNetwork(std::string_view top_cell_name,
         while (net_name_iter->hasNext()) {
           const std::string &net_name = net_name_iter->next();
           Port *port = network_->findPort(top_cell, net_name);
-          Net *net =
-              bindings.ensureNetBinding(net_name, top_instance, network_);
+          Net *net = bindings.ensureNetBinding(net_name, top_instance, network_);
           // Guard against repeated port name.
           if (network_->findPin(top_instance, port) == nullptr) {
             Pin *pin = network_->makePin(top_instance, port, nullptr);
@@ -1521,13 +1520,11 @@ VerilogReader::makeModuleInstBody(VerilogModule *module,
         if (assign)
           mergeAssignNet(assign, module, inst, bindings);
         if (dir->isGround()) {
-          Net *net =
-              bindings->ensureNetBinding(arg->netName(), inst, network_);
+          Net *net = bindings->ensureNetBinding(arg->netName(), inst, network_);
           network_->addConstantNet(net, LogicValue::zero);
         }
         if (dir->isPower()) {
-          Net *net =
-              bindings->ensureNetBinding(arg->netName(), inst, network_);
+          Net *net = bindings->ensureNetBinding(arg->netName(), inst, network_);
           network_->addConstantNet(net, LogicValue::one);
         }
       }

@@ -319,6 +319,7 @@ public:
   // Pin clocks a timing check.
   [[nodiscard]] bool isCheckClk(const Pin *pin) const;
   [[nodiscard]] bool isLatchData(const Pin *pin) const;
+  [[nodiscard]] bool isLatchOutput(const Pin *pin) const;
 
   // Iterate over all of the pins connected to a pin and the parent
   // and child nets it is hierarchically connected to (port, leaf and
@@ -502,6 +503,8 @@ class NetworkEdit : public Network
 public:
   NetworkEdit() = default;
   bool isEditable() const override { return true; }
+  virtual Port *makePort(Cell *cell,
+                         std::string_view name) = 0;
   virtual Instance *makeInstance(LibertyCell *cell,
                                  std::string_view name,
                                  Instance *parent) = 0;
@@ -556,8 +559,6 @@ public:
   virtual void setAttribute(Instance *instance,
                             std::string_view key,
                             std::string_view value) = 0;
-  virtual Port *makePort(Cell *cell,
-                         std::string_view name) = 0;
   virtual Port *makeBusPort(Cell *cell,
                             std::string_view name,
                             int from_index,

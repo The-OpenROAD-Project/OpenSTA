@@ -333,7 +333,7 @@ define_cmd_args "report_checks" \
      [-sort_by_slack]\
      [-path_group group_name]\
      [-format full|full_clock|full_clock_expanded|short|end|slack_only|summary|json]\
-     [-fields capacitance|slew|fanout|input_pin|net|src_attr]\
+     [-fields capacitance|slew|fanout|input_pin|net|src_attr|variation]\
      [-digits digits]\
      [-no_line_splits]\
      [> filename] [>> filename]}
@@ -805,10 +805,19 @@ proc report_slack { args } {
 ################################################################
 
 # Internal debugging command.
-proc report_tag_arrivals { pin } {
-  set pin [get_port_pin_error "pin" $pin]
+proc report_tag_arrivals { args } {
+  global sta_report_default_digits
+
+  parse_key_args "report_tag_arrivals" args keys {-digits} flags {}
+  set pin [get_port_pin_error "pin" [lindex $args 0]]
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
   foreach vertex [$pin vertices] {
-    report_tag_arrivals_cmd $vertex 1
+    report_tag_arrivals_cmd $vertex 1 $digits
   }
 }
 

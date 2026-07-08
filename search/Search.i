@@ -72,6 +72,20 @@ private:
   ~PathEnd();
 };
 
+class Scene
+{
+private:
+  Scene();
+  ~Scene();
+};
+
+class Mode
+{
+private:
+  Mode();
+  ~Mode();
+};
+
 %inline %{
 
 using std::string;
@@ -269,9 +283,10 @@ report_tag_groups()
 
 void
 report_tag_arrivals_cmd(Vertex *vertex,
-                        bool report_tag_index)
+                        bool report_tag_index,
+                        int digits)
 {
-  Sta::sta()->search()->reportArrivals(vertex, report_tag_index);
+  Sta::sta()->search()->reportArrivals(vertex, report_tag_index, digits);
 }
 
 void

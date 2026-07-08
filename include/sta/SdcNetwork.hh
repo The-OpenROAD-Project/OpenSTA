@@ -92,6 +92,8 @@ public:
                    int index) const override;
   PortMemberIterator *memberIterator(const Port *port) const override;
   bool hasMembers(const Port *port) const override;
+  Port *makePort(Cell *cell,
+                 std::string_view name) override;
 
   ObjectId id(const Instance *instance) const override;
   std::string getAttribute(const Instance *inst,
@@ -146,6 +148,7 @@ public:
   char pathEscape() const override;
   void setPathEscape(char escape) override;
 
+  // NetworkEdit
   bool isEditable() const override;
   LibertyLibrary *makeLibertyLibrary(std::string_view name,
                                      std::string_view filename) override;
@@ -202,6 +205,8 @@ public:
                             const PatternMatch *pattern) const override;
   std::string name(const Port *port) const override;
   std::string busName(const Port *port) const override;
+  Port *makePort(Cell *cell,
+                 std::string_view name) override;
 
   std::string name(const Instance *instance) const override;
   std::string pathName(const Instance *instance) const override;
@@ -289,5 +294,8 @@ escapeDividers(std::string_view name,
 std::string
 escapeBrackets(std::string_view name,
                const Network *network);
+std::string
+escapeDividerBrackets(std::string_view name,
+                      const Network *network);
 
 } // namespace sta

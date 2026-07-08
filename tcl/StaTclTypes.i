@@ -1189,106 +1189,70 @@ using namespace sta;
   $1 = tclListSetConstChar($input, interp);
 }
 
+%typemap(in) Mode* {
+  Tcl_Size length;
+  const char *arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "NULL"))
+    $1 = nullptr;
+  else {
+    void *obj;
+    if (SWIG_ConvertPtr($input, &obj, SWIGTYPE_p_Mode, false) != TCL_OK) {
+      tclArgError(interp, 2174, "{} is not a mode object.", arg);
+      return TCL_ERROR;
+    }
+    $1 = reinterpret_cast<Mode*>(obj);
+  }
+}
+
 %typemap(out) Mode* {
-  const Mode *mode = $1;
-  if (mode)
-    Tcl_SetResult(interp, const_cast<char*>($1->name().c_str()), TCL_VOLATILE);
+  Mode *mode = $1;
+  if (mode) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(mode, SWIGTYPE_p_Mode, false);
+    Tcl_SetObjResult(interp, obj);
+  }
   else
     Tcl_SetResult(interp, const_cast<char*>("NULL"), TCL_STATIC);
 }
 
 %typemap(in) ModeSeq {
-  Tcl_Size argc;
-  Tcl_Obj **argv;
-
-  Sta *sta = Sta::sta();
-  std::vector<Mode*> seq;
-  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK
-      && argc > 0) {
-    for (int i = 0; i < argc; i++) {
-      Tcl_Size length;
-      const char *mode_name = Tcl_GetStringFromObj(argv[i], &length);
-      Mode *mode = sta->findMode(mode_name);
-      if (mode)
-        seq.push_back(mode);
-      else {
-        tclArgError(interp, 2174, "mode {} not found.", mode_name);
-        return TCL_ERROR;
-      }
-    }
-  }
-  $1 = seq;
+  $1 = tclListSeq<Mode*>($input, SWIGTYPE_p_Mode, interp);
 }
 
 %typemap(out) ModeSeq {
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  ModeSeq &modes = $1;
-  for (Mode *mode : modes) {
-    const std::string &mode_name = mode->name();
-    Tcl_Obj *obj = Tcl_NewStringObj(mode_name.c_str(), mode_name.size());
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
+  seqTclList<ModeSeq, Mode>($1, SWIGTYPE_p_Mode, interp);
 }
 
 %typemap(in) Scene* {
-  sta::Sta *sta = Sta::sta();
   Tcl_Size length;
-  std::string scene_name = Tcl_GetStringFromObj($input, &length);
-  // parse_scene_or_all support depreated 11/21/2025
-  if (scene_name == "NULL")
+  const char *arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "NULL"))
     $1 = nullptr;
   else {
-    Scene *scene = sta->findScene(scene_name);
-    if (scene)
-      $1 = scene;
-    else {
-      tclArgError(interp, 2173, "scene {} not found.", scene_name.c_str());
+    void *obj;
+    if (SWIG_ConvertPtr($input, &obj, SWIGTYPE_p_Scene, false) != TCL_OK) {
+      tclArgError(interp, 2173, "{} is not a scene object.", arg);
       return TCL_ERROR;
     }
+    $1 = reinterpret_cast<Scene*>(obj);
   }
 }
 
 %typemap(out) Scene* {
-  const Scene *scene = $1;
-  if (scene)
-    Tcl_SetResult(interp, const_cast<char*>($1->name().c_str()), TCL_VOLATILE);
+  Scene *scene = $1;
+  if (scene) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(scene, SWIGTYPE_p_Scene, false);
+    Tcl_SetObjResult(interp, obj);
+  }
   else
     Tcl_SetResult(interp, const_cast<char*>("NULL"), TCL_STATIC);
 }
 
 %typemap(in) SceneSeq {
-  Tcl_Size argc;
-  Tcl_Obj **argv;
-
-  Sta *sta = Sta::sta();
-  std::vector<Scene*> seq;
-  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK
-      && argc > 0) {
-    for (int i = 0; i < argc; i++) {
-      Tcl_Size length;
-      const char *scene_name = Tcl_GetStringFromObj(argv[i], &length);
-      Scene *scene = sta->findScene(scene_name);
-      if (scene)
-        seq.push_back(scene);
-      else {
-        tclArgError(interp, 2172, "scene {} not found.", scene_name);
-        return TCL_ERROR;
-      }
-    }
-  }
-  $1 = seq;
+  $1 = tclListSeq<Scene*>($input, SWIGTYPE_p_Scene, interp);
 }
 
 %typemap(out) SceneSeq {
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  SceneSeq &scenes = $1;
-  for (Scene *scene : scenes) {
-    const std::string &scene_name = scene->name();
-    Tcl_Obj *obj = Tcl_NewStringObj(scene_name.c_str(), scene_name.size());
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
+  seqTclList<SceneSeq, Scene>($1, SWIGTYPE_p_Scene, interp);
 }
 
 %typemap(in) PropertyValue {

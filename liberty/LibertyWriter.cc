@@ -275,7 +275,7 @@ LibertyWriter::writeBusDcls()
     sta::print(stream_, "  type (\"{}\") {{\n", dcl->name());
     sta::print(stream_, "    base_type : array;\n");
     sta::print(stream_, "    data_type : bit;\n");
-    sta::print(stream_, "    bit_width : {};\n", std::abs(dcl->from() - dcl->to() + 1));
+    sta::print(stream_, "    bit_width : {};\n", std::abs(dcl->from() - dcl->to()) + 1);
     sta::print(stream_, "    bit_from : {};\n", dcl->from());
     sta::print(stream_, "    bit_to : {};\n", dcl->to());
     sta::print(stream_, "  }}\n");

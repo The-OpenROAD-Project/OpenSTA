@@ -29,13 +29,14 @@ set(TCL_POSSIBLE_NAMES
   tcl85 tcl8.5
   )
 
-# tcl lib path guesses.
+# TCL lib path guesses.
 if (NOT TCL_LIB_PATHS)
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    file(GLOB tcl_homebrew_libs
+      /opt/homebrew/Cellar/tcl-tk@8/*/lib
+    )
     set(TCL_LIB_PATHS
-      #/opt/homebrew/Cellar/tcl-tk/9.0.3/lib
-      /opt/homebrew/Cellar/tcl-tk@8/8.6.17/lib
-      /opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib
+      ${tcl_homebrew_libs}
       /opt/homebrew/opt/tcl-tk/lib /usr/local/lib)
     set(TCL_NO_DEFAULT_PATH TRUE)
   elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")

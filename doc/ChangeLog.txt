@@ -22,13 +22,13 @@ Release 3.0.1 2026/03/12
 ------------------------
 
 Statistical timing (SSTA) with Liberty LVF (Liberty Variation Format)
-models is now supported. Statistical timing uses a probaility
-distribution to represent a delay or slew ranther than a single
+models is now supported. Statistical timing uses a probability
+distribution to represent a delay or slew rather than a single
 number.
 
 Normal and skew normal probability distributions are supported.
 
-SSTA is enabled with the sta_pocv_mode variaable.
+SSTA is enabled with the sta_pocv_mode variable.
 
   set sta_pocv_mode scalar|normal|skew_normal
 
@@ -43,10 +43,10 @@ set with the sta_pocv_quantile variable.
 
 The default value is 3 standard deviations, or sigma.
 
-Use the variance field with report_checks or report_check_types to see
+Use the variation field with report_checks or report_check_types to see
 distribution parameters in timing reports.
 
-A command file for analyzing a design with statisical timing with an
+A command file for analyzing a design with statistical timing with an
 LVF library is shown below.
 
 read_liberty lvf_library.lib.gz
@@ -55,7 +55,7 @@ link_design top
 create_clock -period 50 clk
 set_input_delay -clock clk 1 {in1 in2}
 set sta_pocv_mode skew_normal
-report_checks -fields {slew variation input_pin variation} -digits 3
+report_checks -fields {slew variation input_pin} -digits 3
 
 Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)

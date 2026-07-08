@@ -2166,14 +2166,14 @@ TEST_F(StaLibertyTest, CellSetClockGateType) {
 TEST_F(StaLibertyTest, CellHasSequentialsBuf) {
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
-  EXPECT_FALSE(buf->hasSequentials());
+  EXPECT_FALSE(buf->isSequential());
 }
 
 // LibertyCell::hasSequentials on DFF
 TEST_F(StaLibertyTest, CellHasSequentialsDFF) {
   LibertyCell *dff = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(dff, nullptr);
-  EXPECT_TRUE(dff->hasSequentials());
+  EXPECT_TRUE(dff->isSequential());
 }
 
 // LibertyCell::sequentials

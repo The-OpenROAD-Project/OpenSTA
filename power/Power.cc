@@ -443,7 +443,7 @@ Power::power(const Scene *scene,
         pad.incr(inst_power);
       else if (inClockNetwork(inst, clk_network))
         clock.incr(inst_power);
-      else if (cell->hasSequentials())
+      else if (cell->isSequential())
         sequential.incr(inst_power);
       else
         combinational.incr(inst_power);
@@ -554,9 +554,12 @@ ActivitySrchPred::searchThru(Edge *edge,
 {
   const Sdc *sdc = mode->sdc();
   const TimingRole *role = edge->role();
-  return !(edge->role()->isTimingCheck() || sdc->isDisabledConstraint(edge)
-           || sdc->isDisabledCondDefault(edge) || edge->isBidirectInstPath()
-           || edge->isDisabledLoop() || role == TimingRole::regClkToQ()
+  return !(edge->role()->isTimingCheck()
+           || sdc->isDisabledConstraint(edge)
+           || sdc->isDisabledCondDefault(edge)
+           || edge->isBidirectInstPath()
+           || edge->isDisabledLoop()
+           || role == TimingRole::regClkToQ()
            || role->isLatchDtoQ());
 }
 
@@ -692,7 +695,8 @@ PropActivityVisitor::visit(Vertex *vertex)
     if (cell) {
       LibertyCell *test_cell = cell->libertyCell()->testCell();
       if (network_->isLoad(pin)) {
-        if (cell->hasSequentials() || (test_cell && test_cell->hasSequentials())) {
+        if (cell->isSequential()
+            || (test_cell && test_cell->isSequential())) {
           debugPrint(debug_, "power_activity", 3, "pending seq {}",
                      network_->pathName(inst));
           visited_regs_.insert(inst);
@@ -701,10 +705,8 @@ PropActivityVisitor::visit(Vertex *vertex)
         if (cell->isClockGate()) {
           const Pin *enable, *clk, *gclk;
           power_->clockGatePins(inst, enable, clk, gclk);
-          if (gclk) {
-            Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
-            bfs_->enqueue(gclk_vertex);
-          }
+          if (gclk)
+            visited_regs_.insert(inst);
         }
       }
       bfs_->enqueueAdjacentVertices(vertex, mode_);
@@ -746,9 +748,9 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
     max_change_ = duty_delta;
     max_change_pin_ = pin;
   }
-  bool changed = density_delta > change_tolerance_ || duty_delta > change_tolerance_
-      || activity.origin() != prev_activity.origin();
-  ;
+  bool changed = density_delta > change_tolerance_
+    || duty_delta > change_tolerance_
+    || activity.origin() != prev_activity.origin();
   power_->setActivity(pin, activity);
   return changed;
 }
@@ -905,8 +907,9 @@ Power::ensureActivities(const Scene *scene)
       // unless it has been set by command.
       if (input_activity_.origin() == PwrActivityOrigin::unknown) {
         float min_period = clockMinPeriod(scene_->mode()->sdc());
-        float density =
-            0.1 / (min_period != 0.0 ? min_period : units_->timeUnit()->scale());
+        if (min_period == 0.0)
+          min_period = units_->timeUnit()->scale();
+        float density = 0.1 / min_period;
         input_activity_.set(density, 0.5, PwrActivityOrigin::input);
       }
       ActivitySrchPred activity_srch_pred(this);
@@ -918,7 +921,7 @@ Power::ensureActivities(const Scene *scene)
       // Propagate activiities through registers.
       InstanceSet regs = std::move(visitor.visitedRegs());
       int pass = 1;
-      while (!regs.empty() && pass < max_activity_passes_) {
+      while (!regs.empty() && pass <= max_activity_passes_) {
         visitor.init();
         for (const Instance *reg : regs)
           // Propagate activiities across register D->Q.
@@ -927,8 +930,10 @@ Power::ensureActivities(const Scene *scene)
         // combinational logic.
         bfs.visit(levelize_->maxLevel(), &visitor);
         regs = std::move(visitor.visitedRegs());
-        debugPrint(debug_, "power_activity", 1, "Pass {} change {:.2f} {}", pass,
-                   visitor.maxChange(), network_->pathName(visitor.maxChangePin()));
+        debugPrint(debug_, "power_activity", 1, "Pass {} change {:.2f} {}",
+                   pass,
+                   visitor.maxChange(),
+                   network_->pathName(visitor.maxChangePin()));
         pass++;
       }
     }
@@ -972,6 +977,8 @@ Power::seedRegOutputActivities(const Instance *inst,
       const SequentialSeq &seqs = test_cell->sequentials();
       seedRegOutputActivities(inst, test_cell, seqs, bfs);
     }
+    else if (cell->isClockGate())
+      seedClkGateOutputActivities(inst, bfs);
   }
 }
 
@@ -1043,6 +1050,23 @@ Power::seedRegOutputActivities(const Instance *reg,
     PwrActivity out_activity(out_density, out_duty, PwrActivityOrigin::propagated);
     setSeqActivity(reg, output, out_activity);
   }
+}
+
+void
+Power::seedClkGateOutputActivities(const Instance *inst,
+                                   BfsFwdIterator &bfs)
+{
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    LibertyPort *port = network_->libertyPort(pin);
+    if (port && port->isClockGateOut()) {
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (vertex)
+        bfs.enqueue(vertex);
+    }
+  }
+  delete pin_iter;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1566,8 +1590,12 @@ Power::findActivity(const Pin *pin)
     if (activity && activity->origin() != PwrActivityOrigin::unknown)
       return *activity;
     const Clock *clk = findClk(pin);
-    float duty = clockDuty(clk);
-    return PwrActivity(2.0 / clk->period(), duty, PwrActivityOrigin::clock);
+    if (clk) {
+      float duty = clockDuty(clk);
+      return PwrActivity(2.0 / clk->period(), duty, PwrActivityOrigin::clock);
+    }
+    else
+      return PwrActivity();
   }
   else if (global_activity_.isSet())
     return global_activity_;

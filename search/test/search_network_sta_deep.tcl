@@ -97,8 +97,8 @@ puts "paths: [sta::path_count]"
 puts "--- report_tag_arrivals ---"
 set v [sta::worst_slack_vertex max]
 if { $v != "NULL" } {
-  sta::report_tag_arrivals_cmd $v 1
-  sta::report_tag_arrivals_cmd $v 0
+  sta::report_tag_arrivals_cmd $v 1 3
+  sta::report_tag_arrivals_cmd $v 0 3
 }
 
 ############################################################

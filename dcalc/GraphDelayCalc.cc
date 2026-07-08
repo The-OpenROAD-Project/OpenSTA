@@ -107,8 +107,7 @@ DcalcPred::searchThru(Edge *edge,
            || edge->isDisabledLoop()
            || sdc->isDisabledConstraint(edge)
            || sdc->isDisabledCondDefault(edge)
-           || (edge->isBidirectInstPath()
-               && !variables->bidirectInstPathsEnabled()));
+           || sta_->isDisabledBidirectInstPath(edge));
 }
 
 bool
@@ -249,7 +248,7 @@ GraphDelayCalc::delayInvalid(Vertex *vertex)
 {
   debugPrint(debug_, "delay_calc", 2, "delay invalid {}",
              vertex->to_string(this));
-  if (graph_ && incremental_) {
+  if (incremental_) {
     invalid_delays_.insert(vertex);
     // Invalidate driver that triggers dcalc for multi-driver nets.
     MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
@@ -339,47 +338,45 @@ FindVertexDelays::visit(Vertex *vertex)
 void
 GraphDelayCalc::findDelays(Level level)
 {
-  if (arc_delay_calc_) {
-    Stats stats(debug_, report_);
-    int dcalc_count = 0;
-    debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
-    if (!delays_seeded_) {
-      iter_->clear();
-      seedRootSlews();
-      delays_seeded_ = true;
-    }
-    else
-      iter_->ensureSize();
-    if (incremental_)
-      seedInvalidDelays();
-
-    if (!iter_->empty()) {
-      FindVertexDelays visitor(this);
-      dcalc_count += iter_->visitParallel(level, &visitor);
-    }
-
-    // Timing checks require slews at both ends of the arc,
-    // so find their delays after all slews are known.
-    for (Edge *check_edge : invalid_check_edges_)
-      findCheckEdgeDelays(check_edge, arc_delay_calc_);
-    invalid_check_edges_.clear();
-
-    for (Edge *latch_edge : invalid_latch_edges_)
-      findLatchEdgeDelays(latch_edge);
-    invalid_latch_edges_.clear();
-
-    delays_exist_ = true;
-    incremental_ = true;
-    debugPrint(debug_, "delay_calc", 1, "found {} delays", dcalc_count);
-    stats.report("Delay calc");
+  Stats stats(debug_, report_);
+  int dcalc_count = 0;
+  debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
+  if (!delays_seeded_) {
+    iter_->clear();
+    seedRootSlews();
+    delays_seeded_ = true;
   }
+  else
+    iter_->ensureSize();
+  if (incremental_)
+    seedInvalidDelays();
+
+  if (!iter_->empty()) {
+    FindVertexDelays visitor(this);
+    dcalc_count += iter_->visitParallel(level, &visitor);
+  }
+
+  // Timing checks require slews at both ends of the arc,
+  // so find their delays after all slews are known.
+  for (Edge *check_edge : invalid_check_edges_)
+    findCheckEdgeDelays(check_edge, arc_delay_calc_);
+  invalid_check_edges_.clear();
+
+  for (Edge *latch_edge : invalid_latch_edges_)
+    findLatchEdgeDelays(latch_edge);
+  invalid_latch_edges_.clear();
+
+  delays_exist_ = true;
+  incremental_ = true;
+  debugPrint(debug_, "delay_calc", 1, "found {} delays", dcalc_count);
+  stats.report("Delay calc");
 }
 
 void
 GraphDelayCalc::seedInvalidDelays()
 {
   for (Vertex *vertex : invalid_delays_)
-	iter_->enqueue(vertex);
+    iter_->enqueue(vertex);
   invalid_delays_.clear();
 }
 
@@ -1011,13 +1008,13 @@ GraphDelayCalc::findDriverEdgeDelays(Vertex *drvr_vertex,
     if (search_pred_->searchFrom(from_vertex, mode)
         && search_pred_->searchThru(edge, mode)) {
       for (const MinMax *min_max : MinMax::range()) {
-    for (const TimingArc *arc : arc_set->arcs()) {
-      delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
+        for (const TimingArc *arc : arc_set->arcs()) {
+          delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
                                                scene, min_max, arc_delay_calc,
-                                           load_pin_index_map);
-      delay_exists[arc->toEdge()->asRiseFall()->index()] = true;
-    }
-  }
+                                               load_pin_index_map);
+          delay_exists[arc->toEdge()->asRiseFall()->index()] = true;
+        }
+      }
     }
   }
   if (delay_changed && observer_) {

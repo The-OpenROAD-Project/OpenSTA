@@ -31,6 +31,7 @@
 #include "Graph.hh"
 #include "Mode.hh"
 #include "Network.hh"
+#include "PortDirection.hh"
 #include "Scene.hh"
 #include "Sdc.hh"
 #include "TimingArc.hh"
@@ -122,6 +123,14 @@ StaState::isDisabledCondDefault(const Edge *edge) const
 {
   return !variables_->condDefaultArcsEnabled()
     && edge->timingArcSet()->isCondDefault();
+}
+
+bool
+StaState::isDisabledBidirectInstPath(Edge *edge) const
+{
+  return (edge->isBidirectInstPath()
+          || edge->isBidirectPortPath())
+    && !variables_->bidirectInstPathsEnabled();
 }
 
 ////////////////////////////////////////////////////////////////

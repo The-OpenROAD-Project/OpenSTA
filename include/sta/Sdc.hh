@@ -576,6 +576,8 @@ public:
                         const Clock *clk,
                         const RiseFall *clk_rf,
                         const MinMaxAll *min_max);
+  void ensureInputDelayRefPinEdges();
+  void inputDelayRefPinEdgesInvalid();
   void setOutputDelay(const Pin *pin,
                       const RiseFallBoth *rf,
                       const Clock *clk,
@@ -806,7 +808,6 @@ public:
                             const MinMaxAll *min_max);
 
   // STA interface.
-  InputDelaySet *refPinInputDelays(const Pin *ref_pin) const;
   const LogicValueMap &logicValues() const { return logic_value_map_; }
   const LogicValueMap &caseLogicValues() const { return case_value_map_; }
   // Returns nullptr if set_operating_conditions has not been called.
@@ -1221,6 +1222,7 @@ protected:
                          InputDelay *except);
   void deleteInputDelaysReferencing(const Clock *clk);
   void deleteInputDelay(InputDelay *input_delay);
+
   OutputDelay *findOutputDelay(const Pin *pin,
                                const ClockEdge *clk_edge);
   OutputDelay *makeOutputDelay(const Pin *pin,
@@ -1229,6 +1231,7 @@ protected:
                           OutputDelay *except);
   void deleteOutputDelaysReferencing(const Clock *clk);
   void deleteOutputDelay(OutputDelay *output_delay);
+
   void deleteClockInsertion(ClockInsertion *insertion);
   void deleteClockInsertionsReferencing(Clock *clk);
   void deleteInterClockUncertainty(InterClockUncertainty *uncertainties);
@@ -1334,7 +1337,7 @@ protected:
 
   InputDelaySet input_delays_;
   InputDelaysPinMap input_delay_pin_map_;
-  InputDelaysPinMap input_delay_ref_pin_map_;
+  bool have_input_delay_ref_pins_{false};
   // Input delays on hierarchical pins are indexed by the load pins.
   InputDelaysPinMap input_delay_leaf_pin_map_;
   InputDelaysPinMap input_delay_internal_pin_map_;
@@ -1342,7 +1345,6 @@ protected:
 
   OutputDelaySet output_delays_;
   OutputDelaysPinMap output_delay_pin_map_;
-  OutputDelaysPinMap output_delay_ref_pin_map_;
   // Output delays on hierarchical pins are indexed by the load pins.
   OutputDelaysPinMap output_delay_leaf_pin_map_;
 

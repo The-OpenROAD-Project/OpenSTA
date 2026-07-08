@@ -146,8 +146,9 @@ public:
   PathGroup *findPathGroup(const Clock *clock,
                            const MinMax *min_max) const;
   PathGroupSeq pathGroups(const PathEnd *path_end) const;
-  static StringSeq pathGroupNames(const PathEnd *path_end,
-                                     const StaState *sta);
+  static bool inPathGroupNamed(const PathEnd *path_end,
+                               std::string_view path_group_name,
+                               const StaState *sta);
   static std::string_view asyncPathGroupName() { return async_group_name_; }
   static std::string_view pathDelayGroupName() { return path_delay_group_name_; }
   static std::string_view gatedClkGroupName() { return gated_clk_group_name_; }

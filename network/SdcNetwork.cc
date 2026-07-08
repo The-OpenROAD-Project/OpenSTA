@@ -330,6 +330,13 @@ NetworkNameAdapter::memberIterator(const Port *port) const
   return network_->memberIterator(port);
 }
 
+Port *
+NetworkNameAdapter::makePort(Cell *cell,
+                             std::string_view name)
+{
+  return network_edit_->makePort(cell, name);
+}
+
 ////////////////////////////////////////////////////////////////
 
 ObjectId
@@ -736,6 +743,14 @@ SdcNetwork::busName(const Port *port) const
   return staToSdc(network_->busName(port));
 }
 
+Port *
+SdcNetwork::makePort(Cell *cell,
+                     std::string_view name)
+{
+  std::string escaped_name = escapeDividerBrackets(name, network_edit_);
+  return network_edit_->makePort(cell, escaped_name);
+}
+
 std::string
 SdcNetwork::name(const Instance *instance) const
 {
@@ -1073,7 +1088,7 @@ SdcNetwork::makeInstance(LibertyCell *cell,
                          std::string_view name,
                          Instance *parent)
 {
-  std::string escaped_name = escapeDividers(std::string(name), this);
+  std::string escaped_name = escapeDividerBrackets(name, this);
   return network_edit_->makeInstance(cell, escaped_name, parent);
 }
 
@@ -1081,7 +1096,7 @@ Net *
 SdcNetwork::makeNet(std::string_view name,
                     Instance *parent)
 {
-  std::string escaped_name = escapeDividers(std::string(name), this);
+  std::string escaped_name = escapeDividerBrackets(name, this);
   return network_edit_->makeNet(escaped_name, parent);
 }
 
@@ -1255,10 +1270,18 @@ SdcNetwork::visitMatches(const Instance *parent,
 ////////////////////////////////////////////////////////////////
 
 std::string
+escapeDividerBrackets(std::string_view name,
+                      const Network *network)
+{
+  return escapeChars(name, network->pathDivider(), '[', ']',
+                     network->pathEscape());
+}
+
+std::string
 escapeDividers(std::string_view name,
                const Network *network)
 {
-  return escapeChars(name, network->pathDivider(), '\0',
+  return escapeChars(name, network->pathDivider(), '\0', '\0',
                      network->pathEscape());
 }
 
@@ -1266,7 +1289,7 @@ std::string
 escapeBrackets(std::string_view name,
                const Network *network)
 {
-  return escapeChars(name, '[', ']', network->pathEscape());
+  return escapeChars(name, '[', ']', '\0', network->pathEscape());
 }
 
 } // namespace sta

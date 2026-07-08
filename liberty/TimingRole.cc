@@ -90,6 +90,8 @@ const TimingRole TimingRole::clock_tree_path_min_("min clock tree path", false, 
                                                   false, MinMax::min(), nullptr, 27);
 const TimingRole TimingRole::clock_tree_path_max_("max clock tree path", false, false,
                                                   false, MinMax::max(), nullptr, 28);
+const TimingRole TimingRole::port_delay_ref_pin_("port delay ref pin", false, false,
+                                                 false, nullptr, nullptr, 29);
 
 TimingRole::TimingRole(const char *name,
                        bool is_sdf_iopath,

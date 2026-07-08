@@ -147,13 +147,16 @@ record_public_tests {
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
+  get_scenes
   get_objrefs
+  input_delay_ref_pin_rebuild
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  make_concrete_parasitics_leak
   package_require
   path_group_names
   power_json
@@ -168,6 +171,7 @@ record_public_tests {
   verilog_well_supplies
   verilog_specify
   verilog_write_escape
+  verilog_write_gzip
   verilog_unconnected_hpin
 }
 

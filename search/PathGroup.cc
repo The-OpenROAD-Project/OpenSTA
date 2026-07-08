@@ -474,23 +474,23 @@ PathGroups::pathGroups(const PathEnd *path_end) const
 }
 
 // Mirrors PathGroups::pathGroup.
-StringSeq
-PathGroups::pathGroupNames(const PathEnd *path_end,
-                           const StaState *sta)
+bool
+PathGroups::inPathGroupNamed(const PathEnd *path_end,
+                             std::string_view path_group_name,
+                             const StaState *sta)
 {
-  StringSeq group_names;
-  std::string group_name;
   const Search *search = sta->search();
   ExceptionPathSeq group_paths = search->groupPathsTo(path_end);
   if (path_end->isUnconstrained())
-    group_name = unconstrained_group_name_;
+    return path_group_name == unconstrained_group_name_;
   else if (!group_paths.empty()) {
     // GroupPaths have precedence.
     for (ExceptionPath *group_path : group_paths) {
-      if (group_path->isDefault())
-        group_names.emplace_back(path_delay_group_name_);
-      else
-        group_names.emplace_back(group_path->name());
+      std::string_view group_name = group_path->isDefault()
+        ? path_delay_group_name_
+        : group_path->name();
+      if (path_group_name == group_name)
+        return true;;
     }
   }
   else if (path_end->isCheck() || path_end->isLatchCheck()) {
@@ -498,18 +498,18 @@ PathGroups::pathGroupNames(const PathEnd *path_end,
     const Clock *tgt_clk = path_end->targetClk(sta);
     if (check_role == TimingRole::removal()
         || check_role == TimingRole::recovery())
-      group_name = async_group_name_;
+      return path_group_name == async_group_name_;
     else
-      group_name = tgt_clk->name();
+      return path_group_name == tgt_clk->name();
   }
   else if (path_end->isOutputDelay()
            || path_end->isDataCheck()) {
     const Clock *tgt_clk = path_end->targetClk(sta);
     if (tgt_clk)
-      group_name = tgt_clk->name();
+      return path_group_name == tgt_clk->name();
   }
   else if (path_end->isGatedClock())
-    group_name = gated_clk_group_name_;
+    return path_group_name == gated_clk_group_name_;
   else if (path_end->isPathDelay()) {
     // Path delays that end at timing checks are part of the target clk group
     // unless -ignore_clock_latency is true.
@@ -517,13 +517,11 @@ PathGroups::pathGroupNames(const PathEnd *path_end,
     const Clock *tgt_clk = path_end->targetClk(sta);
     if (tgt_clk
         && !path_delay->ignoreClkLatency())
-      group_name = tgt_clk->name();
+      return path_group_name == tgt_clk->name();
     else
-      group_name = path_delay_group_name_;
+      return path_group_name == path_delay_group_name_;
   }
-  if (!group_name.empty())
-    group_names.push_back(group_name);
-  return group_names;
+  return false;
 }
 
 GroupPath *

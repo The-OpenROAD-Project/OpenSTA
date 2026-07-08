@@ -1439,6 +1439,12 @@ LibertyCell::outputPortSequential(LibertyPort *port)
 }
 
 bool
+LibertyCell::isSequential() const
+{
+  return !sequentials_.empty() || statetable_ != nullptr;
+}
+
+bool
 LibertyCell::hasSequentials() const
 {
   return !sequentials_.empty() || statetable_ != nullptr;
@@ -1618,7 +1624,7 @@ void
 LibertyCell::makeLatchEnables(Report *report,
                               Debug *debug)
 {
-  if (hasSequentials()
+  if (isSequential()
       || hasInferedRegTimingArcs()) {
     for (TimingArcSet *d_to_q : timing_arc_sets_) {
       if (d_to_q->role() == TimingRole::latchDtoQ()) {
@@ -1769,6 +1775,7 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
   latch_d_to_q_map_[d_to_q] = idx;
   latch_check_map_[setup_check] = idx;
   d->setIsLatchData(true);
+  q->setIsLatchOutput(true);
   debugPrint(debug, "liberty_latch", 1,
              "latch {} -> {} | {} {} -> {} | {} {} -> {} setup",
              d->name(),
@@ -2432,6 +2439,13 @@ LibertyPort::setIsLatchData(bool is_latch_data)
 {
   is_latch_data_ = is_latch_data;
   setMemberFlag(is_latch_data, &LibertyPort::setIsLatchData);
+}
+
+void
+LibertyPort::setIsLatchOutput(bool is_latch_output)
+{
+  is_latch_output_ = is_latch_output;
+  setMemberFlag(is_latch_output, &LibertyPort::setIsLatchOutput);
 }
 
 void
