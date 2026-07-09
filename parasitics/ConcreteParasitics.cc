@@ -1419,6 +1419,8 @@ void
 ConcreteParasitics::setCapacitorValue(ParasiticCapacitor *capacitor,
                                       float value)
 {
+  if (capacitor == nullptr)
+    return;
   ConcreteParasiticCapacitor *ccapacitor =
     static_cast<ConcreteParasiticCapacitor*>(capacitor);
   ccapacitor->setValue(value);
