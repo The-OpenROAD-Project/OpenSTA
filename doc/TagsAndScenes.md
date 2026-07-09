@@ -2,8 +2,9 @@
 
 This document describes how `Tag`/`ClkInfo`/`TagGroup` distinguish and store multiple
 timing paths per vertex, how arrival and required times propagate through the graph,
-how delay calculation is indexed, and how multiple clocks and multiple scenes
-(MCMM) are carried through all of it.
+how delay calculation is indexed, how multiple clocks and multiple scenes
+(MCMM) are carried through all of it, and how the shared data structures are
+made safe under multithreaded propagation (§7).
 
 It is written as a handoff reference: each section starts with a plain-language
 explanation before diving into the code. Section 0 is a glossary of terms used
@@ -650,7 +651,179 @@ paths filtered by (scene, min/max, rf).
 
 ---
 
-## 7. Quick reference: what makes two paths "different"
+## 7. Threading and concurrency
+
+*Plain language: OpenSTA runs single-threaded by default. When more threads are
+enabled, worker threads exist only inside a handful of well-delimited parallel
+phases (delay calc, arrival search, required search, path-end collection, clock
+skew). Everything those phases need — graph topology, levelization, constraints,
+liberty data, scenes — is built beforehand on the main thread and treated as
+read-only inside the phase. Shared structures that must grow during a phase
+(the tag/ClkInfo/TagGroup tables, BFS queues, invalidation sets) take a mutex
+on the write path; the hot read paths are lock-free.*
+
+### 7.1 Thread pool
+
+- Default thread count is **1** (`Sta::defaultThreadCount`, `search/Sta.cc:307`).
+  The Tcl command `set_thread_count` (`util/Util.i:99`) calls
+  `Sta::setThreadCount`, which stores `StaState::thread_count_` and creates (or
+  resizes) a `DispatchQueue` thread pool (`Sta::setThreadCount1`,
+  `search/Sta.cc:320`; pool in `util/DispatchQueue.cc`,
+  `include/sta/DispatchQueue.hh`). No pool exists until thread count > 1.
+- `DispatchQueue::dispatch(fn)` hands a task to a worker; each task receives its
+  thread index (used to pick per-thread scratch state).
+  `DispatchQueue::finishTasks()` blocks until all dispatched tasks complete
+  (`DynamicLatch`, an atomic counter with C++20 `atomic::wait`). Every parallel
+  phase ends with `finishTasks()` — worker threads never outlive a phase.
+- All Tcl commands, netlist edits, SDC changes, liberty/SPEF reading, and
+  reporting run on the main thread. Worker threads run only in the phases below.
+
+### 7.2 The parallel phases
+
+| Phase | Entry point | Parallelized over |
+|---|---|---|
+| Delay calculation | `GraphDelayCalc::findDelays` → `iter_->visitParallel` (`dcalc/GraphDelayCalc.cc:356`) | driver vertices, level by level |
+| Arrival search | `Search::findArrivals1` / `findClkArrivals` → `arrival_iter_->visitParallel` (`search/Search.cc:657,1047`) | vertices, level by level |
+| Required search | `Search::findRequireds` → `required_iter_->visitParallel` (`search/Search.cc:3152`) | vertices, reverse level order |
+| Path end collection | `PathGroups::makeGroupPathEnds` (`search/PathGroup.cc:1008`) | endpoint vertices |
+| Clock skew | `ClkSkews::findClkSkew` (`search/ClkSkew.cc:198`) | register clock vertices; per-thread partial skew maps merged after `finishTasks` |
+
+The generated-clock source-path search is deliberately **not** parallel
+(`Genclks::findSrcArrivals`, `search/Genclks.cc:788-795`, comment: "Parallel
+visit is slightly slower (at last check)").
+
+### 7.3 The level-barrier invariant
+
+`BfsIterator::visitParallel` (`search/Bfs.cc:160`) processes one level at a
+time: the level's vertex list is split into one contiguous chunk per thread,
+the chunks are dispatched, and `finishTasks()` is called **before moving to the
+next level**. (If a level has fewer vertices than threads it is visited
+serially on the main thread.) Two consequences:
+
+1. **Each vertex is visited by exactly one thread.** Per-vertex and per-edge
+   result storage is therefore written without locks: `Vertex::paths_`
+   (written via `Search::setVertexArrivals` → `Vertex::makePaths`,
+   `graph/Graph.cc:1198`), per-vertex slew slots (`Graph::setSlew`,
+   `graph/Graph.cc:677`), and per-edge arc delay slots. The arrays themselves
+   are allocated on the main thread before the phase (`Graph::initSlews` /
+   `Graph::initArcDelays`, `graph/Graph.cc:866-914`) — the parallel phase only
+   fills slots.
+2. **All fanin (fanout, for requireds) is final before a vertex is visited.**
+   When `ArrivalVisitor` reads the from-vertex `Path` arrays in
+   `visitFaninPaths`, those vertices are at lower levels, completed before the
+   previous level barrier. Latch D→Q edges, which violate level order, are not
+   followed in-pass: the latch output is parked in `postponed_arrivals_` (under
+   `postponed_arrivals_lock_`, `search/Search.cc:1428-1437`) and visited on the
+   next pass of the loop in `Search::findAllArrivals`.
+
+Workers do enqueue fanout vertices into the BFS queue during a visit; the queue
+is protected by `BfsIterator::queue_lock_` (`search/Bfs.cc:271`) with a
+double-checked "already in queue" flag kept as an atomic per-vertex bitmask
+(`Vertex::bfs_in_queue_`, `std::atomic<uint8_t>`, `include/sta/Graph.hh:325`).
+
+### 7.4 Per-thread visitor state
+
+`visitParallel` makes one `visitor->copy()` per thread (`search/Bfs.cc:169-172`);
+each copy owns the mutable scratch state a visit needs:
+
+- `ArrivalVisitor` copies own their `TagGroupBldr` scratch builders
+  (`tag_bldr_`, `tag_bldr_no_crpr_`, `search/Search.cc:1083-1096`) and a
+  private `tag_cache_` (`PathVisitor` copy constructor passes
+  `make_tag_cache=true`, `search/Search.cc:1962-1973`) — see §7.5.
+- `FindVertexDelays::copy` clones the `ArcDelayCalc` "because it needs separate
+  state for each thread" (`dcalc/GraphDelayCalc.cc:321-327`).
+- `MakeEndpointPathEnds` copies its `PathEndVisitor` per thread
+  (`search/PathGroup.cc:979-997`); results funnel into shared `PathGroup`s
+  under a lock (§7.6).
+- `ClkSkews` gives each thread its own `ClkSkewMap` (`partial_skews`,
+  `search/ClkSkew.cc:195-203`) and reduces them on the main thread after the
+  barrier.
+
+### 7.5 Interned global tables: locked create, lock-free read
+
+The three interning tables of §2 grow concurrently during arrival/required
+search. All use the same discipline — mutex on create, no lock on read:
+
+- **Tags** — `Search::findTag` takes `tag_lock_` (`search/Search.cc:2894`) to
+  probe/insert `tag_set_`. Before touching the lock it probes the visitor's
+  per-thread `tag_cache_` (`search/Search.cc:2888-2892`); cache hits skip the
+  global lock entirely.
+- **ClkInfos** — `Search::findClkInfo` takes `clk_info_lock_`
+  (`search/Search.cc:2984`).
+- **TagGroups** — `Search::findTagGroup` takes `tag_group_lock_`
+  (`search/Search.cc:2646`). `TagGroup::ref_count_` is `std::atomic<int>`
+  (`search/TagGroup.hh:82`) because `setVertexArrivals` increments/decrements
+  it from concurrent visits.
+
+Index-to-object lookup (`Search::tag(TagIndex)`, used on every `Path::tag`
+call) reads the `tags_` array with **no lock**. That is safe because the array
+pointers are atomic (`std::atomic<Tag**> tags_`, `std::atomic<TagGroup**>
+tag_groups_`, `include/sta/Search.hh:632,641`) and growth is copy-then-publish:
+under the table lock, a double-size array is allocated, existing entries are
+copied, and only then is the atomic pointer swung
+(`search/Search.cc:2919-2930,2659-2670` — "make the new array and copy the
+contents into it before updating tags_ so that other threads can use
+Search::tag(TagIndex) without returning gubbish"). The retired arrays are
+parked in `tags_prev_`/`tag_groups_prev_` and freed only after the parallel
+pass by `Search::deleteTagsPrev` (`search/Search.cc:671-681`), so a reader
+holding the old pointer never sees freed memory. New tags are stored into
+`tags_[index]` *before* being inserted into `tag_set_`
+(`search/Search.cc:2906-2909`), so any tag visible in the set is indexable.
+
+### 7.6 Other shared structures written during parallel phases
+
+Each has a dedicated mutex (`LockGuard` = `std::scoped_lock<std::mutex>`,
+`include/sta/Mutex.hh:32`):
+
+| Structure | Lock | Who writes concurrently |
+|---|---|---|
+| BFS level queues | `BfsIterator::queue_lock_` (`search/Bfs.cc:271`) | visits enqueueing fanout/fanin |
+| `invalid_arrivals_` / `invalid_requireds_` | `invalid_arrivals_lock_` (`search/Search.cc:851,930` — "Lock for StaDelayCalcObserver called by delay calc threads") | delay-calc threads invalidating search results via observer |
+| `invalid_tns_` | `tns_lock_` (`search/Search.cc:3721`) | endpoint slack invalidation from visits |
+| Worst-slack queue per path index | `WorstSlack::lock_` (`search/WorstSlack.cc:265` — "Locking is required because ArrivalVisitor is called by multiple threads") | arrival visits updating WNS |
+| `postponed_arrivals_` (latch outputs), `postponed_clk_endpoints_` | own locks (`search/Search.cc:1437,1024`) | arrival visits |
+| `filtered_arrivals_` | `filtered_arrivals_lock_` (`search/Search.cc:2704`) | `setVertexArrivals` when a filter tag lands |
+| `PathGroup::path_ends_` + pruning threshold | `PathGroup::lock_` (`search/PathGroup.cc:119,180`) | per-endpoint path-end insertion in `makeGroupPathEnds` |
+| `invalid_check_edges_` / `invalid_latch_edges_` | `invalid_edge_lock_` (`dcalc/GraphDelayCalc.cc:762-782`) | dcalc visits queueing check/latch edges (processed serially after the parallel pass, `GraphDelayCalc.cc:359-367`) |
+| Multi-driver net registry | `multi_drvr_lock_` (`dcalc/GraphDelayCalc.cc:814` — taken only when a vertex has multiple drivers: "Avoid locking for single driver nets") | lazy `MultiDrvrNet` creation during dcalc |
+| Cycle accounting table | `Sdc::cycle_acctings_lock_` (`sdc/Sdc.cc:2411-2417` — "Determine cycle accounting on demand") | `CycleAccting` interning from required-time math in parallel required search |
+| CUDD BDD manager (`Sim`) | `bdd_lock_` (`search/Sim.cc:91,121`) | BDD evaluation — the shared CUDD manager is serialized |
+| Parasitic maps | `ConcreteParasitics::lock_` (`parasitics/ConcreteParasitics.cc:915-1187`) | on-demand reduced-parasitic creation and lookups from dcalc threads |
+| Lazy voltage waveforms | `LibertyCell::waveform_lock_` + atomic `have_voltage_waveforms_` double-check (`liberty/Liberty.cc:1861-1868`) | first dcalc thread to need CCS waveforms for a cell |
+| Debug print buffers | `Debug::buffer_lock_` (`include/sta/Debug.hh:60-66`) | `debugPrint` from any thread |
+
+### 7.7 Pre-populated, read-only during parallel phases
+
+The following are built or updated only on the main thread (between commands or
+in a serial preamble) and are read without locks inside parallel phases:
+
+- **Graph topology** — vertices/edges are made/deleted only during graph
+  building and netlist edits (`Graph::makeEdge`, `graph/Graph.cc:707`); never
+  from worker threads.
+- **Levelization** — `Levelize` runs serially before search (no locks anywhere
+  in `search/Levelize.cc`); levels are what the barrier discipline of §7.3 is
+  built on.
+- **Sdc / exceptions / clocks** — constraint data is read-only during search
+  (exception `-thru` lookup in `mutateTag`, derates, etc.); the one lazily
+  built piece, cycle accounting, is locked (§7.6).
+- **Liberty data** — read-only during dcalc/search except the lazy voltage
+  waveforms noted above.
+- **Scenes and Modes** — `scenes_` / `modes_` are created by
+  `define_scene`-time code on the main thread; parallel phases only read them.
+- **Sim (constant propagation) values** — computed when constraints change;
+  visits read per-pin values, and the shared BDD manager used for function
+  evaluation is lock-serialized (§7.6).
+
+Network edits and constraint changes therefore never race with search: they run
+on the main thread and merely insert into the `invalid_*` sets, which the next
+(possibly parallel) pass consumes.
+
+For debugging: `set_thread_count 1` makes all of the above run serially and
+deterministically ordered (see §10.7).
+
+---
+
+## 8. Quick reference: what makes two paths "different"
 
 A vertex holds separate arrival/required slots for paths that differ in any of:
 
@@ -672,7 +845,7 @@ slot and the worst one wins.
 
 ---
 
-## 8. Worked example (plain language)
+## 9. Worked example (plain language)
 
 Design: input port `in1` with `set_input_delay -clock clk1 2.0`, flop `r1`
 clocked by propagated `clk1`, two scenes `fast` (mode M, FF libs) and `slow`
@@ -698,7 +871,7 @@ reduces across scenes at the end.
 
 ---
 
-## 9. Debugging tags: commands and techniques
+## 10. Debugging tags: commands and techniques
 
 *Plain language: everything below answers "what paths does this pin actually
 hold, and why?" The commands live in the Tcl layer; most are intentionally
@@ -707,7 +880,7 @@ OpenSTA shell. Arrivals must exist first — run `report_checks` (or anything
 that triggers `findArrivals`) or a `find_timing` before inspecting, otherwise
 vertices report "no arrivals".*
 
-### 9.1 Report all tags + arrivals/requireds on a pin: `report_tag_arrivals`
+### 10.1 Report all tags + arrivals/requireds on a pin: `report_tag_arrivals`
 
 The workhorse. Internal debug proc (`search/Search.tcl:808`, marked "Internal
 debugging command", call as `sta::report_tag_arrivals`):
@@ -725,7 +898,7 @@ Vertex r1/Q (fall)
 Group 17
  r max 1.234 / 4.567 23 scene1 clk1 r clk_src ck1buf/Y crpr_pin r1/CLK max ...
  ^   ^   ^       ^    ^  ^      ^
- rf  mm  arrival required tag_index scene  <rest = Tag::to_string, see 9.4>
+ rf  mm  arrival required tag_index scene  <rest = Tag::to_string, see 10.4>
 ```
 
 Format string: `" {rf} {min_max} {arrival} / {required} {tag}"`. So this one
@@ -733,7 +906,7 @@ command answers both "what tags does this pin have" and "what arrival/required
 is stored per tag". `Group N` is the vertex's TagGroup number in the shared
 group table.
 
-### 9.2 Report the worst (or every) path through a pin: `report_path`
+### 10.2 Report the worst (or every) path through a pin: `report_path`
 
 User-visible command with two hidden flags `-all` and `-tags`
 (`search/Search.tcl:614`, comment: "Note that -all and -tags are intentionally
@@ -754,7 +927,7 @@ report_path [-min|-max] [-all] [-tags] [-format ...] pin r|f
 So `report_path -max -all -tags r1/D f` = every fall/max path class into
 `r1/D`, each labeled with its tag.
 
-### 9.3 Arrival/required/slack per clock edge: `report_arrival` / `report_required` / `report_slack`
+### 10.3 Arrival/required/slack per clock edge: `report_arrival` / `report_required` / `report_slack`
 
 User-level, tag-aware but summarized per launching clock edge
 (`search/Search.tcl:741-802` → `Sta::reportArrivalWrtClks` etc.,
@@ -771,7 +944,7 @@ clock edge (the tag's `clkEdge()`), optionally restricted to one scene. Use
 these when you want "what are the arrivals wrt each clock" without raw tag
 dumps.
 
-### 9.4 Reading a tag dump: anatomy of `Tag::to_string`
+### 10.4 Reading a tag dump: anatomy of `Tag::to_string`
 
 (`search/Tag.cc:86-174`; ClkInfo part `search/ClkInfo.cc:145`.) A line like
 
@@ -797,7 +970,7 @@ decodes as:
 `ClkInfo::to_string` (printed by `report_clk_infos`) additionally shows
 `insert <delay>` (source insertion) and `uncertain <min>:<max>`.
 
-### 9.5 Global table dumps and statistics
+### 10.5 Global table dumps and statistics
 
 All in `sta::` namespace (`search/Search.i:273-330`):
 
@@ -815,7 +988,7 @@ All in `sta::` namespace (`search/Search.i:273-330`):
 Watching `tag_count`/`path_count` before and after a constraint change is the
 quick way to measure tag-explosion cost of exceptions.
 
-### 9.6 Scriptable access from Tcl (vertex/path objects)
+### 10.6 Scriptable access from Tcl (vertex/path objects)
 
 For ad-hoc debugging scripts (`graph/Graph.i`, `search/Search.i:1212-1285`):
 
@@ -841,7 +1014,7 @@ foreach vertex [$pin vertices] {          ;# bidirect pins have 2 vertices
 `find_timing_paths`) expose `path`, `slack`, `margin`, `data_required_time`,
 etc.
 
-### 9.7 `set_debug` trace categories
+### 10.7 `set_debug` trace categories
 
 `sta::set_debug <category> <level>` (kept out of the global namespace on
 purpose — `tcl/Util.tcl:288`). Use `set_thread_count 1` first; parallel BFS
@@ -868,7 +1041,7 @@ report_checks -through [get_pins u1/Y]   ;# or find_timing
 # point where mutateTag kills the tag (false path complete, etc.)
 ```
 
-### 9.8 C++-level hooks (for gdb / temporary instrumentation)
+### 10.8 C++-level hooks (for gdb / temporary instrumentation)
 
 - `Search::reportArrivals(vertex, true, digits)` — callable from gdb on any
   vertex.
@@ -885,7 +1058,7 @@ report_checks -through [get_pins u1/Y]   ;# or find_timing
 
 ---
 
-## 10. Key file index
+## 11. Key file index
 
 | Area | Files |
 |---|---|
@@ -899,3 +1072,4 @@ report_checks -through [get_pins u1/Y]   ;# or find_timing
 | Scene / Mode | `include/sta/Scene.hh`, `search/Scene.cc`, `include/sta/Mode.hh`, `search/Mode.cc` |
 | Delay calc | `dcalc/GraphDelayCalc.cc`, `graph/Graph.cc` |
 | BFS iterators | `search/Bfs.cc` |
+| Thread pool / locking primitives | `include/sta/DispatchQueue.hh`, `util/DispatchQueue.cc`, `include/sta/Mutex.hh` |
