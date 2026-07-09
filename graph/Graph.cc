@@ -418,6 +418,8 @@ Graph::makePinVertices(Pin *pin,
                        Vertex *&vertex,
                        Vertex *&bidir_drvr_vertex)
 {
+  vertex = nullptr;
+  bidir_drvr_vertex = nullptr;
   PortDirection *dir = network_->direction(pin);
   if (!dir->isPowerGround()) {
     bool is_reg_clk = network_->isRegClkPin(pin);
@@ -427,8 +429,6 @@ Graph::makePinVertices(Pin *pin,
       bidir_drvr_vertex = makeVertex(pin, true, is_reg_clk);
       pin_bidirect_drvr_vertex_map_[pin] = bidir_drvr_vertex;
     }
-    else
-      bidir_drvr_vertex = nullptr;
   }
 }
 

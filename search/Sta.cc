@@ -4493,6 +4493,10 @@ Sta::makeInstanceAfter(const Instance *inst)
         if (pin) {
           Vertex *vertex, *bidir_drvr_vertex;
           graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
+          if (vertex)
+            search_->endpointInvalid(vertex);
+          if (bidir_drvr_vertex)
+            search_->endpointInvalid(bidir_drvr_vertex);
         }
       }
       graph_->makeInstanceEdges(inst);
