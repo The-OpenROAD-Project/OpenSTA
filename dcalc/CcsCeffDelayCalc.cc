@@ -793,7 +793,7 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
   // parasitics_ member is unset/stale here. Resolve it from the scene like
   // gateDelay() does, otherwise the parasitics_ deref below crashes (Signal 11).
   parasitics_ = scene->parasitics(min_max);
-  if (parasitic && !parasitics_->isPiElmore(parasitic)) {
+  if (parasitics_ && parasitic && !parasitics_->isPiElmore(parasitic)) {
     // Use the drvr_pin PARAMETER, not the stale drvr_pin_ member.
     pi_elmore =
         parasitics_->reduceToPiElmore(parasitic, drvr_pin, rf, scene, min_max);
@@ -801,7 +801,8 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
   std::string report =
       table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap, pi_elmore,
                                     load_pin_index_map, scene, min_max, digits);
-  parasitics_->deleteDrvrReducedParasitics(drvr_pin);  // OpenROAD-fork: ccs-delay-path
+  if (parasitics_)
+    parasitics_->deleteDrvrReducedParasitics(drvr_pin);  // OpenROAD-fork: ccs-delay-path
   return report;
 }
 

@@ -455,6 +455,8 @@ const TableModel *
 ReceiverModel::capacitanceModel(size_t segment,
                                 const RiseFall *rf) const
 {
+  if (rf == nullptr)
+    return nullptr;
   const size_t idx = segment * RiseFall::index_count + rf->index();
   if (idx >= capacitance_models_.size())
     return nullptr;
