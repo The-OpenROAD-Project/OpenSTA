@@ -286,8 +286,6 @@ public:
                                TagGroupBldr *tag_bldr);
   void postponeLatchDataOutputs(Vertex *vertex);
   void postponeArrivals(Vertex *vertex);
-  void enqueuePendingClkFanouts();
-  void postponeClkFanouts(Vertex *vertex);
   void seedRequired(Vertex *vertex);
   void seedRequiredEnqueueFanin(Vertex *vertex);
   void seedInputDelayArrival(const Pin *pin,
@@ -503,12 +501,12 @@ protected:
                      bool is_segment_start,
                      const MinMax *min_max,
                      Scene *scene);
-  void seedClkVertexArrivals();
-  void findClkArrivals1();
+  void enqueueClkRoots();
+  void enqueueInvalidClks();
 
-  void findAllArrivals(bool thru_latches,
-                       bool clks_only);
+  void findAllArrivals(bool thru_latches);
   void findArrivals1(Level level);
+  void findArrivals2(Level level);
   Tag *mutateTag(Tag *from_tag,
                  const Pin *from_pin,
                  const RiseFall *from_rf,
@@ -646,12 +644,9 @@ protected:
   std::vector<TagIndex> tag_group_free_indices_;
   std::mutex tag_group_lock_;
 
-  // Latches data outputs to queue on the next search pass.
-  VertexSet postponed_arrivals_;
-  std::mutex postponed_arrivals_lock_;
-  // Clock network endpoints where arrival search was suppended by findClkArrivals().
-  VertexSet postponed_clk_endpoints_;
-  std::mutex postponed_clk_endpoints_lock_;
+  // Arrivals to queue on the next search pass.
+  VertexSet pending_arrivals_;
+  std::mutex pending_arrivals_lock_;
 
   VertexSet endpoints_;
   bool endpoints_initialized_{false};

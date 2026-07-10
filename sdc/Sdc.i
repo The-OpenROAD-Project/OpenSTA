@@ -1531,6 +1531,22 @@ filter_clocks(const char *filter_expression,
   return filterClocks(filter_expression, clocks, sta);
 }
 
+SceneSeq
+filter_scenes(const char *filter_expression,
+              SceneSeq *scenes)
+{
+  sta::Sta *sta = Sta::sta();
+  return filterScenes(filter_expression, scenes, sta);
+}
+
+ModeSeq
+filter_modes(const char *filter_expression,
+             ModeSeq *modes)
+{
+  sta::Sta *sta = Sta::sta();
+  return filterModes(filter_expression, modes, sta);
+}
+
 LibertyCellSeq
 filter_lib_cells(const char *filter_expression,
                  LibertyCellSeq *cells)

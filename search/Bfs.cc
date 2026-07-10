@@ -72,12 +72,20 @@ BfsIterator::ensureSize()
 void
 BfsIterator::clear()
 {
+  clear([] (Vertex *) {});
+}
+
+void
+BfsIterator::clear(const VertexFn &fn)
+{
   Level level = first_level_;
   while (levelLessOrEqual(level, last_level_)) {
     VertexSeq &level_vertices = queue_[level];
     for (Vertex *vertex : level_vertices) {
-      if (vertex)
+      if (vertex) {
         vertex->setBfsInQueue(bfs_index_, false);
+        fn(vertex);
+      }
     }
     level_vertices.clear();
     incrLevel(level);
@@ -114,19 +122,6 @@ bool
 BfsIterator::empty() const
 {
   return levelLess(last_level_, first_level_);
-}
-
-void
-BfsIterator::enqueueAdjacentVertices(Vertex *vertex)
-{
-  enqueueAdjacentVertices(vertex, search_pred_);
-}
-
-void
-BfsIterator::enqueueAdjacentVertices(Vertex *vertex,
-                                     const Mode *mode)
-{
-  enqueueAdjacentVertices(vertex, search_pred_, mode);
 }
 
 int
@@ -218,50 +213,6 @@ BfsIterator::visitParallel(Level to_level,
   return visit_count;
 }
 
-bool
-BfsIterator::hasNext()
-{
-  return hasNext(last_level_);
-}
-
-bool
-BfsIterator::hasNext(Level to_level)
-{
-  findNext(to_level);
-  return levelLessOrEqual(first_level_, last_level_)
-      && !queue_[first_level_].empty();
-}
-
-Vertex *
-BfsIterator::next()
-{
-  VertexSeq &level_vertices = queue_[first_level_];
-  Vertex *vertex = level_vertices.back();
-  level_vertices.pop_back();
-  vertex->setBfsInQueue(bfs_index_, false);
-  return vertex;
-}
-
-void
-BfsIterator::findNext(Level to_level)
-{
-  while (levelLessOrEqual(first_level_, last_level_)
-         && levelLessOrEqual(first_level_, to_level)) {
-    VertexSeq &level_vertices = queue_[first_level_];
-    // Skip null entries from deleted vertices.
-    while (!level_vertices.empty()) {
-      Vertex *vertex = level_vertices.back();
-      if (vertex == nullptr)
-        level_vertices.pop_back();
-      else {
-        checkLevel(vertex, first_level_);
-        return;
-      }
-    }
-    incrLevel(first_level_);
-  }
-}
-
 void
 BfsIterator::enqueue(Vertex *vertex)
 {
@@ -341,6 +292,52 @@ BfsIterator::remove(Vertex *vertex)
 
 ////////////////////////////////////////////////////////////////
 
+bool
+BfsIterator::hasNext()
+{
+  return hasNext(last_level_);
+}
+
+bool
+BfsIterator::hasNext(Level to_level)
+{
+  findNext(to_level);
+  return levelLessOrEqual(first_level_, last_level_)
+      && !queue_[first_level_].empty();
+}
+
+Vertex *
+BfsIterator::next()
+{
+  VertexSeq &level_vertices = queue_[first_level_];
+  Vertex *vertex = level_vertices.back();
+  level_vertices.pop_back();
+  vertex->setBfsInQueue(bfs_index_, false);
+  return vertex;
+}
+
+void
+BfsIterator::findNext(Level to_level)
+{
+  while (levelLessOrEqual(first_level_, last_level_)
+         && levelLessOrEqual(first_level_, to_level)) {
+    VertexSeq &level_vertices = queue_[first_level_];
+    // Skip null entries from deleted vertices.
+    while (!level_vertices.empty()) {
+      Vertex *vertex = level_vertices.back();
+      if (vertex == nullptr)
+        level_vertices.pop_back();
+      else {
+        checkLevel(vertex, first_level_);
+        return;
+      }
+    }
+    incrLevel(first_level_);
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
 BfsFwdIterator::BfsFwdIterator(BfsIndex bfs_index,
                                SearchPred *search_pred,
                                StaState *sta) :
@@ -376,15 +373,46 @@ BfsFwdIterator::levelLess(Level level1,
 }
 
 void
-BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
-                                        SearchPred *search_pred)
+BfsFwdIterator::enqueueFanout(Vertex *vertex)
 {
-  if (search_pred->searchFrom(vertex)) {
+  if (search_pred_->searchFrom(vertex)) {
     VertexOutEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
-      if (search_pred->searchThru(edge) && search_pred->searchTo(to_vertex))
+      if (search_pred_->searchThru(edge)
+          && search_pred_->searchTo(to_vertex))
+        enqueue(to_vertex);
+    }
+  }
+}
+
+void
+BfsFwdIterator::enqueueFanout(Vertex *vertex,
+                              const Mode *mode)
+{
+  if (search_pred_->searchFrom(vertex, mode)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (search_pred_->searchThru(edge, mode)
+          && search_pred_->searchTo(to_vertex, mode))
+        enqueue(to_vertex);
+    }
+  }
+}
+
+void
+BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex)
+{
+  if (search_pred_->searchFrom(vertex)) {
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (search_pred_->searchThru(edge)
+          && search_pred_->searchTo(to_vertex))
         enqueue(to_vertex);
     }
   }
@@ -392,16 +420,15 @@ BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
 
 void
 BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
-                                        SearchPred *search_pred,
                                         const Mode *mode)
 {
-  if (search_pred->searchFrom(vertex, mode)) {
+  if (search_pred_->searchFrom(vertex, mode)) {
     VertexOutEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
-      if (search_pred->searchThru(edge, mode)
-          && search_pred->searchTo(to_vertex, mode))
+      if (search_pred_->searchThru(edge, mode)
+          && search_pred_->searchTo(to_vertex, mode))
         enqueue(to_vertex);
     }
   }
@@ -444,15 +471,15 @@ BfsBkwdIterator::levelLess(Level level1,
 }
 
 void
-BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
-                                         SearchPred *search_pred)
+BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex)
 {
-  if (search_pred->searchTo(vertex)) {
+  if (search_pred_->searchTo(vertex)) {
     VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *from_vertex = edge->from(graph_);
-      if (search_pred->searchFrom(from_vertex) && search_pred->searchThru(edge))
+      if (search_pred_->searchFrom(from_vertex)
+          && search_pred_->searchThru(edge))
         enqueue(from_vertex);
     }
   }
@@ -460,16 +487,46 @@ BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
 
 void
 BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
-                                         SearchPred *search_pred,
                                          const Mode *mode)
 {
-  if (search_pred->searchTo(vertex, mode)) {
+  if (search_pred_->searchTo(vertex, mode)) {
     VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *from_vertex = edge->from(graph_);
-      if (search_pred->searchFrom(from_vertex, mode)
-          && search_pred->searchThru(edge, mode))
+      if (search_pred_->searchFrom(from_vertex, mode)
+          && search_pred_->searchThru(edge, mode))
+        enqueue(from_vertex);
+    }
+  }
+}
+
+void
+BfsBkwdIterator::enqueueFanin(Vertex *vertex)
+{
+  if (search_pred_->searchTo(vertex)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *from_vertex = edge->from(graph_);
+      if (search_pred_->searchFrom(from_vertex)
+          && search_pred_->searchThru(edge))
+        enqueue(from_vertex);
+    }
+  }
+}
+
+void
+BfsBkwdIterator::enqueueFanin(Vertex *vertex,
+                              const Mode *mode)
+{
+  if (search_pred_->searchTo(vertex, mode)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *from_vertex = edge->from(graph_);
+      if (search_pred_->searchFrom(from_vertex, mode)
+          && search_pred_->searchThru(edge, mode))
         enqueue(from_vertex);
     }
   }

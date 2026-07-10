@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "Clock.hh"
@@ -1205,7 +1206,9 @@ Properties::getProperty(const Scene *scene,
       || property == "full_name")
     return PropertyValue(scene->name());
   else
-    throw PropertyUnknown("scene", property);
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this scene returns a none value.
+    return registry_scene_.getProperty(scene, property, "scene", sta_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1218,7 +1221,9 @@ Properties::getProperty(const Mode *mode,
       || property == "full_name")
     return PropertyValue(mode->name());
   else
-    throw PropertyUnknown("mode", property);
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this mode returns a none value.
+    return registry_mode_.getProperty(mode, property, "mode", sta_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1358,6 +1363,119 @@ Properties::defineProperty(std::string_view property,
                            const PropertyRegistry<const Clock *>::PropertyHandler &handler)
 {
   registry_clock_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const Scene *>::PropertyHandler &handler)
+{
+  registry_scene_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const Mode *>::PropertyHandler &handler)
+{
+  registry_mode_.defineProperty(property, handler);
+}
+
+////////////////////////////////////////////////////////////////
+
+// Value type from the define_property -type argument.
+PropertyValue::Type
+Properties::propertyType(std::string_view type)
+{
+  if (type == "bool" || type == "boolean")
+    return PropertyValue::Type::bool_;
+  else if (type == "float" || type == "double" || type == "number")
+    return PropertyValue::Type::float_;
+  else if (type == "string")
+    return PropertyValue::Type::string;
+  else
+    sta_->report()->error(2210, "unknown property type '{}' (use bool, float or string).",
+                          type);
+  return PropertyValue::Type::none;
+}
+
+PropertyValue
+Properties::coercePropertyValue(PropertyValue::Type type,
+                                std::string_view value)
+{
+  switch (type) {
+  case PropertyValue::Type::bool_:
+    if (stringEqual(value, "true") || value == "1")
+      return PropertyValue(true);
+    if (stringEqual(value, "false") || value == "0")
+      return PropertyValue(false);
+    sta_->report()->error(2212, "'{}' is not a bool property value.", value);
+    return PropertyValue();
+  case PropertyValue::Type::float_: {
+    auto [number, valid] = stringFloat(std::string(value));
+    if (!valid)
+      sta_->report()->error(2215, "'{}' is not a float property value.", value);
+    return PropertyValue(number, sta_->units()->scalarUnit());
+  }
+  default:
+    return PropertyValue(std::string(value));
+  }
+}
+
+PropertyKey::PropertyKey(const void *object,
+                         std::string_view property) :
+  object_(object),
+  property_(property)
+{
+}
+
+bool
+PropertyKey::operator<(const PropertyKey &key) const
+{
+  return std::tie(object_, property_)
+    < std::tie(key.object_, key.property_);
+}
+
+template<class TYPE>
+void
+Properties::defineProperty(std::string_view object_type,
+                           std::string_view property,
+                           std::string_view value_type)
+{
+  prop_types_[{std::string(object_type), std::string(property)}] =
+    propertyType(value_type);
+  std::string name(property);
+  typename PropertyRegistry<const TYPE *>::PropertyHandler handler =
+    [this, name] (const TYPE *object,
+                  Sta *) -> PropertyValue {
+      auto value_iter = prop_values_.find(PropertyKey(object, name));
+      if (value_iter != prop_values_.end())
+        return value_iter->second;
+      // Never set on this object.
+      return PropertyValue();
+    };
+  defineProperty(property, handler);
+}
+
+// Object types the tcl interface exposes user properties on.
+template void Properties::defineProperty<Scene>(std::string_view,
+                                                std::string_view,
+                                                std::string_view);
+template void Properties::defineProperty<Mode>(std::string_view,
+                                               std::string_view,
+                                               std::string_view);
+
+void
+Properties::setProperty(const void *object,
+                        std::string_view object_type,
+                        std::string_view property,
+                        std::string_view value)
+{
+  auto type_iter = prop_types_.find({std::string(object_type),
+                                     std::string(property)});
+  if (type_iter == prop_types_.end())
+    sta_->report()->error(2211, "{} property '{}' is not defined.",
+                          object_type, property);
+  prop_values_[PropertyKey(object, property)] =
+    coercePropertyValue(type_iter->second, value);
 }
 
 ////////////////////////////////////////////////////////////////
