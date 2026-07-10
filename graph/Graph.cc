@@ -632,7 +632,7 @@ Graph::visitFaninEdges(Vertex *vertex,
                        const EdgeFn &fn)
 {
   if (pred->searchFrom(vertex)) {
-    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       Vertex *from_vertex = this->vertex(edge->from_);
