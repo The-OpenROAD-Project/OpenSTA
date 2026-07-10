@@ -25,6 +25,7 @@
 #include "Search.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -3079,14 +3080,14 @@ Search::deratedDelayData(const Path *from_path,
       && edge->role() == TimingRole::combinational()) {
     const float k = pocv_sigma_.per_stage;
     const float d = delayAsFloat(delay);  // nominal stage delay mean
-    if (d > 0.0f) {
+    if (d > 0.0f && std::isfinite(d)) {
       const float stage_sigma = k * d;  // per-stage sigma = k * d_i
       // makeDelay(mean, std_dev) stores std_dev^2 == (k*d_i)^2 as the variance,
       // which is exactly the per-stage contribution the path accumulates in
       // quadrature. The mean is preserved so the nominal arrival is unchanged.
       // Any prior arc variance (e.g. from LVF liberty) is replaced by the
       // synthetic model on purpose -- they are mutually exclusive configs.
-      delay = makeDelay(delayAsFloat(delay), stage_sigma);
+      delay = makeDelay(d, stage_sigma);
     }
   }
   return delay;

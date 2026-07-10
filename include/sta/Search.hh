@@ -429,10 +429,10 @@ public:
     // Active only when explicitly enabled with non-zero coefficients. With this
     // false the POCV slack equals the flat slack exactly (baseline). Unchanged:
     // this governs only the global synthetic-sigma model (per_stage based).
-    bool active() const { return enabled && per_stage != 0.0f && n_sigma != 0.0f; }
+    bool active() const { return enabled && per_stage > 0.0f && n_sigma > 0.0f; }
     // OpenROAD-fork: LVF-lib -- library-driven mode gate. Independent of the
     // synthetic per_stage; needs only enabled + a sign-off quantile (n_sigma).
-    bool libertyActive() const { return enabled && from_liberty && n_sigma != 0.0f; }
+    bool libertyActive() const { return enabled && from_liberty && n_sigma > 0.0f; }
     // OpenROAD-fork: LVF -- propagation-time SYNTHETIC injection gate. Fires
     // only for the global-sigma model; in library-driven mode the variance
     // comes from the native LVF delay calc, so the synthetic injection is
