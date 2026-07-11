@@ -96,7 +96,8 @@ EvalPred::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   return SearchPred0::searchThru(edge, mode)
-    && (sta_->variables()->dynamicLoopBreaking() || !edge->isDisabledLoop())
+    && (sta_->variables()->dynamicLoopBreaking()
+        || !edge->isDisabledLoop())
     && (search_thru_latches_
         || role->isLatchDtoQ()
         || sta_->latches()->latchDtoQState(edge, mode) == LatchEnableState::open);
