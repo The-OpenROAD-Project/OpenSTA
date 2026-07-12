@@ -686,7 +686,11 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
   debugPrint(debug_, "delay_calc", 2, "find delays {} ({})",
              vertex->to_string(this),
              network_->cellName(network_->instance(pin)));
-  if (vertex->isRoot())
+  if (vertex->isRoot()
+      // Bidirect port drivers are enqueued by their load vertex in
+      // annotateLoadDelays.
+      || (vertex->isBidirectDriver()
+          && network_->isTopLevelPort(pin)))
     seedRootSlew(vertex, arc_delay_calc);
   else {
     if (network_->isLeaf(pin)) {

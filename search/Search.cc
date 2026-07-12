@@ -96,6 +96,8 @@ EvalPred::searchThru(Edge *edge,
 {
   const TimingRole *role = edge->role();
   return SearchPred0::searchThru(edge, mode)
+    && (sta_->variables()->dynamicLoopBreaking()
+        || !edge->isDisabledLoop())
     && (search_thru_latches_
         || role->isLatchDtoQ()
         || sta_->latches()->latchDtoQState(edge, mode) == LatchEnableState::open);
@@ -2775,14 +2777,14 @@ Search::reportArrivals(Vertex *vertex,
     for (const Path *path : paths) {
       const Tag *tag = path->tag(this);
       const RiseFall *rf = tag->transition();
-      bool report_prev = false;
+      bool report_prev = true;
       std::string prev_str;
       if (report_prev) {
         Path *prev_path = path->prevPath();
         if (prev_path) {
           const Edge *prev_edge = path->prevEdge(this);
           TimingArc *arc = path->prevArc(this);
-          prev_str = sta::format("prev {} {} {} -> {} {}",
+          prev_str = sta::format(" prev {} {} {} -> {} {}",
                                  prev_path->to_string(this),
                                  prev_edge->from(graph_)->to_string(this),
                                  arc->fromEdge()->to_string(),
@@ -2790,13 +2792,14 @@ Search::reportArrivals(Vertex *vertex,
                                  arc->toEdge()->to_string());
         }
         else
-          prev_str = "prev NULL";
+          prev_str = " prev NULL";
       }
       report_->report(" {} {} {} / {} {}{}", rf->shortName(),
                       path->minMax(this)->to_string(),
                       delayAsString(path->arrival(), digits, this),
                       delayAsString(path->required(), digits, this),
-                      tag->to_string(report_tag_index, false, this), prev_str);
+                      tag->to_string(report_tag_index, false, this),
+                      prev_str);
     }
   }
   else
