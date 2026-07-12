@@ -68,15 +68,15 @@ worst_slack_path pin: out1
 worst_slack_path slack: 7.899713772019368e-9
 Vertex out1
 Group 2
- ^ min 0.100 / -2.000 16 default clk ^ clk_src clk crpr_pin null
- v min 0.099 / -2.000 17 default clk ^ clk_src clk crpr_pin null
- ^ max 0.100 / 8.000 18 default clk ^ clk_src clk crpr_pin null
- v max 0.099 / 8.000 19 default clk ^ clk_src clk crpr_pin null
+ ^ min 0.100 / -2.000 16 default clk ^ clk_src clk crpr_pin null prev buf2/Z ^ default/min 16 buf2/Z ^ -> out1 ^
+ v min 0.099 / -2.000 17 default clk ^ clk_src clk crpr_pin null prev buf2/Z v default/min 17 buf2/Z v -> out1 v
+ ^ max 0.100 / 8.000 18 default clk ^ clk_src clk crpr_pin null prev buf2/Z ^ default/max 18 buf2/Z ^ -> out1 ^
+ v max 0.099 / 8.000 19 default clk ^ clk_src clk crpr_pin null prev buf2/Z v default/max 19 buf2/Z v -> out1 v
 Vertex out1
- ^ min 0.100 / -2.000 default clk ^ clk_src clk crpr_pin null
- v min 0.099 / -2.000 default clk ^ clk_src clk crpr_pin null
- ^ max 0.100 / 8.000 default clk ^ clk_src clk crpr_pin null
- v max 0.099 / 8.000 default clk ^ clk_src clk crpr_pin null
+ ^ min 0.100 / -2.000 default clk ^ clk_src clk crpr_pin null prev buf2/Z ^ default/min 16 buf2/Z ^ -> out1 ^
+ v min 0.099 / -2.000 default clk ^ clk_src clk crpr_pin null prev buf2/Z v default/min 17 buf2/Z v -> out1 v
+ ^ max 0.100 / 8.000 default clk ^ clk_src clk crpr_pin null prev buf2/Z ^ default/max 18 buf2/Z ^ -> out1 ^
+ v max 0.099 / 8.000 default clk ^ clk_src clk crpr_pin null prev buf2/Z v default/max 19 buf2/Z v -> out1 v
 --- worst_slack_vertex min ---
 worst_slack_vertex min pin: reg1/D
 worst_arrival_path min pin: reg1/D
