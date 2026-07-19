@@ -1045,7 +1045,6 @@ Vertex::init(Pin *pin,
   slews_ = nullptr;
   paths_ = nullptr;
   tag_group_index_ = tag_group_index_max;
-  bfs_in_queue_ = 0;
   is_bidirect_drvr_ = is_bidirect_drvr;
   is_reg_clk_ = is_reg_clk;
   has_checks_ = false;
@@ -1053,10 +1052,11 @@ Vertex::init(Pin *pin,
   has_downstream_clk_pin_ = false;
   visited1_ = false;
   visited2_ = false;
-  bfs_predecessor_changed_ = false;
   has_sim_value_ = false;
   level_ = 0;
   slew_annotated_ = false;
+  bfs_in_queue_ = 0;
+  bfs_predecessor_changed_ = false;
 }
 
 Vertex::~Vertex()

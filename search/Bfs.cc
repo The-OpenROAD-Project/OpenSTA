@@ -162,7 +162,7 @@ BfsIterator::visitParallel(Level to_level,
     else {
       std::vector<VertexVisitor *> visitors;
       visitors.reserve(thread_count_);
-      for (int k = 0; k < thread_count_; k++)
+      for (size_t k = 0; k < thread_count_; k++)
         visitors.push_back(visitor->copy());
       while (levelLessOrEqual(first_level_, last_level_)
              && levelLessOrEqual(first_level_, to_level)) {
