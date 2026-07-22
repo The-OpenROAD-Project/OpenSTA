@@ -395,7 +395,7 @@ GraphDelayCalc::seedRootSlew(Vertex *vertex,
     seedDrvrSlew(vertex, arc_delay_calc);
   else
     seedLoadSlew(vertex);
-  iter_->enqueueAdjacentVertices(vertex);
+  iter_->enqueueFanout(vertex);
 }
 
 void
@@ -686,7 +686,11 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
   debugPrint(debug_, "delay_calc", 2, "find delays {} ({})",
              vertex->to_string(this),
              network_->cellName(network_->instance(pin)));
-  if (vertex->isRoot())
+  if (vertex->isRoot()
+      // Bidirect port drivers are enqueued by their load vertex in
+      // annotateLoadDelays.
+      || (vertex->isBidirectDriver()
+          && network_->isTopLevelPort(pin)))
     seedRootSlew(vertex, arc_delay_calc);
   else {
     if (network_->isLeaf(pin)) {
@@ -703,7 +707,7 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
 	  // change when non-incremental to stride past annotations.
 	  if (!incremental_
               || loadSlewsChanged(load_slews_prev, load_pin_index_map))
-	    iter_->enqueueAdjacentVertices(vertex);
+	    iter_->enqueueFanout(vertex);
 	}
       }
       else {
@@ -711,14 +715,9 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
 	enqueueTimingChecksEdges(vertex);
 	// Enqueue driver vertices from this input load.
 	if (propagate)
-	  iter_->enqueueAdjacentVertices(vertex);
+	  iter_->enqueueFanout(vertex);
       }
     }
-    // Bidirect port drivers are enqueued by their load vertex in
-    // annotateLoadDelays.
-    else if (vertex->isBidirectDriver()
-	     && network_->isTopLevelPort(pin))
-      seedRootSlew(vertex, arc_delay_calc);
   }
 }
 

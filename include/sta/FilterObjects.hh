@@ -30,6 +30,7 @@
 
 #include "GraphClass.hh"
 #include "NetworkClass.hh"
+#include "Scene.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StringUtil.hh"
@@ -63,6 +64,16 @@ ClockSeq
 filterClocks(std::string_view filter_expression,
              ClockSeq *clks,
              Sta *sta);
+
+SceneSeq
+filterScenes(std::string_view filter_expression,
+             SceneSeq *scenes,
+             Sta *sta);
+
+ModeSeq
+filterModes(std::string_view filter_expression,
+            ModeSeq *modes,
+            Sta *sta);
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,

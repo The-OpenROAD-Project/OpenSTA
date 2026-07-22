@@ -1218,6 +1218,10 @@ using namespace sta;
   $1 = tclListSeq<Mode*>($input, SWIGTYPE_p_Mode, interp);
 }
 
+%typemap(in) ModeSeq* {
+  $1 = tclListSeqPtr<Mode*>($input, SWIGTYPE_p_Mode, interp);
+}
+
 %typemap(out) ModeSeq {
   seqTclList<ModeSeq, Mode>($1, SWIGTYPE_p_Mode, interp);
 }
@@ -1249,6 +1253,10 @@ using namespace sta;
 
 %typemap(in) SceneSeq {
   $1 = tclListSeq<Scene*>($input, SWIGTYPE_p_Scene, interp);
+}
+
+%typemap(in) SceneSeq* {
+  $1 = tclListSeqPtr<Scene*>($input, SWIGTYPE_p_Scene, interp);
 }
 
 %typemap(out) SceneSeq {

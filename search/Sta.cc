@@ -4518,6 +4518,10 @@ Sta::makeInstanceAfter(const Instance *inst)
         if (pin) {
           Vertex *vertex, *bidir_drvr_vertex;
           graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
+          if (vertex)
+            search_->endpointInvalid(vertex);
+          if (bidir_drvr_vertex)
+            search_->endpointInvalid(bidir_drvr_vertex);
         }
       }
       graph_->makeInstanceEdges(inst);
@@ -4553,16 +4557,14 @@ Sta::replaceEquivCellBefore(const Instance *inst,
           VertexOutEdgeIterator edge_iter(vertex, graph_);
           while (edge_iter.hasNext()) {
             Edge *edge = edge_iter.next();
-            Vertex *to_vertex = edge->to(graph_);
-            if (network_->instance(to_vertex->pin()) == inst) {
+            if (!edge->isWire()) {
               TimingArcSet *from_set = edge->timingArcSet();
               // Find corresponding timing arc set.
               TimingArcSet *to_set = to_cell->findTimingArcSet(from_set);
               if (to_set)
                 edge->setTimingArcSet(to_set);
               else
-                report_->critical(
-                    1556, "corresponding timing arc set not found in equiv cells");
+                report_->critical(1563, "corresponding timing arc set not found in equiv cells");
             }
           }
         }
@@ -4658,8 +4660,7 @@ Sta::replaceCellBefore(const Instance *inst,
         VertexOutEdgeIterator edge_iter(vertex, graph_);
         while (edge_iter.hasNext()) {
           Edge *edge = edge_iter.next();
-          Vertex *to_vertex = edge->to(graph_);
-          if (network_->instance(to_vertex->pin()) == inst)
+          if (!edge->isWire())
             deleteEdge(edge);
         }
       }

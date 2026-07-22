@@ -112,10 +112,10 @@ proc set_scene { args } {
 
 ################################################################
 
-define_cmd_args "get_scenes" {[-modes mode_names] scene_names}
+define_cmd_args "get_scenes" {[-modes mode_names] [-filter expr] scene_names}
 
 proc get_scenes { args } {
-  parse_key_args "get_scenes" args keys {-modes} flags {}
+  parse_key_args "get_scenes" args keys {-modes -filter} flags {}
   check_argc_eq0or1 "get_scenes" $args
 
   if { [llength $args] == 0 } {
@@ -132,18 +132,34 @@ proc get_scenes { args } {
       }
       lappend modes $mode
     }
-    return [find_mode_scenes_matching $scene_name $modes]
+    set scenes [find_mode_scenes_matching $scene_name $modes]
   } else {
-    return [find_scenes_matching $scene_name]
+    set scenes [find_scenes_matching $scene_name]
   }
+  if { [info exists keys(-filter)] } {
+    set scenes [filter_scenes $keys(-filter) $scenes]
+  }
+  return $scenes
 }
 
 ################################################################
 
-define_cmd_args "get_modes" {mode_name}
+define_cmd_args "get_modes" {[-filter expr] [mode_name]}
 
 proc get_modes { args } {
-  return [find_modes [lindex $args 0]]
+  parse_key_args "get_modes" args keys {-filter} flags {}
+  check_argc_eq0or1 "get_modes" $args
+
+  if { [llength $args] == 0 } {
+    set mode_name "*"
+  } else {
+    set mode_name [lindex $args 0]
+  }
+  set modes [find_modes $mode_name]
+  if { [info exists keys(-filter)] } {
+    set modes [filter_modes $keys(-filter) $modes]
+  }
+  return $modes
 }
 
 ################################################################
