@@ -1159,6 +1159,10 @@ LibertyReader::makeBundlePort(LibertyCell *cell,
     debugPrint(debug_, "liberty", 1, " bundle {}", bundle_name);
     
     const LibertyComplexAttr *member_attr = bundle_group->findComplexAttr("members");
+    if (member_attr == nullptr) {
+      warn(1315, bundle_group, "bundle {} missing members.", bundle_name);
+      return;
+    }
     ConcretePortSeq *members = new ConcretePortSeq;
     for (const LibertyAttrValue *member_value : member_attr->values()) {
       if (member_value->isString()) {
@@ -1628,7 +1632,7 @@ LibertyReader::makePortFuncs(LibertyCell *cell,
       FuncExpr *func_expr = parseFunc(func, "function", cell, func_attr->line());
       for (LibertyPort *port : ports) {
         port->setFunction(func_expr);
-        if (func_expr->checkSize(port)) {
+        if (func_expr && func_expr->checkSize(port)) {
           warn(1195, func_attr->line(),
                   "port {} function size does not match port size.",
                   port->name());
@@ -1644,11 +1648,13 @@ LibertyReader::makePortFuncs(LibertyCell *cell,
       FuncExpr *tri_disable_expr = parseFunc(tri_disable,
                                              "three_state", cell,
                                              tri_attr->line());
-      FuncExpr *tri_enable_expr = tri_disable_expr->invert();
-      for (LibertyPort *port : ports) {
-        port->setTristateEnable(tri_enable_expr);
-        if (port->direction() == PortDirection::output())
-          port->setDirection(PortDirection::tristate());
+      if (tri_disable_expr) {
+        FuncExpr *tri_enable_expr = tri_disable_expr->invert();
+        for (LibertyPort *port : ports) {
+          port->setTristateEnable(tri_enable_expr);
+          if (port->direction() == PortDirection::output())
+            port->setDirection(PortDirection::tristate());
+        }
       }
     }
   }

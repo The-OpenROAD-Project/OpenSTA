@@ -13,6 +13,7 @@ sta_module_tests("liberty"
     equiv_map_libs
     func_expr
     leakage_power_deep
+    malformed_ports
     multi_corner
     multi_lib_equiv
     opcond_scale
