@@ -134,6 +134,7 @@ tcl_srcs = [
     "sdc/Sdc.tcl",
     "sdf/Sdf.tcl",
     "verilog/Verilog.tcl",
+    "spice/WriteSpice.tcl",
 ]
 
 exports_files([
