@@ -159,6 +159,7 @@ exported_tcl = [
     "network/NetworkEdit.tcl",
     "parasitics/Parasitics.tcl",
     "power/Power.tcl",
+    "spice/WriteSpice.tcl",
 ]
 
 filegroup(
