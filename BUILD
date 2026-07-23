@@ -141,26 +141,19 @@ exports_files([
     "etc/TclEncode.tcl",
 ])
 
-exported_tcl = [
-    "tcl/Util.tcl",
-    "tcl/CmdUtil.tcl",
-    "tcl/CmdArgs.tcl",
-    "tcl/Property.tcl",
-    "tcl/Splash.tcl",
-    "tcl/Sta.tcl",
-    "sdc/Variables.tcl",
-    "sdc/Sdc.tcl",
-    "sdf/Sdf.tcl",
-    "search/Search.tcl",
-    "dcalc/DelayCalc.tcl",
-    "graph/Graph.tcl",
-    "liberty/Liberty.tcl",
-    "network/Network.tcl",
-    "network/NetworkEdit.tcl",
-    "parasitics/Parasitics.tcl",
-    "power/Power.tcl",
-    "spice/WriteSpice.tcl",
+# Files used only by the standalone OpenSTA shell. OpenROAD supplies its own
+# equivalents (Init via ord, Link/Verilog via dbSta), so they are excluded from
+# the set re-exported to dbSta.
+sta_only_tcl = [
+    "tcl/Init.tcl",
+    "network/Link.tcl",
+    "verilog/Verilog.tcl",
 ]
+
+# Re-exported to dbSta (and thus the OpenROAD binary). Derived from tcl_srcs so
+# a new command file added there automatically flows here unless explicitly
+# listed in sta_only_tcl. Single source of truth = tcl_srcs.
+exported_tcl = [f for f in tcl_srcs if f not in sta_only_tcl]
 
 filegroup(
     name = "tcl_scripts",
