@@ -134,6 +134,7 @@ tcl_srcs = [
     "sdc/Sdc.tcl",
     "sdf/Sdf.tcl",
     "verilog/Verilog.tcl",
+    "spice/WriteSpice.tcl",
 ]
 
 exports_files([
@@ -158,6 +159,7 @@ exported_tcl = [
     "network/NetworkEdit.tcl",
     "parasitics/Parasitics.tcl",
     "power/Power.tcl",
+    "spice/WriteSpice.tcl",
 ]
 
 filegroup(
