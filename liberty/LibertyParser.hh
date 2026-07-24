@@ -25,6 +25,7 @@
 #pragma once
 
 #include <functional>
+#include <istream>
 #include <string_view>
 #include <vector>
 #include <map>
@@ -277,6 +278,11 @@ public:
   virtual void visitVariable(LibertyVariable *variable) = 0;
 };
 
+void
+parseLibertyFile(std::istream& file_contents,
+                 std::string_view filename,
+                 LibertyGroupVisitor *library_visitor,
+                 Report *report);
 void
 parseLibertyFile(std::string_view filename,
                  LibertyGroupVisitor *library_visitor,

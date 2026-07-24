@@ -49,13 +49,23 @@ parseLibertyFile(std::string_view filename,
   std::string fn(filename);
   gzstream::igzstream stream(fn.c_str());
   if (stream.is_open()) {
-    LibertyParser reader(filename, library_visitor, report);
-    LibertyScanner scanner(&stream, filename, &reader, report);
-    LibertyParse parser(&scanner, &reader);
-    parser.parse();
+    parseLibertyFile(stream, filename, library_visitor, report);
   }
   else
     throw FileNotReadable(filename);
+}
+
+void
+parseLibertyFile(std::istream& file_contents,
+                 std::string_view filename,
+                 LibertyGroupVisitor *library_visitor,
+                 Report *report)
+{
+ 
+  LibertyParser reader(filename, library_visitor, report);
+  LibertyScanner scanner(&file_contents, filename, &reader, report);
+  LibertyParse parser(&scanner, &reader);
+  parser.parse();
 }
 
 LibertyParser::LibertyParser(std::string_view filename,
