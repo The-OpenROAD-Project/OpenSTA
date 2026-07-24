@@ -280,6 +280,7 @@ cc_binary(
         "-Wno-unused-parameter",
         "-Wno-sign-compare",
     ],
+    defines = ["BAZEL_BUILD"],
     features = ["-use_header_modules"],
     includes = [
         "",
@@ -293,7 +294,6 @@ cc_binary(
         ":opensta_lib",
         "//:tcl_readline_setup",
         "//bazel:tcl_library_init",
-        "@rules_cc//cc/runfiles",
         "@tcl_lang//:tcl",
     ],
 )
