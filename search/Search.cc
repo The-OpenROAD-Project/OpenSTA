@@ -25,6 +25,7 @@
 #include "Search.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -2229,8 +2230,10 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   else {
     if (!(sdc->isPathDelayInternalFromBreak(to_pin)
           || sdc->isPathDelayInternalToBreak(from_pin))) {
-      arc_delay = search_->deratedDelay(from_vertex, arc, edge, false,
-                                        min_max, dcalc_ap, sdc);
+      // OpenROAD-fork: AOCV -- depth-dependent derate when a hook is installed;
+      // byte-identical to deratedDelay(... false ...) when it is not.
+      arc_delay = search_->deratedDelayData(from_path, from_vertex, arc, edge,
+                                            min_max, dcalc_ap, sdc);
       if (!delayInf(arc_delay, this)) {
         to_arrival = delaySum(from_arrival, arc_delay, this);
         to_tag = search_->thruTag(from_tag, edge, to_rf, tag_cache_);
@@ -3036,6 +3039,109 @@ Search::deratedDelay(const Vertex *from_vertex,
   float derate = timingDerate(from_vertex, arc, edge, is_clk, sdc, min_max);
   const ArcDelay &delay = graph_->arcDelay(edge, arc, dcalc_ap);
   return delayProduct(delay, derate, this);;
+}
+
+// OpenROAD-fork: AOCV
+void
+Search::setAocvDepthDerate(const AocvDepthDerate *derate)
+{
+  aocv_depth_derate_ = derate;
+}
+
+// OpenROAD-fork: AOCV
+// Count combinational data-path stages on from_path's prev chain, plus 1 for
+// the arc currently being applied. The prev chain is complete here because the
+// forward BFS commits prev-path pointers in topological level order before a
+// vertex's own paths are extended.
+int
+Search::aocvDataDepth(const Path *from_path) const
+{
+  int depth = 1;  // the arc about to be derated is the next stage
+  const Path *p = from_path;
+  while (p) {
+    const TimingArc *arc = p->prevArc(this);
+    if (arc && arc->role() == TimingRole::combinational())
+      depth++;
+    p = p->prevPath();
+  }
+  return depth;
+}
+
+// OpenROAD-fork: AOCV
+ArcDelay
+Search::deratedDelayData(const Path *from_path,
+                         const Vertex *from_vertex,
+                         const TimingArc *arc,
+                         const Edge *edge,
+                         const MinMax *min_max,
+                         DcalcAPIndex dcalc_ap,
+                         const Sdc *sdc)
+{
+  // First compute the scalar (flat or AOCV-depth) data-path delay. This block
+  // is byte-identical to the AOCV slice; nothing here changes the mean delay.
+  ArcDelay delay = deratedDelayDataMean(from_path, from_vertex, arc, edge,
+                                        min_max, dcalc_ap, sdc);
+
+  // OpenROAD-fork: LVF -- propagation-time POCV variance injection.
+  // When the synthetic per-stage sigma model is in -propagate mode, attach a
+  // statistical variance (k*d_i)^2 to this stage's delay so the native
+  // DelayOpsNormal accumulates it in quadrature through delaySum during the
+  // forward search. The mean is left untouched (above), so with the feature
+  // off this is a no-op and timing is byte-identical. Only combinational cell
+  // arcs carry per-stage variation (matches the report-only slice; clock /
+  // CRPR / check arcs keep their flat scalar treatment).
+  if (pocv_sigma_.propagateActive()
+      && edge->role() == TimingRole::combinational()) {
+    const float k = pocv_sigma_.per_stage;
+    const float d = delayAsFloat(delay);  // nominal stage delay mean
+    if (d > 0.0f && std::isfinite(d)) {
+      const float stage_sigma = k * d;  // per-stage sigma = k * d_i
+      // makeDelay(mean, std_dev) stores std_dev^2 == (k*d_i)^2 as the variance,
+      // which is exactly the per-stage contribution the path accumulates in
+      // quadrature. The mean is preserved so the nominal arrival is unchanged.
+      // Any prior arc variance (e.g. from LVF liberty) is replaced by the
+      // synthetic model on purpose -- they are mutually exclusive configs.
+      delay = makeDelay(d, stage_sigma);
+    }
+  }
+  return delay;
+}
+
+// OpenROAD-fork: AOCV -- scalar (mean) data-path delay: flat SDC derate, or the
+// AOCV depth-derate when that hook is installed. Factored out of
+// deratedDelayData so the LVF variance injection can layer on top without
+// changing the mean. Byte-identical to the original AOCV body.
+ArcDelay
+Search::deratedDelayDataMean(const Path *from_path,
+                             const Vertex *from_vertex,
+                             const TimingArc *arc,
+                             const Edge *edge,
+                             const MinMax *min_max,
+                             DcalcAPIndex dcalc_ap,
+                             const Sdc *sdc)
+{
+  // Feature OFF: identical to the original data-path derate call.
+  if (aocv_depth_derate_ == nullptr)
+    return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);
+
+  // Only depth-derate combinational cell arcs; everything else keeps the flat
+  // SDC derate (matches the report-only slice and avoids perturbing clock /
+  // CRPR / check arcs).
+  if (edge->role() != TimingRole::combinational())
+    return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);
+
+  // If the table has no entries for this side (late/early), keep the flat SDC
+  // derate for that side rather than silently overriding it with 1.0.
+  const bool is_late = (min_max == MinMax::max());
+  if (is_late ? !aocv_depth_derate_->lateActive()
+              : !aocv_depth_derate_->earlyActive())
+    return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);
+
+  const int depth = aocvDataDepth(from_path);
+  const float derate = is_late ? aocv_depth_derate_->lateDerate(depth)
+                               : aocv_depth_derate_->earlyDerate(depth);
+  const ArcDelay &delay = graph_->arcDelay(edge, arc, dcalc_ap);
+  return delayProduct(delay, derate, this);
 }
 
 float

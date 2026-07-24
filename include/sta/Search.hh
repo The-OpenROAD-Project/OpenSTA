@@ -72,6 +72,27 @@ using WorstSlacksSeq = std::vector<WorstSlacks>;
 using DelayDblSeq = std::vector<DelayDbl>;
 using ExceptionPathSeq = std::vector<ExceptionPath*>;
 
+// OpenROAD-fork: AOCV
+// Abstract depth->derate hook for AOCV-style depth-dependent OCV derating
+// during forward arrival propagation. OpenSTA core does not depend on the
+// concrete dbSta AocvDerateTable; the implementation lives in OpenROAD
+// (src/dbSta) and is installed on Search via setAocvDepthDerate(). When no hook
+// is installed (the default), timing propagation is byte-identical to upstream.
+class AocvDepthDerate
+{
+ public:
+  virtual ~AocvDepthDerate() = default;
+  // depth is the number of combinational data-path stages traversed so far
+  // (including the arc being derated).
+  virtual float lateDerate(int depth) const = 0;
+  virtual float earlyDerate(int depth) const = 0;
+  // When false for a side, deratedDelayData keeps the flat SDC derate for that
+  // side instead of overriding it (e.g. a late-only table must not silently
+  // zero out a user's set_timing_derate -early on the min path).
+  virtual bool lateActive() const = 0;
+  virtual bool earlyActive() const = 0;
+};
+
 class Search : public StaState
 {
 public:
@@ -347,6 +368,80 @@ public:
                         const MinMax *min_max,
                         DcalcAPIndex dcalc_ap,
                         const Sdc *sdc);
+  // OpenROAD-fork: AOCV
+  // Data-path arc delay that, when an AocvDepthDerate hook is installed, applies
+  // a depth-dependent derate (selected by the combinational depth of from_path)
+  // instead of the flat SDC derate. With no hook installed this forwards
+  // verbatim to deratedDelay(...) so the result is byte-identical to upstream.
+  ArcDelay deratedDelayData(const Path *from_path,
+                            const Vertex *from_vertex,
+                            const TimingArc *arc,
+                            const Edge *edge,
+                            const MinMax *min_max,
+                            DcalcAPIndex dcalc_ap,
+                            const Sdc *sdc);
+  // OpenROAD-fork: LVF -- scalar (mean) component of deratedDelayData (flat or
+  // AOCV-depth derate). Factored out so the LVF synthetic POCV variance can be
+  // layered on top without altering the mean.
+  ArcDelay deratedDelayDataMean(const Path *from_path,
+                                const Vertex *from_vertex,
+                                const TimingArc *arc,
+                                const Edge *edge,
+                                const MinMax *min_max,
+                                DcalcAPIndex dcalc_ap,
+                                const Sdc *sdc);
+  // Install (or clear, with nullptr) the AOCV depth-derate hook. Not owned.
+  void setAocvDepthDerate(const AocvDepthDerate *derate);
+  const AocvDepthDerate *aocvDepthDerate() const { return aocv_depth_derate_; }
+  // Combinational depth of the data arrival reaching from_path's vertex,
+  // including the arc currently being applied (so the first data stage == 1).
+  int aocvDataDepth(const Path *from_path) const;
+
+  // OpenROAD-fork: POCV
+  // Parametric on-chip-variation (POCV/LVF) parameters, first slice. These are
+  // PURELY a default-OFF state holder read by the OpenROAD-side report-only
+  // command (report_checks_pocv / pocvAdjustPathEnd in src/dbSta). No code on
+  // the forward-search / arrival-propagation path reads them, so when POCV is
+  // inactive (the default) timing is byte-identical to upstream. POCV uses
+  // QUADRATURE (root-sum-square) accumulation of per-stage variation, which does
+  // not compose with the additive arrival sum the search propagates; hence it is
+  // intentionally NOT a propagation hook.
+  struct PocvSigma
+  {
+    bool enabled = false;     // master flag; false => feature OFF (default)
+    float per_stage = 0.0f;   // fractional per-stage delay sigma (k); 0 => off
+    float n_sigma = 0.0f;     // sign-off sigma multiple (e.g. 3 for 3-sigma)
+    // OpenROAD-fork: LVF -- when true AND active(), the synthetic per-stage
+    // variance (k*d_i)^2 is injected into the data-path arc delay's stdDev2 in
+    // deratedDelayData so the native statistical delay-ops accumulate it in
+    // quadrature during the forward search (propagation-time POCV). Default
+    // false => purely the report-only slice => byte-identical baseline timing.
+    bool propagate = false;
+    // OpenROAD-fork: LVF-lib -- library-driven POCV. When true the per-stage
+    // sigma comes from the real Liberty LVF ocv_sigma_* tables via the NATIVE
+    // delay calc (GateTableModel::gateDelayPocv under PocvMode::normal), NOT
+    // from the synthetic global per_stage. In this mode the synthetic variance
+    // injection in deratedDelayData is suppressed so it cannot overwrite the
+    // library-derived stdDev. Default false => byte-identical baseline.
+    bool from_liberty = false;
+    // Active only when explicitly enabled with non-zero coefficients. With this
+    // false the POCV slack equals the flat slack exactly (baseline). Unchanged:
+    // this governs only the global synthetic-sigma model (per_stage based).
+    bool active() const { return enabled && per_stage > 0.0f && n_sigma > 0.0f; }
+    // OpenROAD-fork: LVF-lib -- library-driven mode gate. Independent of the
+    // synthetic per_stage; needs only enabled + a sign-off quantile (n_sigma).
+    bool libertyActive() const { return enabled && from_liberty && n_sigma > 0.0f; }
+    // OpenROAD-fork: LVF -- propagation-time SYNTHETIC injection gate. Fires
+    // only for the global-sigma model; in library-driven mode the variance
+    // comes from the native LVF delay calc, so the synthetic injection is
+    // suppressed (from_liberty => false) to avoid overwriting the library stdDev.
+    bool propagateActive() const
+    {
+      return propagate && active() && !from_liberty;  // OpenROAD-fork: LVF-lib
+    }
+  };
+  const PocvSigma &pocvSigma() const { return pocv_sigma_; }
+  void setPocvSigma(const PocvSigma &sigma) { pocv_sigma_ = sigma; }
 
   TagGroup *tagGroup(const Vertex *vertex) const;
   TagGroup *tagGroup(TagGroupIndex index) const;
@@ -665,6 +760,17 @@ protected:
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;
   CheckCrpr *check_crpr_;
+
+  // OpenROAD-fork: AOCV
+  // Optional depth-dependent OCV derate hook. nullptr (the default) means the
+  // feature is OFF and propagation is byte-identical to upstream. Not owned.
+  const AocvDepthDerate *aocv_depth_derate_{nullptr};
+
+  // OpenROAD-fork: POCV
+  // Parametric OCV (POCV/LVF) parameters. Default-constructed => inactive, so
+  // the feature is OFF and nothing on the propagation path reads it. Only the
+  // OpenROAD-side report-only command consumes this (see pocvSigma()).
+  PocvSigma pocv_sigma_;
 };
 
 // Eval across latch D->Q edges.
