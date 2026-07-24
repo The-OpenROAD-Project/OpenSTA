@@ -29,6 +29,8 @@
 #include <string_view>
 #include <vector>
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ArcDelayCalc.hh"
 #include "CircuitSim.hh"
 #include "GraphClass.hh"
@@ -147,6 +149,17 @@ public:
   Mode *findMode(std::string_view mode_name) const;
   ModeSeq findModes(const std::string &mode_name) const;
   Sdc *cmdSdc() const;
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Definitions live in search/AnalysisCorner.cc.
+  AnalysisCorner *makeAnalysisCorner(const std::string &name);
+  AnalysisCorner *findAnalysisCorner(const std::string &name) const;
+  // Pattern match name.
+  AnalysisCornerSeq findAnalysisCorners(const std::string &pattern) const;
+  void setSceneAnalysisCorner(Scene *scene,
+                              AnalysisCorner *corner);
+  void deleteAnalysisCorners();
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   virtual LibertyLibrary *readLiberty(std::string_view filename,
                                       Scene *scene,
@@ -1637,6 +1650,10 @@ protected:
   SceneNameMap scene_name_map_;
   ModeNameMap mode_name_map_;
   ParasiticsNameMap parasitics_name_map_;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  AnalysisCornerSeq analysis_corners_;
+  AnalysisCornerNameMap analysis_corner_name_map_;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   VerilogReader *verilog_reader_{nullptr};
   CheckTiming *check_timing_{nullptr};
   CheckSlews *check_slews_{nullptr};

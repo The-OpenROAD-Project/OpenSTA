@@ -135,6 +135,8 @@ tcl_srcs = [
     "sdf/Sdf.tcl",
     "verilog/Verilog.tcl",
     "spice/WriteSpice.tcl",
+    # OpenROAD fork: analysis_corner support (must follow tcl/Sta.tcl).
+    "tcl/AnalysisCorner.tcl",
 ]
 
 exports_files([
@@ -197,6 +199,8 @@ filegroup(
         "power/Power.i",
         "sdc/Sdc.i",
         "sdf/Sdf.i",
+        # OpenROAD fork: analysis_corner support.
+        "search/AnalysisCorner.i",
         "search/Property.i",
         "search/Search.i",
         "spice/WriteSpice.i",

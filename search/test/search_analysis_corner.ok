@@ -1,0 +1,74 @@
+corner count: 2
+corner: slow
+corner: fast
+match f*: 1
+corner count after dup: 2
+ss corner: slow
+ff corner: fast
+filter slow: 1 ss
+filter not fast: 1
+filter pattern: 1
+filter and name: 1
+filter none: 0
+after reassoc filter fast: 2
+after restore filter fast: 1
+1
+Error 3703: search_analysis_corner.tcl line 1, no_such_corner is not the name of an analysis corner.
+1
+Error 3702: search_analysis_corner.tcl line 1, no_such_scene is not the name of a scene.
+1
+Error 3704: search_analysis_corner.tcl line 1, no_such_corner is not the name of an analysis corner.
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: ss
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.29    0.29 ^ reg2/Q (DFF_X1)
+   0.00    0.29 ^ out1 (out)
+           0.29   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.29   data arrival time
+---------------------------------------------------------
+           7.71   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Corner: ff
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ reg2/CK (DFF_X1)
+   0.05    0.05 v reg2/Q (DFF_X1)
+   0.00    0.05 v out1 (out)
+           0.05   data arrival time
+
+  10.00   10.00   clock clk (rise edge)
+   0.00   10.00   clock network delay (ideal)
+   0.00   10.00   clock reconvergence pessimism
+  -2.00    8.00   output external delay
+           8.00   data required time
+---------------------------------------------------------
+           8.00   data required time
+          -0.05   data arrival time
+---------------------------------------------------------
+           7.95   slack (MET)
+
+

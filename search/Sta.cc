@@ -292,6 +292,10 @@ Sta::makeComponents()
   updateComponentsState();
 
   makeObservers();
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  defineAnalysisCornerProperties(this);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -516,6 +520,9 @@ Sta::~Sta()
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
   deleteContents(scenes_);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  deleteAnalysisCorners();
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
