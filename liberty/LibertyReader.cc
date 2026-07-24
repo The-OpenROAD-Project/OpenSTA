@@ -27,6 +27,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <functional>
+#include <istream>
 #include <memory>
 #include <set>
 #include <string>
@@ -79,6 +80,12 @@ readLibertyFile(std::string_view filename,
   return reader.readLibertyFile(filename);
 }
 
+LibertyLibrary* readLibertyFile(std::istream& stream, std::string_view filename,
+                                bool infer_latches, Network* network) {
+  LibertyReader reader(filename, infer_latches, network);
+  return reader.readLibertyFile(stream);
+}
+
 LibertyReader::LibertyReader(std::string_view filename,
                              bool infer_latches,
                              Network *network) :
@@ -97,6 +104,11 @@ LibertyReader::readLibertyFile(std::string_view filename)
 {
   //::LibertyParse_debug = 1;
   parseLibertyFile(filename, this, report_);
+  return library_;
+}
+
+LibertyLibrary* LibertyReader::readLibertyFile(std::istream& stream) {
+  parseLibertyFile(stream, filename_, this, report_);
   return library_;
 }
 
@@ -1665,7 +1677,7 @@ LibertyReader::makeSequentials(LibertyCell *cell,
   makeSequentials(cell, cell_group, false, "latch", "enable", "data_in");
   makeSequentials(cell, cell_group, false, "latch_bank", "enable", "data_in");
 
-  const LibertyGroup *lut_group = cell_group->findSubgroup("lut");;
+  const LibertyGroup *lut_group = cell_group->findSubgroup("lut");
   if (lut_group) {
     LibertyPort *out_port = nullptr;
     LibertyPort *out_port_inv = nullptr;
