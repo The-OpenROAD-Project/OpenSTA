@@ -2229,8 +2229,10 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   else {
     if (!(sdc->isPathDelayInternalFromBreak(to_pin)
           || sdc->isPathDelayInternalToBreak(from_pin))) {
-      arc_delay = search_->deratedDelay(from_vertex, arc, edge, false,
-                                        min_max, dcalc_ap, sdc);
+      // OpenROAD-fork: AOCV -- depth-dependent derate when a hook is installed;
+      // byte-identical to deratedDelay(... false ...) when it is not.
+      arc_delay = search_->deratedDelayData(from_path, from_vertex, arc, edge,
+                                            min_max, dcalc_ap, sdc);
       if (!delayInf(arc_delay, this)) {
         to_arrival = delaySum(from_arrival, arc_delay, this);
         to_tag = search_->thruTag(from_tag, edge, to_rf, tag_cache_);
@@ -3036,6 +3038,66 @@ Search::deratedDelay(const Vertex *from_vertex,
   float derate = timingDerate(from_vertex, arc, edge, is_clk, sdc, min_max);
   const ArcDelay &delay = graph_->arcDelay(edge, arc, dcalc_ap);
   return delayProduct(delay, derate, this);;
+}
+
+// OpenROAD-fork: AOCV
+void
+Search::setAocvDepthDerate(const AocvDepthDerate *derate)
+{
+  aocv_depth_derate_ = derate;
+}
+
+// OpenROAD-fork: AOCV
+// Count combinational data-path stages on from_path's prev chain, plus 1 for
+// the arc currently being applied. The prev chain is complete here because the
+// forward BFS commits prev-path pointers in topological level order before a
+// vertex's own paths are extended.
+int
+Search::aocvDataDepth(const Path *from_path) const
+{
+  int depth = 1;  // the arc about to be derated is the next stage
+  const Path *p = from_path;
+  while (p) {
+    const TimingArc *arc = p->prevArc(this);
+    if (arc && arc->role() == TimingRole::combinational())
+      depth++;
+    p = p->prevPath();
+  }
+  return depth;
+}
+
+// OpenROAD-fork: AOCV
+ArcDelay
+Search::deratedDelayData(const Path *from_path,
+                         const Vertex *from_vertex,
+                         const TimingArc *arc,
+                         const Edge *edge,
+                         const MinMax *min_max,
+                         DcalcAPIndex dcalc_ap,
+                         const Sdc *sdc)
+{
+  // Feature OFF: identical to the original data-path derate call.
+  if (aocv_depth_derate_ == nullptr)
+    return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);
+
+  // Only depth-derate combinational cell arcs; everything else keeps the flat
+  // SDC derate (matches the report-only slice and avoids perturbing clock /
+  // CRPR / check arcs).
+  if (edge->role() != TimingRole::combinational())
+    return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);
+
+  // If the table has no entries for this side (late/early), keep the flat SDC
+  // derate for that side rather than silently overriding it with 1.0.
+  const bool is_late = (min_max == MinMax::max());
+  if (is_late ? !aocv_depth_derate_->lateActive()
+              : !aocv_depth_derate_->earlyActive())
+    return deratedDelay(from_vertex, arc, edge, false, min_max, dcalc_ap, sdc);
+
+  const int depth = aocvDataDepth(from_path);
+  const float derate = is_late ? aocv_depth_derate_->lateDerate(depth)
+                               : aocv_depth_derate_->earlyDerate(depth);
+  const ArcDelay &delay = graph_->arcDelay(edge, arc, dcalc_ap);
+  return delayProduct(delay, derate, this);
 }
 
 float
