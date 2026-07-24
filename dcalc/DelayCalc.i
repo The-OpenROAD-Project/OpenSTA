@@ -30,6 +30,7 @@
 #include "DelayCalc.hh"
 #include "Sta.hh"
 #include "dcalc/ArcDcalcWaveforms.hh"
+#include "dcalc/CcsCeffDelayCalc.hh"
 #include "dcalc/PrimaDelayCalc.hh"
 
 %}
@@ -52,6 +53,24 @@ void
 set_delay_calculator_cmd(const char *alg)
 {
   sta::Sta::sta()->setArcDelayCalc(alg);
+}
+
+// OpenROAD-fork: ccs-receiver -- toggle the CCS receiver-capacitance model in
+// the ccs_ceff Ceff solve. Process-global; default OFF (byte-identical to the
+// constant-Cp behavior). Selecting/deselecting the ccs_ceff engine is done
+// separately via set_delay_calculator_cmd; this only flips the receiver-model
+// sub-behavior. delaysInvalid() so the next query re-solves with the new mode.
+void
+set_ccs_receiver_model_enabled(bool enabled)
+{
+  sta::CcsCeffDelayCalc::setReceiverModelEnabled(enabled);
+  sta::Sta::sta()->delaysInvalid();
+}
+
+bool
+ccs_receiver_model_enabled()
+{
+  return sta::CcsCeffDelayCalc::receiverModelEnabled();
 }
 
 void
