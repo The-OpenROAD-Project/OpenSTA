@@ -67,9 +67,44 @@ using namespace sta;
 %inline %{
 
 void
-define_analysis_corner_cmd(const char *name)
+define_analysis_corner_cmd(const char *name,
+                           StringSeq liberty_min_files,
+                           StringSeq liberty_max_files,
+                           const char *spef_min_name,
+                           const char *spef_max_name)
 {
-  Sta::sta()->makeAnalysisCorner(name);
+  AnalysisCorner *corner = Sta::sta()->makeAnalysisCorner(name);
+  // Redefining with any data replaces the whole bundle; a bare redefine
+  // preserves it (makeAnalysisCorner is find-or-create). Min/max always
+  // arrive as a pair, so checking min suffices.
+  if (!liberty_min_files.empty() || spef_min_name[0] != '\0') {
+    corner->setLiberty(liberty_min_files, liberty_max_files);
+    corner->setSpef(spef_min_name, spef_max_name);
+  }
+}
+
+StringSeq
+analysis_corner_liberty_min(AnalysisCorner *corner)
+{
+  return corner->libertyMinFiles();
+}
+
+StringSeq
+analysis_corner_liberty_max(AnalysisCorner *corner)
+{
+  return corner->libertyMaxFiles();
+}
+
+const char *
+analysis_corner_spef_min(AnalysisCorner *corner)
+{
+  return corner->spefMinName().c_str();
+}
+
+const char *
+analysis_corner_spef_max(AnalysisCorner *corner)
+{
+  return corner->spefMaxName().c_str();
 }
 
 AnalysisCorner *

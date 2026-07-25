@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include "StringUtil.hh"
+
 namespace sta {
 
 class AnalysisCorner;
@@ -43,9 +45,10 @@ using AnalysisCornerNameMap = std::map<std::string, AnalysisCorner*, std::less<>
 void
 defineAnalysisCornerProperties(Sta *sta);
 
-// PVT/RC analysis corner label. Groups the scenes that share an
-// operating point across modes. Liberty, parasitics and SDC remain on
-// Scene/Mode; an AnalysisCorner is identity only.
+// PVT/RC analysis corner. Groups the scenes that share an operating
+// point across modes and bundles the liberty/spef authoring data
+// define_scene composes from. Liberty maps, parasitics bindings and
+// SDC remain on Scene/Mode.
 class AnalysisCorner
 {
 public:
@@ -53,10 +56,32 @@ public:
                  size_t index);
   const std::string &name() const { return name_; }
   size_t index() const { return index_; }
+  const StringSeq &libertyMinFiles() const { return liberty_min_files_; }
+  const StringSeq &libertyMaxFiles() const { return liberty_max_files_; }
+  const std::string &spefMinName() const { return spef_min_name_; }
+  const std::string &spefMaxName() const { return spef_max_name_; }
+  void setLiberty(const StringSeq &min_files,
+                  const StringSeq &max_files)
+  {
+    liberty_min_files_ = min_files;
+    liberty_max_files_ = max_files;
+  }
+  void setSpef(const std::string &min_name,
+               const std::string &max_name)
+  {
+    spef_min_name_ = min_name;
+    spef_max_name_ = max_name;
+  }
 
 private:
   std::string name_;
   size_t index_;
+  // Liberty names/filenames and read_spef -name keys, composed into
+  // define_scene when the scene names this corner.
+  StringSeq liberty_min_files_;
+  StringSeq liberty_max_files_;
+  std::string spef_min_name_;
+  std::string spef_max_name_;
 };
 
 } // namespace sta

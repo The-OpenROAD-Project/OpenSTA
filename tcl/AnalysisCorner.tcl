@@ -27,11 +27,44 @@
 
 namespace eval sta {
 
-define_cmd_args "define_analysis_corner" {name}
+define_cmd_args "define_analysis_corner" {name\
+                                            [-liberty liberty_files \
+                                             | -liberty_min liberty_min_files -liberty_max liberty_max_files]\
+                                            [-spef spef_name | -spef_min spef_min_name -spef_max spef_max_name]}
 
 proc define_analysis_corner { args } {
+  parse_key_args "define_analysis_corner" args \
+    keys {-liberty -liberty_min -liberty_max -spef -spef_min -spef_max} \
+    flags {}
   check_argc_eq1 "define_analysis_corner" $args
-  define_analysis_corner_cmd [lindex $args 0]
+  set name [lindex $args 0]
+
+  set liberty_min_files {}
+  set liberty_max_files {}
+  if { [info exists keys(-liberty)] } {
+    set liberty_min_files $keys(-liberty)
+    set liberty_max_files $keys(-liberty)
+  } elseif { [info exists keys(-liberty_min)] && [info exists keys(-liberty_max)] } {
+    set liberty_min_files $keys(-liberty_min)
+    set liberty_max_files $keys(-liberty_max)
+  } elseif { [info exists keys(-liberty_min)] || [info exists keys(-liberty_max)] } {
+    sta_error 3705 "-liberty_min and -liberty_max are required arguments."
+  }
+
+  set spef_min_name ""
+  set spef_max_name ""
+  if { [info exists keys(-spef)] } {
+    set spef_min_name $keys(-spef)
+    set spef_max_name $keys(-spef)
+  } elseif { [info exists keys(-spef_min)] && [info exists keys(-spef_max)] } {
+    set spef_min_name $keys(-spef_min)
+    set spef_max_name $keys(-spef_max)
+  } elseif { [info exists keys(-spef_min)] || [info exists keys(-spef_max)] } {
+    sta_error 3706 "-spef_min and -spef_max are required arguments."
+  }
+
+  define_analysis_corner_cmd $name $liberty_min_files $liberty_max_files \
+    $spef_min_name $spef_max_name
 }
 
 define_cmd_args "get_analysis_corners" {[corner_name]}
@@ -70,16 +103,56 @@ if { [info procs define_scene_base] == "" } {
 }
 
 proc define_scene { args } {
-  # Passthrough parse: unknown keys/values stay in args for define_scene_base.
-  parse_key_args "define_scene" args keys {-analysis_corner} flags {} 0
+  # Passthrough parse: extract our key plus the base liberty/spef keys so
+  # the corner bundle is only injected when the user supplied none of them
+  # (explicit args win over the bundle). Unparsed args stay for the base cmd.
+  parse_key_args "define_scene" args \
+    keys {-analysis_corner -liberty -liberty_min -liberty_max \
+          -spef -spef_min -spef_max} \
+    flags {} 0
+  set corner "NULL"
   if { [info exists keys(-analysis_corner)] } {
     set corner [find_analysis_corner $keys(-analysis_corner)]
     if { $corner == "NULL" } {
       sta_error 3704 "$keys(-analysis_corner) is not the name of an analysis corner."
     }
   }
+  # Reinject the user's liberty/spef keys verbatim.
+  set user_liberty 0
+  foreach key {-liberty -liberty_min -liberty_max} {
+    if { [info exists keys($key)] } {
+      set user_liberty 1
+      lappend args $key $keys($key)
+    }
+  }
+  set user_spef 0
+  foreach key {-spef -spef_min -spef_max} {
+    if { [info exists keys($key)] } {
+      set user_spef 1
+      lappend args $key $keys($key)
+    }
+  }
+  if { $corner != "NULL" } {
+    # Compose the corner's bundle for anything the user left out.
+    # Min/max are always set as a pair, so checking min suffices.
+    if { !$user_liberty } {
+      set liberty_min [analysis_corner_liberty_min $corner]
+      if { $liberty_min == {} } {
+        sta_error 3707 "analysis corner $keys(-analysis_corner) defines no liberty files; use -liberty or define_analysis_corner -liberty."
+      }
+      lappend args -liberty_min $liberty_min \
+        -liberty_max [analysis_corner_liberty_max $corner]
+    }
+    if { !$user_spef } {
+      set spef_min [analysis_corner_spef_min $corner]
+      if { $spef_min != "" } {
+        lappend args -spef_min $spef_min \
+          -spef_max [analysis_corner_spef_max $corner]
+      }
+    }
+  }
   define_scene_base {*}$args
-  if { [info exists keys(-analysis_corner)] } {
+  if { $corner != "NULL" } {
     # Sta::makeScene leaves the new scene as cmd_scene_.
     set_scene_analysis_corner_cmd [cmd_scene] $corner
   }
