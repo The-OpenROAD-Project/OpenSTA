@@ -232,12 +232,12 @@ protected:
   void zeroSlewAndWireDelays(Vertex *drvr_vertex,
                              const RiseFall *rf);
   void findVertexDelay(Vertex *vertex,
-		       ArcDelayCalc *arc_delay_calc,
-		       bool propagate);
+		       ArcDelayCalc *arc_delay_calc);
   DrvrLoadSlews loadSlews(LoadPinIndexMap &load_pin_index_map);
-  bool loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
-                        LoadPinIndexMap &load_pin_index_map);
-  void enqueueTimingChecksEdges(Vertex *vertex);
+  void enqueueCheckEdges(Vertex *vertex);
+  bool loadSlewChanged(Vertex *load_vertex,
+                       DrvrLoadSlews &load_slews_prev,
+                       LoadPinIndexMap &load_pin_index_map);
   bool annotateDelaysSlews(Edge *edge,
                            const TimingArc *arc,
                            ArcDcalcResult &dcalc_result,
@@ -251,7 +251,7 @@ protected:
                          const Slew &gate_slew,
                          const Scene *scene,
                          const MinMax *min_max);
-  bool annotateLoadDelays(Vertex *drvr_vertex,
+  void annotateLoadDelays(Vertex *drvr_vertex,
                           const RiseFall *drvr_rf,
                           ArcDcalcResult &dcalc_result,
                           LoadPinIndexMap &load_pin_index_map,
@@ -296,7 +296,6 @@ protected:
   // Observer for edge delay changes.
   DelayCalcObserver *observer_{nullptr};
   bool delays_seeded_{false};
-  bool incremental_{false};
   bool delays_exist_{false};
   // Vertices with invalid -to delays.
   VertexSet invalid_delays_;

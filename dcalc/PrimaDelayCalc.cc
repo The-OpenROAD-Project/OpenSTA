@@ -65,7 +65,6 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   DelayCalcBase(dcalc),
   pin_node_map_(network_),
-  node_index_map_(dcalc.node_index_map_),
   prima_order_(dcalc.prima_order_),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))

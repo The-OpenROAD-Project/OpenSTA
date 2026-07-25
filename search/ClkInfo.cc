@@ -118,6 +118,15 @@ ClkInfo::crprClkVertexId(const StaState *sta) const
   return crpr_clk_path_.vertexId(sta);
 }
 
+const MinMax *
+ClkInfo::crprClkMinMax(const StaState *sta) const
+{
+  if (crpr_clk_path_.isNull())
+    return nullptr;
+  else
+    return crpr_clk_path_.tag(sta)->minMax();
+}
+
 Path *
 ClkInfo::crprClkPath(const StaState *sta)
 {
