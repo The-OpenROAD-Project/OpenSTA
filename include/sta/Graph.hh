@@ -287,15 +287,16 @@ public:
   void setIsCheckClk(bool is_check_clk);
   [[nodiscard]] bool hasDownstreamClkPin() const { return has_downstream_clk_pin_; }
   void setHasDownstreamClkPin(bool has_clk_pin);
-  [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
-  void setBfsInQueue(BfsIndex index, bool value);
-  bool bfsPredecessorChanged() const { return bfs_predecessor_changed_; }
-  void setBfsPredecessorChanged(bool changed);
   [[nodiscard]] bool isRegClk() const { return is_reg_clk_; }
   // Has sim value in some mode.
   [[nodiscard]] bool hasSimValue() const { return has_sim_value_; }
   void setHasSimValue(bool has_sim);
   
+  [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
+  void setBfsInQueue(BfsIndex index, bool value);
+  [[nodiscard]] bool bfsPredecessorChanged() const { return bfs_predecessor_changed_; }
+  void setBfsPredecessorChanged(bool changed);
+
   // ObjectTable interface.
   [[nodiscard]] ObjectIdx objectIdx() const { return object_idx_; }
   void setObjectIdx(ObjectIdx idx);

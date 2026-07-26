@@ -100,7 +100,7 @@ public:
   const DelayOps *delayOps() const { return delay_ops_; }
   Latches *latches() { return latches_; }
   Latches *latches() const { return latches_; }
-  unsigned threadCount() const { return thread_count_; }
+  size_t threadCount() const { return thread_count_; }
   bool crprActive(const Mode *mode) const;
   Variables *variables() { return variables_; }
   const Variables *variables() const { return variables_; }
@@ -139,7 +139,7 @@ protected:
   DelayOps *delay_ops_;
   Latches *latches_;
   Variables *variables_;
-  int thread_count_;
+  size_t thread_count_;
   DispatchQueue *dispatch_queue_;
 };
 
