@@ -64,21 +64,21 @@ defineAnalysisCornerProperties(Sta *sta)
 }
 
 AnalysisCorner *
-Sta::makeAnalysisCorner(const std::string &name)
+Sta::makeAnalysisCorner(std::string_view name)
 {
   AnalysisCorner *corner = findAnalysisCorner(name);
   if (corner == nullptr) {
     corner = new AnalysisCorner(name, analysis_corners_.size());
-    analysis_corner_name_map_[name] = corner;
+    analysis_corner_name_map_[std::string(name)] = corner;
     analysis_corners_.push_back(corner);
   }
   return corner;
 }
 
 AnalysisCorner *
-Sta::findAnalysisCorner(const std::string &name) const
+Sta::findAnalysisCorner(std::string_view name) const
 {
-  return findKey(analysis_corner_name_map_, name);
+  return findStringKey(analysis_corner_name_map_, name);
 }
 
 AnalysisCornerSeq

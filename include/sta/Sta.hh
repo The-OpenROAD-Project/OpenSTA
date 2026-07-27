@@ -152,8 +152,8 @@ public:
 
   // ---- OpenROAD fork: analysis_corner support (begin) ----
   // Definitions live in search/AnalysisCorner.cc.
-  AnalysisCorner *makeAnalysisCorner(const std::string &name);
-  AnalysisCorner *findAnalysisCorner(const std::string &name) const;
+  AnalysisCorner *makeAnalysisCorner(std::string_view name);
+  AnalysisCorner *findAnalysisCorner(std::string_view name) const;
   // Pattern match name.
   AnalysisCornerSeq findAnalysisCorners(const std::string &pattern) const;
   void setSceneAnalysisCorner(Scene *scene,
