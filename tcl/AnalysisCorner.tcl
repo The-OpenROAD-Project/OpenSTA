@@ -158,5 +158,92 @@ proc define_scene { args } {
   }
 }
 
+################################################################
+#
+# Corner-scoped SDC (currently timing derates).
+#
+################################################################
+
+define_cmd_args "set_cmd_analysis_corner" {corner_name}
+
+proc set_cmd_analysis_corner { args } {
+  check_argc_eq1 "set_cmd_analysis_corner" $args
+  set corner_name [lindex $args 0]
+  set corner [find_analysis_corner $corner_name]
+  if { $corner == "NULL" } {
+    sta_error 3708 "$corner_name is not the name of an analysis corner."
+  }
+  set_cmd_analysis_corner_cmd $corner
+}
+
+define_cmd_args "unset_cmd_analysis_corner" {}
+
+proc unset_cmd_analysis_corner { args } {
+  check_argc_eq0 "unset_cmd_analysis_corner" $args
+  set_cmd_analysis_corner_cmd NULL
+}
+
+# Extend read_sdc with -analysis_corner by wrapping the proc at runtime
+# (same technique as define_scene above). Unknown keys (-mode, -echo,
+# redirection) pass through parse_key_args verbatim to the base command.
+if { [info procs read_sdc_base] == "" } {
+  rename read_sdc read_sdc_base
+}
+
+proc read_sdc { args } {
+  parse_key_args "read_sdc" args keys {-analysis_corner} flags {} 0
+  if { [info exists keys(-analysis_corner)] } {
+    set corner [find_analysis_corner $keys(-analysis_corner)]
+    if { $corner == "NULL" } {
+      sta_error 3709 "$keys(-analysis_corner) is not the name of an analysis corner."
+    }
+    set prev_corner [cmd_analysis_corner]
+    set_cmd_analysis_corner_cmd $corner
+    try {
+      read_sdc_base {*}$args
+    } finally {
+      set_cmd_analysis_corner_cmd $prev_corner
+    }
+  } else {
+    read_sdc_base {*}$args
+  }
+}
+
+# Commands that may not run in an analysis corner scope. Structural
+# constraints (clocks, exceptions, logic state) stay mode-level by design.
+variable corner_scope_disallowed_cmds {
+  create_clock create_generated_clock set_clock_groups set_propagated_clock
+  set_false_path set_multicycle_path set_max_delay set_min_delay
+  group_path set_case_analysis set_disable_timing
+}
+# Corner-scoped by design but not implemented yet.
+variable corner_scope_pending_cmds {
+  set_input_delay set_output_delay set_clock_latency set_clock_uncertainty
+  set_input_transition set_load
+}
+
+proc check_corner_scope { cmd } {
+  variable corner_scope_pending_cmds
+  if { [cmd_analysis_corner] != "NULL" } {
+    if { [lsearch -exact $corner_scope_pending_cmds $cmd] >= 0 } {
+      sta_error 3711 "$cmd is not yet supported in an analysis corner scope."
+    } else {
+      sta_error 3710 "$cmd is not allowed in an analysis corner scope; only timing derates are corner-scoped."
+    }
+  }
+}
+
+# Guard the disallowed commands with a corner-scope check (runtime
+# wrappers; the base commands are untouched). The base is invoked with
+# uplevel/linsert rather than {*}$args because sdc_file_line list-parses
+# the command text of every stack frame (Util.tcl).
+foreach cmd [concat $corner_scope_disallowed_cmds $corner_scope_pending_cmds] {
+  if { [info procs ${cmd}_corner_scope_base] == "" } {
+    rename $cmd ${cmd}_corner_scope_base
+    proc $cmd { args } \
+      "check_corner_scope $cmd ; uplevel 1 \[linsert \$args 0 ::sta::${cmd}_corner_scope_base\]"
+  }
+}
+
 # sta namespace end.
 }

@@ -27,9 +27,11 @@
 #include "AnalysisCorner.hh"
 
 #include "ContainerHelpers.hh"
+#include "Mode.hh"
 #include "PatternMatch.hh"
 #include "Property.hh"
 #include "Scene.hh"
+#include "Sdc.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -101,6 +103,46 @@ Sta::deleteAnalysisCorners()
   deleteContents(analysis_corners_);
   analysis_corners_.clear();
   analysis_corner_name_map_.clear();
+  cmd_analysis_corner_ = nullptr;
+}
+
+////////////////////////////////////////////////////////////////
+
+// Mode overlay Sdc definitions (declared in Mode.hh).
+
+Sdc *
+Mode::cornerSdc(const AnalysisCorner *corner) const
+{
+  return findKey(corner_sdcs_, corner);
+}
+
+Sdc *
+Mode::makeCornerSdc(const AnalysisCorner *corner)
+{
+  Sdc *&sdc = corner_sdcs_[corner];
+  if (sdc == nullptr)
+    sdc = new Sdc(this, sta_);
+  return sdc;
+}
+
+void
+Mode::clearCornerSdcs()
+{
+  for (const auto [corner, sdc] : corner_sdcs_)
+    sdc->clear();
+}
+
+// Corner overlay Sdc for derate queries (declared in Scene.hh).
+// The overlay overrides the mode Sdc wholesale iff it defines derates.
+const Sdc *
+Scene::sdcOverlayForDerate() const
+{
+  if (analysis_corner_) {
+    const Sdc *overlay = mode_->cornerSdc(analysis_corner_);
+    if (overlay && overlay->hasDeratingFactors())
+      return overlay;
+  }
+  return nullptr;
 }
 
 } // namespace sta

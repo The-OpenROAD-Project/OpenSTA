@@ -159,6 +159,10 @@ public:
   void setSceneAnalysisCorner(Scene *scene,
                               AnalysisCorner *corner);
   void deleteAnalysisCorners();
+  // Scope SDC commands to a corner overlay Sdc of the command mode
+  // (nullptr restores mode scope). Mirrors setCmdMode.
+  void setCmdAnalysisCorner(AnalysisCorner *corner) { cmd_analysis_corner_ = corner; }
+  AnalysisCorner *cmdAnalysisCorner() const { return cmd_analysis_corner_; }
   // ---- OpenROAD fork: analysis_corner support (end) ----
 
   virtual LibertyLibrary *readLiberty(std::string_view filename,
@@ -1653,6 +1657,7 @@ protected:
   // ---- OpenROAD fork: analysis_corner support (begin) ----
   AnalysisCornerSeq analysis_corners_;
   AnalysisCornerNameMap analysis_corner_name_map_;
+  AnalysisCorner *cmd_analysis_corner_{nullptr};
   // ---- OpenROAD fork: analysis_corner support (end) ----
   VerilogReader *verilog_reader_{nullptr};
   CheckTiming *check_timing_{nullptr};

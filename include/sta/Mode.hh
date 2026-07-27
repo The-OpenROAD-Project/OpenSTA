@@ -24,12 +24,16 @@
 
 #pragma once
 
+// OpenROAD fork: analysis_corner support.
+#include <map>
 #include <string>
 
 #include "StaState.hh"
 
 namespace sta {
 
+// OpenROAD fork: analysis_corner support.
+class AnalysisCorner;
 class Sdc;
 class Sim;
 class ClkNetwork;
@@ -82,6 +86,16 @@ public:
                              bool unconstrained_paths);
   void deletePathGroups();
 
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Sparse overlay Sdc per analysis corner holding corner-scoped
+  // constraints (currently timing derates). Lazily created; nullptr
+  // until a corner-scoped SDC command runs. Definitions live in
+  // search/AnalysisCorner.cc.
+  Sdc *cornerSdc(const AnalysisCorner *corner) const;
+  Sdc *makeCornerSdc(const AnalysisCorner *corner);
+  void clearCornerSdcs();
+  // ---- OpenROAD fork: analysis_corner support (end) ----
+
 private:
   std::string name_;
   size_t mode_index_;
@@ -91,6 +105,9 @@ private:
   ClkNetwork *clk_network_;
   Genclks *genclks_;
   PathGroups *path_groups_{nullptr};
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  std::map<const AnalysisCorner*, Sdc*> corner_sdcs_;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   StaState *sta_;
 };
 

@@ -1428,6 +1428,19 @@ protected:
   WireloadMode wireload_mode_;
   const WireloadSelection *wireload_selection_[MinMax::index_count];
 
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+public:
+  // True when any timing derates are set. Used to decide whether an
+  // analysis corner overlay Sdc overrides the mode Sdc for derate queries.
+  bool hasDeratingFactors() const
+  {
+    return derating_factors_ != nullptr
+      || !net_derating_factors_.empty()
+      || !inst_derating_factors_.empty()
+      || !cell_derating_factors_.empty();
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
+
 private:
   friend class WriteSdc;
   friend class FindNetCaps;

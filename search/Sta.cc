@@ -531,6 +531,10 @@ Sta::clear()
   clearNonSdc();
   for (Mode *mode : modes_)
     mode->sdc()->clear();
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  for (Mode *mode : modes_)
+    mode->clearCornerSdcs();
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -566,6 +570,10 @@ Sta::clearNonSdc()
 Sdc *
 Sta::cmdSdc() const
 {
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  if (cmd_analysis_corner_)
+    return cmd_mode_->makeCornerSdc(cmd_analysis_corner_);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   return cmd_mode_->sdc();
 }
 
