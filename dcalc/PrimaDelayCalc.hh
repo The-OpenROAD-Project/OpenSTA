@@ -132,6 +132,9 @@ protected:
   void initSim();
   void findLoads();
   void findNodeCount();
+  void placeNode(ParasiticNode *node,
+                 size_t index,
+                 std::vector<ParasiticNode*> &queue);
   void setOrder();
   void initCeffIdrvr();
   void setXinit();

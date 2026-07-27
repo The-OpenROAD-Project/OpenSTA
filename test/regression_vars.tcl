@@ -161,6 +161,7 @@ record_public_tests {
   path_group_names
   power_json
   prima3
+  prima_singular
   read_saif_null_instance
   report_checks_sorted
   report_checks_src_attr
