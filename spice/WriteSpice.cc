@@ -756,6 +756,7 @@ WriteSpice::railToRailSlew(float slew,
 void
 WriteSpice::gatePortValues(const Pin *input_pin,
                            const Pin *drvr_pin,
+                           const RiseFall *input_rf,
                            const RiseFall *drvr_rf,
                            const Edge *gate_edge,
                            // Return values.
@@ -771,7 +772,7 @@ WriteSpice::gatePortValues(const Pin *input_pin,
     if (gate_edge && gate_edge->role()->genericRole() == TimingRole::regClkToQ())
       regPortValues(input_pin, drvr_rf, drvr_port, drvr_func, port_values, is_clked);
     else
-      gatePortValues(inst, drvr_func, input_port, port_values);
+      gatePortValues(inst, drvr_func, input_port, input_rf, drvr_rf, port_values);
   }
 }
 
@@ -779,41 +780,61 @@ void
 WriteSpice::gatePortValues(const Instance *,
                            const FuncExpr *expr,
                            const LibertyPort *input_port,
+                           const RiseFall *input_rf,
+                           const RiseFall *drvr_rf,
                            // Return values.
                            LibertyPortLogicValues &port_values)
 {
+  DdManager *cudd_mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(expr);
   DdNode *input_node = bdd_.findNode(input_port);
-  unsigned input_node_index = Cudd_NodeReadIndex(input_node);
-  DdManager *cudd_mgr = bdd_.cuddMgr();
-  DdNode *diff = Cudd_bddBooleanDiff(cudd_mgr, bdd, input_node_index);
+  // Cofactors of the driver function wrt the switching (path) input.
+  DdNode *f1 = Cudd_Cofactor(cudd_mgr, bdd, input_node);
+  Cudd_Ref(f1);
+  DdNode *f0 = Cudd_Cofactor(cudd_mgr, bdd, Cudd_Not(input_node));
+  Cudd_Ref(f0);
+  // The side inputs must sensitize the path with the polarity of this
+  // arc, not just any sensitization: for non-unate gates (xor/xnor, mux
+  // select arcs) the side values decide whether the gate inverts, so a
+  // cube of the plain Boolean difference (f1 XOR f0) can put the gate on
+  // the arc opposite to the one the path used.
+  //   input and driver edges agree  (non-inverting): f1 & ~f0
+  //   input and driver edges differ (inverting):     f0 & ~f1
+  DdNode *care = (input_rf == drvr_rf)
+    ? Cudd_bddAnd(cudd_mgr, f1, Cudd_Not(f0))
+    : Cudd_bddAnd(cudd_mgr, f0, Cudd_Not(f1));
+  Cudd_Ref(care);
+
   int *cube;
   CUDD_VALUE_TYPE value;
-  DdGen *cube_gen = Cudd_FirstCube(cudd_mgr, diff, &cube, &value);
-
-  LibertyPortSet ports = expr->ports();
-  for (const LibertyPort *port : ports) {
-    if (port != input_port) {
-      DdNode *port_node = bdd_.findNode(port);
-      int var_index = Cudd_NodeReadIndex(port_node);
-      LogicValue value;
-      switch (cube[var_index]) {
-        case 0:
-          value = LogicValue::zero;
-          break;
-        case 1:
-          value = LogicValue::one;
-          break;
-        case 2:
-        default:
-          value = LogicValue::unknown;
-          break;
+  DdGen *cube_gen = Cudd_FirstCube(cudd_mgr, care, &cube, &value);
+  if (!Cudd_IsGenEmpty(cube_gen)) {
+    LibertyPortSet ports = expr->ports();
+    for (const LibertyPort *port : ports) {
+      if (port != input_port) {
+        DdNode *port_node = bdd_.findNode(port);
+        int var_index = Cudd_NodeReadIndex(port_node);
+        LogicValue port_value;
+        switch (cube[var_index]) {
+          case 0:
+            port_value = LogicValue::zero;
+            break;
+          case 1:
+            port_value = LogicValue::one;
+            break;
+          case 2:
+          default:
+            port_value = LogicValue::unknown;
+            break;
+        }
+        port_values[port] = port_value;
       }
-      port_values[port] = value;
     }
   }
   Cudd_GenFree(cube_gen);
-  Cudd_Ref(diff);
+  Cudd_RecursiveDeref(cudd_mgr, care);
+  Cudd_RecursiveDeref(cudd_mgr, f0);
+  Cudd_RecursiveDeref(cudd_mgr, f1);
   bdd_.clearVarMap();
 }
 

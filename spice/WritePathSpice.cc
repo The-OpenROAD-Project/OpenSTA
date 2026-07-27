@@ -514,11 +514,13 @@ WritePathSpice::writeGateStage(Stage stage)
 
   const Path *drvr_path = stageDrvrPath(stage);
   const RiseFall *drvr_rf = drvr_path->transition(this);
+  const Path *gate_input_path = stageGateInputPath(stage);
+  const RiseFall *input_rf = gate_input_path->transition(this);
   const Edge *gate_edge = stageGateEdge(stage);
 
   LibertyPortLogicValues port_values;
   bool is_clked;
-  gatePortValues(input_pin, drvr_pin, drvr_rf, gate_edge,
+  gatePortValues(input_pin, drvr_pin, input_rf, drvr_rf, gate_edge,
                  port_values, is_clked);
 
   PinSet inputs(network_);

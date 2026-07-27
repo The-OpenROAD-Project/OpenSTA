@@ -139,6 +139,7 @@ protected:
 
   void gatePortValues(const Pin *input_pin,
                       const Pin *drvr_pin,
+                      const RiseFall *input_rf,
                       const RiseFall *drvr_rf,
                       const Edge *gate_edge,
                       // Return values.
@@ -154,6 +155,8 @@ protected:
   void gatePortValues(const Instance *inst,
                       const FuncExpr *expr,
                       const LibertyPort *input_port,
+                      const RiseFall *input_rf,
+                      const RiseFall *drvr_rf,
                       // Return values.
                       LibertyPortLogicValues &port_values);
   void writeSubcktInstLoads(const Pin *drvr_pin,
