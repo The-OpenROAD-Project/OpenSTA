@@ -31,7 +31,7 @@
 #include <string_view>
 #include <tcl.h>
 
-#ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_BUILD
   #include "bazel/tcl_library_init.h"
   #include "src/tcl_readline_setup.h"
 #endif
@@ -115,7 +115,7 @@ staTclAppInit(int argc,
               std::string_view init_filename,
               Tcl_Interp *interp)
 {
-#ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_BUILD
     if (in_bazel::SetupTclEnvironment(interp) == TCL_ERROR) {
       return TCL_ERROR;
     }
@@ -126,7 +126,7 @@ staTclAppInit(int argc,
     return TCL_ERROR;
 
   bool has_readline = false;
-#ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_BUILD
   has_readline = (ord::SetupTclReadlineLibrary(interp) == TCL_OK);
 #endif
 #if TCL_READLINE
