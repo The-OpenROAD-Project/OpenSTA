@@ -168,6 +168,7 @@ record_public_tests {
   report_json1
   report_json2
   suppress_msg
+  user_properties
   verilog_attribute
   verilog_well_supplies
   verilog_specify
