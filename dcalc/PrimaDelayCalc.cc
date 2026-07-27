@@ -48,6 +48,13 @@ namespace sta {
 // Lawrence Pillage - “Electronic Circuit & System Simulation Methods” 1998
 // McGraw-Hill, Inc. New York, NY.
 
+// "PRIMA: Passive Reduced-order Interconnect Macromodeling Algorithm",
+// Altan Odabasioglu, Mustafa Celik, and Lawrence T. Pileggi
+// IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems,
+// vol. 17, no. 8, August 1998
+
+using ParasiticSet = std::set<const Parasitic*>;
+
 ArcDelayCalc *
 makePrimaDelayCalc(StaState *sta)
 {
@@ -460,105 +467,68 @@ PrimaDelayCalc::initSim()
 void
 PrimaDelayCalc::findNodeCount()
 {
-  includes_pin_caps_ = parasitics_->includesPinCaps(parasitic_network_);
   coupling_cap_multiplier_ = 1.0;
 
-  node_capacitances_.clear();
   pin_node_map_.clear();
   node_index_map_.clear();
+  node_count_ = 0;
 
   // Collect the nodes that enter G by walking out from the drivers through
   // resistors. G is conductance-only, so a node with no resistive path to a
   // driver has an all-zero row which is dropped to prevent singularity.
-  ParasiticNodeResistorMap resistor_map =
-      parasitics_->parasiticNodeResistorMap(parasitic_network_);
-  std::vector<ParasiticNode *> queue;
-  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
-    const Pin *drvr_pin = (*dcalc_args_)[drvr_idx].drvrPin();
-    ParasiticNode *drvr_node =
-        parasitics_->findParasiticNode(parasitic_network_, drvr_pin);
-    if (drvr_node && !parasitics_->isExternal(drvr_node)
-        && !node_index_map_.contains(drvr_node))
-      placeNode(drvr_node, node_capacitances_.size(), queue);
-  }
-  while (!queue.empty()) {
-    ParasiticNode *node = queue.back();
-    queue.pop_back();
-    size_t node_index = node_index_map_[node];
-    auto resistor_itr = resistor_map.find(node);
-    if (resistor_itr != resistor_map.end()) {
-      for (ParasiticResistor *resistor : resistor_itr->second) {
-        ParasiticNode *next_node = parasitics_->otherNode(resistor, node);
-        if (next_node
-            && !parasitics_->isExternal(next_node)
-            && !node_index_map_.contains(next_node)) {
-          bool shorted = parasitics_->value(resistor) <= 0.0;
-          placeNode(next_node, shorted ? node_index : node_capacitances_.size(),
-                    queue);
+  ParasiticSet visited_parasitics;
+  for (const ArcDcalcArg &dcalc_arg : *dcalc_args_) {
+    const Parasitic *parasitic = dcalc_arg.parasitic();
+    if (!visited_parasitics.contains(parasitic)) {
+      ParasiticNodeResistorMap resistor_map =
+        parasitics_->parasiticNodeResistorMap(parasitic);
+      std::vector<ParasiticNode *> queue;
+      for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+        const Pin *drvr_pin = (*dcalc_args_)[drvr_idx].drvrPin();
+        ParasiticNode *drvr_node =
+          parasitics_->findParasiticNode(parasitic, drvr_pin);
+        if (drvr_node && !parasitics_->isExternal(drvr_node)
+            && !node_index_map_.contains(drvr_node)) {
+          placeNode(drvr_node, node_count_++);
+          queue.push_back(drvr_node);
         }
       }
+      while (!queue.empty()) {
+        ParasiticNode *node = queue.back();
+        queue.pop_back();
+        size_t node_index = node_index_map_[node];
+        auto resistor_itr = resistor_map.find(node);
+        if (resistor_itr != resistor_map.end()) {
+          for (ParasiticResistor *resistor : resistor_itr->second) {
+            ParasiticNode *next_node = parasitics_->otherNode(resistor, node);
+            if (next_node
+                && !parasitics_->isExternal(next_node)
+                && !node_index_map_.contains(next_node)) {
+              bool shorted = parasitics_->value(resistor) == 0;
+              placeNode(next_node, shorted ? node_index : node_count_++);
+              queue.push_back(next_node);
+            }
+          }
+        }
+      }
+      visited_parasitics.insert(parasitic);
     }
   }
-
-  // Lump each coupling capacitor to ground at its internal (non-external)
-  // nodes that made it into the network.
-  for (ParasiticCapacitor *capacitor : parasitics_->capacitors(parasitic_network_)) {
-    float cap = parasitics_->value(capacitor) * coupling_cap_multiplier_;
-    ParasiticNode *node1 = parasitics_->node1(capacitor);
-    if (node1 && !parasitics_->isExternal(node1)) {
-      auto itr = node_index_map_.find(node1);
-      if (itr != node_index_map_.end())
-        node_capacitances_[itr->second] += cap;
-    }
-    ParasiticNode *node2 = parasitics_->node2(capacitor);
-    if (node2 && !parasitics_->isExternal(node2)) {
-      auto itr = node_index_map_.find(node2);
-      if (itr != node_index_map_.end())
-        node_capacitances_[itr->second] += cap;
-    }
-  }
-  node_count_ = node_capacitances_.size();
 }
 
-// Add node to the conductance system at index (shared by drivers and by the
-// resistor walk); a merged short reuses its near node's index. Accumulates the
-// node's ground capacitance and queues it for the walk.
+// Add node to network at index (shared by drivers and by the
+// resistor walk). A merged short reuses the near node's index.
 void
 PrimaDelayCalc::placeNode(ParasiticNode *node,
-                          size_t index,
-                          std::vector<ParasiticNode*> &queue)
+                          size_t index)
 {
   node_index_map_[node] = index;
-  if (index == node_capacitances_.size())
-    node_capacitances_.push_back(0.0);
-  node_capacitances_[index] +=
-      parasitics_->nodeGndCap(node) + pinCapacitance(node);
   const Pin *pin = parasitics_->pin(node);
   if (pin) {
     pin_node_map_[pin] = index;
     debugPrint(debug_, "ccs_dcalc", 1, "pin {} node {}",
                network_->pathName(pin), index);
   }
-  queue.push_back(node);
-}
-
-float
-PrimaDelayCalc::pinCapacitance(ParasiticNode *node)
-{
-  const Pin *pin = parasitics_->pin(node);
-  float pin_cap = 0.0;
-  const Sdc *sdc = scene_->sdc();
-  if (pin) {
-    Port *port = network_->port(pin);
-    LibertyPort *lib_port = network_->libertyPort(port);
-    if (lib_port) {
-      if (!includes_pin_caps_)
-        pin_cap = sdc->pinCapacitance(pin, drvr_rf_, scene_, min_max_);
-    }
-    else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc->portExtCap(port, drvr_rf_, min_max_);
-  }
-  return pin_cap;
 }
 
 void
@@ -600,6 +570,16 @@ PrimaDelayCalc::setXinit()
     x_init_[node_count_ + p] = drvr_init_volt;
 }
 
+std::pair<size_t, bool>
+PrimaDelayCalc::nodeIndex(const ParasiticNode *node)
+{
+  auto node_index = node_index_map_.find(node);
+  if (node_index != node_index_map_.end())
+    return {node_index->second, true};
+  else
+    return {0, false};
+}
+
 void
 PrimaDelayCalc::stampEqns()
 {
@@ -607,35 +587,23 @@ PrimaDelayCalc::stampEqns()
   C_.setZero();
   B_.setZero();
 
-  for (size_t node_idx = 0; node_idx < node_count_; node_idx++)
-    stampCapacitance(node_idx, node_capacitances_[node_idx]);
-
-  resistance_sum_ = 0.0;
-  for (ParasiticResistor *resistor : parasitics_->resistors(parasitic_network_)) {
-    auto itr1 = node_index_map_.find(parasitics_->node1(resistor));
-    auto itr2 = node_index_map_.find(parasitics_->node2(resistor));
-    // Skip a resistor with a node left out of the network.
-    if (itr1 == node_index_map_.end() || itr2 == node_index_map_.end())
-      continue;
-    size_t node_idx1 = itr1->second;
-    size_t node_idx2 = itr2->second;
-    float resistance = parasitics_->value(resistor);
-    // Skip a self loop / merged short (same index) or a non-positive (short)
-    // resistance; stamping 1/resistance would be infinite.
-    if (node_idx1 != node_idx2 && resistance > 0.0) {
-      stampConductance(node_idx1, node_idx2, 1.0 / resistance);
-      resistance_sum_ += resistance;
-    }
+  NetSet drvr_nets(network_);
+  for (ArcDcalcArg &dcalc_arg : *dcalc_args_) {
+    const Net *net = dcalc_arg.drvrNet(network_);
+    drvr_nets.insert(net);
   }
 
+  resistance_sum_ = 0.0;
+  ParasiticSet visited_parasitics;
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
-    size_t drvr_node = pin_node_map_[dcalc_arg.drvrPin()];
-    G_.coeffRef(node_count_ + drvr_idx, drvr_node) = 1.0;
-    G_.coeffRef(node_count_ + drvr_idx, node_count_ + drvr_idx) = -1.0;
-    // special sauce
-    G_.coeffRef(drvr_node, drvr_node) += 1e-6;
-    B_.coeffRef(drvr_node, drvr_idx) = 1.0;
+    stampDriver(dcalc_arg, drvr_idx);
+    const Parasitic *parasitic = dcalc_arg.parasitic();
+    if (!visited_parasitics.contains(parasitic)) {
+      stampResistors(parasitic);
+      stampCapacitors(parasitic, dcalc_arg, drvr_nets);
+      visited_parasitics.insert(parasitic);
+    }
   }
 
   if (debug_->check("ccs_dcalc", 3)) {
@@ -643,6 +611,101 @@ PrimaDelayCalc::stampEqns()
     reportMatrix("C", C_);
     reportMatrix("B", B_);
   }
+}
+
+void
+PrimaDelayCalc::stampDriver(const ArcDcalcArg &dcalc_arg,
+                            size_t drvr_idx)
+{
+    size_t drvr_node = pin_node_map_[dcalc_arg.drvrPin()];
+    G_.coeffRef(node_count_ + drvr_idx, drvr_node) = 1.0;
+    G_.coeffRef(node_count_ + drvr_idx, node_count_ + drvr_idx) = -1.0;
+    // special sauce
+    G_.coeffRef(drvr_node, drvr_node) += 1e-6;
+    B_.coeffRef(drvr_node, drvr_idx) = 1.0;
+}
+
+void
+PrimaDelayCalc::stampResistors(const Parasitic *parasitic)
+{
+  for (ParasiticResistor *resistor : parasitics_->resistors(parasitic)) {
+    auto [node_idx1, exsits1] = nodeIndex(parasitics_->node1(resistor));
+    auto [node_idx2, exsits2] = nodeIndex(parasitics_->node2(resistor));
+    // Skip a resistor with a node left out of the network.
+    if (exsits1 && exsits2) {
+      float resistance = parasitics_->value(resistor);
+      // Skip a self loop / merged short (same index) or a non-positive (short)
+      // resistance; stamping 1/resistance would be infinite.
+      if (node_idx1 != node_idx2 && resistance > 0.0) {
+        stampConductance(node_idx1, node_idx2, 1.0 / resistance);
+        resistance_sum_ += resistance;
+      }
+    }
+  }
+}
+
+void
+PrimaDelayCalc::stampCapacitors(const Parasitic *parasitic,
+                                const ArcDcalcArg &dcalc_arg,
+                                NetSet &drvr_nets)
+{
+  const RiseFall *drvr_rf = dcalc_arg.drvrEdge();
+  bool includes_pin_caps = parasitics_->includesPinCaps(parasitic);
+  // Grounded capacitors.
+  for (ParasiticNode *node : parasitics_->nodes(parasitic)) {
+    if (!parasitics_->isExternal(node)) {
+      auto [node_idx, exists] = nodeIndex(node);
+      if (exists) {
+        double cap = parasitics_->nodeGndCap(node);
+        const Pin *pin = parasitics_->pin(node);
+        if (pin)
+          cap += pinCapacitance(pin, drvr_rf, includes_pin_caps);
+        stampCapacitance(node_idx, cap);
+      }
+    }
+  }
+
+  // Coupling capcacitors.
+  const Net *drvr_net = dcalc_arg.drvrNet(network_);
+  for (ParasiticCapacitor *capacitor : parasitics_->capacitors(parasitic)) {
+    ParasiticNode *node1 = parasitics_->node1(capacitor);
+    ParasiticNode *node2 = parasitics_->node2(capacitor);
+    float cap = parasitics_->value(capacitor);
+    const Net *net1 = node1 ? parasitics_->net(node1, network_) : nullptr;
+    const Net *net2 = node2 ? parasitics_->net(node2, network_) : nullptr;
+    if (net2 == drvr_net) {
+      std::swap(net1, net2);
+      std::swap(node1, node2);
+    }
+    auto [node_idx1, exists1] = nodeIndex(node1);
+    if (exists1) {
+      if (net2 && drvr_nets.contains(net2)) {
+        auto [node_idx2, exists2] = nodeIndex(node2);
+        if (exists2)
+          // Stamp half the capacitance because the coupled net will do the same.
+          stampCapacitance(node_idx1, node_idx2, cap * .5);
+      }
+      else
+        stampCapacitance(node_idx1, cap);
+    }
+  }
+}
+
+float
+PrimaDelayCalc::pinCapacitance(const Pin *pin,
+                               const RiseFall *rf,
+                               bool includes_pin_caps)
+{
+  Port *port = network_->port(pin);
+  LibertyPort *lib_port = network_->libertyPort(port);
+  const Sdc *sdc = scene_->sdc();
+  if (lib_port) {
+    if (!includes_pin_caps)
+      return sdc->pinCapacitance(pin, rf, scene_, min_max_);
+  }
+  else if (network_->isTopLevelPort(pin))
+    return sdc->portExtCap(port, rf, min_max_);
+  return 0.0;
 }
 
 // Grounded resistor.
