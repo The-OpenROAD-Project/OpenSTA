@@ -24,6 +24,8 @@
 
 #include "VisitPathEnds.hh"
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ClkInfo.hh"
 #include "Debug.hh"
 #include "ExceptionPath.hh"
@@ -302,6 +304,11 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
   const Sdc *sdc = scene->sdc();
   const MinMax *min_max = path->minMax(this);
   OutputDelaySet *output_delays = sdc->outputDelaysLeafPin(pin);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  OutputDelaySet *corner_delays = cornerOutputDelaysLeafPin(scene, pin);
+  if (corner_delays)
+    output_delays = corner_delays;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   if (output_delays) {
     for (OutputDelay *output_delay : *output_delays) {
       float margin;

@@ -94,6 +94,8 @@ public:
   Sdc *cornerSdc(const AnalysisCorner *corner) const;
   Sdc *makeCornerSdc(const AnalysisCorner *corner);
   void clearCornerSdcs();
+  const std::map<const AnalysisCorner*, Sdc*> &cornerSdcs() const
+  { return corner_sdcs_; }
   // ---- OpenROAD fork: analysis_corner support (end) ----
 
 private:

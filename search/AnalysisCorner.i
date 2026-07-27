@@ -71,15 +71,18 @@ define_analysis_corner_cmd(const char *name,
                            StringSeq liberty_min_files,
                            StringSeq liberty_max_files,
                            const char *spef_min_name,
-                           const char *spef_max_name)
+                           const char *spef_max_name,
+                           StringSeq sdc_files)
 {
   AnalysisCorner *corner = Sta::sta()->makeAnalysisCorner(name);
   // Redefining with any data replaces the whole bundle; a bare redefine
   // preserves it (makeAnalysisCorner is find-or-create). Min/max always
   // arrive as a pair, so checking min suffices.
-  if (!liberty_min_files.empty() || spef_min_name[0] != '\0') {
+  if (!liberty_min_files.empty() || spef_min_name[0] != '\0'
+      || !sdc_files.empty()) {
     corner->setLiberty(liberty_min_files, liberty_max_files);
     corner->setSpef(spef_min_name, spef_max_name);
+    corner->setSdc(sdc_files);
   }
 }
 
@@ -105,6 +108,12 @@ const char *
 analysis_corner_spef_max(AnalysisCorner *corner)
 {
   return corner->spefMaxName().c_str();
+}
+
+StringSeq
+analysis_corner_sdc(AnalysisCorner *corner)
+{
+  return corner->sdcFiles();
 }
 
 AnalysisCorner *

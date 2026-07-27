@@ -163,6 +163,23 @@ public:
   // (nullptr restores mode scope). Mirrors setCmdMode.
   void setCmdAnalysisCorner(AnalysisCorner *corner) { cmd_analysis_corner_ = corner; }
   AnalysisCorner *cmdAnalysisCorner() const { return cmd_analysis_corner_; }
+  // Sdc that corner-scoped SDC *write* commands target: the corner overlay
+  // when a corner scope is active, else the command mode Sdc. Read/query
+  // commands keep using cmdSdc() so names (clocks, ...) resolve against
+  // the mode Sdc. Defined in search/AnalysisCorner.cc.
+  Sdc *cmdCornerSdc() const;
+  // Corner-scoped set_clock_uncertainty on a clock (stored on the corner,
+  // not the shared Clock object).
+  void setAnalysisCornerClockUncertainty(AnalysisCorner *corner,
+                                         const Clock *clk,
+                                         const MinMaxAll *setup_hold,
+                                         float uncertainty);
+  void removeAnalysisCornerClockUncertainty(AnalysisCorner *corner,
+                                            const Clock *clk,
+                                            const MinMaxAll *setup_hold);
+  // Purge corner clock uncertainties keyed by dying Clock objects
+  // (nullptr purges all clocks).
+  void purgeAnalysisCornerClockUncertainties(const Clock *clk);
   // ---- OpenROAD fork: analysis_corner support (end) ----
 
   virtual LibertyLibrary *readLiberty(std::string_view filename,

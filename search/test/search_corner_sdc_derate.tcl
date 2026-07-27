@@ -93,11 +93,11 @@ puts [catch { create_clock -name clk2 -period 5 } msg]
 puts $msg
 puts [catch { set_false_path -from [get_ports in1] } msg]
 puts $msg
-puts [catch { set_input_delay -clock clk 2.0 [get_ports in1] } msg]
+puts [catch { set_input_transition 0.5 [get_ports in1] } msg]
 puts $msg
 unset_cmd_analysis_corner
 # Out of corner scope the guarded commands work again.
-puts [catch { set_input_delay -clock clk 1.0 [get_ports in1] } msg]
+puts [catch { set_input_transition 0.5 [get_ports in1] } msg]
 puts $msg
 
 # Error cases.

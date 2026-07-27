@@ -8,6 +8,7 @@ sta_module_tests("search"
     check_types_deep
     clk_skew_interclk
     clk_skew_multiclock
+    corner_sdc_bundle
     corner_sdc_derate
     corner_skew
     crpr

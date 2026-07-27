@@ -188,12 +188,16 @@ public:
                                    const ClockEdge *tgt_clk_edge,
                                    const Path *tgt_clk_path,
                                    const TimingRole *check_role,
-                                   const Sdc *sdc);
+                                   const Sdc *sdc,
+                                   // OpenROAD fork: analysis_corner support.
+                                   const Scene *scene = nullptr);
   // Non inter-clock uncertainty.
   static float checkTgtClkUncertainty(const Path *tgt_clk_path,
                                       const ClockEdge *tgt_clk_edge,
                                       const TimingRole *check_role,
-                                      const StaState *sta);
+                                      const StaState *sta,
+                                      // OpenROAD fork: analysis_corner support.
+                                      const Scene *scene = nullptr);
   static float checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
                                        const ClockEdge *tgt_clk_edge,
                                        const MultiCyclePath *mcp,
@@ -207,7 +211,9 @@ protected:
                                        const TimingRole *check_role,
                                        const Sdc *sdc,
                                        float &uncertainty,
-                                       bool &exists);
+                                       bool &exists,
+                                       // OpenROAD fork: analysis_corner support.
+                                       const Scene *scene = nullptr);
   static float outputDelayMargin(OutputDelay *output_delay,
                                  const Path *path,
                                  const StaState *sta);

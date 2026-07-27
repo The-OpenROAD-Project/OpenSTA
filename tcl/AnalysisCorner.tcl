@@ -30,11 +30,12 @@ namespace eval sta {
 define_cmd_args "define_analysis_corner" {name\
                                             [-liberty liberty_files \
                                              | -liberty_min liberty_min_files -liberty_max liberty_max_files]\
-                                            [-spef spef_name | -spef_min spef_min_name -spef_max spef_max_name]}
+                                            [-spef spef_name | -spef_min spef_min_name -spef_max spef_max_name]\
+                                            [-sdc sdc_files]}
 
 proc define_analysis_corner { args } {
   parse_key_args "define_analysis_corner" args \
-    keys {-liberty -liberty_min -liberty_max -spef -spef_min -spef_max} \
+    keys {-liberty -liberty_min -liberty_max -spef -spef_min -spef_max -sdc} \
     flags {}
   check_argc_eq1 "define_analysis_corner" $args
   set name [lindex $args 0]
@@ -63,8 +64,27 @@ proc define_analysis_corner { args } {
     sta_error 3706 "-spef_min and -spef_max are required arguments."
   }
 
+  # Corner-scoped SDC files, applied to the (mode, corner) overlay Sdc
+  # when the first scene naming this corner is defined.
+  set sdc_files {}
+  if { [info exists keys(-sdc)] } {
+    set sdc_files $keys(-sdc)
+  }
+
   define_analysis_corner_cmd $name $liberty_min_files $liberty_max_files \
-    $spef_min_name $spef_max_name
+    $spef_min_name $spef_max_name $sdc_files
+
+  # A redefine with data replaces the whole bundle: forget which
+  # (mode, corner) pairs the old SDC bundle was applied to so the new
+  # bundle applies to scenes defined from now on.
+  if { $liberty_min_files != {} || $spef_min_name != "" || $sdc_files != {} } {
+    variable corner_bundle_applied
+    foreach pair [dict keys $corner_bundle_applied] {
+      if { [lindex $pair 1] == $name } {
+        dict unset corner_bundle_applied $pair
+      }
+    }
+  }
 }
 
 define_cmd_args "get_analysis_corners" {[corner_name]}
@@ -96,6 +116,12 @@ proc set_scene_analysis_corner { args } {
   set_scene_analysis_corner_cmd $scene $corner
 }
 
+# (mode, corner) pairs whose corner SDC bundle has been applied to the
+# corner's overlay Sdc; a bundle is applied once per pair, when the first
+# scene naming that mode and corner is defined. Redefining a corner with
+# new bundle data forgets its pairs (see define_analysis_corner).
+variable corner_bundle_applied [dict create]
+
 # Extend define_scene with -analysis_corner by wrapping the proc at
 # runtime instead of editing Sta.tcl (upstream merge hygiene).
 if { [info procs define_scene_base] == "" } {
@@ -103,11 +129,13 @@ if { [info procs define_scene_base] == "" } {
 }
 
 proc define_scene { args } {
-  # Passthrough parse: extract our key plus the base liberty/spef keys so
-  # the corner bundle is only injected when the user supplied none of them
-  # (explicit args win over the bundle). Unparsed args stay for the base cmd.
+  variable corner_bundle_applied
+  # Passthrough parse: extract our key plus the base mode/liberty/spef keys
+  # so the corner bundle is only injected when the user supplied none of
+  # them (explicit args win over the bundle). Unparsed args stay for the
+  # base cmd.
   parse_key_args "define_scene" args \
-    keys {-analysis_corner -liberty -liberty_min -liberty_max \
+    keys {-analysis_corner -mode -liberty -liberty_min -liberty_max \
           -spef -spef_min -spef_max} \
     flags {} 0
   set corner "NULL"
@@ -116,6 +144,28 @@ proc define_scene { args } {
     if { $corner == "NULL" } {
       sta_error 3704 "$keys(-analysis_corner) is not the name of an analysis corner."
     }
+  }
+
+  # When the corner carries an SDC bundle, apply it to the (mode, corner)
+  # overlay Sdc, once per pair. The mode itself is untouched: the overlay
+  # holds only the corner-scoped constraints and the corner-scope guard
+  # rejects commands that cannot be corner-scoped.
+  set mode_name [cmd_mode_name]
+  if { [info exists keys(-mode)] } {
+    set mode_name $keys(-mode)
+  }
+  if { $corner != "NULL" } {
+    set corner_sdc [analysis_corner_sdc $corner]
+    set pair [list $mode_name [analysis_corner_name $corner]]
+    if { $corner_sdc != {} && ![dict exists $corner_bundle_applied $pair] } {
+      dict set corner_bundle_applied $pair 1
+      foreach f $corner_sdc {
+        read_sdc -mode $mode_name -analysis_corner [analysis_corner_name $corner] $f
+      }
+    }
+  }
+  if { [info exists keys(-mode)] } {
+    lappend args -mode $mode_name
   }
   # Reinject the user's liberty/spef keys verbatim.
   set user_liberty 0
@@ -160,7 +210,9 @@ proc define_scene { args } {
 
 ################################################################
 #
-# Corner-scoped SDC (currently timing derates).
+# Corner-scoped SDC: whitelisted commands write into the (mode, corner)
+# overlay Sdc (timing derates, IO delays, clock uncertainty, clock
+# latency/insertion).
 #
 ################################################################
 
@@ -209,16 +261,32 @@ proc read_sdc { args } {
   }
 }
 
-# Commands that may not run in an analysis corner scope. Structural
-# constraints (clocks, exceptions, logic state) stay mode-level by design.
+# Commands that may not run in an analysis corner scope: every SDC write
+# command that is not corner-scoped writes to the MODE Sdc, so it must
+# error instead of silently escaping the corner scope. Covers structural
+# constraints (clocks, exceptions, logic state) and mode-level
+# environment/limits. NOTE: a new upstream SDC write command is unsafe in
+# corner scope until added here or to the corner whitelist (Sdc.i
+# cmdCornerSdc swaps).
 variable corner_scope_disallowed_cmds {
   create_clock create_generated_clock set_clock_groups set_propagated_clock
   set_false_path set_multicycle_path set_max_delay set_min_delay
   group_path set_case_analysis set_disable_timing
+  create_voltage_area set_clock_gating_check set_clock_sense set_sense
+  set_clock_transition set_data_check set_drive set_driving_cell
+  set_fanout_load set_ideal_latency set_ideal_network set_ideal_transition
+  set_level_shifter_strategy set_level_shifter_threshold
+  set_logic_dc set_logic_one set_logic_zero
+  set_max_area set_max_capacitance set_max_dynamic_power set_max_fanout
+  set_max_leakage_power set_max_time_borrow set_max_transition
+  set_min_capacitance set_min_pulse_width set_operating_conditions
+  set_port_fanout_number set_pvt set_resistance set_voltage
+  unset_case_analysis unset_clock_groups unset_clock_transition
+  unset_data_check unset_disable_timing unset_propagated_clock
+  unset_path_exceptions
 }
 # Corner-scoped by design but not implemented yet.
 variable corner_scope_pending_cmds {
-  set_input_delay set_output_delay set_clock_latency set_clock_uncertainty
   set_input_transition set_load
 }
 
@@ -228,7 +296,7 @@ proc check_corner_scope { cmd } {
     if { [lsearch -exact $corner_scope_pending_cmds $cmd] >= 0 } {
       sta_error 3711 "$cmd is not yet supported in an analysis corner scope."
     } else {
-      sta_error 3710 "$cmd is not allowed in an analysis corner scope; only timing derates are corner-scoped."
+      sta_error 3710 "$cmd is not allowed in an analysis corner scope; it is a mode-level constraint."
     }
   }
 }
