@@ -78,13 +78,14 @@ public:
   // Null for clocks because the path cannot point to itself.
   Path *crprClkPath(const StaState *sta);
   const Path *crprClkPath(const StaState *sta) const;
+  const Path *crprClkPathRaw() const;
   VertexId crprClkVertexId(const StaState *sta) const;
+  const MinMax *crprClkMinMax(const StaState *sta) const;
   bool hasCrprClkPin() const { return !crpr_clk_path_.isNull(); }
   // This clk_info/tag is used for a generated clock source path.
   bool isGenClkSrcPath() const { return is_gen_clk_src_path_; }
   size_t hash() const { return hash_; }
   bool crprPathRefsFilter() const { return crpr_path_refs_filter_; }
-  const Path *crprClkPathRaw() const;
 
   static int cmp(const ClkInfo *clk_info1,
                  const ClkInfo *clk_info2,

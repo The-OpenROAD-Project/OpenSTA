@@ -1396,13 +1396,15 @@ ArrivalVisitor::pruneCrprArrivals()
     size_t path_index = path_itr->second;
     const ClkInfo *clk_info = tag->clkInfo();
     bool deleted_tag = false;
-    if (!tag->isClock() && clk_info->hasCrprClkPin()) {
-      const MinMax *min_max = tag->minMax();
+    if (!tag->isClock()
+        && clk_info->hasCrprClkPin()) {
       Path *path_no_crpr = tag_bldr_no_crpr_->tagMatchPath(tag);
-      if (path_no_crpr) {
+      if (path_no_crpr
+          && path_no_crpr->tag(this) != tag) {
         Arrival max_arrival = path_no_crpr->arrival();
         const ClkInfo *clk_info_no_crpr = path_no_crpr->clkInfo(this);
         Arrival max_crpr = crpr->maxCrpr(clk_info_no_crpr);
+        const MinMax *min_max = tag->minMax();
         Arrival max_arrival_max_crpr = (min_max == MinMax::max())
           ? delayDiff(max_arrival, max_crpr, this)
           : delaySum(max_arrival, max_crpr, this);
@@ -1412,11 +1414,10 @@ ArrivalVisitor::pruneCrprArrivals()
                    delayAsString(max_crpr, this),
                    delayAsString(max_arrival_max_crpr, this));
         Arrival arrival = tag_bldr_->arrival(path_index);
-        // Latch D->Q path uses enable min so crpr clk path min/max
-        // does not match the path min/max.
         if (delayGreater(max_arrival_max_crpr, arrival, min_max, this)
-            && clk_info_no_crpr->crprClkPath(this)->minMax(this)
-                == clk_info->crprClkPath(this)->minMax(this)) {
+            // Latch D->Q path uses enable min so crpr clk path min/max
+            // does not match the path min/max.
+            && clk_info_no_crpr->crprClkMinMax(this) == clk_info->crprClkMinMax(this)) {
           debugPrint(debug_, "search", 3, "  pruned {}",
                      tag->to_string(this));
           path_itr = path_index_map.erase(path_itr);

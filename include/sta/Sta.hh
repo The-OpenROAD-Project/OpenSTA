@@ -1008,6 +1008,8 @@ public:
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
   void reportPath(const Path *path);
+  // For debugging.
+  void reportPathVerbose(const Path *path);
 
   // Report clk skews for clks.
   void reportClkSkew(ConstClockSeq &clks,

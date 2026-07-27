@@ -221,7 +221,6 @@ Path Type: max
 17 default vmin clk ^ clk_src clk crpr_pin null
 18 default ^max clk ^ clk_src clk crpr_pin null
 19 default vmax clk ^ clk_src clk crpr_pin null
-Longest hash bucket length 1 hash=6
 --- report_clk_infos ---
 default/min clk ^ clk_src clk uncertain 
 default/max clk ^ clk_src clk uncertain 
@@ -229,25 +228,24 @@ default/min clk v clk_src clk uncertain
 default/max clk v clk_src clk uncertain 
 4 clk infos
 --- report_tag_groups ---
-Group    0 hash = 2697898004198490802 (  79)
+Group    0 hash = <hash> (<bucket>)
   0 0 default ^min clk ^ clk_src clk crpr_pin null input in2
   1 2 default ^max clk ^ clk_src clk crpr_pin null input in2
   2 1 default vmin clk ^ clk_src clk crpr_pin null input in2
   3 3 default vmax clk ^ clk_src clk crpr_pin null input in2
 
-Group    1 hash = 17966741373156438452 (  88)
+Group    1 hash = <hash> (<bucket>)
   0 8 default ^min clk ^ (clock ideal) clk_src clk crpr_pin null
   1 12 default ^max clk ^ (clock ideal) clk_src clk crpr_pin null
   2 11 default vmin clk v (clock ideal) clk_src clk crpr_pin null
   3 15 default vmax clk v (clock ideal) clk_src clk crpr_pin null
 
-Group    2 hash = 17969506314027398258 ( 127)
+Group    2 hash = <hash> (<bucket>)
   0 16 default ^min clk ^ clk_src clk crpr_pin null
   1 18 default ^max clk ^ clk_src clk crpr_pin null
   2 17 default vmin clk ^ clk_src clk crpr_pin null
   3 19 default vmax clk ^ clk_src clk crpr_pin null
 
-Longest hash bucket length 1 hash=79
 --- report_path_count_histogram ---
      4     15
 --- tag/group/path counts ---

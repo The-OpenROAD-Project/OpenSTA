@@ -2863,6 +2863,14 @@ Sta::reportPath(const Path *path)
 }
 
 void
+Sta::reportPathVerbose(const Path *path)
+{
+  const StringSeq field_names = {"input_pins", "slew", "capacitance"};
+  setReportPathFields(field_names);
+  report_path_->reportPath(path);
+}
+
+void
 Sta::updateTiming(bool full)
 {
   searchPreamble();
