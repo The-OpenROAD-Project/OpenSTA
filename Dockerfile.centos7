@@ -14,10 +14,11 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
     && yum install -y devtoolset-11 git wget cmake3 make eigen3-devel tcl swig3 flex zlib-devel valgrind \
     && yum clean -y all
 
-RUN ln -sf /usr/bin/cmake3 /usr/bin/cmake
+RUN ln -sf /usr/bin/cmake3 /usr/bin/cmake && \
+    ln -sf /usr/bin/ctest3 /usr/bin/ctest
 
 # Download Bison
-RUN wget https://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.gz && \
+RUN wget https://mirrors.kernel.org/gnu/bison/bison-3.8.2.tar.gz && \
     tar -xvf bison-3.8.2.tar.gz && \
     rm bison-3.8.2.tar.gz
 
@@ -42,8 +43,9 @@ RUN source /opt/rh/devtoolset-11/enable && \
     make install
 
 # Download TCL
-RUN wget http://prdownloads.sourceforge.net/tcl/tcl8.6.16-src.tar.gz && \
-    tar -xvf tcl8.6.16-src.tar.gz && \
+RUN wget https://github.com/tcltk/tcl/archive/refs/tags/core-8-6-16.tar.gz -O tcl8.6.16-src.tar.gz && \
+    mkdir -p tcl8.6.16 && \
+    tar -xvf tcl8.6.16-src.tar.gz -C tcl8.6.16 --strip-components=1 && \
     rm tcl8.6.16-src.tar.gz
 
 # Build TCL

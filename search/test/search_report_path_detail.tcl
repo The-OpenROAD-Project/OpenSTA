@@ -1,5 +1,7 @@
 # Test ReportPath.cc, PathEnum.cc, PathExpanded.cc, PathGroup.cc
 # Exercises uncovered report path formats and path enumeration
+source ../../test/helpers.tcl
+
 read_liberty ../../test/nangate45/Nangate45_typ.lib
 read_verilog search_test1.v
 link_design search_test1
@@ -134,8 +136,10 @@ puts "--- find_requireds ---"
 sta::find_requireds
 
 puts "--- report internal debug ---"
-sta::report_tag_groups
-sta::report_tags
+report_masked_hashes [make_result_file search_report_path_detail_tag_groups.txt] \
+  sta::report_tag_groups
+report_masked_hashes [make_result_file search_report_path_detail_tags.txt] \
+  sta::report_tags
 sta::report_clk_infos
 sta::report_arrival_entries
 sta::report_required_entries

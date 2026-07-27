@@ -1045,7 +1045,6 @@ Vertex::init(Pin *pin,
   slews_ = nullptr;
   paths_ = nullptr;
   tag_group_index_ = tag_group_index_max;
-  bfs_in_queue_ = 0;
   is_bidirect_drvr_ = is_bidirect_drvr;
   is_reg_clk_ = is_reg_clk;
   has_checks_ = false;
@@ -1056,6 +1055,8 @@ Vertex::init(Pin *pin,
   has_sim_value_ = false;
   level_ = 0;
   slew_annotated_ = false;
+  bfs_in_queue_ = 0;
+  bfs_predecessor_changed_ = false;
 }
 
 Vertex::~Vertex()
@@ -1112,6 +1113,23 @@ Vertex::isDriver(const Network *network) const
                   || dir->isTristate()
                   || (dir->isBidirect()
                       && is_bidirect_drvr_)
+                  || dir->isInternal())));
+}
+
+bool
+Vertex::isLoad(const Network *network) const
+{
+  PortDirection *dir = network->direction(pin_);
+  bool top_level_port = network->isTopLevelPort(pin_);
+  return ((top_level_port
+           && (dir->isOutput()
+               || (dir->isBidirect()
+                   && !is_bidirect_drvr_)))
+          || (!top_level_port
+              && (dir->isInput()
+                  || dir->isTristate()
+                  || (dir->isBidirect()
+                      && !is_bidirect_drvr_)
                   || dir->isInternal())));
 }
 
@@ -1262,6 +1280,12 @@ Vertex::setBfsInQueue(BfsIndex index,
     bfs_in_queue_ |= 1 << static_cast<unsigned>(index);
   else
     bfs_in_queue_ &= ~(1 << static_cast<unsigned>(index));
+}
+
+void
+Vertex::setBfsPredecessorChanged(bool changed)
+{
+  bfs_predecessor_changed_ = changed;
 }
 
 ////////////////////////////////////////////////////////////////
