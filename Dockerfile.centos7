@@ -44,8 +44,7 @@ RUN source /opt/rh/devtoolset-11/enable && \
 
 # Download TCL
 RUN wget https://github.com/tcltk/tcl/archive/refs/tags/core-8-6-16.tar.gz -O tcl8.6.16-src.tar.gz && \
-    mkdir tcl8.6.16 && \
-    tar -xvf tcl8.6.16-src.tar.gz --strip-components=1 -C tcl8.6.16 && \
+    tar -xvf tcl8.6.16-src.tar.gz --strip-components=1 -C /tmp/tcl8.6.16 && \
     rm tcl8.6.16-src.tar.gz
 
 # Build TCL
