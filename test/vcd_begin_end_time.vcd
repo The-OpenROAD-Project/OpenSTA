@@ -1,0 +1,26 @@
+$date
+   Mon Mar 16 2026
+$end
+$version
+   VCD Test File
+$end
+$timescale
+   1ps
+$end
+$scope module top $end
+$var wire 1 ! A $end
+$var wire 1 " Y $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+0!
+1"
+$end
+#50
+1!
+0"
+#100
+0!
+1"
+#150

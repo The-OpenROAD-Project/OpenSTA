@@ -169,6 +169,7 @@ record_public_tests {
   report_json2
   suppress_msg
   user_properties
+  vcd_begin_end_time
   verilog_attribute
   verilog_well_supplies
   verilog_specify
