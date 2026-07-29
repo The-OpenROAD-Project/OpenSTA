@@ -183,6 +183,7 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap,
                           parasitic);
+  dcalc_args[0].setSceneArc(scene, min_max);
   ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map,
                                                scene, min_max);
   return dcalc_results[0];
@@ -256,9 +257,10 @@ PrimaDelayCalc::checkArgs(ArcDcalcArgSeq &dcalc_args,
           if (output_waveforms->slewAxis()->inBounds(in_slew)) {
             if (output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
               output_waveforms_[drvr_idx] = output_waveforms;
-              debugPrint(debug_, "prima", 1, "{} {}",
+              debugPrint(debug_, "prima", 1, "{} {} {}",
                          dcalc_arg.drvrCell()->name(),
-                         dcalc_arg.drvrEdge()->to_string().c_str());
+                         dcalc_arg.drvrEdge()->to_string().c_str(),
+                         scene->name());
               LibertyCell *drvr_cell = dcalc_arg.drvrCell();
               drvr_cell->ensureVoltageWaveforms(scenes_);
             }
@@ -362,7 +364,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   v_ = v_prev_ = x_to_v * x_init;
 
   time_step_ = time_step_prev_ = timeStep();
-  debugPrint(debug_, "ccs_dcalc", 1, "time step {}",
+  debugPrint(debug_, "prima", 1, "time step {}",
              delayAsString(time_step_, this));
 
   MatrixSd A(order, order);
@@ -402,7 +404,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
     v_ = x_to_v * x;
 
     const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[0];
-    debugPrint(debug_, "ccs_dcalc", 3, "{} ceff {} VDrvr {:.4f} Idrvr {}",
+    debugPrint(debug_, "prima", 3, "{} ceff {} VDrvr {:.4f} Idrvr {}",
                delayAsString(time, this),
                units_->capacitanceUnit()->asString(ceff_[0]),
                voltage(dcalc_arg.drvrPin()),
@@ -427,7 +429,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
 double
 PrimaDelayCalc::timeStep()
 {
-  // Needs to use LTE for time step dynamic control.
+  // Should use LTE for dynamic time step control.
   return driverResistance() * load_cap_ * .02;
 }
 
@@ -443,7 +445,8 @@ PrimaDelayCalc::driverResistance()
 {
   const Pin *drvr_pin = (*dcalc_args_)[0].drvrPin();
   LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
-  return drvr_port->driveResistance(drvr_rf_, min_max_);
+  LibertyPort *scene_port = drvr_port->scenePort(scene_, min_max_);
+  return scene_port->driveResistance(drvr_rf_, min_max_);
 }
 
 void
@@ -526,7 +529,7 @@ PrimaDelayCalc::placeNode(ParasiticNode *node,
   const Pin *pin = parasitics_->pin(node);
   if (pin) {
     pin_node_map_[pin] = index;
-    debugPrint(debug_, "ccs_dcalc", 1, "pin {} node {}",
+    debugPrint(debug_, "prima", 1, "pin {} node {}",
                network_->pathName(pin), index);
   }
 }
@@ -606,7 +609,7 @@ PrimaDelayCalc::stampEqns()
     }
   }
 
-  if (debug_->check("ccs_dcalc", 3)) {
+  if (debug_->check("prima", 3)) {
     reportMatrix("G", G_);
     reportMatrix("C", C_);
     reportMatrix("B", B_);
@@ -834,7 +837,8 @@ PrimaDelayCalc::measureThresholds(double time)
       if ((v_prev < th && th <= v) || (v_prev > th && th >= v)) {
         double t_cross =
             time - time_step_ + (th - v_prev) * time_step_ / (v - v_prev);
-        debugPrint(debug_, "ccs_measure", 1, "node {} cross {:.2f} {}", node_idx, th,
+        debugPrint(debug_, "prima_measure", 1, "node {} cross {:.2f} {}",
+                   node_idx, th,
                    delayAsString(t_cross, this));
         threshold_times_[node_idx][m] = t_cross;
       }
@@ -882,7 +886,7 @@ PrimaDelayCalc::dcalcResults()
     dcalc_result.setGateDelay(gate_delay2);
     dcalc_result.setDrvrSlew(drvr_slew2);
 
-    debugPrint(debug_, "ccs_dcalc", 2, "{} gate delay {} slew {}",
+    debugPrint(debug_, "prima", 2, "{} gate delay {} slew {}",
                network_->pathName(drvr_pin), delayAsString(gate_delay, this),
                delayAsString(drvr_slew, this));
 
@@ -895,7 +899,7 @@ PrimaDelayCalc::dcalcResults()
       ThresholdTimes &drvr_times = threshold_times_[drvr_node];
       double wire_delay = wire_times[threshold_vth] - drvr_times[threshold_vth];
       double load_slew = std::abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
-      debugPrint(debug_, "ccs_dcalc", 2, "load {} {} delay {} slew {}",
+      debugPrint(debug_, "prima", 2, "load {} {} delay {} slew {}",
                  network_->pathName(load_pin),
                  drvr_rf_->shortName(),
                  delayAsString(wire_delay, this),
@@ -987,7 +991,7 @@ PrimaDelayCalc::primaReduce()
   // solve x_init = Vq * x~_init for x~_init
   xq_init_ = Vq_.colPivHouseholderQr().solve(x_init_);
 
-  if (debug_->check("ccs_dcalc", 3)) {
+  if (debug_->check("prima", 3)) {
     reportMatrix("Vq", Vq_);
     reportMatrix("G~", Gq_);
     reportMatrix("C~", Cq_);
@@ -1050,7 +1054,7 @@ PrimaDelayCalc::primaReduce2()
   // solve x_init = Vq * x~_init for x~_init
   xq_init_ = Vq_.colPivHouseholderQr().solve(x_init_);
 
-  if (debug_->check("ccs_dcalc", 3)) {
+  if (debug_->check("prima", 3)) {
     reportMatrix("Vq", Vq_);
     reportMatrix("G~", Gq_);
     reportMatrix("C~", Cq_);

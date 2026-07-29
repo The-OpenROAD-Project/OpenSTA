@@ -43,7 +43,8 @@ namespace sta {
 
 using ParasiticNodeMap = std::map<const ParasiticNode*, int>;
 using CellSpicePortNames = std::map<std::string, StringSeq, std::less<>>;
-using LibertyPortLogicValues = std::map<const LibertyPort*, LogicValue>;
+// Use port name so lookup works across scenes.
+using PortLogicValues = std::map<std::string, LogicValue>;
 
 // Utilities for writing a spice deck.
 class WriteSpice : public StaState
@@ -61,7 +62,7 @@ public:
              const StaState *sta);
 
 protected:
-  void initPowerGnd();
+  void initPowerGnd(LibertyLibrary *threshold_library);
   void writeHeader(std::string &title,
                    float max_time,
                    float time_step);
@@ -73,7 +74,7 @@ protected:
                             StringSeq &tokens);
   void writeSubcktInst(const Instance *inst);
   void writeSubcktInstVoltSrcs(const Instance *inst,
-                               LibertyPortLogicValues &port_values,
+                               PortLogicValues &port_values,
                                const PinSet &excluded_input_pins);
   float pgPortVoltage(const LibertyPort *pg_port);
   void writeVoltageSource(std::string_view inst_name,
@@ -120,7 +121,7 @@ protected:
   void seqPortValues(Sequential *seq,
                      const RiseFall *rf,
                      // Return values.
-                     LibertyPortLogicValues &port_values);
+                     PortLogicValues &port_values);
   LibertyPort *onePort(FuncExpr *expr);
   void writeMeasureDelayStmt(const Pin *from_pin,
                              const RiseFall *from_rf,
@@ -143,14 +144,14 @@ protected:
                       const RiseFall *drvr_rf,
                       const Edge *gate_edge,
                       // Return values.
-                      LibertyPortLogicValues &port_values,
+                      PortLogicValues &port_values,
                       bool &is_clked);
   void regPortValues(const Pin *input_pin,
                      const RiseFall *drvr_rf,
                      const LibertyPort *drvr_port,
                      const FuncExpr *drvr_func,
                      // Return values.
-                     LibertyPortLogicValues &port_values,
+                     PortLogicValues &port_values,
                      bool &is_clked);
   void gatePortValues(const Instance *inst,
                       const FuncExpr *expr,
@@ -158,7 +159,7 @@ protected:
                       const RiseFall *input_rf,
                       const RiseFall *drvr_rf,
                       // Return values.
-                      LibertyPortLogicValues &port_values);
+                      PortLogicValues &port_values);
   void writeSubcktInstLoads(const Pin *drvr_pin,
                             const Pin *path_load,
                             const PinSet &excluded_input_pins,
@@ -179,7 +180,7 @@ protected:
   const MinMax *min_max_;
 
   std::ofstream spice_stream_;
-  LibertyLibrary *default_library_;
+  LibertyLibrary *threshold_library_;
   float power_voltage_;
   float gnd_voltage_;
   float max_time_;

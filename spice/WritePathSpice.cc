@@ -72,6 +72,7 @@ public:
   void writeSpice();
 
 private:
+  void initPowerGnd();
   void writeHeader();
   void writePrintStmt();
   void writeStageInstances();
@@ -150,6 +151,7 @@ private:
   using WriteSpice::writeMeasureDelayStmt;
   using WriteSpice::writeMeasureSlewStmt;
   using WriteSpice::findSlew;
+  using WriteSpice::initPowerGnd;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -187,7 +189,6 @@ WritePathSpice::WritePathSpice(const Path *path,
   path_expanded_(sta),
   written_insts_(network_)
 {
-  initPowerGnd();
 }
 
 void
@@ -196,6 +197,8 @@ WritePathSpice::writeSpice()
   spice_stream_.open(spice_filename_);
   if (spice_stream_.is_open()) {
     path_expanded_.expand(path_, true);
+
+    initPowerGnd();
     // Find subckt port names as a side-effect of writeSubckts.
     writeSubckts();
     writeHeader();
@@ -210,6 +213,27 @@ WritePathSpice::writeSpice()
   }
   else
     throw FileNotWritable(spice_filename_);
+}
+
+void
+WritePathSpice::initPowerGnd()
+{
+  Scene *scene = path_->scene(this);
+  const MinMax *min_max = path_->minMax(this);
+  LibertyLibrary *threshold_lib = nullptr;
+  for (size_t i = 0; i < path_expanded_.size(); i++) {
+    const Path *path = path_expanded_.path(i);
+    const Pin *pin = path->pin(this);
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port) {
+      threshold_lib = port->scenePort(scene, min_max)->libertyLibrary();
+      break;
+    }
+  }
+  if (threshold_lib)
+    initPowerGnd(threshold_lib);
+  else
+    report_->error(1606, "No instance with Liberty cell found in path.");
 }
 
 void
@@ -330,7 +354,7 @@ WritePathSpice::writeInputWaveform()
   const TimingArc *next_arc = stageGateArc(input_stage + 1);
   float slew0 = findSlew(input_path, rf, next_arc);
 
-  float threshold = default_library_->inputThreshold(rf);
+  float threshold = threshold_library_->inputThreshold(rf);
   float dt = railToRailSlew(slew0, rf);
   float time0 = dt * threshold;
 
@@ -518,7 +542,7 @@ WritePathSpice::writeGateStage(Stage stage)
   const RiseFall *input_rf = gate_input_path->transition(this);
   const Edge *gate_edge = stageGateEdge(stage);
 
-  LibertyPortLogicValues port_values;
+  PortLogicValues port_values;
   bool is_clked;
   gatePortValues(input_pin, drvr_pin, input_rf, drvr_rf, gate_edge,
                  port_values, is_clked);

@@ -76,17 +76,18 @@ WriteSpice::WriteSpice(std::string_view spice_filename,
   ckt_sim_(ckt_sim),
   scene_(scene),
   min_max_(min_max),
-  default_library_(network_->defaultLibertyLibrary()),
+  threshold_library_(nullptr),
   bdd_(sta),
   parasitics_(scene->parasitics(min_max))
 {
 }
 
 void
-WriteSpice::initPowerGnd()
+WriteSpice::initPowerGnd(LibertyLibrary *threshold_library)
 {
+  threshold_library_ = threshold_library;
   bool exists = false;
-  default_library_->supplyVoltage(power_name_, power_voltage_, exists);
+  threshold_library_->supplyVoltage(power_name_, power_voltage_, exists);
   if (!exists) {
     const OperatingConditions *op_cond =
         scene_->sdc()->operatingConditions(min_max_);
@@ -94,7 +95,7 @@ WriteSpice::initPowerGnd()
       op_cond = network_->defaultLibertyLibrary()->defaultOperatingConditions();
     power_voltage_ = op_cond->voltage();
   }
-  default_library_->supplyVoltage(gnd_name_, gnd_voltage_, exists);
+  threshold_library_->supplyVoltage(gnd_name_, gnd_voltage_, exists);
   if (!exists)
     gnd_voltage_ = 0.0;
 }
@@ -309,10 +310,11 @@ WriteSpice::writeSubcktInst(const Instance *inst)
 // Power/ground and input voltage sources.
 void
 WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
-                                    LibertyPortLogicValues &port_values,
+                                    PortLogicValues &port_values,
                                     const PinSet &excluded_input_pins)
 {
-  LibertyCell *cell = network_->libertyCell(inst);
+  LibertyCell *link_cell = network_->libertyCell(inst);
+  LibertyCell *cell = link_cell->sceneCell(scene_, min_max_);
   const std::string &cell_name = cell->name();
   StringSeq &spice_port_names = cell_spice_port_names_[cell_name];
   std::string inst_name = network_->pathName(inst);
@@ -339,7 +341,7 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
       if (port_value == LogicValue::unknown) {
         bool has_value;
         LogicValue value;
-        findKeyValue(port_values, port, value, has_value);
+        findKeyValue(port_values, port->name(), value, has_value);
         if (has_value)
           port_value = value;
       }
@@ -732,7 +734,7 @@ WriteSpice::writeWaveformEdge(const RiseFall *rf,
     volt0 = power_voltage_;
     volt1 = gnd_voltage_;
   }
-  float threshold = default_library_->inputThreshold(rf);
+  float threshold = threshold_library_->inputThreshold(rf);
   float dt = railToRailSlew(slew, rf);
   float time0 = time - dt * threshold;
   float time1 = time0 + dt;
@@ -745,8 +747,8 @@ float
 WriteSpice::railToRailSlew(float slew,
                            const RiseFall *rf)
 {
-  float lower = default_library_->slewLowerThreshold(rf);
-  float upper = default_library_->slewUpperThreshold(rf);
+  float lower = threshold_library_->slewLowerThreshold(rf);
+  float upper = threshold_library_->slewUpperThreshold(rf);
   return slew / (upper - lower);
 }
 
@@ -760,7 +762,7 @@ WriteSpice::gatePortValues(const Pin *input_pin,
                            const RiseFall *drvr_rf,
                            const Edge *gate_edge,
                            // Return values.
-                           LibertyPortLogicValues &port_values,
+                           PortLogicValues &port_values,
                            bool &is_clked)
 {
   is_clked = false;
@@ -783,7 +785,7 @@ WriteSpice::gatePortValues(const Instance *,
                            const RiseFall *input_rf,
                            const RiseFall *drvr_rf,
                            // Return values.
-                           LibertyPortLogicValues &port_values)
+                           PortLogicValues &port_values)
 {
   DdManager *cudd_mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(expr);
@@ -827,7 +829,7 @@ WriteSpice::gatePortValues(const Instance *,
             port_value = LogicValue::unknown;
             break;
         }
-        port_values[port] = port_value;
+        port_values[port->name()] = port_value;
       }
     }
   }
@@ -844,7 +846,7 @@ WriteSpice::regPortValues(const Pin *input_pin,
                           const LibertyPort *drvr_port,
                           const FuncExpr *drvr_func,
                           // Return values.
-                          LibertyPortLogicValues &port_values,
+                          PortLogicValues &port_values,
                           bool &is_clked)
 {
   is_clked = false;
@@ -870,7 +872,7 @@ void
 WriteSpice::seqPortValues(Sequential *seq,
                           const RiseFall *rf,
                           // Return values.
-                          LibertyPortLogicValues &port_values)
+                          PortLogicValues &port_values)
 {
   FuncExpr *data = seq->data();
   // SHOULD choose values for all ports of data to make output rise/fall
@@ -878,18 +880,19 @@ WriteSpice::seqPortValues(Sequential *seq,
   LibertyPort *port = onePort(data);
   if (port) {
     TimingSense sense = data->portTimingSense(port);
+    const std::string &port_name = port->name();
     switch (sense) {
       case TimingSense::positive_unate:
         if (rf == RiseFall::rise())
-          port_values[port] = LogicValue::one;
+          port_values[port_name] = LogicValue::one;
         else
-          port_values[port] = LogicValue::zero;
+          port_values[port_name] = LogicValue::zero;
         break;
       case TimingSense::negative_unate:
         if (rf == RiseFall::rise())
-          port_values[port] = LogicValue::zero;
+          port_values[port_name] = LogicValue::zero;
         else
-          port_values[port] = LogicValue::one;
+          port_values[port_name] = LogicValue::one;
         break;
       case TimingSense::non_unate:
       case TimingSense::none:
@@ -954,7 +957,7 @@ WriteSpice::writeSubcktInstLoads(const Pin *drvr_pin,
   sta::print(spice_stream_, "* Load pins\n");
   PinSeq drvr_loads = drvrLoads(drvr_pin);
   // Do not sensitize side load gates.
-  LibertyPortLogicValues port_values;
+  PortLogicValues port_values;
   for (const Pin *load_pin : drvr_loads) {
     const Instance *load_inst = network_->instance(load_pin);
     if (load_pin != path_load && network_->direction(load_pin)->isAnyInput()
@@ -978,9 +981,9 @@ WriteSpice::writeMeasureDelayStmt(const Pin *from_pin,
                                   std::string_view prefix)
 {
   std::string from_pin_name = network_->pathName(from_pin);
-  float from_threshold = power_voltage_ * default_library_->inputThreshold(from_rf);
+  float from_threshold = power_voltage_ * threshold_library_->inputThreshold(from_rf);
   std::string to_pin_name = network_->pathName(to_pin);
-  float to_threshold = power_voltage_ * default_library_->inputThreshold(to_rf);
+  float to_threshold = power_voltage_ * threshold_library_->inputThreshold(to_rf);
   sta::print(spice_stream_, ".measure tran {}_{}_delay_{}\n", prefix,
              from_pin_name, to_pin_name);
   sta::print(spice_stream_, "+trig v({}) val={:.3f} {}=last\n", from_pin_name,
@@ -996,8 +999,8 @@ WriteSpice::writeMeasureSlewStmt(const Pin *pin,
 {
   std::string pin_name = network_->pathName(pin);
   std::string_view spice_rf = spiceTrans(rf);
-  float lower = power_voltage_ * default_library_->slewLowerThreshold(rf);
-  float upper = power_voltage_ * default_library_->slewUpperThreshold(rf);
+  float lower = power_voltage_ * threshold_library_->slewLowerThreshold(rf);
+  float upper = power_voltage_ * threshold_library_->slewUpperThreshold(rf);
   float threshold1, threshold2;
   if (rf == RiseFall::rise()) {
     threshold1 = lower;
