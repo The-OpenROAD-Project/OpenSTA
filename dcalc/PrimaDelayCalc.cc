@@ -446,6 +446,14 @@ PrimaDelayCalc::driverResistance()
   const Pin *drvr_pin = (*dcalc_args_)[0].drvrPin();
   LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
   LibertyPort *scene_port = drvr_port->scenePort(scene_, min_max_);
+  if (scene_port == nullptr) {
+    report_->warn(1754, "Port {}/{}/{} has no equivalent in scene {}.",
+                  drvr_port->libertyLibrary()->name(),
+                  drvr_port->libertyCell()->name(),
+                  drvr_port->name(),
+                  scene_->name());
+    scene_port = drvr_port;
+  }
   return scene_port->driveResistance(drvr_rf_, min_max_);
 }
 
