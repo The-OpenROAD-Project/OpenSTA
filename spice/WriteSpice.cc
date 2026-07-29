@@ -766,7 +766,6 @@ WriteSpice::gatePortValues(const Pin *input_pin,
                            bool &is_clked)
 {
   is_clked = false;
-  const Instance *inst = network_->instance(input_pin);
   const LibertyPort *input_port = network_->libertyPort(input_pin);
   const LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
   const FuncExpr *drvr_func = drvr_port->function();
@@ -774,13 +773,12 @@ WriteSpice::gatePortValues(const Pin *input_pin,
     if (gate_edge && gate_edge->role()->genericRole() == TimingRole::regClkToQ())
       regPortValues(input_pin, drvr_rf, drvr_port, drvr_func, port_values, is_clked);
     else
-      gatePortValues(inst, drvr_func, input_port, input_rf, drvr_rf, port_values);
+      gatePortValues(drvr_func, input_port, input_rf, drvr_rf, port_values);
   }
 }
 
 void
-WriteSpice::gatePortValues(const Instance *,
-                           const FuncExpr *expr,
+WriteSpice::gatePortValues(const FuncExpr *expr,
                            const LibertyPort *input_port,
                            const RiseFall *input_rf,
                            const RiseFall *drvr_rf,

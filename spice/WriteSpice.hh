@@ -153,8 +153,7 @@ protected:
                      // Return values.
                      PortLogicValues &port_values,
                      bool &is_clked);
-  void gatePortValues(const Instance *inst,
-                      const FuncExpr *expr,
+  void gatePortValues(const FuncExpr *expr,
                       const LibertyPort *input_port,
                       const RiseFall *input_rf,
                       const RiseFall *drvr_rf,
