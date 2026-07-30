@@ -284,6 +284,10 @@ protected:
   PropertyValue::Type propertyType(std::string_view type);
   PropertyValue coercePropertyValue(PropertyValue::Type type,
                                     std::string_view value);
+  // True if a user-defined property of this name was declared (via
+  // defineProperty) on this object type.
+  bool isUserProperty(std::string_view object_type,
+                      std::string_view property);
 
   PropertyRegistry<const Library*> registry_library_;
   PropertyRegistry<const LibertyLibrary*> registry_liberty_library_;
