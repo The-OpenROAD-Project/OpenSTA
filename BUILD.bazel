@@ -348,6 +348,7 @@ cc_library(
         "search/Tag.hh",
         "dcalc/ArcDcalcWaveforms.hh",
         "power/Power.hh",
+        "power/VcdParse.hh",
         "power/VcdReader.hh",
         "power/SaifReader.hh",
         "sdf/SdfReader.hh",
