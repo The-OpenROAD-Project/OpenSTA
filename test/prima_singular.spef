@@ -1,0 +1,52 @@
+*SPEF "IEEE 1481-1998"
+*DESIGN "top"
+*DATE "2026"
+*VENDOR "OpenSTA test"
+*PROGRAM "hand written"
+*VERSION "1.0.1c"
+*DESIGN_FLOW "MISSING_NETS"
+*DIVIDER /
+*DELIMITER :
+*BUS_DELIMITER [ ]
+*T_UNIT 1.0 PS
+*C_UNIT 1.0 FF
+*R_UNIT 1.0 KOHM
+*L_UNIT 1.0 UH
+
+// Each buffer output net z<i> is degenerate two ways:
+//   - z<i>:2 z<i>:3 have ground cap but NO resistor (floating islands)
+//   - u<i>:Y -- z<i>:1 is a 0 KOHM resistor (an ideal short)
+// Both used to make PrimaDelayCalc::primaReduce() factorize a singular G
+// (STA-1752).  node_count_ = 5 > prima_order_ (default 3) selects the
+// primaReduce() path that factorizes the pure G matrix.
+
+*D_NET z0 40.2
+*CONN
+*I u0:Y O
+*I t0:D I *L .0086
+*CAP
+1 u0:Y 6.7
+2 t0:D 6.7
+3 z0:1 6.7
+4 z0:2 6.7
+5 z0:3 6.7
+*RES
+6 u0:Y z0:1 0
+7 z0:1 t0:D 2.42
+*END
+
+*D_NET z1 40.2
+*CONN
+*I u1:Y O
+*I t1:D I *L .0086
+*CAP
+1 u1:Y 6.7
+2 t1:D 6.7
+3 z1:1 6.7
+4 z1:2 6.7
+5 z1:3 6.7
+*RES
+6 u1:Y z1:1 0
+7 z1:1 t1:D 2.42
+*END
+

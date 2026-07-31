@@ -132,10 +132,22 @@ protected:
   void initSim();
   void findLoads();
   void findNodeCount();
+  void placeNode(ParasiticNode *node,
+                 size_t index);
   void setOrder();
   void initCeffIdrvr();
   void setXinit();
+  std::pair<size_t, bool> nodeIndex(const ParasiticNode *node);
   void stampEqns();
+  void stampDriver(const ArcDcalcArg &dcalc_arg,
+                   size_t drvr_idx);
+  void stampResistors(const Parasitic *parasitic);
+  void stampCapacitors(const Parasitic *parasitic,
+                       const ArcDcalcArg &dcalc_arg,
+                       NetSet &drvr_nets);
+  float pinCapacitance(const Pin *pin,
+                       const RiseFall *rf,
+                       bool includes_pin_caps);
   void stampConductance(size_t n1,
                         double g);
   void stampConductance(size_t n1,
@@ -146,7 +158,6 @@ protected:
   void stampCapacitance(size_t n1,
                         size_t n2,
                         double cap);
-  float pinCapacitance(ParasiticNode *node);
   void setPortCurrents();
   void measureThresholds(double time);
   double voltage(const Pin *pin);
@@ -194,8 +205,6 @@ protected:
   std::vector<OutputWaveforms*> output_waveforms_;
   double resistance_sum_;
   
-  std::vector<double> node_capacitances_;
-  bool includes_pin_caps_;
   float coupling_cap_multiplier_;
   
   size_t node_count_;           // Parasitic network node count

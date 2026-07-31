@@ -186,7 +186,7 @@ ArcDcalcArg::drvrCell() const
   return arc_->to()->libertyCell();
 }
 
-const LibertyLibrary *
+LibertyLibrary *
 ArcDcalcArg::drvrLibrary() const
 {
   return arc_->to()->libertyLibrary();
@@ -196,6 +196,13 @@ const RiseFall *
 ArcDcalcArg::drvrEdge() const
 {
   return arc_->toEdge()->asRiseFall();
+}
+
+void
+ArcDcalcArg::setSceneArc(const Scene *scene,
+                         const MinMax *min_max)
+{
+  arc_ = arc_->sceneArc(scene->libertyIndex(min_max));
 }
 
 const Net *
