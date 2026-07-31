@@ -1148,6 +1148,38 @@ Sta::setMaxArea(float area,
   sdc->setMaxArea(area);
 }
 
+float
+Sta::maxArea(const Sdc *sdc) const
+{
+  return sdc->maxArea();
+}
+
+void
+Sta::setMaxDynamicPower(float power,
+                        Sdc *sdc)
+{
+  sdc->setMaxDynamicPower(power);
+}
+
+float
+Sta::maxDynamicPower(const Sdc *sdc) const
+{
+  return sdc->maxDynamicPower();
+}
+
+void
+Sta::setMaxLeakagePower(float power,
+                        Sdc *sdc)
+{
+  sdc->setMaxLeakagePower(power);
+}
+
+float
+Sta::maxLeakagePower(const Sdc *sdc) const
+{
+  return sdc->maxLeakagePower();
+}
+
 void
 Sta::makeClock(std::string_view name,
                const PinSet &pins,

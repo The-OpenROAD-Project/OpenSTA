@@ -3599,7 +3599,9 @@ proc set_level_shifter_threshold { args } {
 define_cmd_args "set_max_dynamic_power" {power [unit]}
 
 proc set_max_dynamic_power { power {unit {}} } {
-  # ignored
+  check_positive_float "power" $power
+  # Optional SDC unit argument is accepted but ignored; use set_units.
+  set_max_dynamic_power_cmd $power
 }
 
 ################################################################
@@ -3607,7 +3609,9 @@ proc set_max_dynamic_power { power {unit {}} } {
 define_cmd_args "set_max_leakage_power" {power [unit]}
 
 proc set_max_leakage_power { power {unit {}} } {
-  # ignored
+  check_positive_float "power" $power
+  # Optional SDC unit argument is accepted but ignored; use set_units.
+  set_max_leakage_power_cmd $power
 }
 
 ################################################################

@@ -11986,7 +11986,7 @@
      </table:table-cell>
     </table:table-row>
    </table:table>
-   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_dynamic_power</text:span> command is ignored.</text:p>
+   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_dynamic_power</text:span> command is ignored during timing but is included in SDC files that are written.</text:p>
    <table:table table:name="Table102" table:style-name="Table102">
     <table:table-column table:style-name="Table102.A"/>
     <table:table-column table:style-name="Table102.B"/>
@@ -12028,7 +12028,7 @@
      </table:table-cell>
     </table:table-row>
    </table:table>
-   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_leakage_power</text:span> command is ignored.</text:p>
+   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_leakage_power</text:span> command is ignored during timing but is included in SDC files that are written.</text:p>
    <table:table table:name="Table104" table:style-name="Table104">
     <table:table-column table:style-name="Table104.A"/>
     <table:table-column table:style-name="Table104.B"/>

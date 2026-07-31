@@ -2031,6 +2031,8 @@ WriteSdc::writeDesignRules() const
   writeCapLimits();
   writeFanoutLimits();
   writeMaxArea();
+  writeMaxDynamicPower();
+  writeMaxLeakagePower();
 }
 
 void
@@ -2258,6 +2260,28 @@ WriteSdc::writeMaxArea() const
   if (max_area > 0.0) {
     sta::print(stream_, "set_max_area ");
     writeFloat(max_area);
+    sta::print(stream_, "\n");
+  }
+}
+
+void
+WriteSdc::writeMaxDynamicPower() const
+{
+  float max_power = sdc_->maxDynamicPower();
+  if (max_power > 0.0) {
+    sta::print(stream_, "set_max_dynamic_power ");
+    writeFloat(max_power);
+    sta::print(stream_, "\n");
+  }
+}
+
+void
+WriteSdc::writeMaxLeakagePower() const
+{
+  float max_power = sdc_->maxLeakagePower();
+  if (max_power > 0.0) {
+    sta::print(stream_, "set_max_leakage_power ");
+    writeFloat(max_power);
     sta::print(stream_, "\n");
   }
 }

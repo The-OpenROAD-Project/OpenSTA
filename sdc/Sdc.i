@@ -1229,6 +1229,43 @@ set_max_area_cmd(float area)
   sta->setMaxArea(area, sdc);
 }
 
+float
+max_area()
+{
+  Sta *sta = Sta::sta();
+  return sta->maxArea(sta->cmdSdc());
+}
+
+void
+set_max_dynamic_power_cmd(float power)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->setMaxDynamicPower(power, sdc);
+}
+
+float
+max_dynamic_power()
+{
+  Sta *sta = Sta::sta();
+  return sta->maxDynamicPower(sta->cmdSdc());
+}
+
+void
+set_max_leakage_power_cmd(float power)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->setMaxLeakagePower(power, sdc);
+}
+
+float
+max_leakage_power()
+{
+  Sta *sta = Sta::sta();
+  return sta->maxLeakagePower(sta->cmdSdc());
+}
+
 void
 set_port_fanout_limit(Port *port,
                       const MinMax *min_max,

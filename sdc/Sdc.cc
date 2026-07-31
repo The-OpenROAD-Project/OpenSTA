@@ -244,6 +244,8 @@ Sdc::initVariables()
   analysis_type_ = AnalysisType::ocv;
   wireload_mode_ = WireloadMode::unknown;
   max_area_ = 0.0;
+  max_dynamic_power_ = 0.0;
+  max_leakage_power_ = 0.0;
   path_delays_without_to_ = false;
   clk_hpin_disables_valid_ = false;
   have_clk_slew_limits_ = false;
@@ -949,6 +951,30 @@ float
 Sdc::maxArea() const
 {
   return max_area_;
+}
+
+void
+Sdc::setMaxDynamicPower(float power)
+{
+  max_dynamic_power_ = power;
+}
+
+float
+Sdc::maxDynamicPower() const
+{
+  return max_dynamic_power_;
+}
+
+void
+Sdc::setMaxLeakagePower(float power)
+{
+  max_leakage_power_ = power;
+}
+
+float
+Sdc::maxLeakagePower() const
+{
+  return max_leakage_power_;
 }
 
 ////////////////////////////////////////////////////////////////

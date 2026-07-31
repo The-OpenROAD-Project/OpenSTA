@@ -157,6 +157,7 @@ record_public_tests {
   liberty_float_as_str
   liberty_latch3
   make_concrete_parasitics_leak
+  max_power_area
   package_require
   path_group_names
   power_json

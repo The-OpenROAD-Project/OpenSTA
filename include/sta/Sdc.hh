@@ -377,6 +377,10 @@ public:
                       float fanout);
   void setMaxArea(float area);
   float maxArea() const;
+  void setMaxDynamicPower(float power);
+  float maxDynamicPower() const;
+  void setMaxLeakagePower(float power);
+  float maxLeakagePower() const;
   Clock *makeClock(std::string_view name,
                    const PinSet &pins,
                    bool add_to_pins,
@@ -1420,6 +1424,8 @@ protected:
   InstMinPulseWidthMap inst_min_pulse_width_map_;
   ClockMinPulseWidthMap clk_min_pulse_width_map_;
   float max_area_;
+  float max_dynamic_power_;
+  float max_leakage_power_;
   Wireload *wireload_[MinMax::index_count];
   WireloadMode wireload_mode_;
   const WireloadSelection *wireload_selection_[MinMax::index_count];
