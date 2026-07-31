@@ -226,7 +226,7 @@ proc parse_clk_inst_port_pin_arg { objects clks_var insts_var pins_var } {
   set ports {}
   get_object_args $objects clks {} {} {} insts ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -238,7 +238,7 @@ proc parse_clk_port_pin_arg { objects clks_var pins_var } {
   set ports {}
   get_object_args $objects clks {} {} {} {} ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -325,7 +325,7 @@ proc parse_inst_port_pin_arg { objects insts_var pins_var } {
   set ports {}
   get_object_args $objects {} {} {} {} insts ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -347,7 +347,7 @@ proc parse_inst_port_pin_net_arg { objects insts_var pins_var nets_var } {
   set nets {}
   get_object_args $objects {} {} {} {} insts ports pins nets {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -368,7 +368,7 @@ proc parse_port_pin_net_arg { objects pins_var nets_var } {
   get_object_args $objects {} {} {} {} {} ports pins nets {} {}
 
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -857,7 +857,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
       set pin $arg
     } elseif { $object_type == "Port" } {
       # Explicit port arg - convert to pin.
-      set pin [find_pin [get_name $arg]]
+      set pin [get_port_pin $arg]
     } else {
       sta_warn_error 129 $warn_error "$arg_name type '$object_type' is not a pin or port."
     }
@@ -868,7 +868,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
     if { $port == "NULL" } {
       set pin [find_pin $arg]
     } else {
-      set pin [$top_instance find_pin [get_name $port]]
+      set pin [get_port_pin $port]
     }
     if { $pin == "NULL" } {
       sta_warn_error 130 $warn_error "pin $arg not found."
@@ -880,7 +880,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
 proc get_port_pins_error { arg_name arglist } {
   set pins {}
   # Copy backslashes that will be removed by foreach.
-  set arglilst [string map {\\ \\\\} $arglist]
+  set arglist [string map {\\ \\\\} $arglist]
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
@@ -891,7 +891,7 @@ proc get_port_pins_error { arg_name arglist } {
         lappend pins $arg
       } elseif { $object_type == "Port" } {
         # Convert port to pin.
-        lappend pins [find_pin [get_name $arg]]
+        lappend pins [get_port_pin $arg]
       } else {
         sta_error 131 "$arg_name type '$object_type' is not a pin or port."
       }
