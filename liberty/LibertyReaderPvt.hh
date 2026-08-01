@@ -70,6 +70,7 @@ public:
                 bool infer_latches,
                 Network *network);
   LibertyLibrary *readLibertyFile(std::string_view filename);
+  LibertyLibrary *readLibertyFile(std::istream& stream);
   LibertyLibrary *library() { return library_; }
   const LibertyLibrary *library() const { return library_; }
 
