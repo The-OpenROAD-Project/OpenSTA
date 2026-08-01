@@ -603,7 +603,9 @@ Genclks::seedSrcPins(Clock *gclk,
           const EarlyLate *early_late = min_max;
           for (const RiseFall *rf : RiseFall::range()) {
             Arrival insert = search_->clockInsertion(master_clk, master_pin, rf,
-                                                     min_max, early_late, mode_);
+                                                     min_max, early_late, mode_,
+                                                     // OpenROAD fork: analysis_corner support.
+                                                     scene);
             Tag *tag = makeTag(gclk, master_clk, master_pin, rf, src_filter, insert,
                                scene, min_max);
             tag_bldr.setArrival(tag, insert);

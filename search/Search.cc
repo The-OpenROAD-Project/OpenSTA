@@ -28,6 +28,9 @@
 #include <cstddef>
 #include <vector>
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
+
 #include "Bfs.hh"
 #include "ClkInfo.hh"
 #include "ClkNetwork.hh"
@@ -997,10 +1000,21 @@ Search::clockInsertion(const Clock *clk,
                        const RiseFall *rf,
                        const MinMax *min_max,
                        const EarlyLate *early_late,
-                       const Mode *mode) const
+                       const Mode *mode,
+                       const Scene *scene) const
 {
   float insert;
   bool exists;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Corner overlay insertion (set_clock_latency -source) wins when the
+  // caller has scene context and the overlay defines a value.
+  if (scene) {
+    cornerClockInsertion(scene, clk, pin, rf, min_max, early_late,
+                         insert, exists);
+    if (exists)
+      return insert;
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   mode->sdc()->clockInsertion(clk, pin, rf, min_max, early_late, insert, exists);
   if (exists)
     return insert;
@@ -1524,7 +1538,8 @@ Search::seedClkArrivals(const Pin *pin,
                                  tag_bldr);
             else {
               Arrival insertion =
-                  clockInsertion(clk, pin, rf, min_max, early_late, mode);
+                  clockInsertion(clk, pin, rf, min_max, early_late, mode,
+                                 scene);
               seedClkArrival(pin, rf, clk, clk_edge, min_max, insertion, scene,
                              tag_bldr);
             }
@@ -1564,8 +1579,55 @@ Search::seedClkArrival(const Pin *pin,
     else
       is_propagated = sdc->isPropagatedClock(pin) || clk->isPropagated();
   }
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Corner overlay latency: pin beats clock as upstream, and the corner
+  // beats the mode at equal specificity (propagated remains mode-level).
+  if (scene->analysisCorner()) {
+    float corner_latency;
+    bool corner_exists;
+    cornerClockLatencyPin(scene, clk, pin, rf, min_max,
+                          corner_latency, corner_exists);
+    if (corner_exists) {
+      latency = corner_latency;
+      latency_exists = true;
+      is_propagated = false;
+    }
+    else {
+      float pin_latency;
+      bool pin_exists;
+      sdc->clockLatency(clk, pin, rf, min_max, pin_latency, pin_exists);
+      if (!pin_exists) {
+        cornerClockLatencyClk(scene, clk, rf, min_max,
+                              corner_latency, corner_exists);
+        if (corner_exists) {
+          if (sdc->isPropagatedClock(pin)) {
+            latency = 0.0;
+            is_propagated = true;
+          }
+          else {
+            latency = corner_latency;
+            is_propagated = false;
+          }
+          latency_exists = true;
+        }
+      }
+    }
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   const ClockUncertainties *uncertainties = sdc->clockUncertainties(pin);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Corner-scoped uncertainty beats the mode's at equal specificity;
+  // pin beats clock as upstream.
+  if (scene->analysisCorner()) {
+    const ClockUncertainties *corner_pin_unc =
+      cornerPinClockUncertainties(scene, pin);
+    if (corner_pin_unc)
+      uncertainties = corner_pin_unc;
+    if (uncertainties == nullptr)
+      uncertainties = cornerClkUncertainties(scene, clk);
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   if (uncertainties == nullptr)
     uncertainties = &clk->uncertainties();
   // Propagate liberty "pulse_clock" transition to transitive fanout.
@@ -1714,6 +1776,18 @@ Search::seedInputArrival(const Pin *pin,
                          TagGroupBldr *tag_bldr)
 {
   const Sdc *sdc = mode->sdc();
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  if (modeHasCornerInputDelay(mode, pin)) {
+    // Some scene's corner overlay defines input delays on the pin.
+    // Seed the default arrival for scenes with no effective delays and
+    // enumerate mode + overlay delays; both fan-outs route per scene
+    // (sceneSeesInputDelay) in seedInputDelayArrival.
+    if (!sdc->isLeafPinClock(pin))
+      seedInputDelayArrival(pin, vertex, nullptr, false, mode, tag_bldr);
+    seedInputArrival1(pin, vertex, false, mode, tag_bldr);
+    return;
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   if (sdc->hasInputDelay(pin))
     seedInputArrival1(pin, vertex, false, mode, tag_bldr);
   else if (!sdc->isLeafPinClock(pin))
@@ -1752,6 +1826,19 @@ Search::seedInputArrival1(const Pin *pin,
                               tag_bldr);
     }
   }
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Also enumerate corner-overlay input delays; the per-scene fan-out in
+  // seedInputDelayArrival routes each delay to the scenes it applies to.
+  for (InputDelaySet *corner_delays : cornerInputDelaySets(mode, pin)) {
+    for (InputDelay *input_delay : *corner_delays) {
+      Clock *input_clk = input_delay->clock();
+      ClockSet *pin_clks = sdc->findLeafPinClocks(pin);
+      if (pin_clks == nullptr || !pin_clks->contains(input_clk))
+        seedInputDelayArrival(pin, vertex, input_delay, is_segment_start, mode,
+                              tag_bldr);
+    }
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -1779,6 +1866,11 @@ Search::seedInputDelayArrival(const Pin *pin,
   if (ref_pin) {
     Vertex *ref_vertex = graph_->pinLoadVertex(ref_pin);
     for (Scene *scene : mode->scenes()) {
+      // ---- OpenROAD fork: analysis_corner support (begin) ----
+      if (!mode->cornerSdcs().empty()
+          && !sceneSeesInputDelay(scene, pin, input_delay))
+        continue;
+      // ---- OpenROAD fork: analysis_corner support (end) ----
       for (const MinMax *min_max : MinMax::range()) {
         const RiseFall *ref_rf = input_delay->refTransition();
         const Clock *clk = input_delay->clock();
@@ -1804,6 +1896,11 @@ Search::seedInputDelayArrival(const Pin *pin,
       inputDelayClkArrival(input_delay, clk_edge, min_max, mode, clk_arrival,
                            clk_insertion, clk_latency);
       for (Scene *scene : mode->scenes()) {
+        // ---- OpenROAD fork: analysis_corner support (begin) ----
+        if (!mode->cornerSdcs().empty()
+            && !sceneSeesInputDelay(scene, pin, input_delay))
+          continue;
+        // ---- OpenROAD fork: analysis_corner support (end) ----
         seedInputDelayArrival(pin, input_delay, clk_edge, clk_arrival, clk_insertion,
                               clk_latency, is_segment_start, min_max, scene,
                               tag_bldr);
@@ -1941,6 +2038,13 @@ Search::inputDelayTag(const Pin *pin,
     clk_pin = clk->defaultPin();
     is_propagated = clk->isPropagated();
     clk_uncertainties = &clk->uncertainties();
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    if (scene->analysisCorner()) {
+      const ClockUncertainties *corner_unc = cornerClkUncertainties(scene, clk);
+      if (corner_unc)
+        clk_uncertainties = corner_unc;
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
   }
 
   Sdc *sdc = scene->sdc();
@@ -2268,7 +2372,7 @@ Search::clkPathArrival(const Path *clk_path,
     const EarlyLate *early_late = min_max;
     Arrival insertion = clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
                                        clk_edge->transition(), min_max,
-                                       early_late, scene->mode());
+                                       early_late, scene->mode(), scene);
     return delaySum(delaySum(insertion, clk_edge->time(), this),
                     clk_info->latency(), this);
   }
@@ -2522,9 +2626,41 @@ Search::thruClkInfo(Path *from_path,
       changed = true;
     }
   }
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Corner overlay latency overrides at matching specificity (pin, then
+  // hierarchical edge).
+  if (scene->analysisCorner()) {
+    float corner_latency;
+    bool corner_exists;
+    cornerClockLatencyPin(scene, from_clk, to_pin, clk_rf, min_max,
+                          corner_latency, corner_exists);
+    if (!corner_exists) {
+      float pin_latency;
+      bool pin_exists;
+      sdc->clockLatency(from_clk, to_pin, clk_rf, min_max,
+                        pin_latency, pin_exists);
+      if (!pin_exists)
+        cornerClockLatencyEdge(scene, edge, clk_rf, min_max,
+                               corner_latency, corner_exists);
+    }
+    if (corner_exists) {
+      to_latency = corner_latency;
+      to_clk_prop = false;
+      changed = true;
+    }
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   const ClockUncertainties *to_uncertainties = from_clk_info->uncertainties();
   const ClockUncertainties *uncertainties = sdc->clockUncertainties(to_pin);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  if (scene->analysisCorner()) {
+    const ClockUncertainties *corner_uncertainties =
+      cornerPinClockUncertainties(scene, to_pin);
+    if (corner_uncertainties)
+      uncertainties = corner_uncertainties;
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   if (uncertainties) {
     to_uncertainties = uncertainties;
     changed = true;
@@ -3034,6 +3170,15 @@ Search::deratedDelay(const Vertex *from_vertex,
                      DcalcAPIndex dcalc_ap,
                      const Sdc *sdc)
 {
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // dcalc_ap encodes the scene (scene index * MinMax::index_count + min/max
+  // index), so the scene's analysis corner overlay Sdc (when it defines
+  // derates) is resolved here without touching any caller.
+  const Sdc *overlay_sdc =
+    scenes_[dcalc_ap / MinMax::index_count]->sdcOverlayForDerate();
+  if (overlay_sdc)
+    sdc = overlay_sdc;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   float derate = timingDerate(from_vertex, arc, edge, is_clk, sdc, min_max);
   const ArcDelay &delay = graph_->arcDelay(edge, arc, dcalc_ap);
   return delayProduct(delay, derate, this);;

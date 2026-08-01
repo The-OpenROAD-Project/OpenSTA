@@ -37,6 +37,8 @@
 %include "sdf/Sdf.i"
 %include "search/Search.i"
 %include "search/Property.i"
+// OpenROAD fork: analysis_corner support.
+%include "search/AnalysisCorner.i"
 %include "util/Util.i"
 %include "spice/WriteSpice.i"
 %include "verilog/Verilog.i"

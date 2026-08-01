@@ -469,7 +469,8 @@ ClkSkew::uncertainty(const StaState *sta)
       : TimingRole::hold();
   // Uncertainty decreases slack, but increases skew.
   return -PathEnd::checkTgtClkUncertainty(tgt_path_, tgt_path_->clkEdge(sta),
-                                          check_role, sta);
+                                          check_role, sta,
+                                          tgt_path_->scene(sta));
 }
 
 bool

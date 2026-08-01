@@ -187,7 +187,8 @@ Latches::latchBorrowInfo(const Path *data_path,
     nom_pulse_width = is_pulse_clk ? 0.0 : enable_clk_edge->pulseWidth();
     open_uncertainty = PathEnd::checkClkUncertainty(data_clk_edge, enable_clk_edge,
                                                     enable_path,
-                                                    TimingRole::latchSetup(), sdc);
+                                                    TimingRole::latchSetup(), sdc,
+                                                    data_path->scene(this));
     if (ignore_clk_latency) {
       open_latency = 0.0;
       latency_diff = 0.0;
