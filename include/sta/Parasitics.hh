@@ -201,6 +201,12 @@ public:
                              ParasiticNode *node2) = 0;
   virtual uint32_t id(const ParasiticCapacitor *capacitor) const = 0;
   virtual float value(const ParasiticCapacitor *capacitor) const = 0;
+  // OpenROAD-fork: SI-window -- set a single (coupling) capacitor's value.
+  // Used by the OpenROAD timing-window aware coupling derate to scale the
+  // coupling caps of non-overlapping aggressors. Default no-op preserves
+  // behavior for any Parasitics implementation that does not support it.
+  virtual void setCapacitorValue(ParasiticCapacitor * /* capacitor */,
+                                 float /* value */) {}
   virtual ParasiticNode *node1(const ParasiticCapacitor *capacitor) const = 0;
   virtual ParasiticNode *node2(const ParasiticCapacitor *capacitor) const = 0;
   virtual ParasiticNode *otherNode(const ParasiticCapacitor *capacitor,
