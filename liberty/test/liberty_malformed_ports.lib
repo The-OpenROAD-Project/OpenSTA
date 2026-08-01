@@ -1,0 +1,26 @@
+/* Liberty with malformed port attributes, used by liberty_malformed_ports.tcl.
+   Each cell exercises a LibertyReader code path that previously dereferenced a
+   null FuncExpr / null members attribute and crashed (SIGSEGV). After the fix
+   the reader emits a warning and continues. */
+library (malformed_ports) {
+  delay_model : table_lookup;
+
+  /* "function" references an undeclared pin, so parseFunc() returns null. */
+  cell (BAD_FUNC) {
+    pin (A) { direction : input; }
+    pin (Z) { direction : output; function : "A & NOPIN"; }
+  }
+
+  /* "three_state" references an undeclared pin, so parseFunc() returns null. */
+  cell (BAD_TRI) {
+    pin (A) { direction : input; }
+    pin (EN) { direction : input; }
+    pin (Z) { direction : output; three_state : "BADPIN"; function : "A"; }
+  }
+
+  /* "bundle" group with no "members" attribute. */
+  cell (BAD_BUNDLE) {
+    pin (A) { direction : input; }
+    bundle (B) { direction : output; }
+  }
+}
