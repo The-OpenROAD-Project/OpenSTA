@@ -654,6 +654,13 @@ public:
                      float delay,
                      std::string_view comment,
                      Sdc *sdc);
+  void makePathMargin(ExceptionFrom *from,
+                      ExceptionThruSeq *thrus,
+                      ExceptionTo *to,
+                      const MinMaxAll *min_max,
+                      float margin,
+                      std::string_view comment,
+                      Sdc *sdc);
   void makeGroupPath(std::string_view name,
                      bool is_default,
                      ExceptionFrom *from,

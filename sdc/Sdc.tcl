@@ -2430,6 +2430,61 @@ proc set_min_delay { args } {
 
 ################################################################
 
+define_cmd_args "set_path_margin" \
+  {[-setup] [-hold] [-rise] [-fall] [-comment comment]\
+     [-from from_list] [-rise_from from_list] [-fall_from from_list]\
+     [-through|-thr|-th through_list] [-rise_through|-rise_thr|-rise_th through_list]\
+     [-fall_through|-fall_thr|-fall_th through_list]\
+     [-to to_list] [-rise_to to_list] [-fall_to to_list] margin}
+
+proc set_path_margin { args } {
+  parse_key_args "set_path_margin" args \
+    keys {-from -rise_from -fall_from -to -rise_to -fall_to -comment} \
+    flags {-rise -fall -setup -hold} 0
+
+  # Applies to setup, hold, or both.
+  set min_max "min_max"
+  if { [info exists flags(-setup)] && ![info exists flags(-hold)] } {
+    set min_max "max"
+  } elseif { [info exists flags(-hold)] && ![info exists flags(-setup)] } {
+    set min_max "min"
+  }
+
+  # Validate arguments.
+  set cmd "set_path_margin"
+  set arg_error 0
+  set from [parse_from_arg keys arg_error]
+  set thrus [parse_thrus_arg args arg_error]
+  set to [parse_to_arg keys flags arg_error]
+  check_exception_pins $from $to
+  if { $arg_error } {
+    delete_from_thrus_to $from $thrus $to
+    return
+  }
+
+  # Validate margin value count and argument type.
+  check_for_key_args $cmd args
+  if { [llength $args] == 0 } {
+    delete_from_thrus_to $from $thrus $to
+    sta_error 1800 "missing margin argument."
+  } elseif { [llength $args] > 1 } {
+    sta_warn 1801 "'$args' ignored."
+  }
+  if { $from == "NULL" && $thrus == "" && $to == "NULL" } {
+    delete_from_thrus_to $from $thrus $to
+    sta_error 1802 "-from, -through or -to required."
+  }
+
+  # Parse margin value.
+  set margin [lindex $args 0]
+  check_float "set_path_margin margin" $margin
+  set margin [time_ui_sta $margin]
+  set comment [parse_comment_key keys]
+  make_path_margin $from $thrus $to $min_max $margin $comment
+}
+
+################################################################
+
 define_cmd_args "set_min_pulse_width" {[-low] [-high] value [objects]}
 
 proc set_min_pulse_width { args } {

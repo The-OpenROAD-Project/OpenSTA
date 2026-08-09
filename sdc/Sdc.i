@@ -839,6 +839,19 @@ make_path_delay(ExceptionFrom *from,
 }
 
 void
+make_path_margin(ExceptionFrom *from,
+                 ExceptionThruSeq *thrus,
+                 ExceptionTo *to,
+                 const MinMaxAll *min_max,
+                 float margin,
+                 std::string_view comment)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->makePathMargin(from, thrus, to, min_max, margin, comment, sdc);
+}
+
+void
 reset_path_cmd(ExceptionFrom *
                from, ExceptionThruSeq *thrus,
                ExceptionTo *to,

@@ -3959,6 +3959,20 @@ Sdc::makePathDelay(ExceptionFrom *from,
 }
 
 void
+Sdc::makePathMargin(ExceptionFrom *from,
+                    ExceptionThruSeq *thrus,
+                    ExceptionTo *to,
+                    const MinMaxAll *min_max,
+                    float margin,
+                    std::string_view comment)
+{
+  checkFromThrusTo(from, thrus, to);
+  PathMargin *exception = new PathMargin(from, thrus, to, min_max,
+                                         margin, true, comment);
+  addException(exception);
+}
+
+void
 Sdc::recordPathDelayInternalFrom(ExceptionPath *exception)
 {
   ExceptionFrom *from = exception->from();
@@ -4365,7 +4379,8 @@ Sdc::addException1(ExceptionPath *exception)
 void
 Sdc::addException2(ExceptionPath *exception)
 {
-  if (exception->isMultiCycle() || exception->isPathDelay())
+  if (exception->isMultiCycle() || exception->isPathDelay()
+      || exception->isPathMargin())
     deleteMatchingExceptions(exception);
   recordException(exception);
   mergeException(exception);

@@ -757,6 +757,12 @@ public:
                      bool break_path,
                      float delay,
                      std::string_view comment);
+  void makePathMargin(ExceptionFrom *from,
+                      ExceptionThruSeq *thrus,
+                      ExceptionTo *to,
+                      const MinMaxAll *min_max,
+                      float margin,
+                      std::string_view comment);
   bool pathDelaysWithoutTo() const { return path_delays_without_to_; }
   // Delete matching false/multicycle/path_delay exceptions.
   // Caller owns from, thrus, to exception points (and must delete them).

@@ -2071,6 +2071,19 @@ Sta::makePathDelay(ExceptionFrom *from,
 }
 
 void
+Sta::makePathMargin(ExceptionFrom *from,
+                    ExceptionThruSeq *thrus,
+                    ExceptionTo *to,
+                    const MinMaxAll *min_max,
+                    float margin,
+                    std::string_view comment,
+                    Sdc *sdc)
+{
+  sdc->makePathMargin(from, thrus, to, min_max, margin, comment);
+  search_->arrivalsInvalid();
+}
+
+void
 Sta::resetPath(ExceptionFrom *from,
                ExceptionThruSeq *thrus,
                ExceptionTo *to,

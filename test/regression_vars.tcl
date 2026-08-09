@@ -168,6 +168,12 @@ record_public_tests {
   report_checks_src_attr
   report_json1
   report_json2
+  set_path_margin1
+  set_path_margin2
+  set_path_margin3
+  set_path_margin4
+  set_path_margin5
+  set_path_margin6
   slash_port_test
   suppress_msg
   user_properties
