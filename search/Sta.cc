@@ -191,6 +191,7 @@ StaSimObserver::StaSimObserver(StaState *sta) :
 void
 StaSimObserver::valueChangeAfter(const Pin *pin)
 {
+  graph_delay_calc_->delayInvalid(pin);
   Vertex *vertex = graph_->pinDrvrVertex(pin);
   if (vertex) {
     search_->arrivalInvalid(vertex);
@@ -3676,8 +3677,10 @@ void
 Sta::delayCalcPreamble()
 {
   ensureLevelized();
-  for (Mode *mode : modes_)
+  for (Mode *mode : modes_) {
+    mode->sim()->ensureConstantsPropagated();
     mode->clkNetwork()->ensureClkNetwork();
+  }
 }
 
 void
