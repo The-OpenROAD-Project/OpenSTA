@@ -1,21 +1,22 @@
-# Delay calculation ignores set_case_analysis constants.
+# Delay calculation must not merge slew from set_case_analysis constants.
 #
-# GraphDelayCalc uses DcalcPred (dcalc/GraphDelayCalc.cc), whose searchFrom
-# stops only at power/ground nets:
+# Regression guard for "dcalc no slew merge for constant disabled arcs".
+#
+# GraphDelayCalc uses DcalcPred (dcalc/GraphDelayCalc.cc).  Its searchFrom
+# used to stop only at power/ground nets:
 #
 #   return !(sdc->isDisabledConstraint(from_pin)
 #            || (net && (network->isPower(net) || network->isGround(net))));
 #
-# SearchPred0::searchFrom (search/SearchPred.cc) instead stops at
-# sim->isConstant(from_vertex).  DcalcPred::searchTo returns true
-# unconditionally where SearchPred0::searchTo returns !sim->isConstant, and
-# DcalcPred::searchThru omits sim->isDisabledCond and the
-# simTimingSense == none test.  GraphDelayCalc.cc never references Sim at all.
+# SearchPred0::searchFrom (search/SearchPred.cc) stops at
+# sim->isConstant(from_vertex); DcalcPred did not, so in
+# findDriverEdgeDelays an arc whose source pin is an SDC constant still
+# passed searchFrom/searchThru and had its delay and slew merged into the
+# driver vertex -- including when that driver is a live, non-constant pin.
 #
-# Consequence: in findDriverEdgeDelays (GraphDelayCalc.cc:1011) an arc whose
-# source pin is an SDC constant still passes searchFrom/searchThru, so its
-# delay and slew are computed and merged into the driver vertex -- including
-# when that driver is a live, non-constant pin.
+# The fix adds sim->isConstant(from_vertex) to DcalcPred::searchFrom, and
+# makes Sta::delayCalcPreamble propagate constants before delay calculation
+# so the predicate sees them.
 #
 # Circuit (dcalc_case_analysis_leak.v):
 #
@@ -27,9 +28,10 @@
 # AND, so n1 and z stay live and the A2->ZN arc is dead.  The reported path is
 # a -> u1 -> u2 -> z, which never traverses cn.
 #
-# Sweeping the wire load on cn must not change anything on that path.  It
-# does: cn's slew rides the dead A2->ZN arc into n1, and n1's slew sets u2's
-# delay.  The arrival column below should be flat and is not.
+# Sweeping the wire load on cn must not change anything on that path.  Before
+# the fix it did: cn's slew rode the dead A2->ZN arc into n1, and n1's slew
+# set u2's delay, so the arrival spread was 46.38 ps.  The arrival column
+# below must now be flat.
 
 read_liberty ../../examples/nangate45_slow.lib.gz
 read_verilog dcalc_case_analysis_leak.v
