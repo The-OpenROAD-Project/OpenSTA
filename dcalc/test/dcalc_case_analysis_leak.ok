@@ -1,0 +1,10 @@
+
+load on constant net cn (ff)    arrival at z (ps)
+0                               159.19
+50                              159.71
+200                             167.60
+500                             181.63
+1000                            205.57
+
+arrival spread across the sweep: 46.38 ps (expected 0.00)
+
