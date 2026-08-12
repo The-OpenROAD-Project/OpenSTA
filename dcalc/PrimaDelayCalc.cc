@@ -590,16 +590,12 @@ PrimaDelayCalc::stampEqns()
   C_.setZero();
   B_.setZero();
 
-  // The stamps below insert into G_/C_ in parasitic traversal order, which is
-  // unrelated to the node indices assigned by findNodeCount(). coeffRef() on a
-  // packed sparse column has no free slot for an out of order insert, so it
-  // shifts the remaining values over, making stampEqns() quadratic in the node
-  // count. Reserving slack per column gives the inserts somewhere to land.
-  // Node degree in an RC network is small; stamp_slack covers the diagonal, the
-  // resistor and coupling capacitor off diagonals and the driver row.
-  constexpr int stamp_slack = 8;
-  G_.reserve(Eigen::VectorXi::Constant(order_, stamp_slack));
-  C_.reserve(Eigen::VectorXi::Constant(order_, stamp_slack));
+  // The stamps below do not visit the nodes in index order. Reserve room in
+  // each column so an out of order coeffRef() insert does not shift the packed
+  // array to make room, which makes stamping quadratic in the node count.
+  constexpr int non_zero_entry_count = 8;
+  G_.reserve(Eigen::VectorXi::Constant(order_, non_zero_entry_count));
+  C_.reserve(Eigen::VectorXi::Constant(order_, non_zero_entry_count));
 
   NetSet drvr_nets(network_);
   for (ArcDcalcArg &dcalc_arg : *dcalc_args_) {
