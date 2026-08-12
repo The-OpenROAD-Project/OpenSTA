@@ -598,6 +598,13 @@ PrimaDelayCalc::stampEqns()
   C_.setZero();
   B_.setZero();
 
+  // The stamps below do not visit the nodes in index order. Reserve room in
+  // each column so an out of order coeffRef() insert does not shift the packed
+  // array to make room, which makes stamping quadratic in the node count.
+  constexpr int non_zero_entry_count = 8;
+  G_.reserve(Eigen::VectorXi::Constant(order_, non_zero_entry_count));
+  C_.reserve(Eigen::VectorXi::Constant(order_, non_zero_entry_count));
+
   NetSet drvr_nets(network_);
   for (ArcDcalcArg &dcalc_arg : *dcalc_args_) {
     const Net *net = dcalc_arg.drvrNet(network_);
