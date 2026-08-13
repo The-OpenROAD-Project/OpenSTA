@@ -1,0 +1,226 @@
+=== baseline, no derates ===
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: ss
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.2886    0.2886 ^ reg2/Q (DFF_X1)
+   0.0000    0.2886 ^ out1 (out)
+             0.2886   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.2886   data arrival time
+-------------------------------------------------------------
+             7.7114   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: ff
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.0478    0.0478 v reg2/Q (DFF_X1)
+   0.0000    0.0478 v out1 (out)
+             0.0478   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.0478   data arrival time
+-------------------------------------------------------------
+             7.9522   slack (MET)
+
+
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+=== corner-scoped derates ===
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: ss
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.3463    0.3463 ^ reg2/Q (DFF_X1)
+   0.0000    0.3463 ^ out1 (out)
+             0.3463   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.3463   data arrival time
+-------------------------------------------------------------
+             7.6537   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: ff
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.0502    0.0502 v reg2/Q (DFF_X1)
+   0.0000    0.0502 v out1 (out)
+             0.0502   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.0502   data arrival time
+-------------------------------------------------------------
+             7.9498   slack (MET)
+
+
+=== synthetic-mode equivalents ===
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: ms
+Corner: ss_syn
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.3463    0.3463 ^ reg2/Q (DFF_X1)
+   0.0000    0.3463 ^ out1 (out)
+             0.3463   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.3463   data arrival time
+-------------------------------------------------------------
+             7.6537   slack (MET)
+
+
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: mf
+Corner: ff_syn
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.0502    0.0502 v reg2/Q (DFF_X1)
+   0.0000    0.0502 v out1 (out)
+             0.0502   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.0502   data arrival time
+-------------------------------------------------------------
+             7.9498   slack (MET)
+
+
+equiv ss: 1
+equiv ff: 1
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+=== mode derate 1.5: ss/ff unchanged, typ corner derated ===
+ss still corner-derated: 1
+ff still corner-derated: 1
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: st
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ reg2/CK (DFF_X1)
+   0.4328    0.4328 ^ reg2/Q (DFF_X1)
+   0.0000    0.4328 ^ out1 (out)
+             0.4328   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+  -2.0000    8.0000   output external delay
+             8.0000   data required time
+-------------------------------------------------------------
+             8.0000   data required time
+            -0.4328   data arrival time
+-------------------------------------------------------------
+             7.5672   slack (MET)
+
+
+=== slow overlay emptied: falls back to mode derate ===
+ss matches typ: 1
+1
+Error 3710: search_corner_sdc_derate.tcl line 1, create_clock is not allowed in an analysis corner scope; it is a mode-level constraint.
+1
+Error 3710: search_corner_sdc_derate.tcl line 1, set_false_path is not allowed in an analysis corner scope; it is a mode-level constraint.
+1
+Error 3711: search_corner_sdc_derate.tcl line 1, set_input_transition is not yet supported in an analysis corner scope.
+0
+
+1
+Error 3708: search_corner_sdc_derate.tcl line 1, no_such_corner is not the name of an analysis corner.
+1
+Error 3709: search_corner_sdc_derate.tcl line 1, no_such_corner is not the name of an analysis corner.

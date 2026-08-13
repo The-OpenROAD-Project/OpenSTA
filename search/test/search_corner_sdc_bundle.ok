@@ -1,0 +1,75 @@
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+modes: func msyn
+s_ss corner: ss
+s_ff corner: ff
+s_manual corner: 
+filter ss: 1
+=== corner-composed scene (Mode: func) ===
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: s_ss
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   1.8000    1.8000   clock network delay (ideal)
+   0.0000    1.8000 ^ reg2/CK (DFF_X1)
+   0.3463    2.1463 ^ reg2/Q (DFF_X1)
+   0.0000    2.1463 ^ out1 (out)
+             2.1463   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   1.8000   11.8000   clock network delay (ideal)
+  -0.4000   11.4000   clock uncertainty
+   0.0000   11.4000   clock reconvergence pessimism
+  -3.5000    7.9000   output external delay
+             7.9000   data required time
+-------------------------------------------------------------
+             7.9000   data required time
+            -2.1463   data arrival time
+-------------------------------------------------------------
+             5.7537   slack (MET)
+
+
+=== plain corner scene (mode constraints only) ===
+Startpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+Mode: func
+Corner: s_ff
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.5000    0.5000   clock network delay (ideal)
+   0.0000    0.5000 ^ reg2/CK (DFF_X1)
+   0.0478    0.5478 v reg2/Q (DFF_X1)
+   0.0000    0.5478 v out1 (out)
+             0.5478   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.5000   10.5000   clock network delay (ideal)
+  -0.1000   10.4000   clock uncertainty
+   0.0000   10.4000   clock reconvergence pessimism
+  -2.0000    8.4000   output external delay
+             8.4000   data required time
+-------------------------------------------------------------
+             8.4000   data required time
+            -0.5478   data arrival time
+-------------------------------------------------------------
+             7.8522   slack (MET)
+
+
+equiv vs manual: 1
+ff isolated: 1
+Warning 1556: multiple scenes reference mode func
+Warning 1556: multiple scenes reference mode func
+1
+Error 3710: corner_bundle_bad.sdc line 1, create_clock is not allowed in an analysis corner scope; it is a mode-level constraint.
+bundle after bare redefine: 1
+bundle after data redefine: 0

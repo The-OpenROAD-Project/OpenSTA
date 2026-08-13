@@ -54,6 +54,10 @@ Mode::~Mode()
   delete clk_network_;
   delete genclks_;
   delete path_groups_;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  for (const auto [corner, sdc] : corner_sdcs_)
+    delete sdc;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -64,6 +68,10 @@ Mode::copyState(const StaState *sta)
   sim_->copyState(sta);
   clk_network_->copyState(sta);
   genclks_->copyState(sta);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  for (const auto [corner, sdc] : corner_sdcs_)
+    sdc->copyState(sta);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void

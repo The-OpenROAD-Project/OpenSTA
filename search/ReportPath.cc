@@ -2263,9 +2263,11 @@ ReportPath::tgtClkInsertionOffet(const Path *clk_path,
   const MinMax *min_max = clk_path->minMax(this);
   const Mode *mode = clk_path->mode(this);
   Arrival path_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
-                                                   min_max, min_max, mode);
+                                                   min_max, min_max, mode,
+                                                   clk_path->scene(this));
   Arrival tgt_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
-                                                  min_max, early_late, mode);
+                                                  min_max, early_late, mode,
+                                                  clk_path->scene(this));
   return delayAsFloat(delayDiff(tgt_insertion, path_insertion, this));
 }
 
@@ -2417,7 +2419,8 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
         const Arrival insertion = search_->clockInsertion(src_clk, src_clk_pin,
                                                           src_clk_rf,
                                                           min_max,
-                                                          early_late, mode);
+                                                          early_late, mode,
+                                                          src_path->scene(this));
         reportClkSrcLatency(insertion, gclk_time, early_late);
       }
       PathExpanded src_expanded(src_path, this);

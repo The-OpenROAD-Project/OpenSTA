@@ -304,7 +304,9 @@ public:
                          const RiseFall *rf,
                          const MinMax *min_max,
                          const EarlyLate *early_late,
-                         const Mode *mode) const;
+                         const Mode *mode,
+                         // OpenROAD fork: analysis_corner support.
+                         const Scene *scene = nullptr) const;
   [[nodiscard]] bool propagateClkSense(const Pin *from_pin,
                                         Path *from_path,
                                         const RiseFall *to_rf);
