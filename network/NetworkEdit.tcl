@@ -108,7 +108,7 @@ proc parse_connect_pin { arg } {
       set port [$pin port]
     } elseif { $object_type == "Port" } {
       # Explicit port arg - convert to pin.
-      set pin [find_pin [get_name $arg]]
+      set pin [get_port_pin $arg]
       set inst [$pin instance]
       set port [$pin port]
     } else {
