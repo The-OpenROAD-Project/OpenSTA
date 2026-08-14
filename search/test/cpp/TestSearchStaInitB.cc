@@ -655,7 +655,7 @@ TEST_F(StaInitTest, PathEndUnconstrainedExceptPathCmp) {
 TEST_F(StaInitTest, PathEndCheckConstruct2) {
   Path *p = new Path();
   Path *clk = new Path();
-  PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, sta_);
+  PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, nullptr, sta_);
   EXPECT_EQ(pe.type(), PathEnd::Type::check);
   EXPECT_TRUE(pe.isCheck());
   EXPECT_FALSE(pe.isLatchCheck());
@@ -665,7 +665,7 @@ TEST_F(StaInitTest, PathEndCheckConstruct2) {
 TEST_F(StaInitTest, PathEndCheckGetters) {
   Path *p = new Path();
   Path *clk = new Path();
-  PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, sta_);
+  PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, nullptr, sta_);
   EXPECT_EQ(pe.checkArc(), nullptr);
   EXPECT_EQ(pe.multiCyclePath(), nullptr);
 }
@@ -673,7 +673,7 @@ TEST_F(StaInitTest, PathEndCheckGetters) {
 TEST_F(StaInitTest, PathEndCheckCopy) {
   Path *p = new Path();
   Path *clk = new Path();
-  PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, sta_);
+  PathEndCheck pe(p, nullptr, nullptr, clk, nullptr, nullptr, sta_);
   PathEnd *copy = pe.copy();
   EXPECT_NE(copy, nullptr);
   EXPECT_EQ(copy->type(), PathEnd::Type::check);
