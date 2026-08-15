@@ -33,6 +33,15 @@ jobs:
           cmake --install .
           tar -zcvf build.tar.gz -Cinstall .
 
+      - name: Check generated docs
+        run: |
+          git diff --exit-code -- \
+            doc/Commands.md \
+            doc/Variables.md \
+            doc/CommandLine.md \
+            doc/Messages.md
+          ./build/sta -no_splash -no_init -exit etc/CheckCmdHelp.tcl
+
       - name: Test
         run: |
           cd test
@@ -124,3 +133,20 @@ jobs:
           name: result-macos
           path: |
             test/results/*
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MkDocs
+        run: pip install -r doc/requirements.txt
+
+      - name: Build docs
+        run: mkdocs build --strict

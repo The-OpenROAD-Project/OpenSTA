@@ -187,7 +187,9 @@ static void
 showUsage(std::string_view prog,
           std::string_view init_filename)
 {
-  sta::print(stdout, "Usage: {} [-help] [-version] [-no_init] [-exit] cmd_file\n",
+  sta::print(stdout,
+             "Usage: {} [-help] [-version] [-no_init] [-no_splash] "
+             "[-threads count|max] [-exit] cmd_file\n",
              prog);
   sta::print(stdout, "  -help              show help and exit\n");
   sta::print(stdout, "  -version           show version and exit\n");

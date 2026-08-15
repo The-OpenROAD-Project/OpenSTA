@@ -21,10 +21,13 @@ examples/gcd_tb
 doc/._Sta.docx
 
 test/results
+
 # ngspice turd
 test/b3v3_1check.log
 
-doc/messages.txt
+# MkDocs
+site/
+.venv/
 
 # clangd turds
 .cache/

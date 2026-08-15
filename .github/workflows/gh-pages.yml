@@ -1,0 +1,39 @@
+name: GitHub Pages
+
+# Preview of MkDocs from the mddocs branch.
+# Enable Pages: Settings → Pages → Deploy from a branch → gh-pages / (root).
+on:
+  push:
+    branches: [mddocs]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MkDocs
+        run: pip install -r doc/requirements.txt
+
+      - name: Build docs
+        run: mkdocs build --strict
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

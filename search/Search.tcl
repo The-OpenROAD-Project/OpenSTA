@@ -34,7 +34,19 @@ define_cmd_args "check_setup" \
   { [-verbose] [-no_input_delay] [-no_output_delay]\
       [-multiple_clock] [-no_clock]\
       [-unconstrained_endpoints] [-loops] [-generated_clocks]\
-      [> filename] [>> filename] }
+      [> filename] [>> filename] } \
+  -help {The `check_setup` command performs sanity checks on the design. Individual checks can be performed with the keywords. If no check keywords are specified all checks are performed. Checks that fail are reported as warnings. If no checks fail nothing is reported. The command returns 1 if there are no warnings for use in scripts.} \
+  -arg_help {
+    -verbose {Show offending objects rather than just error counts.}
+    -unconstrained_endpoints {Check path endpoints for timing constraints (timing check or `set_output_delay`).}
+    -multiple_clock {Check register/latch clock pins for multiple clocks.}
+    -no_clock {Check register/latch clock pins for a clock.}
+    -no_input_delay {Check for inputs that do not have a `set_input_delay` command.}
+    -no_output_delay {Check for outputs that do not have a `set_output_delay` command.}
+    -no_output_delay {Check for outputs that do not have a `set_output_delay` command.}
+    -loops {Check for combinational logic loops.}
+    -generated_clocks {Check that generated clock source pins have been defined as clocks.}
+  }
 
 proc_redirect check_setup {
   check_setup_cmd "check_setup" $args
@@ -106,7 +118,30 @@ define_cmd_args "find_timing_paths" \
      [-slack_max slack_max]\
      [-slack_min slack_min]\
      [-sort_by_slack]\
-     [-path_group group_name]}
+     [-path_group group_name]} \
+  -help {The `find_timing_paths` command returns a list of path objects for scripting. Use the `get_property` function to access properties of the paths.} \
+  -arg_help {
+    -from {Return paths from a list of clocks, instances, ports, register clock pins, or latch data pins.}
+    -rise_from {Return paths from the rising edge of clocks, instances, ports, register clock pins, or latch data pins.}
+    -fall_from {Return paths from the falling edge of clocks, instances, ports, register clock pins, or latch data pins.}
+    -through {Return paths through a list of instances, pins or nets.}
+    -rise_through {Return rising paths through a list of instances, pins or nets.}
+    -fall_through {Return falling paths through a list of instances, pins or nets.}
+    -to {Return paths to a list of clocks, instances, ports or pins.}
+    -rise_to {Return rising paths to a list of clocks, instances, ports or pins.}
+    -fall_to {Return falling paths to a list of clocks, instances, ports or pins.}
+    -unconstrained {Report unconstrained paths also.}
+    -path_delay {`min`: Return min path (hold) checks. `min_rise`: Return min path (hold) checks for rising endpoints. `min_fall`: Return min path (hold) checks for falling endpoints. `max`: Return max path (setup) checks. `max_rise`: Return max path (setup) checks for rising endpoints. `max_fall`: Return max path (setup) checks for falling endpoints. `min_max`: Return min and max path (setup and hold) checks.}
+    -group_path_count {`path_count`: The number of paths to return in each path group.}
+    -endpoint_path_count {`endpoint_path_count`: The number of paths to return for each endpoint.}
+    -unique_paths_to_endpoint {Return multiple paths to an endpoint that traverse different pins without showing multiple paths with different rise/fall transitions.}
+    -unique_edges_to_endpoint {When multiple paths to an endpoint are requested, only the worst path through the same pins and rise/fall edges is returned.}
+    -scenes {`scenes`: Return paths for these scenes. The default is all scenes.}
+    -slack_max {`max_slack`: Return paths with slack less than max_slack.}
+    -slack_min {`min_slack`: Return paths with slack greater than min_slack.}
+    -sort_by_slack {Sort paths by slack rather than slack within path groups.}
+    -path_group {`groups`: Return paths in path groups. Paths in all groups are returned if this option is not specified.}
+  }
 
 proc find_timing_paths { args } {
   set path_ends [find_timing_paths_cmd "find_timing_paths" args]
@@ -244,7 +279,13 @@ define_cmd_args "report_clock_skew" {[-setup|-hold]\
                                        [-clocks clocks]\
                                        [-scenes scenes]\
                                        [-include_internal_latency]
-                                       [-digits digits]}
+                                       [-digits digits]} \
+  -help {Report the maximum difference in clock arrival between every source and target register that has a path between the source and target registers.} \
+  -arg_help {
+    -clocks {The clocks to report. The default is all clocks.}
+    -scenes {Report clocks for these scenes. The default is all scenes.}
+    -include_internal_latency {Include internal clock latency from liberty min/max_clock_tree_path timing groups.}
+  }
 
 proc_redirect report_clock_skew {
   global sta_report_default_digits
@@ -288,7 +329,13 @@ proc_redirect report_clock_skew {
 define_cmd_args "report_clock_latency" {[-clocks clocks]\
                                           [-scenes scene]\
                                           [-include_internal_latency]
-                                          [-digits digits]}
+                                          [-digits digits]} \
+  -help {Report the clock network latency.} \
+  -arg_help {
+    -clocks {The clocks to report. The default is all clocks.}
+    -scenes {Report latency for these scenes. The default is all scenes.}
+    -include_internal_latency {Include internal clock latency from liberty min/max_clock_tree_path timing groups.}
+  }
 
 proc_redirect report_clock_latency {
   global sta_report_default_digits
@@ -328,6 +375,7 @@ define_cmd_args "report_checks" \
      [-group_path_count path_count] \
      [-endpoint_path_count path_count]\
      [-unique_paths_to_endpoint]\
+     [-unique_edges_to_endpoint]\
      [-slack_max slack_max]\
      [-slack_min slack_min]\
      [-sort_by_slack]\
@@ -336,7 +384,35 @@ define_cmd_args "report_checks" \
      [-fields capacitance|slew|fanout|input_pin|net|src_attr|variation]\
      [-digits digits]\
      [-no_line_splits]\
-     [> filename] [>> filename]}
+     [> filename] [>> filename]} \
+  -help {The `report_checks` command reports paths in the design. Paths are reported in groups by capture clock, unclocked path delays, gated clocks and unconstrained.
+
+See `set_false_path` for a description of allowed from_list, through_list and to_list objects.} \
+  -arg_help {
+    -from {Report paths from a list of clocks, instances, ports, register clock pins, or latch data pins.}
+    -rise_from {Report  paths from the rising edge of clocks, instances, ports, register clock pins, or latch data pins.}
+    -fall_from {Report paths from the falling edge of clocks, instances, ports, register clock pins, or latch data pins.}
+    -through {Report paths through a list of instances, pins or nets.}
+    -rise_through {Report rising paths through a list of instances, pins or nets.}
+    -fall_through {Report falling paths through a list of instances, pins or nets.}
+    -to {Report paths to a list of clocks, instances, ports or pins.}
+    -rise_to {Report rising paths to a list of clocks, instances, ports or pins.}
+    -fall_to {Report falling paths to a list of clocks, instances, ports or pins.}
+    -unconstrained {Report unconstrained paths also. The unconstrained path group is not reported without this option.}
+    -path_delay {`min`: Report min path (hold) checks. `min_rise`: Report min path (hold) checks for rising endpoints. `min_fall`: Report min path (hold) checks for falling endpoints. `max`: Report max path (setup) checks. `max_rise`: Report max path (setup) checks for rising endpoints. `max_fall`: Report max path (setup) checks for falling endpoints. `min_max`: Report min and max path (setup and hold) checks.}
+    -group_path_count {`path_count`: The number of paths to report in each path group. The default is 1.}
+    -endpoint_path_count {`endpoint_path_count`: The number of paths to report for each endpoint. The default is 1.}
+    -unique_paths_to_endpoint {When multiple paths to an endpoint are specified with `-endpoint_path_count`, many of the paths may differ only in the rise/fall edges of the pins in the paths. With this option only the worst path through the set of pins is reported.}
+    -unique_edges_to_endpoint {When multiple paths to an endpoint are specified with `-endpoint_path_count`, conditional timing arcs result in paths that go through the same pins and rise/fall edges. With this option only the worst path through the set of pins and rise/fall edges is reported.}
+    -scenes {Report paths for these scenes. The default is all scenes.}
+    -slack_max {Only report paths with less slack than max_slack.}
+    -slack_min {Only report paths with more slack than min_slack.}
+    -sort_by_slack {Sort paths by slack rather than slack grouped by path group.}
+    -path_group {List of path groups to report. The default is to report all path groups.}
+    -format {`end`: Report path ends in one line with delay, required time and slack. `full`: Report path start and end points and the path. This is the default path type. `full_clock`: Report path start and end points, the path, and the source and target clock paths. `full_clock_expanded`: Report path start and end points, the path, and the source and target clock paths. If the clock is generated and propagated, the path from the clock source pin is also reported. `short`: Report only path start and end points. `summary`: Report only path ends with delay. `json`: Report in json format. `-fields` is ignored.}
+    -fields {List of capacitance|slew|input_pins|hierarchical_pins|net|fanout|src_attr|variation}
+    -no_line_splits {Do not split long lines into multiple lines.}
+  }
 
 proc_redirect report_checks {
   global sta_report_unconstrained_paths
@@ -360,7 +436,33 @@ define_cmd_args "report_check_types" \
      [-net net]\
      [-max_count max_count]\
      [-digits digits] [-no_line_splits]\
-     [> filename] [>> filename]}
+     [> filename] [>> filename]} \
+  -help {The `report_check_types` command reports the slack for each type of timing and design rule constraint. The keyword options allow a subset of the constraint types to be reported.} \
+  -arg_help {
+    -scenes {Report checks for some scenes. The default value is all scenes.}
+    -violators {Report all violated timing and design rule constraints.}
+    -verbose {Use a verbose output format.}
+    -format {`slack_only`: Report the minimum slack for each timing check. `end`: Report the endpoint for each check.}
+    -fields {List of capacitance|slew|input_pins|hierarchical_pins|net|fanout|src_attr|variation}
+    -max_delay {Report setup and max delay path delay constraints.}
+    -min_delay {Report hold and min delay path delay constraints.}
+    -recovery {Report asynchronous recovery checks.}
+    -removal {Report asynchronous removal checks.}
+    -clock_gating_setup {Report gated clock enable setup checks.}
+    -clock_gating_hold {Report gated clock hold setup checks.}
+    -max_slew {Report max transition design rule checks.}
+    -max_skew {Report max skew design rule checks.}
+    -min_pulse_width {Report min pulse width design rule checks.}
+    -min_period {Report min period design rule checks.}
+    -min_slew {Report min slew design rule checks.}
+    -max_fanout {Report max fanout design rule checks.}
+    -min_fanout {Report min fanout design rule checks.}
+    -max_capacitance {Report max capacitance design rule checks.}
+    -min_capacitance {Report min capacitance design rule checks.}
+    -net {Report checks on this net.}
+    -max_count {Maximum number of checks to report.}
+    -no_line_splits {Do not split long lines into multiple lines.}
+  }
 
 proc_redirect report_check_types {
   variable float_inf
@@ -533,11 +635,18 @@ proc_redirect report_check_types {
 
 ################################################################
 
-define_cmd_args "report_disabled_edges" {}
+define_cmd_args "report_disabled_edges" {} \
+  -help {The `report_disabled_edges` command reports disabled timing arcs along with the reason they are disabled. Each disabled timing arc is reported as the instance name along with the from and to ports of the arc. The disable reason is shown next. Arcs that are disabled with `set_disable_timing` are reported with constraint as the reason. Arcs that are disabled by constants are reported with constant as the reason along with the constant instance pin and value. Arcs that are disabled to break combinational feedback loops are reported with loop as the reason.
+
+```
+> report_disabled_edges
+u1 A B constant B=0
+```}
 
 ################################################################
 
-define_cmd_args "report_tns" {[-min] [-max] [-digits digits]}
+define_cmd_args "report_tns" {[-min] [-max] [-digits digits]} \
+  -help {Report the total negative slack.}
 
 proc_redirect report_tns {
   global sta_report_default_digits
@@ -562,7 +671,8 @@ proc_redirect report_tns {
 
 ################################################################
 
-define_cmd_args "report_wns" {[-min] [-max] [-digits digits]}
+define_cmd_args "report_wns" {[-min] [-max] [-digits digits]} \
+  -help {Report the worst negative slack. If the worst slack is positive, zero is reported.}
 
 proc_redirect report_wns {
   global sta_report_default_digits
@@ -591,7 +701,8 @@ proc_redirect report_wns {
 
 ################################################# ###############
 
-define_cmd_args "report_worst_slack" {[-min] [-max] [-digits digits]}
+define_cmd_args "report_worst_slack" {[-min] [-max] [-digits digits]} \
+  -help {Report the worst slack in the design.}
 
 proc_redirect report_worst_slack {
   global sta_report_default_digits
@@ -738,7 +849,11 @@ proc parse_report_path_options { cmd args_var default_format
 
 ################################################################
 
-define_cmd_args "report_arrival" {[-scene scene] [-report_variance] [-digits digits] pin}
+define_cmd_args "report_arrival" {[-scene scene] [-report_variance] [-digits digits] pin} \
+  -help {The `report_arrival` command reports min/max rise/fall arrival times at a pin with respect to each clock that has a path to the pin.} \
+  -arg_help {
+    pin {A pin or port.}
+  }
 
 proc report_arrival { args } {
   global sta_report_default_digits
@@ -760,7 +875,11 @@ proc report_arrival { args } {
 
 ################################################################
 
-define_cmd_args "report_required" {[-scene scene] [-report_variance] [-digits digits] pin}
+define_cmd_args "report_required" {[-scene scene] [-report_variance] [-digits digits] pin} \
+  -help {The `report_required` command reports min/max rise/fall required times at a pin with respect to each clock.} \
+  -arg_help {
+    pin {A pin or port.}
+  }
 
 proc report_required { args } {
   global sta_report_default_digits
@@ -782,7 +901,11 @@ proc report_required { args } {
 
 ################################################################
 
-define_cmd_args "report_slack" {[-scene scene] [-report_variance] [-digits digits] pin}
+define_cmd_args "report_slack" {[-scene scene] [-report_variance] [-digits digits] pin} \
+  -help {The `report_slack` command reports min/max rise/fall slack at a pin with respect to each clock.} \
+  -arg_help {
+    pin {A pin or port.}
+  }
 
 proc report_slack { args } {
   global sta_report_default_digits
@@ -906,7 +1029,37 @@ proc worst_clock_skew { args } {
 define_cmd_args "write_timing_model" {[-scene scene] \
                                         [-library_name lib_name]\
                                         [-cell_name cell_name]\
-                                        filename}
+                                        filename} \
+  -help {The `write_timing_model` command constructs a liberty timing model for the current design and writes it to filename. cell_name defaults to the cell name of the top level block in the design.
+
+The SDC used to extract the block should include the clock definitions. If the block contains a clock network `set_propagated_clock` should be used so the clock delays are included in the timing model. The following SDC commands are ignored when building the timing model.
+
+```
+set_input_delay
+set_output_delay
+set_load
+set_timing_derate
+```
+
+Using `set_input_transition` with the slew from the block context will be used will improve the match between the timing model and the block netlist.  Paths defined on clocks that are defined on internal pins are ignored because the model has no way to include the clock definition.
+
+The resulting timing model can be used in a hierarchical timing flow as a replacement for the block to speed up timing analysis. This hierarchical timing methodology does not handle timing exceptions that originate or terminate inside the block. The timing model includes:
+
+```
+combinational paths between inputs and outputs
+setup and hold timing constraints on inputs
+clock to output timing paths
+```
+
+Resistance of long wires on inputs and outputs of the block cannot be modeled in Liberty. To reduce inaccuracies from wire resistance in technologies with resistive wires place buffers on inputs and ouputs.
+
+The extracted timing model setup/hold checks are scalar (no input slew dependence). Delay timing arcs are load dependent but do not include input slew dependency.} \
+  -arg_help {
+    -library_name {The name to use for the liberty library. Defaults to cell_name.}
+    -cell_name {The name to use for the liberty cell. Defaults to the top level module name.}
+    -scene {The scene to use for extracting the model.}
+    filename {Filename for the liberty timing model.}
+  }
 
 proc write_timing_model { args } {
   parse_key_args "write_timing_model" args \
@@ -950,7 +1103,12 @@ proc parse_path_group_arg { group_names } {
 ################################################################
 
 define_cmd_args "report_clock_min_period" \
-  { [-clocks clocks] [-include_port_paths] }
+  { [-clocks clocks] [-include_port_paths] } \
+  -help {Report the minimum period and maximum frequency for clocks. If the `-clocks` argument is not specified all clocks are reported. The minimum period is determined by examining the smallest slack paths between registers on the rising edges of the clock or between falling edges of the clock. Paths between different clocks, different clock edges of the same clock, level-sensitive latches, or paths constrained by `set_multicycle_path` or `set_max_delay` are not considered.} \
+  -arg_help {
+    -clocks {The clocks to report.}
+    -include_port_paths {Include paths from input port and to output ports.}
+  }
 
 proc_redirect report_clock_min_period {
   parse_key_args "report_min_clock_period" args \
@@ -978,7 +1136,11 @@ proc_redirect report_clock_min_period {
 
 ################################################################
 
-define_cmd_args "set_disable_inferred_clock_gating" { objects }
+define_cmd_args "set_disable_inferred_clock_gating" { objects } \
+  -help {The `set_disable_inferred_clock_gating` command disables clock gating checks on a clock gating instance, clock gating pin, or clock gating enable pin.} \
+  -arg_help {
+    objects {A list of clock gating instances, clock gating pins, or clock enable pins.}
+  }
 
 proc set_disable_inferred_clock_gating { objects } {
   set_disable_inferred_clock_gating_cmd $objects
@@ -996,7 +1158,11 @@ proc set_disable_inferred_clock_gating_cmd { objects } {
 
 ################################################################
 
-define_cmd_args "unset_disable_inferred_clock_gating" { objects }
+define_cmd_args "unset_disable_inferred_clock_gating" { objects } \
+  -help {The `unset_disable_inferred_clock_gating` command removes a previous `set_disable_inferred_clock_gating` command.} \
+  -arg_help {
+    objects {A list of clock gating instances, clock gating pins, or clock enable pins.}
+  }
 
 proc unset_disable_inferred_clock_gating { objects } {
   unset_disable_inferred_clock_gating_cmd $objects

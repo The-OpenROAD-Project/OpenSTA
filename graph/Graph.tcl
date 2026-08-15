@@ -27,7 +27,12 @@
 namespace eval sta {
 
 define_cmd_args "report_edges" {[-from from_pin] [-to to_pin]\
-                                  [-digits digits] [-report_variance]}
+                                  [-digits digits] [-report_variance]} \
+  -help {Report the edges/timing arcs and their delays in the timing graph from/to/between pins.} \
+  -arg_help {
+    -from {Report edges/timing arcs from pin from_pin.}
+    -to {Report edges/timing arcs to pin to_pin.}
+  }
 
 proc report_edges { args } {
   global sta_report_default_digits

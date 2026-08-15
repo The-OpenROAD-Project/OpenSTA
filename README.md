@@ -50,9 +50,9 @@ netlist data structures without duplicating them.
 * Query based incremental update of delays, arrival and required times
 * Simulator to propagate constants from constraints and netlist tie high/low
 
-See doc/OpenSTA.pdf for command documentation.
-See doc/ChangeLog.txt for changes to commands.
-See doc/StaApi.txt for timing engine API documentation.
+See [doc/Commands.md](doc/Commands.md) for command documentation.
+See [doc/ChangeLog.md](doc/ChangeLog.md) for changes to commands.
+See [doc/StaApi.md](doc/StaApi.md) for timing engine API documentation.
 
 OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
 is also licensed for commerical applications by Parallax Software without
@@ -273,10 +273,13 @@ tarfile.
 
 ## Contributions
 
-Contributors must sign the Contributor License Agreement (doc/CLA.txt)
+Contributors must sign the Contributor License Agreement
+([doc/CLA.txt](doc/CLA.txt))
 when submitting pull requests.
 
-All contributors should read doc/CodingGuidelines.txt for notes on
+All contributors should read
+[doc/CodingGuidelines.md](doc/CodingGuidelines.md)
+for notes on
 making code that adheres to the existing naming and formatting style.
 
 Contributions that claim 4% performance improvements in OpenROAD flow

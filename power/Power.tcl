@@ -36,7 +36,28 @@ define_cmd_args "report_power" \
       [-scene scene]\
       [-digits digits]\
       [-format format]\
-      [> filename] [>> filename] }
+      [> filename] [>> filename] } \
+  -help {The `report_power` command uses static power analysis based on propagated or annotated pin activities in the circuit using Liberty power models. The internal, switching, leakage and total power are reported. Design power is reported separately for combinational, sequential, macro and pad groups. Power values are reported in watts.
+
+The `read_vcd` or `read_saif` commands can be used to read activities from a file based on simulation. If no simulation activities are available, the `set_power_activity` command should be used to set the activity of input ports or pins in the design. The default input activity and duty for inputs are 0.1 and 0.5 respectively. The activities are propagated from annotated input ports or pins through gates and used in the power calculations.
+
+```
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power
+----------------------------------------------------------------
+Sequential             3.29e-06   3.41e-08   2.37e-07   3.56e-06  92.4%
+Combinational          1.86e-07   3.31e-08   7.51e-08   2.94e-07   7.6%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+---------------------------------------------------------------
+Total                  3.48e-06   6.72e-08   3.12e-07   3.86e-06 100.0%
+                          90.2%       1.7%       8.1%
+```} \
+  -arg_help {
+    -instances {`instances`: Report the power for each instance of instances. If the instance is hierarchical the total power for the instances inside the hierarchical instance is reported.}
+    -highest_power_instances {`count`: Report the power for the count highest power instances.}
+    -format {`text`: Print a text table (the default). `json`: Print JSON.}
+  }
 
 proc_redirect report_power {
   global sta_report_default_digits
@@ -110,7 +131,24 @@ define_cmd_args "set_power_activity" { [-global]\
                                          [-pins pins]\
                                          [-activity activity | -density density]\
                                          [-duty duty]\
-                                         [-clock clock]}
+                                         [-clock clock]} \
+  -help {The `set_power_activity` command is used to set the activity and duty used for power analysis globally or for input ports or pins in the design.
+
+The default input activity for inputs is 0.1 transitions per minimum clock period if a clock is defined or 0.0 if there are no clocks defined. The default input duty is 0.5. This is equivalent to the following command:
+
+```
+set_power_activity -input -activity 0.1 -duty 0.5
+```} \
+  -arg_help {
+    -global {Set the activity/duty for all non-clock pins.}
+    -input {Set the default input port activity/duty.}
+    -input_ports {`input_ports`: Set the input port activity/duty.}
+    -pins {`pins`: Set the pin activity/duty.}
+    -activity {`activity`: The activity, or number of transitions per clock cycle. If clock is not specified the clock with the minimum period is used. If no clocks are defined an error is reported.}
+    -density {`density`: Transitions per library time unit.}
+    -duty {`duty`: The duty, or probability the signal is high (0 <= duty <= 1.0). Defaults to 0.5.}
+    -clock {`clock`: The clock to use for the period with `-activity`. This option is ignored if `-density` is used.}
+  }
 
 proc set_power_activity { args } {
   parse_key_args "set_power_activity" args \
@@ -187,7 +225,15 @@ define_cmd_args "unset_power_activity" { [-global]\
                                            [-input]\
                                            [-input_ports ports]\
                                            [-pins pins]\
-                                           [-clock clock]}
+                                           [-clock clock]} \
+  -help {The unset_power_activity_command is used to undo the effects of the `set_power_activity` command.} \
+  -arg_help {
+    -global {Unset the activity/duty for all non-clock pins.}
+    -input {Unset the default input port activity/duty.}
+    -input_ports {`input_ports`: Unset the input port activity/duty.}
+    -pins {`pins`: Unset the pin activity/duty.}
+    -clock {`clock`: Unset activity associated with this clock.}
+  }
 
 proc unset_power_activity { args } {
   parse_key_args "unset_power_activity" args \
@@ -225,7 +271,13 @@ proc unset_power_activity { args } {
 ################################################################
 
 # Deprecated 9/2024
-define_cmd_args "read_power_activities" { [-scope scope] -vcd filename }
+define_cmd_args "read_power_activities" { [-scope scope] -vcd filename } \
+  -help {The `read_power_activities` command is deprecated. Use `read_vcd` instead.} \
+  -arg_help {
+    -scope {The VCD scope of the current design. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
+    -vcd {VCD file to read. Use `read_vcd` instead.}
+    filename {The name of the VCD file to read.}
+  }
 
 proc read_power_activities { args } {
   parse_key_args "read_power_activities" args \
@@ -245,7 +297,15 @@ proc read_power_activities { args } {
 ################################################################
 
 define_cmd_args "read_vcd" \
-  {[-scope scope] [-mode mode_name] [-begin_time begin_time] [-end_time end_time] filename}
+  {[-scope scope] [-mode mode_name] [-begin_time begin_time] [-end_time end_time] filename} \
+  -help {The `read_vcd` command reads a VCD (Value Change Dump) file from a Verilog simulation and extracts pin activities and duty cycles for use in power estimation. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
+  -arg_help {
+    -scope {The VCD scope of the current design to extract simulation data. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
+    -mode {Mode to annotate activities.}
+    -begin_time {Ignore VCD activity before this time.}
+    -end_time {Ignore VCD activity after this time.}
+    filename {The name of the VCD file to read.}
+  }
 
 proc read_vcd { args } {
   parse_key_args "read_vcd" args \
@@ -274,7 +334,12 @@ proc read_vcd { args } {
 
 ################################################################
 
-define_cmd_args "read_saif" { [-scope scope] filename }
+define_cmd_args "read_saif" { [-scope scope] filename } \
+  -help {The `read_saif` command reads a SAIF (Switching Activity Interchange Format) file from a Verilog simulation and extracts pin activities and duty cycles for use in power estimation. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
+  -arg_help {
+    -scope {The SAIF scope of the current design to extract simulation data. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
+    filename {The name of the SAIF file to read.}
+  }
 
 proc read_saif { args } {
   parse_key_args "read_saif" args keys {-scope} flags {}
@@ -291,7 +356,12 @@ proc read_saif { args } {
 ################################################################
 
 define_cmd_args "report_activity_annotation" { [-report_unannotated] \
-                                                 [-report_annotated] }
+                                                 [-report_annotated] } \
+  -help {Report a summary of pins that are annotated by `read_vcd`, `read_saif` or `set_power_activity`. Sequential internal pins and hierarchical pins are ignored.} \
+  -arg_help {
+    -report_unannotated {Report unannotated pins.}
+    -report_annotated {Report annotated pins.}
+  }
 
 proc_redirect report_activity_annotation {
   parse_key_args "report_activity_annotation" args \
