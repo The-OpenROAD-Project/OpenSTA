@@ -479,7 +479,8 @@ Do not edit it by hand; rebuild OpenSTA to regenerate.
 | 1351 | LumpedCapDelayCalc.cc:148 | gate delay input slew is NaN |
 | 1360 | TagGroup.cc:314 | tag group missing tag |
 | 1370 | PathEnum.cc:634 | path diversion missing edge. |
-| 1380 | MakeTimingModel.cc:234 | clock {} pin {} is inside model block. |
+| 1380 | MakeTimingModel.cc:239 | clock {} pin {} is inside model block. |
+| 1381 | MakeTimingModel.cc:171 | scene {} has no liberty libraries. |
 | 1390 | VerilogReader.cc:1492 | {} is not a verilog module. |
 | 1391 | VerilogReader.cc:1497 | {} is not a verilog module. |
 | 1440 | Bdd.cc:100 | unknown function operator |
@@ -499,16 +500,16 @@ Do not edit it by hand; rebuild OpenSTA to regenerate.
 | 1552 | Sta.cc:2233 | '{}' is not a valid endpoint. |
 | 1553 | Sta.cc:2591 | maximum scene count exceeded |
 | 1554 | Sta.cc:2168 | '{}' is not a valid start point. |
-| 1555 | Sta.cc:2739 | liberty name/filename {} not found. |
+| 1555 | Sta.cc:2742 | liberty name/filename {} not found. |
 | 1556 | Sta.cc:576 | multiple scenes reference mode {} |
-| 1557 | Sta.cc:4470 | net {} already exists. |
+| 1557 | Sta.cc:4473 | net {} already exists. |
 | 1558 | Sta.cc:2624 | Spef file {} not found. |
 | 1559 | Sta.cc:2626 | Spef file {} not found. |
-| 1560 | Sta.cc:4264 | spef {} not found. |
+| 1560 | Sta.cc:4267 | spef {} not found. |
 | 1561 | Sta.cc:2254 | mode {} not found. |
-| 1563 | Sta.cc:4599 | corresponding timing arc set not found in equiv cells |
-| 1570 | Sta.cc:3754 | No network has been linked. |
-| 1571 | Sta.cc:3763 | No network has been linked. |
+| 1563 | Sta.cc:4602 | corresponding timing arc set not found in equiv cells |
+| 1570 | Sta.cc:3757 | No network has been linked. |
+| 1571 | Sta.cc:3766 | No network has been linked. |
 | 1572 | Sta.cc:2638 | mode {} not found. |
 | 1578 | Sta.cc:2388 | No liberty POCV/LVF models found. |
 | 1590 | Search.i:255 | {} is not a known path group name. |
@@ -592,7 +593,7 @@ Do not edit it by hand; rebuild OpenSTA to regenerate.
 | 2122 | Sdc.i:260 | unknown wire load mode |
 | 2123 | Sdc.i:1065 | unknown clock sense |
 | 2140 | TclTypeHelpers.cc:166 | Delay calc arg requires 5 or 6 args. |
-| 2141 | Sta.cc:3767 | No liberty libraries found. |
+| 2141 | Sta.cc:3770 | No liberty libraries found. |
 | 2150 | StaTclTypes.i:423 | Unknown transition '{}'. |
 | 2151 | StaTclTypes.i:441 | Unknown rise/fall edge '{}'. |
 | 2152 | StaTclTypes.i:459 | Unknown transition name '{}'. |
