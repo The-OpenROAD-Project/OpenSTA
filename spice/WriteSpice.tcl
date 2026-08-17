@@ -95,7 +95,8 @@ proc write_path_spice { args } {
       sta_error 1926 "-model_file $model_file is not readable."
     }
   } else {
-    sta_error 1927 "No -model_file specified."
+    sta_warn 1927 "No -model_file specified."
+    set model_file ""
   }
 
   if { [info exists keys(-power)] } {

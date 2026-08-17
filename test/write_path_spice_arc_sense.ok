@@ -1,6 +1,6 @@
 Warning 1171: write_path_spice_arc_sense.lib.gz line 23, default_fanout_load is 0.0.
+Warning 1927: write_path_spice_arc_sense.tcl line 18, No -model_file specified.
 * Path from a v to x ^
-.include "write_path_spice_arc_sense.models.spice"
 .include "write_path_spice_arc_sense.sp_1.subckt"
 .tran 1e-13 3.33e-09
 

@@ -1,6 +1,0 @@
-* Placeholder SPICE model file for the write_path_spice_arc_sense regression.
-*
-* write_path_spice requires a -model_file and emits it as a ".include" line in
-* the generated deck, but does not read its contents.  The regression only
-* diffs the written deck, so no transistor models are needed here.  Supply the
-* real SKY130 sky130_fd_pr models if you want to simulate the deck in ngspice.

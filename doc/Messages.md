@@ -515,11 +515,11 @@ Do not edit it by hand; rebuild OpenSTA to regenerate.
 | 1590 | Search.i:255 | {} is not a known path group name. |
 | 1591 | Search.i:472 | unknown report path field {} |
 | 1592 | Search.i:1009 | unknown common clk pessimism mode. |
-| 1601 | WriteSpice.cc:420 | pg_pin {}/{} voltage {} not found, |
-| 1602 | WriteSpice.cc:426 | Liberty pg_port {}/{} missing voltage_name attribute, |
-| 1603 | WriteSpice.cc:400 | {} pg_port {} not found, |
-| 1604 | WriteSpice.cc:863 | no register/latch found for path from {} to {}, |
-| 1605 | WriteSpice.cc:213 | The subkct file {} is missing definitions for {} |
+| 1601 | WriteSpice.cc:421 | pg_pin {}/{} voltage {} not found, |
+| 1602 | WriteSpice.cc:427 | Liberty pg_port {}/{} missing voltage_name attribute, |
+| 1603 | WriteSpice.cc:401 | {} pg_port {} not found, |
+| 1604 | WriteSpice.cc:864 | no register/latch found for path from {} to {}, |
+| 1605 | WriteSpice.cc:214 | The subkct file {} is missing definitions for {} |
 | 1606 | WritePathSpice.cc:236 | No instance with Liberty cell found in path. |
 | 1620 | WriteSdc.cc:1245 | unknown exception type |
 | 1621 | WriteSdc.cc:1784 | illegal set_logic value |
@@ -557,17 +557,17 @@ Do not edit it by hand; rebuild OpenSTA to regenerate.
 | 1862 | SaifReader.cc:107 | SAIF TIMESCALE multiplier not 1, 10, or 100. |
 | 1866 | LibertyParser.cc:295 | {} |
 | 1870 | VerilogReader.cc:1963 | {} |
-| 1903 | WriteSpice.tcl:180 | Cannot write $spice_dir. |
-| 1904 | WriteSpice.tcl:183 | No -spice_filename specified. |
-| 1905 | WriteSpice.tcl:189 | -lib_subckt_file $lib_subckt_file is not readable. |
-| 1906 | WriteSpice.tcl:192 | No -lib_subckt_file specified. |
-| 1907 | WriteSpice.tcl:198 | -model_file $model_file is not readable. |
-| 1908 | WriteSpice.tcl:201 | No -model_file specified. |
-| 1909 | WriteSpice.tcl:207 | No -power specified. |
-| 1910 | WriteSpice.tcl:146 | Unknown circuit simulator |
-| 1913 | WriteSpice.tcl:279 | Cannot write $plot_dir. |
-| 1914 | WriteSpice.tcl:282 | No -plot_basename specified. |
-| 1915 | WriteSpice.tcl:213 | No -ground specified. |
+| 1903 | WriteSpice.tcl:181 | Cannot write $spice_dir. |
+| 1904 | WriteSpice.tcl:184 | No -spice_filename specified. |
+| 1905 | WriteSpice.tcl:190 | -lib_subckt_file $lib_subckt_file is not readable. |
+| 1906 | WriteSpice.tcl:193 | No -lib_subckt_file specified. |
+| 1907 | WriteSpice.tcl:199 | -model_file $model_file is not readable. |
+| 1908 | WriteSpice.tcl:202 | No -model_file specified. |
+| 1909 | WriteSpice.tcl:208 | No -power specified. |
+| 1910 | WriteSpice.tcl:147 | Unknown circuit simulator |
+| 1913 | WriteSpice.tcl:280 | Cannot write $plot_dir. |
+| 1914 | WriteSpice.tcl:283 | No -plot_basename specified. |
+| 1915 | WriteSpice.tcl:214 | No -ground specified. |
 | 1920 | WriteSpice.tcl:71 | Directory $spice_dir not found. |
 | 1921 | WriteSpice.tcl:74 | $spice_dir is not a directory. |
 | 1922 | WriteSpice.tcl:77 | Cannot write in $spice_dir. |
@@ -576,12 +576,12 @@ Do not edit it by hand; rebuild OpenSTA to regenerate.
 | 1925 | WriteSpice.tcl:89 | No -lib_subckt_file specified. |
 | 1926 | WriteSpice.tcl:95 | -model_file $model_file is not readable. |
 | 1927 | WriteSpice.tcl:98 | No -model_file specified. |
-| 1928 | WriteSpice.tcl:104 | No -power specified. |
-| 1929 | WriteSpice.tcl:110 | No -ground specified. |
-| 1930 | WriteSpice.tcl:116 | No -path_args specified. |
-| 1931 | WriteSpice.tcl:121 | No paths found for -path_args $path_args. |
-| 1932 | WriteSpice.tcl:174 | Missing -gates argument. |
-| 1933 | WriteSpice.tcl:247 | Missing -gates argument. |
+| 1928 | WriteSpice.tcl:105 | No -power specified. |
+| 1929 | WriteSpice.tcl:111 | No -ground specified. |
+| 1930 | WriteSpice.tcl:117 | No -path_args specified. |
+| 1931 | WriteSpice.tcl:122 | No paths found for -path_args $path_args. |
+| 1932 | WriteSpice.tcl:175 | Missing -gates argument. |
+| 1933 | WriteSpice.tcl:248 | Missing -gates argument. |
 | 2100 | ArcDelayCalc.cc:101 | no timing arc for {} input/driver pins. |
 | 2101 | ArcDelayCalc.cc:106 | {} not a valid rise/fall. |
 | 2102 | ArcDelayCalc.cc:109 | Pin {}/{} not found. |
