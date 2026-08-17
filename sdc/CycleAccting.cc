@@ -305,6 +305,7 @@ CycleAccting::setSetupAccting(int src_cycle,
   setAccting(TimingRole::outputSetup(), src_cycle, tgt_cycle, delay, req);
   setAccting(TimingRole::gatedClockSetup(), src_cycle, tgt_cycle, delay, req);
   setAccting(TimingRole::recovery(), src_cycle, tgt_cycle, delay, req);
+  setAccting(TimingRole::nonSeqSetup(), src_cycle, tgt_cycle, delay, req);
 }
 
 void
@@ -317,6 +318,7 @@ CycleAccting::setHoldAccting(int src_cycle,
   setAccting(TimingRole::outputHold(), src_cycle, tgt_cycle, delay, req);
   setAccting(TimingRole::removal(), src_cycle, tgt_cycle, delay, req);
   setAccting(TimingRole::latchHold(), src_cycle, tgt_cycle, delay, req);
+  setAccting(TimingRole::nonSeqHold(), src_cycle, tgt_cycle, delay, req);
 }
 
 void
