@@ -45,7 +45,6 @@ nav:
   - Commands: Commands.md
   - Filter expressions: FilterExpressions.md
   - Variables: Variables.md
-  - Messages: Messages.md
   - ChangeLog: ChangeLog.md
   - Developer:
       - STA API: StaApi.md
