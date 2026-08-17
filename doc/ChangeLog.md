@@ -355,7 +355,7 @@ The `report_checks` `-field hierarchical_pins` field reports hierarchical pins b
 a driver and a load in the path report.
 
 The `suppress_msg` and `unsuppress_msg` commands allow suppression/unsuppression of
-warnings/errors by ID. Message IDs can be found in [messages](Messages.md).
+warnings/errors by ID. Message IDs can be found in doc/Messages.md.
 
 ## Release 2.5.0 2024/01/17
 
