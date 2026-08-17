@@ -228,19 +228,23 @@ VerilogReader::makeCellPorts(Cell *cell,
 {
   StringSet port_names;
   for (VerilogNet *mod_port : *ports) {
-    const std::string &port_name = mod_port->name();
-    if (!port_names.contains(port_name)) {
-      port_names.insert(port_name);
-      if (mod_port->isNamed()) {
-        if (mod_port->isNamedPortRef())
-          makeNamedPortRefCellPorts(cell, module, mod_port, port_names);
-        else
-          makeCellPort(cell, module, mod_port->name());
-      }
+    // A port expression without a port identifier (IEEE 1364-2005 A.1.4)
+    // makes no port. They all have the same empty name, so check before
+    // the repeated port name check below.
+    if (!mod_port->isNamed())
+      warn(2721, module->filename(), module->line(),
+           "module {} port expression without a port identifier is not supported.",
+           module->name());
+    else if (!port_names.contains(mod_port->name())) {
+      port_names.insert(mod_port->name());
+      if (mod_port->isNamedPortRef())
+        makeNamedPortRefCellPorts(cell, module, mod_port, port_names);
+      else
+        makeCellPort(cell, module, mod_port->name());
     }
     else
       warn(165, module->filename(), module->line(),
-           "module {} repeated port name {}.", module->name(), port_name);
+           "module {} repeated port name {}.", module->name(), mod_port->name());
   }
   checkModuleDcls(module, port_names);
 }
@@ -1169,7 +1173,20 @@ VerilogNetConstant::parseConstant(std::string_view constant,
   std::string csize(constant.substr(0, csize_end));
 
   // Read the constant size.
-  size_t size = std::stol(csize);
+  // IEEE 1364-2005 3.5.1 makes the size optional; the width comes from the
+  // context, which is not known here, so use one bit.
+  size_t size = 1;
+  if (csize.empty())
+    reader->warn(2724, reader->filename(), line,
+                 "unsized constant {} not supported.", constant);
+  else {
+    auto [size_value, valid] = stringLong(csize);
+    if (valid && size_value > 0)
+      size = size_value;
+    else
+      reader->warn(2725, reader->filename(), line,
+                   "constant {} size is not supported.", constant);
+  }
   value_ = new VerilogConstantValue(size);
 
   // Read the constant base.
@@ -1468,11 +1485,17 @@ VerilogReader::linkNetwork(std::string_view top_cell_name,
         while (net_name_iter->hasNext()) {
           const std::string &net_name = net_name_iter->next();
           Port *port = network_->findPort(top_cell, net_name);
-          Net *net = bindings.ensureNetBinding(net_name, top_instance, network_);
-          // Guard against repeated port name.
-          if (network_->findPin(top_instance, port) == nullptr) {
-            Pin *pin = network_->makePin(top_instance, port, nullptr);
-            network_->makeTerm(pin, net);
+          if (port == nullptr)
+            // No port was made for this module port list entry.
+            linkWarn(2722, module->filename(), module->line(),
+                     "module {} port {} not found.", module->name(), net_name);
+          else {
+            Net *net = bindings.ensureNetBinding(net_name, top_instance, network_);
+            // Guard against repeated port name.
+            if (network_->findPin(top_instance, port) == nullptr) {
+              Pin *pin = network_->makePin(top_instance, port, nullptr);
+              network_->makeTerm(pin, net);
+            }
           }
         }
         delete net_name_iter;
@@ -1657,7 +1680,15 @@ VerilogReader::makeOrderedInstPins(Cell *cell,
   while (pin_iter != mod_pins->end() && port_iter->hasNext()) {
     VerilogNet *net = *pin_iter++;
     Port *port = port_iter->next();
-    if (network_->size(port) != net->size(parent_module)) {
+    // A bundle port from an explicit named module port (IEEE 1364-2005 A.1.4)
+    // has no pin index, so it cannot be connected.
+    if (network_->isBundle(port)) {
+      std::string inst_vname = instanceVerilogName(mod_inst->instanceName());
+      linkError(2723, parent_module->filename(), mod_inst->line(),
+                "instance {} port {} port expression cannot be connected.",
+                inst_vname, network_->name(port));
+    }
+    else if (network_->size(port) != net->size(parent_module)) {
       std::string inst_vname = instanceVerilogName(mod_inst->instanceName());
       linkWarn(202, parent_module->filename(), mod_inst->line(),
                "instance {} port {} size {} does not match net size {}.",
@@ -1720,7 +1751,7 @@ VerilogReader::makeInstPin(Instance *inst,
     // Pin should already exist by prior makePin, then connect to parent
     // net if present and create a term for the child-side net.
     Pin *pin = network_->findPin(inst, port);
-    if (net) {
+    if (net && pin) {
       network_->connect(inst, port, net);
       std::string port_name = network_->name(port);
       Net *child_net = bindings->ensureNetBinding(port_name, inst, network_);

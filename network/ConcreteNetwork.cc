@@ -29,6 +29,7 @@
 #include <string_view>
 
 #include "ConcreteLibrary.hh"
+#include "Error.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "PatternMatch.hh"
@@ -1422,21 +1423,26 @@ ConcreteNetwork::connect(Instance *inst,
     if (prev_net)
       disconnectNetPin(prev_net, cpin);
   }
+  // Bus and bundle ports have no pin index, so they have no pin to connect.
+  else if (cport->isBus() || cport->isBundle())
+    report()->warn(2728, "port {} has no pin to connect.", cport->name());
   else {
     cpin = new ConcretePin(cinst, cport, cnet);
     cinst->addPin(cpin);
   }
-  if (inst == top_instance_) {
-    // makeTerm
-    ConcreteTerm *cterm = new ConcreteTerm(cpin, cnet);
-    if (cnet)
-      cnet->addTerm(cterm);
-    cpin->term_ = cterm;
-    cpin->net_ = nullptr;
-  }
-  else {
-    cpin->net_ = cnet;
-    connectNetPin(cnet, cpin);
+  if (cpin) {
+    if (inst == top_instance_) {
+      // makeTerm
+      ConcreteTerm *cterm = new ConcreteTerm(cpin, cnet);
+      if (cnet)
+        cnet->addTerm(cterm);
+      cpin->term_ = cterm;
+      cpin->net_ = nullptr;
+    }
+    else {
+      cpin->net_ = cnet;
+      connectNetPin(cnet, cpin);
+    }
   }
   return reinterpret_cast<Pin*>(cpin);
 }
@@ -1657,22 +1663,17 @@ ConcretePin *
 ConcreteInstance::findPin(std::string_view port_name) const
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell_);
-  const ConcretePort *cport =
-    reinterpret_cast<const ConcretePort*>(ccell->findPort(port_name));
-  if (cport
-      && !cport->isBus())
-    return pins_[cport->pinIndex()];
-  else
-    return nullptr;
+  return findPin(reinterpret_cast<const Port*>(ccell->findPort(port_name)));
 }
 
 ConcretePin *
 ConcreteInstance::findPin(const Port *port) const
 {
   const ConcretePort *cport = reinterpret_cast<const ConcretePort*>(port);
-  size_t port_index = cport->pinIndex();
-  if (port_index < pins_.size())
-    return pins_[port_index];
+  if (cport
+      && !(cport->isBus() || cport->isBundle())
+      && static_cast<size_t>(cport->pinIndex()) < pins_.size())
+    return pins_[cport->pinIndex()];
   else
     return nullptr;
 }
@@ -1758,8 +1759,11 @@ void
 ConcreteInstance::addPin(ConcretePin *pin)
 {
   ConcretePort *cport = reinterpret_cast<ConcretePort *>(pin->port());
-  size_t pin_index = cport->pinIndex();
-  if (pin_index >= pins_.size())
+  // Bus and bundle ports have no pin index; storing at pins_[-1] corrupts memory.
+  if (cport->isBus() || cport->isBundle())
+    criticalError(2727, "port has no pin index");
+  int pin_index = cport->pinIndex();
+  if (static_cast<size_t>(pin_index) >= pins_.size())
     pins_.resize(pin_index + 1);
   pins_[pin_index] = pin;
 }
@@ -1858,25 +1862,30 @@ ConcreteNet::ConcreteNet(std::string_view name,
 void
 ConcreteNet::mergeInto(ConcreteNet *net)
 {
-  ConcreteNetPinIterator pin_iter(this);
-  while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
-    ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
-    net->addPin(cpin);
-    cpin->net_ = net;
+  // Merging a net into itself moves its pins and terms onto itself, nulls
+  // them, and leaves merged_into_ pointing at this, so following the merge
+  // chain never ends.
+  if (net != this) {
+    ConcreteNetPinIterator pin_iter(this);
+    while (pin_iter.hasNext()) {
+      Pin *pin = pin_iter.next();
+      ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
+      net->addPin(cpin);
+      cpin->net_ = net;
+    }
+    pins_ = nullptr;
+    ConcreteNetTermIterator term_iter(this);
+    while (term_iter.hasNext()) {
+      Term *term = term_iter.next();
+      ConcreteTerm *cterm = reinterpret_cast<ConcreteTerm*>(term);
+      net->addTerm(cterm);
+      cterm->net_ = net;
+    }
+    terms_ = nullptr;
+    // Leave name map pointing to merged net because otherwise a top
+    // level merged net has no pointer to it and it is leaked.
+    merged_into_ = net;
   }
-  pins_ = nullptr;
-  ConcreteNetTermIterator term_iter(this);
-  while (term_iter.hasNext()) {
-    Term *term = term_iter.next();
-    ConcreteTerm *cterm = reinterpret_cast<ConcreteTerm*>(term);
-    net->addTerm(cterm);
-    cterm->net_ = net;
-  }
-  terms_ = nullptr;
-  // Leave name map pointing to merged net because otherwise a top
-  // level merged net has no pointer to it and it is leaked.
-  merged_into_ = net;
 }
 
 void
