@@ -60,7 +60,8 @@ TimingArcAttrs::TimingArcAttrs() :
   timing_sense_(TimingSense::unknown),
   cond_(nullptr),
   ocv_arc_depth_(0.0),
-  models_{nullptr, nullptr}
+  models_{nullptr, nullptr},
+  retain_models_{nullptr, nullptr}
 {
 }
 
@@ -69,7 +70,8 @@ TimingArcAttrs::TimingArcAttrs(TimingSense sense) :
   timing_sense_(sense),
   cond_(nullptr),
   ocv_arc_depth_(0.0),
-  models_{nullptr, nullptr}
+  models_{nullptr, nullptr},
+  retain_models_{nullptr, nullptr}
 {
 }
 
@@ -78,6 +80,8 @@ TimingArcAttrs::~TimingArcAttrs()
   delete cond_;
   delete models_[RiseFall::riseIndex()];
   delete models_[RiseFall::fallIndex()];
+  delete retain_models_[RiseFall::riseIndex()];
+  delete retain_models_[RiseFall::fallIndex()];
 }
 
 void
@@ -140,6 +144,19 @@ TimingArcAttrs::setModel(const RiseFall *rf,
                          TimingModel *model)
 {
   models_[rf->index()] = model;
+}
+
+TimingModel *
+TimingArcAttrs::retainModel(const RiseFall *rf) const
+{
+  return retain_models_[rf->index()];
+}
+
+void
+TimingArcAttrs::setRetainModel(const RiseFall *rf,
+                               TimingModel *model)
+{
+  retain_models_[rf->index()] = model;
 }
 
 void
@@ -560,6 +577,7 @@ TimingArc::~TimingArc()
   // The models referenced by scaled_models_ are owned by the scaled
   // cells and are deleted by ~LibertyCell.
   delete scaled_models_;
+  delete scaled_retain_models_;
 }
 
 std::string
@@ -616,15 +634,33 @@ TimingArc::model(const Scene *scene,
                  const MinMax *min_max) const
 {
   const TimingArc *scene_arc = sceneArc(scene->libertyIndex(min_max));
+  const OperatingConditions *op_cond =
+    scene->sdc()->operatingConditions(min_max);
+  // Liberty retaining_* tables are contamination delay (min).
+  if (min_max == MinMax::min()) {
+    ScaledTimingModelMap *scaled_retain = scene_arc->scaled_retain_models_;
+    if (scaled_retain) {
+      TimingModel *scaled_model = findKey(*scaled_retain, op_cond);
+      if (scaled_model)
+        return scaled_model;
+    }
+    TimingModel *retain_model = scene_arc->retainModel();
+    if (retain_model)
+      return retain_model;
+  }
   ScaledTimingModelMap *scaled_models = scene_arc->scaled_models_;
   if (scaled_models) {
-    const OperatingConditions *op_cond =
-      scene->sdc()->operatingConditions(min_max);
     TimingModel *scaled_model = findKey(*scaled_models, op_cond);
     if (scaled_model)
       return scaled_model;
   }
   return scene_arc->model();
+}
+
+TimingModel *
+TimingArc::retainModel() const
+{
+  return set_->retainModel(to_rf_->asRiseFall());
 }
 
 void
@@ -634,6 +670,15 @@ TimingArc::addScaledModel(const OperatingConditions *op_cond,
   if (scaled_models_ == nullptr)
     scaled_models_ = new ScaledTimingModelMap;
   (*scaled_models_)[op_cond] = scaled_model;
+}
+
+void
+TimingArc::addScaledRetainModel(const OperatingConditions *op_cond,
+                                TimingModel *scaled_model)
+{
+  if (scaled_retain_models_ == nullptr)
+    scaled_retain_models_ = new ScaledTimingModelMap;
+  (*scaled_retain_models_)[op_cond] = scaled_model;
 }
 
 bool

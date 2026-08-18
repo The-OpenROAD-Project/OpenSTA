@@ -1492,6 +1492,11 @@ LibertyCell::addScaledCell(OperatingConditions *op_cond,
         TimingModel *model = scaled_arc->model();
         model->setIsScaled(true);
         arc->addScaledModel(op_cond, model);
+        TimingModel *retain_model = scaled_arc->retainModel();
+        if (retain_model) {
+          retain_model->setIsScaled(true);
+          arc->addScaledRetainModel(op_cond, retain_model);
+        }
       }
     }
   }

@@ -70,6 +70,10 @@ protected:
   void writeTimingArcSet(const TimingArcSet *arc_set);
   void writeTimingModels(const TimingArc *arc,
                          const RiseFall *rf);
+  void writeGateTableModel(const GateTableModel *gate_model,
+                           const RiseFall *rf,
+                           bool retain,
+                           const GateTableModel *cell_model);
   void writeTableModel(const TableModel *model);
   void writeTableModel0(const TableModel *model);
   void writeTableModel1(const TableModel *model);
@@ -451,36 +455,64 @@ void
 LibertyWriter::writeTimingModels(const TimingArc *arc,
                                  const RiseFall *rf)
 {
-  TimingModel *model = arc->model();
+  const TimingArcSet *arc_set = arc->set();
+  TimingModel *model = arc_set->model(rf);
+  TimingModel *retain_model = arc_set->retainModel(rf);
   const GateTableModel *gate_model = dynamic_cast<GateTableModel *>(model);
+  const GateTableModel *retain_gate = dynamic_cast<GateTableModel *>(retain_model);
   const CheckTableModel *check_model = dynamic_cast<CheckTableModel *>(model);
-  if (gate_model) {
-    const TableModel *delay_model = gate_model->delayModel();
+  if (gate_model)
+    writeGateTableModel(gate_model, rf, false, nullptr);
+  if (retain_gate)
+    writeGateTableModel(retain_gate, rf, true, gate_model);
+  if (check_model) {
+    const TableModel *check_table = check_model->checkModel();
+    const std::string &template_name = check_table->tblTemplate()->name();
+    sta::print(stream_, "        {}_constraint({}) {{\n", rf->name(),
+               template_name);
+    writeTableModel(check_table);
+    sta::print(stream_, "        }}\n");
+  }
+  if (gate_model == nullptr && retain_gate == nullptr && check_model == nullptr)
+    report_->error(1341, "{}/{}/{} timing model not supported.", library_->name(),
+                   arc->from()->libertyCell()->name(), arc->from()->name());
+}
+
+void
+LibertyWriter::writeGateTableModel(const GateTableModel *gate_model,
+                                   const RiseFall *rf,
+                                   bool retain,
+                                   const GateTableModel *cell_model)
+{
+  const TableModel *delay_model = gate_model->delayModel();
+  if (delay_model) {
     const std::string &template_name = delay_model->tblTemplate()->name();
-    sta::print(stream_, "        cell_{}({}) {{\n", rf->name(), template_name);
+    if (retain)
+      sta::print(stream_, "        retaining_{}({}) {{\n", rf->name(),
+                 template_name);
+    else
+      sta::print(stream_, "        cell_{}({}) {{\n", rf->name(), template_name);
     writeTableModel(delay_model);
     sta::print(stream_, "        }}\n");
+  }
 
-    const TableModel *slew_model = gate_model->slewModel();
-    if (slew_model) {
+  const TableModel *slew_model = gate_model->slewModel();
+  if (slew_model) {
+    bool slew_is_fallback = false;
+    if (retain && cell_model && cell_model->slewModel())
+      slew_is_fallback = cell_model->slewModel()->table() == slew_model->table();
+    if (!slew_is_fallback) {
       const std::string &slew_template_name = slew_model->tblTemplate()->name();
-      sta::print(stream_, "        {}_transition({}) {{\n", rf->name(),
-                 slew_template_name);
+      if (retain)
+        sta::print(stream_, "        retain_{}_slew({}) {{\n", rf->name(),
+                   slew_template_name);
+      else
+        sta::print(stream_, "        {}_transition({}) {{\n", rf->name(),
+                   slew_template_name);
       writeTableModel(slew_model);
       sta::print(stream_, "        }}\n");
     }
   }
-  else if (check_model) {
-    const TableModel *model = check_model->checkModel();
-    const std::string &template_name = model->tblTemplate()->name();
-    sta::print(stream_, "        {}_constraint({}) {{\n", rf->name(),
-               template_name);
-    writeTableModel(model);
-    sta::print(stream_, "        }}\n");
-  }
-  else
-    report_->error(1341, "{}/{}/{} timing model not supported.", library_->name(),
-                   arc->from()->libertyCell()->name(), arc->from()->name());
 }
 
 void

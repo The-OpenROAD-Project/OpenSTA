@@ -156,6 +156,7 @@ record_public_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  liberty_retain
   make_concrete_parasitics_leak
   max_power_area
   non_seq_timing
