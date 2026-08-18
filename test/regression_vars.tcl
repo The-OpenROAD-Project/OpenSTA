@@ -178,6 +178,8 @@ record_public_tests {
   set_path_margin6
   slash_port_test
   suppress_msg
+  swig_seq_double_free
+  swig_seq_leak
   user_properties
   vcd_begin_end_time
   verilog_assign_alias_loop

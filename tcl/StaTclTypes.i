@@ -325,12 +325,20 @@ using namespace sta;
   $1 = tclListSeqPtr<Cell*>($input, SWIGTYPE_p_Cell, interp);
 }
 
+%typemap(freearg) CellSeq* {
+  delete $1;
+}
+
 %typemap(out) CellSeq {
   seqTclList<CellSeq, Cell>($1, SWIGTYPE_p_Cell, interp);
 }
 
 %typemap(in) LibertyCellSeq* {
   $1 = tclListSeqPtr<LibertyCell*>($input, SWIGTYPE_p_LibertyCell, interp);
+}
+
+%typemap(freearg) LibertyCellSeq* {
+  delete $1;
 }
 
 %typemap(out) LibertyCellSeq * {
@@ -343,6 +351,10 @@ using namespace sta;
 
 %typemap(in) LibertyPortSeq* {
   $1 = tclListSeqPtr<LibertyPort*>($input, SWIGTYPE_p_LibertyPort, interp);
+}
+
+%typemap(freearg) LibertyPortSeq* {
+  delete $1;
 }
 
 %typemap(out) LibertyPortSeq {
@@ -366,6 +378,10 @@ using namespace sta;
 
 %typemap(in) PortSeq* {
   $1 = tclListSeqPtr<const Port*>($input, SWIGTYPE_p_Port, interp);
+}
+
+%typemap(freearg) PortSeq* {
+  delete $1;
 }
 
 %typemap(out) PortSeq {
@@ -541,6 +557,10 @@ using namespace sta;
   $1 = tclListSeqPtr<const Instance*>($input, SWIGTYPE_p_Instance, interp);
 }
 
+%typemap(freearg) InstanceSeq* {
+  delete $1;
+}
+
 %typemap(in) InstanceSeq {
   $1 = tclListSeq<const Instance*>($input, SWIGTYPE_p_Instance, interp);
  }
@@ -573,6 +593,10 @@ using namespace sta;
   $1 = tclListSeqPtr<LibertyLibrary*>($input, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
+%typemap(freearg) LibertyLibrarySeq* {
+  delete $1;
+}
+
 %typemap(out) LibertyLibrarySeq {
   seqTclList<LibertyLibrarySeq, LibertyLibrary>($1, SWIGTYPE_p_LibertyLibrary, interp);
 }
@@ -597,6 +621,10 @@ using namespace sta;
 
 %typemap(in) NetSeq* {
   $1 = tclListSeqPtr<const Net*>($input, SWIGTYPE_p_Net, interp);
+}
+
+%typemap(freearg) NetSeq* {
+  delete $1;
 }
 
 %typemap(out) NetSeq* {
@@ -644,6 +672,10 @@ using namespace sta;
   $1 = tclListSeqPtr<Clock*>($input, SWIGTYPE_p_Clock, interp);
 }
 
+%typemap(freearg) ClockSeq* {
+  delete $1;
+}
+
 %typemap(out) ClockSeq* {
   seqPtrTclList<ClockSeq, Clock>($1, SWIGTYPE_p_Clock, interp);
 }
@@ -659,6 +691,10 @@ using namespace sta;
 
 %typemap(in) PinSeq* {
   $1 = tclListSeqPtr<const Pin*>($input, SWIGTYPE_p_Pin, interp);
+}
+
+%typemap(freearg) PinSeq* {
+  delete $1;
 }
 
 %typemap(in) PinSet {
@@ -1078,6 +1114,10 @@ using namespace sta;
   $1 = tclListSeqPtr<Edge*>($input, SWIGTYPE_p_Edge, interp);
 }
 
+%typemap(freearg) EdgeSeq* {
+  delete $1;
+}
+
 %typemap(out) EdgeSeq {
   seqTclList<EdgeSeq, Edge>($1, SWIGTYPE_p_Edge, interp);
 }
@@ -1119,6 +1159,10 @@ using namespace sta;
 
 %typemap(in) PathEndSeq* {
   $1 = tclListSeqPtr<PathEnd*>($input, SWIGTYPE_p_PathEnd, interp);
+}
+
+%typemap(freearg) PathEndSeq* {
+  delete $1;
 }
 
 %typemap(out) PathEndSeq* {
@@ -1222,6 +1266,10 @@ using namespace sta;
   $1 = tclListSeqPtr<Mode*>($input, SWIGTYPE_p_Mode, interp);
 }
 
+%typemap(freearg) ModeSeq* {
+  delete $1;
+}
+
 %typemap(out) ModeSeq {
   seqTclList<ModeSeq, Mode>($1, SWIGTYPE_p_Mode, interp);
 }
@@ -1257,6 +1305,10 @@ using namespace sta;
 
 %typemap(in) SceneSeq* {
   $1 = tclListSeqPtr<Scene*>($input, SWIGTYPE_p_Scene, interp);
+}
+
+%typemap(freearg) SceneSeq* {
+  delete $1;
 }
 
 %typemap(out) SceneSeq {

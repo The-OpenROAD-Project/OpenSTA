@@ -494,7 +494,6 @@ void
 report_path_ends(PathEndSeq *ends)
 {
   Sta::sta()->reportPathEnds(ends);
-  delete ends;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -908,7 +907,6 @@ find_fanin_pins(PinSeq *to,
   PinSet fanin = sta->findFaninPins(to, flat, startpoints_only,
                                     inst_levels, pin_levels,
                                     thru_disabled, thru_constants, mode);
-  delete to;
   return fanin;
 }
 
@@ -926,7 +924,6 @@ find_fanin_insts(PinSeq *to,
   InstanceSet fanin = sta->findFaninInstances(to, flat, startpoints_only,
                                               inst_levels, pin_levels,
                                               thru_disabled, thru_constants, mode);
-  delete to;
   return fanin;
 }
 
@@ -944,7 +941,6 @@ find_fanout_pins(PinSeq *from,
   PinSet fanout = sta->findFanoutPins(from, flat, endpoints_only,
                                       inst_levels, pin_levels,
                                       thru_disabled, thru_constants, mode);
-  delete from;
   return fanout;
 }
 
@@ -962,7 +958,6 @@ find_fanout_insts(PinSeq *from,
   InstanceSet fanout = sta->findFanoutInstances(from, flat, endpoints_only,
                                                 inst_levels, pin_levels,
                                                 thru_disabled, thru_constants, mode);
-  delete from;
   return fanout;
 }
 
