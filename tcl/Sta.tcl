@@ -30,9 +30,8 @@ namespace eval sta {
 #
 ################################################################
 
-define_cmd_args "define_scene" {name -mode mode_name\
-                                  -liberty liberty_files \
-                                  | -liberty_min liberty_min_files -liberty_max liberty_max_files\
+define_cmd_args "define_scene" {name [-mode mode_name]\
+                                  [-liberty liberty_files | -liberty_min liberty_min_files -liberty_max liberty_max_files]\
                                   [-spef spef_file | -spef_min spef_min_file -spef_max spef_max_file]} \
   -help {The `define_scene` command defines a scene for a mode (SDC), liberty files and spef parasitics. Define scenes after reading Liberty libraries and SPEF parasitics.
 
@@ -40,7 +39,8 @@ Liberty files are specified with the name of the Liberty library or the filename
 
 Use `get_scenes` to find defined scenes.} \
   -arg_help {
-    -mode {The SDC mode to use.}
+    name {The name of the scene.}
+    -mode {The SDC mode to use. Defaults to the current mode.}
     -liberty {Liberty library name or filename used with `read_liberty`.}
     -liberty_min {Min-delay Liberty library name or filename.}
     -liberty_max {Max-delay Liberty library name or filename.}

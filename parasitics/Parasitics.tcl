@@ -44,7 +44,7 @@ Separate min/max parasitics can be annotated for each scene.
 ```
 read_spef -name min spef1
 read_spef -name max spef2
-define_scene -mode mode1 -spef_min min -spef_max max
+define_scene scene1 -mode mode1 -spef_min min -spef_max max
 ```
 
 Coupling capacitors are multiplied by the `-coupling_reduction_factor` when a parasitic network is reduced.
