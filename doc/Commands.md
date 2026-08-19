@@ -343,15 +343,8 @@ The `define_property` command defines a user property that can be set with `set_
 
 <pre><code>define_scene
     name
-    <a href="#opt-define_scene-mode">-mode</a>
-    mode_name
-    <a href="#opt-define_scene-liberty">-liberty</a>
-    liberty_files
-    |
-    <a href="#opt-define_scene-liberty_min">-liberty_min</a>
-    liberty_min_files
-    <a href="#opt-define_scene-liberty_max">-liberty_max</a>
-    liberty_max_files
+    [<a href="#opt-define_scene-mode">-mode</a> mode_name]
+    [<a href="#opt-define_scene-liberty">-liberty</a> liberty_files | <a href="#opt-define_scene-liberty_min">-liberty_min</a> liberty_min_files <a href="#opt-define_scene-liberty_max">-liberty_max</a> liberty_max_files]
     [<a href="#opt-define_scene-spef">-spef</a> spef_file | <a href="#opt-define_scene-spef_min">-spef_min</a> spef_min_file <a href="#opt-define_scene-spef_max">-spef_max</a> spef_max_file]</code></pre>
 
 The `define_scene` command defines a scene for a mode (SDC), liberty files and spef parasitics. Define scenes after reading Liberty libraries and SPEF parasitics.
@@ -363,7 +356,7 @@ Use `get_scenes` to find defined scenes.
 ### Options
 
 `-mode` {: #opt-define_scene-mode }
-: The SDC mode to use.
+: The SDC mode to use. Defaults to the current mode.
 
 `-liberty` {: #opt-define_scene-liberty }
 : Liberty library name or filename used with `read_liberty`.
@@ -1324,7 +1317,7 @@ Separate min/max parasitics can be annotated for each scene.
 ```
 read_spef -name min spef1
 read_spef -name max spef2
-define_scene -mode mode1 -spef_min min -spef_max max
+define_scene scene1 -mode mode1 -spef_min min -spef_max max
 ```
 
 Coupling capacitors are multiplied by the `-coupling_reduction_factor` when a parasitic network is reduced.

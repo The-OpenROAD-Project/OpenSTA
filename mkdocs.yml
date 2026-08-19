@@ -1,7 +1,8 @@
 site_name: OpenSTA
 site_description: OpenSTA static timing analyzer
-site_url: https://opensta.readthedocs.io
+site_url: https://parallaxsw.github.io/OpenSTA/
 repo_url: https://github.com/parallaxsw/OpenSTA
+repo_name: parallaxsw/OpenSTA
 edit_uri: ""
 
 docs_dir: doc

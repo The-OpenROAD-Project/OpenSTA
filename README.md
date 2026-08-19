@@ -50,6 +50,9 @@ netlist data structures without duplicating them.
 * Query based incremental update of delays, arrival and required times
 * Simulator to propagate constants from constraints and netlist tie high/low
 
+Documentation is published at
+https://parallaxsw.github.io/OpenSTA/.
+
 See [doc/Commands.md](doc/Commands.md) for command documentation.
 See [doc/ChangeLog.md](doc/ChangeLog.md) for changes to commands.
 See [doc/StaApi.md](doc/StaApi.md) for timing engine API documentation.
