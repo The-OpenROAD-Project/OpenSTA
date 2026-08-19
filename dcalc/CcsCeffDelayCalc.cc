@@ -36,10 +36,28 @@
 #include "Network.hh"
 #include "Parasitics.hh"
 #include "Scene.hh"
+#include "TableModel.hh"
 #include "TimingArc.hh"
 #include "Units.hh"
 
 namespace sta {
+
+// OpenROAD-fork: ccs-receiver -- process-global toggle (see header). Default
+// OFF: ccs_ceff is byte-identical to the constant-Cp behavior until the
+// OpenROAD set_ccs_delay_calc -receiver_model flag flips it on.
+static bool ccs_receiver_model_enabled = false;
+
+void
+CcsCeffDelayCalc::setReceiverModelEnabled(bool enabled)
+{
+  ccs_receiver_model_enabled = enabled;
+}
+
+bool
+CcsCeffDelayCalc::receiverModelEnabled()
+{
+  return ccs_receiver_model_enabled;
+}
 
 // Implementaion based on:
 // "Gate Delay Estimation with Library Compatible Current Source Models
@@ -94,6 +112,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   parasitics_ = scene->parasitics(min_max);
   parasitic_ = parasitic;
   output_waveforms_ = nullptr;
+  last_ceff_ = -1.0;  // OpenROAD-fork: ccs-delay2 -- reset; set on CCS path.
 
   const GateTableModel *table_model = arc->gateTableModel(scene, min_max);
   if (table_model && parasitic) {
@@ -125,7 +144,12 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
                  drvr_rf_->shortName());
 
       double gate_delay, drvr_slew;
+      // OpenROAD-fork: ccs-receiver -- gather region-dependent receiver caps
+      // before the Ceff solve. No-op when the flag is off.
+      initReceiverModel(load_pin_index_map, scene, min_max);
       gateDelaySlew(drvr_library, gate_delay, drvr_slew);
+      // OpenROAD-fork: ccs-delay2 -- expose the converged effective cap.
+      last_ceff_ = region_ceff_[0];
       debugPrint(debug_, "ccs_dcalc", 2, "gate_delay {} drvr_slew {}",
                  delayAsString(gate_delay, this), delayAsString(drvr_slew, this));
 
@@ -154,6 +178,100 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   }
   return table_dcalc_->gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
                                  load_pin_index_map, scene, min_max);
+}
+
+// OpenROAD-fork: ccs-receiver -- gather the region-dependent receiver caps for
+// the load pins. The CCS receiver_capacitance model lives on the load pin's
+// GateTableModel (keyed by the load pin's input transition rf), the same place
+// the additive report (CcsReceiverReport.cc) reads it. We sum, over every load
+// pin that carries a receiver model:
+//   - its NLDM static pin cap (already folded into the pi-model far cap c1_),
+//   - segment 0 (Cr1, active/Miller region) receiver cap,
+//   - segment 1 (Cr2, settled region) receiver cap,
+// evaluated at the driver output transition slew (== the load pin input slew)
+// and the stage load cap (only used by 2D receiver-cap tables). Pins without a
+// receiver model are left out so they keep their constant NLDM contribution.
+// When the flag is off this clears the accumulators (no behavior change).
+void
+CcsCeffDelayCalc::initReceiverModel(const LoadPinIndexMap &load_pin_index_map,
+                                    const Scene *scene,
+                                    const MinMax *min_max)
+{
+  recv_has_model_ = false;
+  recv_nldm_cap_ = 0.0;
+  recv_cr1_cap_ = 0.0;
+  recv_cr2_cap_ = 0.0;
+  if (!ccs_receiver_model_enabled)
+    return;
+
+  const float drvr_slew_f = static_cast<float>(in_slew_);
+  for (const auto &[load_pin, load_idx] : load_pin_index_map) {
+    const LibertyPort *load_port = network_->libertyPort(load_pin);
+    if (load_port == nullptr)
+      continue;
+    const LibertyCell *load_cell = load_port->libertyCell();
+    if (load_cell == nullptr)
+      continue;
+    // The receiver cap is indexed by the load pin's input transition, which
+    // equals the driver output transition for this stage.
+    const RiseFall *rf = drvr_rf_;
+    const ReceiverModel *receiver = nullptr;
+    const TimingArcSetSeq &arc_sets = load_cell->timingArcSetsFrom(load_port);
+    for (TimingArcSet *arc_set : arc_sets) {
+      TimingModel *model = arc_set->model(rf);
+      auto *gate_model = dynamic_cast<GateTableModel*>(model);
+      if (gate_model == nullptr)
+        continue;
+      const ReceiverModel *rm = gate_model->receiverModel();
+      if (rm && rm->hasCapacitanceModel(0, rf)) {
+        receiver = rm;
+        break;
+      }
+    }
+    if (receiver == nullptr)
+      // No receiver model on this pin: leave it folded into c1_ (fallback).
+      continue;
+
+    const float nldm_cap = load_port->capacitance(rf, min_max);
+    const float cr1 = receiver->capacitance(0, rf, drvr_slew_f, load_cap_);
+    // Segment 1 (Cr2) is optional; fall back to Cr1 when absent.
+    const float cr2 = receiver->hasCapacitanceModel(1, rf)
+        ? receiver->capacitance(1, rf, drvr_slew_f, load_cap_)
+        : cr1;
+    recv_has_model_ = true;
+    recv_nldm_cap_ += nldm_cap;
+    recv_cr1_cap_ += cr1;
+    recv_cr2_cap_ += cr2;
+    debugPrint(debug_, "ccs_dcalc", 2,
+               "receiver model {} nldm {} cr1 {} cr2 {}",
+               network_->pathName(load_pin),
+               capacitance_unit_->asString(nldm_cap),
+               capacitance_unit_->asString(cr1),
+               capacitance_unit_->asString(cr2));
+  }
+  (void) scene;
+}
+
+// OpenROAD-fork: ccs-receiver -- far-cap (c1) value used for region/segment
+// seg_idx. With the receiver model off (or no contributing pin) this returns
+// the unmodified pi-model far cap c1_, so the charge integral is byte-identical
+// to the constant-Cp solve. With it on, the receiver pins' constant NLDM cap is
+// removed from c1_ and replaced with the region-appropriate value: Cr1 for
+// segments below the receiver threshold (region_vth_idx_, the Miller/transition
+// region) and Cr2 at/above it (settled region).
+double
+CcsCeffDelayCalc::regionFarCap(size_t seg_idx) const
+{
+  if (!ccs_receiver_model_enabled || !recv_has_model_)
+    return c1_;
+  const double recv_region_cap =
+      (seg_idx < region_vth_idx_) ? recv_cr1_cap_ : recv_cr2_cap_;
+  double c1 = c1_ - recv_nldm_cap_ + recv_region_cap;
+  // Guard against a pathological library where removing the NLDM cap would
+  // drive the far cap non-positive; keep the constant behavior in that case.
+  if (c1 <= 0.0)
+    return c1_;
+  return c1;
 }
 
 void
@@ -193,11 +311,16 @@ CcsCeffDelayCalc::gateDelaySlew(const LibertyLibrary *drvr_library,
       // Note that eqn 8 in the ref'd paper does not properly account
       // for the charge on c1 from previous segments so it does not
       // work well.
+      // OpenROAD-fork: ccs-receiver -- regionFarCap() returns c1_ unchanged
+      // when the receiver model is off, so this path is byte-identical by
+      // default; when on, c1 is the region-appropriate receiver-cap-refined
+      // far cap (Cr1 in the Miller region, Cr2 once settled).
+      const double c1_region = regionFarCap(i);
       double c1_v1, c1_v2, ignore;
-      vLoad(t1, rpi_ * c1_, c1_v1, ignore);
-      vLoad(t2, rpi_ * c1_, c1_v2, ignore);
-      double q1 = seg_v1 * c2_ + c1_v1 * c1_;
-      double q2 = seg_v2 * c2_ + c1_v2 * c1_;
+      vLoad(t1, rpi_ * c1_region, c1_v1, ignore);
+      vLoad(t2, rpi_ * c1_region, c1_v2, ignore);
+      double q1 = seg_v1 * c2_ + c1_v1 * c1_region;
+      double q2 = seg_v2 * c2_ + c1_v2 * c1_region;
       double ceff = (q2 - q1) / (seg_v2 - seg_v1);
 
       debugPrint(debug_, "ccs_dcalc", 2, "ceff {}",
@@ -665,14 +788,21 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
 {
   Parasitic *pi_elmore = nullptr;
   const RiseFall *rf = arc->toEdge()->asRiseFall();
-  if (parasitic && !parasitics_->isPiElmore(parasitic)) {
+  // OpenROAD-fork: ccs-delay-path -- reportGateDelay() can be invoked directly
+  // (e.g. by report_dcalc) without a preceding gateDelay() call, so the
+  // parasitics_ member is unset/stale here. Resolve it from the scene like
+  // gateDelay() does, otherwise the parasitics_ deref below crashes (Signal 11).
+  parasitics_ = scene->parasitics(min_max);
+  if (parasitics_ && parasitic && !parasitics_->isPiElmore(parasitic)) {
+    // Use the drvr_pin PARAMETER, not the stale drvr_pin_ member.
     pi_elmore =
-        parasitics_->reduceToPiElmore(parasitic, drvr_pin_, rf, scene, min_max);
+        parasitics_->reduceToPiElmore(parasitic, drvr_pin, rf, scene, min_max);
   }
   std::string report =
       table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap, pi_elmore,
                                     load_pin_index_map, scene, min_max, digits);
-  parasitics_->deleteDrvrReducedParasitics(drvr_pin);
+  if (parasitics_)
+    parasitics_->deleteDrvrReducedParasitics(drvr_pin);  // OpenROAD-fork: ccs-delay-path
   return report;
 }
 
