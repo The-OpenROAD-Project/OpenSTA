@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string_view>
+#include <iosfwd>
 
 namespace sta {
 
@@ -33,6 +34,12 @@ class LibertyLibrary;
 
 LibertyLibrary *
 readLibertyFile(std::string_view filename,
+                bool infer_latches,
+                Network *network);
+
+LibertyLibrary *
+readLibertyFile(std::istream& stream,
+                std::string_view filename,
                 bool infer_latches,
                 Network *network);
 
