@@ -184,6 +184,15 @@ genrule(
     visibility = ["//:__subpackages__"],
 )
 
+cc_library(
+    name = "config",
+    hdrs = [":StaConfig"],
+    includes = [
+        "include",
+        "include/sta",
+    ],
+)
+
 filegroup(
     name = "sta_swig_files",
     srcs = [
@@ -291,6 +300,7 @@ cc_binary(
     malloc = "@tcmalloc//tcmalloc",
     visibility = ["//visibility:public"],
     deps = [
+        ":config",
         ":opensta_lib",
         "//:tcl_readline_setup",
         "//bazel:tcl_library_init",
@@ -334,7 +344,6 @@ cc_library(
         ],
     ) + [
         "app/StaMain.cc",
-        ":StaConfig",
     ] + select({
         "@platforms//os:linux": ["util/MachineLinux.cc"],
         "@platforms//os:osx": ["util/MachineApple.cc"],
@@ -391,6 +400,7 @@ cc_library(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":config",
         "@cudd",
         "@eigen",  # keep. Is used, but with <>-includes
         "@openmp",  # keep. Is needed ? Nobody includes omp.h
