@@ -169,6 +169,8 @@ public:
   void writeCapLimits(const MinMax *min_max,
                       std::string_view cmd) const;
   void writeMaxArea() const;
+  void writeMaxDynamicPower() const;
+  void writeMaxLeakagePower() const;
   void writeFanoutLimits() const;
   void writeFanoutLimits(const MinMax *min_max,
                          std::string_view cmd) const;

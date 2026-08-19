@@ -157,6 +157,7 @@ record_public_tests {
   liberty_float_as_str
   liberty_latch3
   make_concrete_parasitics_leak
+  max_power_area
   package_require
   path_group_names
   power_json
@@ -167,6 +168,13 @@ record_public_tests {
   report_checks_src_attr
   report_json1
   report_json2
+  set_path_margin1
+  set_path_margin2
+  set_path_margin3
+  set_path_margin4
+  set_path_margin5
+  set_path_margin6
+  slash_port_test
   suppress_msg
   user_properties
   vcd_begin_end_time

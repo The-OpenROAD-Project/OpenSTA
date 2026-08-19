@@ -3229,7 +3229,7 @@ TEST_F(StaInitTest, PathEndCheckConstruct) {
   Path *data_path = new Path();
   Path *clk_path = new Path();
   PathEndCheck *pe = new PathEndCheck(data_path, nullptr, nullptr,
-                                       clk_path, nullptr, sta_);
+                                       clk_path, nullptr, nullptr, sta_);
   EXPECT_EQ(pe->type(), PathEnd::Type::check);
   EXPECT_STREQ(pe->typeName(), "check");
   EXPECT_TRUE(pe->isCheck());
@@ -3250,7 +3250,7 @@ TEST_F(StaInitTest, PathEndOutputDelayConstruct) {
   Path *data_path = new Path();
   Path *clk_path = new Path();
   PathEndOutputDelay *pe = new PathEndOutputDelay(nullptr, data_path,
-                                                    clk_path, nullptr, sta_);
+                                                    clk_path, nullptr, nullptr, sta_);
   EXPECT_EQ(pe->type(), PathEnd::Type::output_delay);
   EXPECT_STREQ(pe->typeName(), "output_delay");
   EXPECT_TRUE(pe->isOutputDelay());
@@ -3266,7 +3266,7 @@ TEST_F(StaInitTest, PathEndGatedClockConstruct) {
   Path *clk_path = new Path();
   PathEndGatedClock *pe = new PathEndGatedClock(data_path, clk_path,
                                                   TimingRole::setup(),
-                                                  nullptr, 0.0f, sta_);
+                                                  nullptr, nullptr, 0.0f, sta_);
   EXPECT_EQ(pe->type(), PathEnd::Type::gated_clk);
   EXPECT_STREQ(pe->typeName(), "gated_clk");
   EXPECT_TRUE(pe->isGatedClock());

@@ -1,0 +1,60 @@
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ r1/CK (DFF_X1)
+   0.0836    0.0836 ^ r1/Q (DFF_X1)
+   0.0277    0.1113 ^ u2/ZN (AND2_X1)
+   0.0000    0.1113 ^ r3/D (DFF_X1)
+             0.1113   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+   0.0000   10.0000   clock reconvergence pessimism
+            10.0000 ^ r3/CK (DFF_X1)
+  -0.0311    9.9689   library setup time
+             9.9689   data required time
+-------------------------------------------------------------
+             9.9689   data required time
+            -0.1113   data arrival time
+-------------------------------------------------------------
+             9.8576   slack (MET)
+
+
+setup_through_r1 none
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Delay      Time   Description
+-------------------------------------------------------------
+   0.0000    0.0000   clock clk (rise edge)
+   0.0000    0.0000   clock network delay (ideal)
+   0.0000    0.0000 ^ r2/CK (DFF_X1)
+   0.0772    0.0772 v r2/Q (DFF_X1)
+   0.0233    0.1006 v u1/Z (BUF_X1)
+   0.0273    0.1278 v u2/ZN (AND2_X1)
+   0.0000    0.1278 v r3/D (DFF_X1)
+             0.1278   data arrival time
+
+  10.0000   10.0000   clock clk (rise edge)
+   0.0000   10.0000   clock network delay (ideal)
+  -3.0000    7.0000   path margin
+   0.0000    7.0000   clock reconvergence pessimism
+             7.0000 ^ r3/CK (DFF_X1)
+  -0.0390    6.9610   library setup time
+             6.9610   data required time
+-------------------------------------------------------------
+             6.9610   data required time
+            -0.1278   data arrival time
+-------------------------------------------------------------
+             6.8332   slack (MET)
+
+
+setup_through_r2 -3.000e-09
