@@ -53,7 +53,10 @@ netlist data structures without duplicating them.
 Documentation is published at
 https://parallaxsw.github.io/OpenSTA/.
 
-See [doc/Commands.md](doc/Commands.md) for command documentation.
+See the [command reference](https://parallaxsw.github.io/OpenSTA/Commands/)
+for command documentation. That page is generated from the live `sta`
+help registry when the binary is built (CMake, Read the Docs, and GitHub
+Pages all run `etc/WriteCmdDocs.tcl`).
 See [doc/ChangeLog.md](doc/ChangeLog.md) for changes to commands.
 See [doc/StaApi.md](doc/StaApi.md) for timing engine API documentation.
 

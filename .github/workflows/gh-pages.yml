@@ -23,6 +23,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            flex libfl-dev bison swig tcl-dev libeigen3-dev ninja-build wget
+
+      - name: Build sta and generate command docs
+        run: bash etc/build_sta.sh
+
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
