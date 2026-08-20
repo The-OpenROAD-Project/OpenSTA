@@ -3,7 +3,7 @@
 # Copyright (c) 2026, Parallax Software, Inc.
 #
 # Configure and build sta so WriteCmdDocs.tcl can generate command docs.
-# Used by Read the Docs and GitHub Pages, not the main CI test build.
+# Used by Read the Docs, not the main CI test build.
 # Usage: etc/build_sta.sh
 
 set -eu

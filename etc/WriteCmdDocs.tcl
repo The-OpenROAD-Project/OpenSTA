@@ -7,7 +7,7 @@ exec sta -no_splash -no_init -exit $0 ${1+"$@"}
 #
 # Write doc/Commands.md, doc/Variables.md, and doc/CommandLine.md
 # from the live command/variable help registry. These files are not
-# checked in; CMake, Read the Docs, and GitHub Pages regenerate them.
+# checked in; CMake and Read the Docs regenerate them.
 # Usage: sta -no_splash -no_init -exit etc/WriteCmdDocs.tcl
 
 namespace eval sta {
