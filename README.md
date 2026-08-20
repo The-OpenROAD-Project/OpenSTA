@@ -51,7 +51,7 @@ netlist data structures without duplicating them.
 * Simulator to propagate constants from constraints and netlist tie high/low
 
 Documentation is published at
-https://parallaxsw.github.io/OpenSTA/.
+https://opensta.readthedocs.io/en/latest/
 
 See the [command reference](https://parallaxsw.github.io/OpenSTA/Commands/)
 for command documentation. That page is generated from the live `sta`
