@@ -30,7 +30,33 @@ define_cmd_args "write_path_spice" { -path_args path_args\
                                        -model_file model_file\
                                        -power power\
                                        -ground ground\
-                                       [-simulator hspice|ngspice|xyce]}
+                                       [-simulator hspice|ngspice|xyce]} \
+  -help {The `write_path_spice` command writes a spice netlist for timing paths. Use path_args to specify `-from`/`-through`/`-to` as arguments to the `find_timing_paths` command. For each path, a spice netlist and the subckts referenced by the path are written in spice_directory. The spice netlist is written in path_<id>.sp and subckt file is path_<id>.subckt.
+
+The spice netlists used by the path are written to subckt_file, which spice_file .includes. The device models used by the spice subckt netlists in model_file are also .included in spice_file. Power and ground names are specified with the `-power` and `-ground` arguments. The spice netlist includes a piecewise linear voltage source at the input and .measure statement for each gate delay and pin slew.
+
+Example command:
+
+```
+write_path_spice -path_args {-from "in0" -to "out1" -unconstrained} \
+  -spice_directory $result_dir \
+  -lib_subckt_file "write_spice1.subckt" \
+  -model_file "write_spice1.models" \
+  -power VDD -ground VSS
+```
+
+When the simulator is hspice, .measure statements will be added to the spice netlist.
+
+When the simulator is Xyce, the .print statement selects the CSV format and writes the waveform data to a file name path_<id>.csv so the results can be used by gnuplot.} \
+  -arg_help {
+    -path_args {`-from`|`-through`|`-to` arguments as in `report_checks`.}
+    -spice_file {Directory and path prefix for spice output files.}
+    -lib_subckt_file {Cell transistor level subckts.}
+    -model_file {Transistor model definitions .included by spice_file.}
+    -power {Voltage supply name in voltage_map of the default liberty library.}
+    -ground {Ground supply name in voltage_map of the default liberty library.}
+    -simulator {Simulator that will read the spice netlist.}
+  }
 
 proc write_path_spice { args } {
   parse_key_args "write_path_spice" args \
@@ -69,7 +95,8 @@ proc write_path_spice { args } {
       sta_error 1926 "-model_file $model_file is not readable."
     }
   } else {
-    sta_error 1927 "No -model_file specified."
+    sta_warn 1927 "No -model_file specified."
+    set model_file ""
   }
 
   if { [info exists keys(-power)] } {

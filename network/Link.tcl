@@ -27,7 +27,16 @@
 namespace eval sta {
 
 define_cmd_args "link_design" {[-no_black_boxes]\
-                                 [top_cell_name]}
+                                 [top_cell_name]} \
+  -help {Link (elaborate, flatten) the top-level cell `cell_name`. The design must be linked after reading netlist and library files. The default value of `cell_name` is the current design.
+
+By default the linker creates empty black-box cells for instances that reference undefined cells. Use `-no_black_boxes` to report an error and fail the link instead.
+
+The `link_design` command returns 1 if the link succeeds and 0 if it fails.} \
+  -arg_help {
+    -no_black_boxes {Do not make empty "black box" cells for instances that reference undefined cells.}
+    cell_name {The top level module/cell name of the design hierarchy to link.}
+  }
 
 proc_redirect link_design {
   variable current_design_name

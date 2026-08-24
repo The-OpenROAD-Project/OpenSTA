@@ -1,0 +1,30 @@
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.12"
+  apt_packages:
+    - bison
+    - build-essential
+    - cmake
+    - flex
+    - libeigen3-dev
+    - libfl-dev
+    - ninja-build
+    - pkg-config
+    - swig
+    - tcl-dev
+    - wget
+    - zlib1g-dev
+  jobs:
+    # Commands.md / Variables.md / CommandLine.md come from a live sta binary.
+    pre_build:
+      - bash etc/build_sta.sh
+
+mkdocs:
+  configuration: mkdocs.yml
+
+python:
+  install:
+    - requirements: doc/requirements.txt

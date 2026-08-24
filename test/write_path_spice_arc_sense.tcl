@@ -13,8 +13,7 @@ set_output_delay -clock vclk 0 [all_outputs]
 set spice_file [make_result_file "write_path_spice_arc_sense.sp"]
 write_path_spice -path_args {-path_delay max -fall_from [get_ports a] -rise_to [get_ports x]} \
   -spice_file $spice_file \
-  -lib_subckt_file write_path_spice_arc_sense.cells.spice \
-  -model_file write_path_spice_arc_sense.models.spice \
+  -lib_subckt_file write_path_spice_arc_sense.subckt \
   -power VPWR -ground VGND \
   -simulator ngspice
-report_file ${spice_file}_1.sp
+report_file_filter ${spice_file}_1.sp [file dirname $result_dir]/

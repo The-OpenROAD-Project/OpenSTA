@@ -172,10 +172,19 @@ proc parse_redirect_args { arg_var } {
 
 ################################################################
 
-proc define_cmd_args { cmd arglist } {
+proc define_cmd_args { cmd arglist args } {
   variable cmd_args
+  variable cmd_help
+  variable cmd_arg_help
 
   set cmd_args($cmd) $arglist
+  parse_key_args "define_cmd_args" args keys {-help -arg_help} flags {}
+  if { [info exists keys(-help)] } {
+    set cmd_help($cmd) $keys(-help)
+  }
+  if { [info exists keys(-arg_help)] } {
+    set cmd_arg_help($cmd) $keys(-arg_help)
+  }
   namespace export $cmd
 }
 
@@ -183,6 +192,168 @@ proc define_cmd_args { cmd arglist } {
 # shown by the "help" command.
 proc define_hidden_cmd_args { cmd arglist } {
   namespace export $cmd
+}
+
+# Shared option descriptions used when a command has no -arg_help entry
+# for that option. Per-command -arg_help always wins.
+proc define_common_arg_help { help_dict } {
+  variable common_arg_help
+
+  foreach {opt text} $help_dict {
+    dict set common_arg_help $opt $text
+  }
+}
+
+proc define_var_help { var values help } {
+  variable var_values
+  variable var_help
+
+  set var_values($var) $values
+  set var_help($var) $help
+}
+
+proc cmd_help_text { cmd } {
+  variable cmd_help
+
+  if { [info exists cmd_help($cmd)] } {
+    return $cmd_help($cmd)
+  }
+  return ""
+}
+
+proc cmd_arg_help_lookup { help_dict opt } {
+  if { $help_dict == {} } {
+    return ""
+  }
+  if { [dict exists $help_dict $opt] } {
+    return [dict get $help_dict $opt]
+  }
+  dict for {key text} $help_dict {
+    if { [lsearch -exact [split $key "|"] $opt] >= 0 } {
+      return $text
+    }
+  }
+  return ""
+}
+
+# Longest name in a |-separated option group (-e|-echo -> -echo).
+proc cmd_opt_group_canonical { alts } {
+  set best ""
+  foreach alt $alts {
+    if { [string length $alt] > [string length $best] } {
+      set best $alt
+    }
+  }
+  return $best
+}
+
+# True when shorter names are prefixes of the longest (-thr of -through).
+proc cmd_opt_group_is_aliases { alts } {
+  set canon [cmd_opt_group_canonical $alts]
+  foreach alt $alts {
+    if { $alt == $canon } {
+      continue
+    }
+    if { ![string equal -length [string length $alt] $alt $canon] } {
+      return 0
+    }
+  }
+  return 1
+}
+
+proc cmd_arg_help_group_canonical { arglist opt } {
+  foreach match [regexp -all -inline -- \
+                   {-[-a-zA-Z0-9_]+(?:\|-[-a-zA-Z0-9_]+)+} $arglist] {
+    set alts [split $match "|"]
+    if { [lsearch -exact $alts $opt] >= 0 \
+           && [cmd_opt_group_is_aliases $alts] } {
+      return [cmd_opt_group_canonical $alts]
+    }
+  }
+  return $opt
+}
+
+proc cmd_arg_help_text { cmd opt } {
+  variable cmd_arg_help
+  variable common_arg_help
+  variable cmd_args
+
+  set cmd_dict {}
+  if { [info exists cmd_arg_help($cmd)] } {
+    set cmd_dict $cmd_arg_help($cmd)
+  }
+  set text [cmd_arg_help_lookup $cmd_dict $opt]
+  if { $text != "" } {
+    return $text
+  }
+  if { [info exists cmd_args($cmd)] } {
+    set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
+    if { $canon != $opt } {
+      set text [cmd_arg_help_lookup $cmd_dict $canon]
+      if { $text != "" } {
+        return $text
+      }
+    }
+  }
+  if { [info exists common_arg_help] } {
+    set text [cmd_arg_help_lookup $common_arg_help $opt]
+    if { $text != "" } {
+      return $text
+    }
+    if { [info exists cmd_args($cmd)] } {
+      set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
+      if { $canon != $opt } {
+        return [cmd_arg_help_lookup $common_arg_help $canon]
+      }
+    }
+  }
+  return ""
+}
+
+proc cmd_synopsis_options { arglist } {
+  set grouped {}
+  set opts {}
+  foreach match [regexp -all -inline -- \
+                   {-[-a-zA-Z0-9_]+(?:\|-[-a-zA-Z0-9_]+)+} $arglist] {
+    set alts [split $match "|"]
+    if { ![cmd_opt_group_is_aliases $alts] } {
+      continue
+    }
+    foreach alt $alts {
+      lappend grouped $alt
+    }
+    set canon [cmd_opt_group_canonical $alts]
+    if { [lsearch -exact $opts $canon] < 0 } {
+      lappend opts $canon
+    }
+  }
+  foreach match [regexp -all -inline -- {-[a-zA-Z][a-zA-Z0-9_]*} $arglist] {
+    if { [lsearch -exact $grouped $match] >= 0 } {
+      continue
+    }
+    if { [lsearch -exact $opts $match] < 0 } {
+      lappend opts $match
+    }
+  }
+  return $opts
+}
+
+proc var_help_text { var } {
+  variable var_help
+
+  if { [info exists var_help($var)] } {
+    return $var_help($var)
+  }
+  return ""
+}
+
+proc var_help_values { var } {
+  variable var_values
+
+  if { [info exists var_values($var)] } {
+    return $var_values($var)
+  }
+  return ""
 }
 
 # "Optional Upvar"
@@ -243,7 +414,11 @@ proc sta_warn_error { msg_id warn_error msg } {
   }
 }
 
-define_cmd_args "suppress_msg" msg_ids
+define_cmd_args "suppress_msg" msg_ids \
+  -help {The `suppress_msg` command suppresses specified error/warning messages by ID. The list of message IDs can be found in `doc/Messages.md`.} \
+  -arg_help {
+    msg_ids {A list of error/warning message IDs to suppress.}
+  }
 
 proc suppress_msg { args } {
   foreach msg_id $args {
@@ -252,7 +427,11 @@ proc suppress_msg { args } {
   }
 }
 
-define_cmd_args "unsuppress_msg" msg_ids
+define_cmd_args "unsuppress_msg" msg_ids \
+  -help {The `unsuppress_msg` command removes suppressions for the specified error/warning messages by ID. The list of message IDs can be found in `doc/Messages.md`.} \
+  -arg_help {
+    msg_ids {A list of error/warning message IDs to unsuppress.}
+  }
 
 proc unsuppress_msg { args } {
   foreach msg_id $args {
@@ -262,8 +441,10 @@ proc unsuppress_msg { args } {
 }
 
 # Defined by StaTcl.i
-define_cmd_args "elapsed_run_time" {}
-define_cmd_args "user_run_time" {}
+define_cmd_args "elapsed_run_time" {} \
+  -help {Returns the total clock run time in seconds as a float.}
+define_cmd_args "user_run_time" {} \
+  -help {Returns the total user cpu run time in seconds as a float.}
 
 # Write run time statistics to filename.
 proc write_stats { filename } {
@@ -276,14 +457,19 @@ proc write_stats { filename } {
 ################################################################
 
 # Begin/end logging all output to a file.
-define_cmd_args "log_begin" { filename }
+define_cmd_args "log_begin" { filename } \
+  -help {The `log_begin` command copies all subsequent command output to a file until `log_end` is called.} \
+  -arg_help {
+    filename {The log file to write.}
+  }
 
 proc log_begin { filename } {
   log_begin_cmd [file nativename $filename]
 }
 
 # Defined by StaTcl.i
-define_cmd_args "log_end" {}
+define_cmd_args "log_end" {} \
+  -help {The `log_end` command stops copying command output to a file started with `log_begin`.}
 
 # set_debug is NOT in the global namespace
 # because it isn't intended for nosy users.
@@ -377,7 +563,17 @@ proc check_percent { cmd_arg arg } {
 set ::sta_continue_on_error 0
 
 define_cmd_args "include" \
-  {[-e|-echo] [-v|-verbose] filename [> filename] [>> filename]}
+  {[-e|-echo] [-v|-verbose] filename [> filename] [>> filename]} \
+  -help {Read STA/SDC/Tcl commands from filename.
+
+The `include` command stops and reports any errors encountered while reading a file unless `sta_continue_on_error` is 1.} \
+  -arg_help {
+    -echo|-e {Print each command before evaluating it.}
+    -verbose|-v {Print each command before evaluating it as well as the result it returns.}
+    filename {The name of the file containing commands to read.}
+    > {Redirect command output to log_filename.}
+    >> {Redirect command output and append log_filename.}
+  }
 
 # Tcl "source" command analog to support -echo and -verbose return values.
 proc_redirect include  {
@@ -476,6 +672,34 @@ proc include_file { filename echo verbose } {
       unset include_line
     }
   }
+}
+
+define_common_arg_help {
+  -rise {Restrict the command to rising transitions.}
+  -fall {Restrict the command to falling transitions.}
+  -min {Apply to minimum (hold) analysis.}
+  -max {Apply to maximum (setup) analysis.}
+  -setup {Apply to setup checks.}
+  -hold {Apply to hold checks.}
+  -digits {Number of digits to print after the decimal point.}
+  -nocase {Case-insensitive matching. Only valid with `-regexp`.}
+  -quiet {Do not report an error if no objects match.}
+  -regexp {Match patterns as regular expressions.}
+  -comment {Comment string saved with the constraint.}
+  -rise_from {Restrict `-from` to rising transitions.}
+  -fall_from {Restrict `-from` to falling transitions.}
+  -rise_through {Restrict `-through` to rising transitions.}
+  -fall_through {Restrict `-through` to falling transitions.}
+  -rise_to {Restrict `-to` to rising transitions.}
+  -fall_to {Restrict `-to` to falling transitions.}
+  -all {Apply to all matching objects.}
+  -early {Apply to early (min path) values.}
+  -late {Apply to late (max path) values.}
+  -scene {Restrict the command to one scene.}
+  -scenes {Restrict the command to one or more scenes.}
+  -report_variance {Include delay distribution variance in the report.}
+  -report_annotated {Report objects that are annotated.}
+  -no_line_splits {Do not split long lines into multiple lines.}
 }
 
 # sta namespace end

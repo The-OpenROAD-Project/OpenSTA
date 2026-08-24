@@ -1,0 +1,3 @@
+Warning 2721: verilog_port_concat.v line 6, module top port expression without a port identifier is not supported.
+Warning 197: verilog_port_concat.v line 6, module top declared signal a is not in the port list.
+Warning 2722: verilog_port_concat.v line 6, module top port a not found.

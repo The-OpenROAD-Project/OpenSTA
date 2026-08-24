@@ -1,0 +1,5 @@
+/* Synopsis flags are links to the option descriptions below. */
+.md-typeset pre a {
+  color: var(--md-typeset-a-color);
+  text-decoration: underline;
+}
