@@ -4,6 +4,29 @@ OpenSTA Timing Analyzer Release Notes
 This file summarizes user visible changes for each release.
 See ApiChangeLog.txt for changes to the STA api.
 
+2026/08/02
+----------
+
+The set_path_margin command applies a signed slack adjustment to the
+capture-clock side of matching timing paths. A positive margin
+tightens the path and a negative margin loosens it.
+
+  set_path_margin [-setup] [-hold] [-rise] [-fall]
+                  [-from from_list|-rise_from from_list|-fall_from from_list]
+                  [-through through_list|-rise_through through_list|-fall_through through_list]
+                  [-to to_list|-rise_to to_list|-fall_to to_list]
+                  [-comment comment]
+                  margin
+
+2026/07/20
+----------
+
+The read_vcd command supports -begin_time / -end_time to limit
+activity annotation to a VCD time window.
+
+  read_vcd [-scope scope] [-mode mode_name]
+           [-begin_time begin_time] [-end_time end_time] filename
+
 2026/05/01
 ----------
 

@@ -1,0 +1,51 @@
+Warning 1171: write_path_spice_arc_sense.lib.gz line 23, default_fanout_load is 0.0.
+* Path from a v to x ^
+.include "write_path_spice_arc_sense.models.spice"
+.include "write_path_spice_arc_sense.sp_1.subckt"
+.tran 1e-13 3.33e-09
+
+.print tran v(a) v(x0/B) v(x0/X) v(x)
+
+**************
+* Input source
+**************
+
+v1 a 0 pwl(
++0.000e+00 1.800e+00
++1.667e-11 0.000e+00
++3.333e-09 0.000e+00
++)
+
+*****************
+* Stage instances
+*****************
+
+xstage1 a x0/B stage1
+xstage2 x0/B x0/X x stage2
+
+***************
+* Stage subckts
+***************
+
+.subckt stage1 a x0/B
+* Net a
+* Net has no parasitics.
+R1 a x0/B 1.000e-04
+.ends
+
+.subckt stage2 x0/B x0/X x
+* Gate x0 B -> X
+xx0 x0/A x0/B x0/VGND x0/VNB x0/VPB x0/VPWR x0/X sky130_fd_sc_hd__xor2_1
+v1 x0/A 0 1.800
+v2 x0/VGND 0 0.000
+v3 x0/VNB 0 0.000
+v4 x0/VPB 0 1.800
+v5 x0/VPWR 0 1.800
+
+* Load pins
+* Net x
+* Net has no parasitics.
+R1 x0/X x 1.000e-04
+.ends
+
+.end

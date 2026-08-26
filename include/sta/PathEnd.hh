@@ -135,6 +135,10 @@ public:
   // Target clock uncertainty + inter-clk uncertainty.
   virtual float targetClkUncertainty(const StaState *sta) const;
   virtual float targetClkMcpAdjustment(const StaState *sta) const;
+  // Target clock path margin (set_path_margin).
+  virtual float targetClkPathMargin(const StaState *sta) const;
+  virtual bool hasPathMargin() const { return false; }
+  virtual PathMargin *pathMargin() const { return nullptr; }
   virtual const TimingRole *checkRole(const StaState *sta) const;
   const TimingRole *checkGenericRole(const StaState *sta) const;
   virtual bool pathDelayMarginIsExternal() const;
@@ -266,6 +270,9 @@ public:
   float targetNonInterClkUncertainty(const StaState *sta) const override;
   float interClkUncertainty(const StaState *sta) const override;
   float targetClkUncertainty(const StaState *sta) const override;
+  float targetClkPathMargin(const StaState *sta) const override;
+  bool hasPathMargin() const override { return path_margin_ != nullptr; }
+  PathMargin *pathMargin() const override { return path_margin_; }
   Crpr crpr(const StaState *sta) const override;
   Required requiredTime(const StaState *sta) const override;
   Slack slack(const StaState *sta) const override;
@@ -276,7 +283,8 @@ public:
 
 protected:
   PathEndClkConstrained(Path *path,
-                        Path *clk_path);
+                        Path *clk_path,
+                        PathMargin *path_margin);
   float sourceClkOffset(const ClockEdge *src_clk_edge,
                         const ClockEdge *tgt_clk_edge,
                         const TimingRole *check_role,
@@ -286,6 +294,7 @@ protected:
   virtual Required requiredTimeNoCrpr(const StaState *sta) const;
 
   Path *clk_path_;
+  PathMargin *path_margin_;
   mutable Crpr crpr_;
   mutable bool crpr_valid_{false};
 };
@@ -301,7 +310,8 @@ public:
 protected:
   PathEndClkConstrainedMcp(Path *path,
                            Path *clk_path,
-                           MultiCyclePath *mcp);
+                           MultiCyclePath *mcp,
+                           PathMargin *path_margin);
   float checkMcpAdjustment(const Path *path,
                            const ClockEdge *tgt_clk_edge,
                            const StaState *sta) const;
@@ -322,6 +332,7 @@ public:
                Edge *check_edge,
                Path *clk_path,
                MultiCyclePath *mcp,
+               PathMargin *path_margin,
                const StaState *sta);
   PathEnd *copy() const override;
   Type type() const override;
@@ -354,6 +365,7 @@ public:
                     Edge *check_edge,
                     Path *disable_path,
                     MultiCyclePath *mcp,
+                    PathMargin *path_margin,
                     PathDelay *path_delay,
                     const StaState *sta);
   Type type() const override;
@@ -410,6 +422,7 @@ public:
                      Path *path,
                      Path *clk_path,
                      MultiCyclePath *mcp,
+                     PathMargin *path_margin,
                      const StaState *sta);
   PathEnd *copy() const override;
   Type type() const override;
@@ -449,6 +462,7 @@ public:
                     Path *clk_path,
                     const TimingRole *check_role,
                     MultiCyclePath *mcp,
+                    PathMargin *path_margin,
                     ArcDelay margin,
                     const StaState *sta);
   PathEnd *copy() const override;
@@ -474,6 +488,7 @@ public:
                    Path *data_path,
                    Path *data_clk_path,
                    MultiCyclePath *mcp,
+                   PathMargin *path_margin,
                    const StaState *sta);
   PathEnd *copy() const override;
   Type type() const override;

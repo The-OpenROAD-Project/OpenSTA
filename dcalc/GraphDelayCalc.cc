@@ -47,6 +47,7 @@
 #include "Sdc.hh"
 #include "Scene.hh"
 #include "SearchPred.hh"
+#include "search/Sim.hh"
 #include "Stats.hh"
 #include "TimingArc.hh"
 #include "TimingRole.hh"
@@ -88,8 +89,10 @@ DcalcPred::searchFrom(const Vertex *from_vertex,
   const Pin *from_pin = from_vertex->pin();
   const Sdc *sdc = mode->sdc();
   const Network *network = sta_->network();
+  const Sim *sim = mode->sim();
   Net *net = network->net(from_pin);
   return !(sdc->isDisabledConstraint(from_pin)
+           || sim->isConstant(from_vertex)
 	   || (net && (network->isPower(net)
                        || network->isGround(net))));
 }

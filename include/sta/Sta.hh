@@ -380,6 +380,13 @@ public:
                       Sdc *sdc);
   void setMaxArea(float area,
                   Sdc *sdc);
+  float maxArea(const Sdc *sdc) const;
+  void setMaxDynamicPower(float power,
+                          Sdc *sdc);
+  float maxDynamicPower(const Sdc *sdc) const;
+  void setMaxLeakagePower(float power,
+                          Sdc *sdc);
+  float maxLeakagePower(const Sdc *sdc) const;
 
   void makeClock(std::string_view name,
                  const PinSet &pins,
@@ -681,6 +688,13 @@ public:
                      float delay,
                      std::string_view comment,
                      Sdc *sdc);
+  void makePathMargin(ExceptionFrom *from,
+                      ExceptionThruSeq *thrus,
+                      ExceptionTo *to,
+                      const MinMaxAll *min_max,
+                      float margin,
+                      std::string_view comment,
+                      Sdc *sdc);
   void makeGroupPath(std::string_view name,
                      bool is_default,
                      ExceptionFrom *from,

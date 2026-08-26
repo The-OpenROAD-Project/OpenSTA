@@ -11986,7 +11986,7 @@
      </table:table-cell>
     </table:table-row>
    </table:table>
-   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_dynamic_power</text:span> command is ignored.</text:p>
+   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_dynamic_power</text:span> command is ignored during timing but is included in SDC files that are written.</text:p>
    <table:table table:name="Table102" table:style-name="Table102">
     <table:table-column table:style-name="Table102.A"/>
     <table:table-column table:style-name="Table102.B"/>
@@ -12028,7 +12028,7 @@
      </table:table-cell>
     </table:table-row>
    </table:table>
-   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_leakage_power</text:span> command is ignored.</text:p>
+   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_max_leakage_power</text:span> command is ignored during timing but is included in SDC files that are written.</text:p>
    <table:table table:name="Table104" table:style-name="Table104">
     <table:table-column table:style-name="Table104.A"/>
     <table:table-column table:style-name="Table104.B"/>
@@ -12579,6 +12579,91 @@
    </table:table>
    <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_output_delay</text:span> command is used to specify <text:span text:style-name="T280">the external delay to </text:span><text:span text:style-name="T286">a setup/</text:span><text:span text:style-name="T287">hold</text:span><text:span text:style-name="T286"> check on an output port or internal pin </text:span><text:span text:style-name="T288">that is clocked by </text:span><text:span text:style-name="Command_20_Argument"><text:span text:style-name="T288">clock</text:span></text:span><text:span text:style-name="T286">.</text:span> Unless the <text:span text:style-name="Command">-add_delay</text:span> option is specified any existing <text:span text:style-name="T288">output delays are</text:span> replaced.</text:p>
    <text:p text:style-name="P276">The <text:span text:style-name="Command">–reference_pin</text:span> option is used to specify a <text:span text:style-name="T287">timing check</text:span> with respect to the arrival on a pin in the clock network. For propagated clocks, the <text:span text:style-name="T287">timing check</text:span> is relative to the clock arrival time at the reference pin (the clock source latency and network latency from the clock source to the reference pin). For ideal clocks, <text:span text:style-name="T287">the timing check</text:span> is relative to the reference pin clock source latency. With the <text:span text:style-name="Command">-clock_fall</text:span> flag the <text:span text:style-name="T287">timing check</text:span> is relative to the falling <text:span text:style-name="T280">edge</text:span> <text:span text:style-name="T280">of</text:span> the reference pin. If no clocks arrive at the reference pin the <text:span text:style-name="Command">set_output_delay</text:span> command is ignored. If <text:span text:style-name="Default_20_Paragraph_20_Font">no </text:span><text:span text:style-name="Command">-clock</text:span> is specified the <text:span text:style-name="T287">timing check</text:span> is with respect to all clocks that arrive at the reference pin. The <text:span text:style-name="Command">-source_latency_included</text:span> and <text:span text:style-name="Command">-network_latency_included</text:span> options cannot be used with <text:span text:style-name="Command">-reference_pin</text:span>.</text:p>
+   <table:table table:name="TablePathMargin" table:style-name="Table114">
+    <table:table-column table:style-name="Table114.A"/>
+    <table:table-column table:style-name="Table114.B"/>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A1" office:value-type="string">
+      <text:p text:style-name="P42"><text:alphabetical-index-mark-start text:id="IMark31489446320"/><text:span text:style-name="Command_20_Heading">set_path_margin</text:span><text:alphabetical-index-mark-end text:id="IMark31489446320"/></text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A1" office:value-type="string">
+      <text:p text:style-name="P42">[-setup]<text:line-break/>[-hold]<text:line-break/>[-rise]<text:line-break/>[-fall]<text:line-break/>[-from <text:span text:style-name="T32">from_list</text:span>]<text:line-break/>[-rise_from <text:span text:style-name="T32">from_list</text:span>]<text:line-break/>[-fall_from <text:span text:style-name="T32">from_list</text:span>]<text:line-break/>[-through <text:span text:style-name="T32">through_list</text:span>]<text:line-break/>[-rise_through <text:span text:style-name="T32">through_list</text:span>]<text:line-break/>[-fall_through <text:span text:style-name="T32">through_list</text:span>]<text:line-break/>[-to <text:span text:style-name="T32">to_list</text:span>]<text:line-break/>[-rise_to <text:span text:style-name="T32">to_list</text:span>]<text:line-break/>[-fall_to <text:span text:style-name="T32">to_list</text:span>]<text:line-break/>[-comment <text:span text:style-name="T32">comment</text:span>]<text:line-break/><text:span text:style-name="T32">margin</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P42">-setup</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">Apply the margin to setup checks.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P42">-hold</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">Apply the margin to hold checks.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P42">-rise</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">Apply the margin to rising path edges.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P42">-fall</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">Apply the margin to falling path edges.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P48"><text:span text:style-name="T30">-</text:span><text:span text:style-name="T272">from </text:span>from_list</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">A list of clocks, instances, ports or pins.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P48"><text:span text:style-name="T30">-</text:span><text:span text:style-name="T272">through </text:span>through_list</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">A list of instances, pins or nets.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P48"><text:span text:style-name="T30">-</text:span><text:span text:style-name="T272">to </text:span>to_list</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">A list of clocks, instances, ports or pins.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P48">-comment comment</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">Optional comment written by </text:span><text:span text:style-name="Command">write_sdc</text:span><text:span text:style-name="Default_20_Paragraph_20_Font">.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="Table114.1">
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="P48">margin</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Table114.A2" office:value-type="string">
+      <text:p text:style-name="Example"><text:span text:style-name="Default_20_Paragraph_20_Font">Signed slack adjustment applied on the capture clock. A positive margin tightens the path and a negative margin loosens it.</text:span></text:p>
+     </table:table-cell>
+    </table:table-row>
+   </table:table>
+   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">set_path_margin</text:span> command applies a signed slack adjustment to matching timing paths on the capture-clock side. A positive margin makes the path harder to meet and a negative margin makes it easier. If neither <text:span text:style-name="Command">-setup</text:span> nor <text:span text:style-name="Command">-hold</text:span> is specified the margin applies to both. See <text:span text:style-name="Command">set_false_path</text:span> for a description of allowed <text:span text:style-name="Command_20_Argument">from_list</text:span>, <text:span text:style-name="Command_20_Argument">through_list</text:span> and <text:span text:style-name="Command_20_Argument">to_list</text:span> objects. At least one of <text:span text:style-name="Command">-from</text:span>, <text:span text:style-name="Command">-through</text:span>, or <text:span text:style-name="Command">-to</text:span> is required. Matching exceptions are removed with <text:span text:style-name="Command">unset_path_exceptions</text:span>.</text:p>
    <table:table table:name="Table115" table:style-name="Table115">
     <table:table-column table:style-name="Table115.A"/>
     <table:table-column table:style-name="Table115.B"/>
@@ -13724,7 +13809,7 @@
      </table:table-cell>
     </table:table-row>
    </table:table>
-   <text:p text:style-name="Body_20_first">The unset_path_exceptions command removes any matching set_false_path, set_multicycle_path, set_max_delay, and set_min_delay exceptions.</text:p>
+   <text:p text:style-name="Body_20_first">The <text:span text:style-name="Command">unset_path_exceptions</text:span> command removes any matching <text:span text:style-name="Command">set_false_path</text:span>, <text:span text:style-name="Command">set_multicycle_path</text:span>, <text:span text:style-name="Command">set_max_delay</text:span>, <text:span text:style-name="Command">set_min_delay</text:span>, and <text:span text:style-name="Command">set_path_margin</text:span> exceptions.</text:p>
    <text:p text:style-name="P304"/>
    <table:table table:name="Table164" table:style-name="Table164">
     <table:table-column table:style-name="Table164.A"/>
@@ -14587,6 +14672,7 @@
       <text:p text:style-name="P339">set_multicycle_path<text:tab/>67</text:p>
       <text:p text:style-name="P339">set_operating_conditions<text:tab/>68</text:p>
       <text:p text:style-name="P339">set_output_delay<text:tab/>69</text:p>
+      <text:p text:style-name="P339">set_path_margin<text:tab/>70</text:p>
       <text:p text:style-name="P339">set_port_fanout_number<text:tab/>70</text:p>
       <text:p text:style-name="P339">set_power_activity<text:tab/>70</text:p>
       <text:p text:style-name="P339">set_propagated_clock<text:tab/>71</text:p>

@@ -643,6 +643,8 @@ Properties::getProperty(const Library *lib,
                                                         "library", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("library", property))
+      return value;
     else
       throw PropertyUnknown("library", property);
   }
@@ -664,6 +666,8 @@ Properties::getProperty(const LibertyLibrary *lib,
                                                                 "liberty_library",
                                                                 sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("liberty_library", property))
       return value;
     else
       throw PropertyUnknown("liberty library", property);
@@ -695,6 +699,8 @@ Properties::getProperty(const Cell *cell,
     PropertyValue value = registry_cell_.getProperty(cell, property,
                                                      "cell", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("cell", property))
       return value;
     else
       throw PropertyUnknown("cell", property);
@@ -736,6 +742,8 @@ Properties::getProperty(const LibertyCell *cell,
     PropertyValue value = registry_liberty_cell_.getProperty(cell, property,
                                                              "liberty_cell", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("liberty_cell", property))
       return value;
     else
       throw PropertyUnknown("liberty cell", property);
@@ -796,6 +804,8 @@ Properties::getProperty(const Port *port,
     PropertyValue value = registry_port_.getProperty(port, property,
                                                      "port", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("port", property))
       return value;
     else
       throw PropertyUnknown("port", property);
@@ -898,6 +908,8 @@ Properties::getProperty(const LibertyPort *port,
                                                              "liberty_port", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("liberty_port", property))
+      return value;
     else
       throw PropertyUnknown("liberty port", property);
   }
@@ -937,6 +949,8 @@ Properties::getProperty(const Instance *inst,
     PropertyValue value = registry_instance_.getProperty(inst, property,
                                                          "instance", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("instance", property))
       return value;
     else
       throw PropertyUnknown("instance", property);
@@ -1025,6 +1039,8 @@ Properties::getProperty(const Pin *pin,
     PropertyValue value = registry_pin_.getProperty(pin, property, "pin", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("pin", property))
+      return value;
     else
       throw PropertyUnknown("pin", property);
   }
@@ -1085,6 +1101,8 @@ Properties::getProperty(const Net *net,
   else {
     PropertyValue value = registry_net_.getProperty(net, property, "net", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("net", property))
       return value;
     else
       throw PropertyUnknown("net", property);
@@ -1190,6 +1208,8 @@ Properties::getProperty(const Clock *clk,
     PropertyValue value = registry_clock_.getProperty(clk, property,
                                                       "clock", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("clock", property))
       return value;
     else
       throw PropertyUnknown("clock", property);
@@ -1420,6 +1440,13 @@ Properties::coercePropertyValue(PropertyValue::Type type,
   }
 }
 
+bool
+Properties::isUserProperty(std::string_view object_type,
+                           std::string_view property)
+{
+  return prop_types_.contains({std::string(object_type), std::string(property)});
+}
+
 PropertyKey::PropertyKey(const void *object,
                          std::string_view property) :
   object_(object),
@@ -1462,6 +1489,36 @@ template void Properties::defineProperty<Scene>(std::string_view,
 template void Properties::defineProperty<Mode>(std::string_view,
                                                std::string_view,
                                                std::string_view);
+template void Properties::defineProperty<Library>(std::string_view,
+                                                  std::string_view,
+                                                  std::string_view);
+template void Properties::defineProperty<LibertyLibrary>(std::string_view,
+                                                         std::string_view,
+                                                         std::string_view);
+template void Properties::defineProperty<Cell>(std::string_view,
+                                               std::string_view,
+                                               std::string_view);
+template void Properties::defineProperty<LibertyCell>(std::string_view,
+                                                      std::string_view,
+                                                      std::string_view);
+template void Properties::defineProperty<Port>(std::string_view,
+                                               std::string_view,
+                                               std::string_view);
+template void Properties::defineProperty<LibertyPort>(std::string_view,
+                                                      std::string_view,
+                                                      std::string_view);
+template void Properties::defineProperty<Instance>(std::string_view,
+                                                   std::string_view,
+                                                   std::string_view);
+template void Properties::defineProperty<Pin>(std::string_view,
+                                              std::string_view,
+                                              std::string_view);
+template void Properties::defineProperty<Net>(std::string_view,
+                                              std::string_view,
+                                              std::string_view);
+template void Properties::defineProperty<Clock>(std::string_view,
+                                                std::string_view,
+                                                std::string_view);
 
 void
 Properties::setProperty(const void *object,
