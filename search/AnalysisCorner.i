@@ -125,6 +125,12 @@ set_scene_analysis_corner_cmd(Scene *scene,
   Sta::sta()->setSceneAnalysisCorner(scene, corner);
 }
 
+const char *
+scene_mode_name(Scene *scene)
+{
+  return scene->mode()->name().c_str();
+}
+
 // Scope SDC commands to a corner overlay Sdc (NULL restores mode scope).
 void
 set_cmd_analysis_corner_cmd(AnalysisCorner *corner)

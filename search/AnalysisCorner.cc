@@ -77,6 +77,9 @@ Sta::setSceneAnalysisCorner(Scene *scene,
                             AnalysisCorner *corner)
 {
   scene->setAnalysisCorner(corner);
+  // The association changes which overlay Sdc the scene reads (derates,
+  // IO delays, uncertainty, latency), so cached results are stale.
+  search_->arrivalsInvalid();
 }
 
 Sdc *

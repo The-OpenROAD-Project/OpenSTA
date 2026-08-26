@@ -98,6 +98,9 @@ proc set_scene_analysis_corner { args } {
     sta_error 3703 "$corner_name is not the name of an analysis corner."
   }
   set_scene_analysis_corner_cmd $scene $corner
+  # Match define_scene -analysis_corner: apply the corner's SDC bundle
+  # to this (mode, corner) pair.
+  apply_corner_sdc_bundle [scene_mode_name $scene] $corner
 }
 
 # (mode, corner) pairs whose corner SDC bundle has been applied to the
@@ -105,6 +108,22 @@ proc set_scene_analysis_corner { args } {
 # scene naming that mode and corner is defined. Redefining a corner with
 # new bundle data forgets its pairs (see define_analysis_corner).
 variable corner_bundle_applied [dict create]
+
+# Apply the corner's SDC bundle to the (mode, corner) overlay, once per
+# pair. Shared by define_scene -analysis_corner and
+# set_scene_analysis_corner so both association routes yield the same
+# state.
+proc apply_corner_sdc_bundle { mode_name corner } {
+  variable corner_bundle_applied
+  set corner_sdc [analysis_corner_sdc $corner]
+  set pair [list $mode_name [analysis_corner_name $corner]]
+  if { $corner_sdc != {} && ![dict exists $corner_bundle_applied $pair] } {
+    dict set corner_bundle_applied $pair 1
+    foreach f $corner_sdc {
+      read_sdc -mode $mode_name -analysis_corner [analysis_corner_name $corner] $f
+    }
+  }
+}
 
 # Extend define_scene with -analysis_corner by wrapping the proc at
 # runtime instead of editing Sta.tcl (upstream merge hygiene).
@@ -139,14 +158,7 @@ proc define_scene { args } {
     set mode_name $keys(-mode)
   }
   if { $corner != "NULL" } {
-    set corner_sdc [analysis_corner_sdc $corner]
-    set pair [list $mode_name [analysis_corner_name $corner]]
-    if { $corner_sdc != {} && ![dict exists $corner_bundle_applied $pair] } {
-      dict set corner_bundle_applied $pair 1
-      foreach f $corner_sdc {
-        read_sdc -mode $mode_name -analysis_corner [analysis_corner_name $corner] $f
-      }
-    }
+    apply_corner_sdc_bundle $mode_name $corner
   }
   if { [info exists keys(-mode)] } {
     lappend args -mode $mode_name
@@ -265,6 +277,9 @@ variable corner_scope_disallowed_cmds {
   set_max_leakage_power set_max_time_borrow set_max_transition
   set_min_capacitance set_min_pulse_width set_operating_conditions
   set_port_fanout_number set_pvt set_resistance set_voltage
+  delete_clock delete_generated_clock set_ideal_net set_path_margin
+  set_wire_load_min_block_size set_wire_load_mode set_wire_load_model
+  set_wire_load_selection_group
   unset_case_analysis unset_clock_groups unset_clock_transition
   unset_data_check unset_disable_timing unset_propagated_clock
   unset_path_exceptions
@@ -290,7 +305,10 @@ proc check_corner_scope { cmd } {
 # uplevel/linsert rather than {*}$args because sdc_file_line list-parses
 # the command text of every stack frame (Util.tcl).
 foreach cmd [concat $corner_scope_disallowed_cmds $corner_scope_pending_cmds] {
-  if { [info procs ${cmd}_corner_scope_base] == "" } {
+  # Skip names with no command behind them (e.g. documented-only entries
+  # like set_ideal_net, or commands removed upstream).
+  if { [info commands $cmd] != ""
+       && [info procs ${cmd}_corner_scope_base] == "" } {
     rename $cmd ${cmd}_corner_scope_base
     proc $cmd { args } \
       "check_corner_scope $cmd ; uplevel 1 \[linsert \$args 0 ::sta::${cmd}_corner_scope_base\]"
@@ -343,6 +361,17 @@ proc get_object_property { object prop } {
     return [analysis_corner_property $object $prop]
   }
   return [get_object_property_corner_base $object $prop]
+}
+
+# Sta::clear() (behind clear_sta / clear_network) deletes every corner
+# overlay Sdc; forget which SDC bundles were applied so scenes defined
+# afterwards re-read them.
+foreach cmd {clear_sta clear_network} {
+  if { [info commands ${cmd}_corner_base] == "" } {
+    rename $cmd ${cmd}_corner_base
+    proc $cmd { args } \
+      "variable corner_bundle_applied ; set corner_bundle_applied \[dict create\] ; uplevel 1 \[linsert \$args 0 ::sta::${cmd}_corner_base\]"
+  }
 }
 
 # sta namespace end.

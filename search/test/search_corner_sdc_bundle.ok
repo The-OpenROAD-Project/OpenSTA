@@ -73,3 +73,5 @@ Warning 1556: multiple scenes reference mode func
 Error 3710: corner_bundle_bad.sdc line 1, create_clock is not allowed in an analysis corner scope; it is a mode-level constraint.
 bundle after bare redefine: 1
 bundle after data redefine: 0
+Warning 1556: multiple scenes reference mode func
+assoc bundle applied: 1

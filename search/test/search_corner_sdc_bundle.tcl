@@ -83,3 +83,14 @@ define_analysis_corner ss
 puts "bundle after bare redefine: [llength [sta::analysis_corner_sdc [sta::find_analysis_corner ss]]]"
 define_analysis_corner ss -liberty NangateOpenCellLibrary_slow
 puts "bundle after data redefine: [llength [sta::analysis_corner_sdc [sta::find_analysis_corner ss]]]"
+
+# set_scene_analysis_corner applies the corner's SDC bundle and
+# invalidates cached timing: re-association after a report changes slack.
+set assoc_sdc [make_result_file corner_assoc.sdc]
+set stream [open $assoc_sdc "w"]
+puts $stream {set_timing_derate -late 1.5}
+close $stream
+define_analysis_corner assoc -liberty NangateOpenCellLibrary_slow -sdc [list $assoc_sdc]
+set before [worst_slack -scene s_manual -max]
+set_scene_analysis_corner s_manual assoc
+puts "assoc bundle applied: [expr {$before != [worst_slack -scene s_manual -max]}]"

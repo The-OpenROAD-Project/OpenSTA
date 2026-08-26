@@ -218,6 +218,8 @@ Error 3710: search_corner_sdc_derate.tcl line 1, create_clock is not allowed in 
 Error 3710: search_corner_sdc_derate.tcl line 1, set_false_path is not allowed in an analysis corner scope; it is a mode-level constraint.
 1
 Error 3711: search_corner_sdc_derate.tcl line 1, set_input_transition is not yet supported in an analysis corner scope.
+1
+Error 3710: search_corner_sdc_derate.tcl line 1, set_path_margin is not allowed in an analysis corner scope; it is a mode-level constraint.
 0
 
 1

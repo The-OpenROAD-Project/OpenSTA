@@ -95,6 +95,8 @@ puts [catch { set_false_path -from [get_ports in1] } msg]
 puts $msg
 puts [catch { set_input_transition 0.5 [get_ports in1] } msg]
 puts $msg
+puts [catch { set_path_margin 0.1 -to [get_ports out1] } msg]
+puts $msg
 unset_cmd_analysis_corner
 # Out of corner scope the guarded commands work again.
 puts [catch { set_input_transition 0.5 [get_ports in1] } msg]
