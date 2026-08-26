@@ -1,26 +1,5 @@
-# OpenSTA, Static Timing Analyzer
-# Copyright (c) 2026, Parallax Software, Inc.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-# The origin of this software must not be misrepresented; you must not
-# claim that you wrote the original software.
-#
-# Altered source versions must be plainly marked as such, and must not be
-# misrepresented as being the original software.
-#
-# This notice may not be removed or altered from any source distribution.
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026, The OpenROAD Authors
 
 # OpenROAD fork: analysis_corner support.
 # Sourced after Sta.tcl (list order in CMakeLists.txt/BUILD matters).
@@ -87,16 +66,21 @@ proc define_analysis_corner { args } {
   }
 }
 
-define_cmd_args "get_analysis_corners" {[corner_name]}
+define_cmd_args "get_analysis_corners" {[-filter expr] [corner_name]}
 
 proc get_analysis_corners { args } {
+  parse_key_args "get_analysis_corners" args keys {-filter} flags {}
   check_argc_eq0or1 "get_analysis_corners" $args
   if { [llength $args] == 0 } {
     set pattern "*"
   } else {
     set pattern [lindex $args 0]
   }
-  return [find_analysis_corners_matching $pattern]
+  set corners [find_analysis_corners_matching $pattern]
+  if { [info exists keys(-filter)] } {
+    set corners [filter_analysis_corners $keys(-filter) $corners]
+  }
+  return $corners
 }
 
 define_cmd_args "set_scene_analysis_corner" {scene_name corner_name}
@@ -311,6 +295,54 @@ foreach cmd [concat $corner_scope_disallowed_cmds $corner_scope_pending_cmds] {
     proc $cmd { args } \
       "check_corner_scope $cmd ; uplevel 1 \[linsert \$args 0 ::sta::${cmd}_corner_scope_base\]"
   }
+}
+
+# Extend the user-property commands to analysis_corner objects by wrapping
+# the base procs at runtime (Property.tcl untouched, upstream merge
+# hygiene). Non-corner arguments fall through to the base commands, invoked
+# with uplevel/linsert rather than {*}$args because sdc_file_line
+# list-parses the command text of every stack frame (Util.tcl).
+
+if { [info procs define_property_corner_base] == "" } {
+  rename define_property define_property_corner_base
+}
+proc define_property { args } {
+  set idx [lsearch -exact $args -object_type]
+  if { $idx >= 0
+       && [lindex $args [expr {$idx + 1}]] == "analysis_corner" } {
+    parse_key_args "define_property" args keys {-object_type -type} flags {}
+    if { ![info exists keys(-type)] } {
+      sta_error 3714 "define_property -type must be specified."
+    }
+    check_argc_eq1 "define_property" $args
+    define_analysis_corner_property_cmd [lindex $args 0] $keys(-type)
+  } else {
+    uplevel 1 [linsert $args 0 ::sta::define_property_corner_base]
+  }
+}
+
+if { [info procs set_property_corner_base] == "" } {
+  rename set_property set_property_corner_base
+}
+proc set_property { args } {
+  if { [llength $args] == 3
+       && [is_object [lindex $args 0]]
+       && [object_type [lindex $args 0]] == "AnalysisCorner" } {
+    set_analysis_corner_property_cmd [lindex $args 0] [lindex $args 1] \
+      [lindex $args 2]
+  } else {
+    uplevel 1 [linsert $args 0 ::sta::set_property_corner_base]
+  }
+}
+
+if { [info procs get_object_property_corner_base] == "" } {
+  rename get_object_property get_object_property_corner_base
+}
+proc get_object_property { object prop } {
+  if { [is_object $object] && [object_type $object] == "AnalysisCorner" } {
+    return [analysis_corner_property $object $prop]
+  }
+  return [get_object_property_corner_base $object $prop]
 }
 
 # sta namespace end.

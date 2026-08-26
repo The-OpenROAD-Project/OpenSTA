@@ -1,0 +1,19 @@
+name: ss_cmax
+full_name: ff_rcmin
+ss voltage: 0.720000
+ff voltage: 0.880000
+ss rc_tag: cmax
+ss is_slow: 1
+ff rc_tag: ''
+cmax: 1
+not cmax: 1
+tagged: 1
+untagged: 1
+slow: 1
+volt+pattern: 1
+has voltage: ff_rcmin
+has voltage: ss_cmax
+mode tag: functional
+set undeclared: 1 Error: 2211 analysis_corner property 'undeclared_prop' is not defined.
+get unknown: 1 Error: analysis_corner objects do not have a no_such_prop property.
+no type: 1 Error 3714: search_analysis_corner_props.tcl line 1, define_property -type must be specified.

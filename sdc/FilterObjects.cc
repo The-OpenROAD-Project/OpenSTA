@@ -52,6 +52,8 @@
 #include "SearchClass.hh"
 #include "Sta.hh"
 #include "StringUtil.hh"
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 
 namespace sta {
 
@@ -597,5 +599,19 @@ filterExprToPostfix(std::string_view expr,
     result.push_back(token->text());
   return result;
 }
+
+// ---- OpenROAD fork: analysis_corner support (begin) ----
+AnalysisCornerSeq
+filterAnalysisCorners(std::string_view filter_expression,
+                      AnalysisCornerSeq *corners,
+                      Sta *sta)
+{
+  return filterObjects<AnalysisCorner>(filter_expression, corners,
+                                       [] (const AnalysisCorner *corner1,
+                                           const AnalysisCorner *corner2) {
+                                         return corner1->name() < corner2->name();
+                                       }, sta);
+}
+// ---- OpenROAD fork: analysis_corner support (end) ----
 
 } // namespace sta

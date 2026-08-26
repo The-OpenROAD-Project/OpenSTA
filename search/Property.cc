@@ -48,6 +48,8 @@
 #include "Transition.hh"
 #include "Units.hh"
 #include "power/Power.hh"
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 
 namespace sta {
 
@@ -1534,6 +1536,33 @@ Properties::setProperty(const void *object,
   prop_values_[PropertyKey(object, property)] =
     coercePropertyValue(type_iter->second, value);
 }
+
+// ---- OpenROAD fork: analysis_corner support (begin) ----
+PropertyValue
+Properties::getProperty(const AnalysisCorner *corner,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(corner->name());
+  else
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this corner returns a none value.
+    return registry_analysis_corner_.getProperty(corner, property,
+                                                 "analysis_corner", sta_);
+}
+
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const AnalysisCorner*>::PropertyHandler &handler)
+{
+  registry_analysis_corner_.defineProperty(property, handler);
+}
+
+template void Properties::defineProperty<AnalysisCorner>(std::string_view,
+                                                         std::string_view,
+                                                         std::string_view);
+// ---- OpenROAD fork: analysis_corner support (end) ----
 
 ////////////////////////////////////////////////////////////////
 

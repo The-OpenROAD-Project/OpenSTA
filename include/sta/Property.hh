@@ -45,6 +45,8 @@ class Sta;
 class PropertyValue;
 class Scene;
 class Mode;
+// OpenROAD fork: analysis_corner support.
+class AnalysisCorner;
 
 template<class TYPE>
 class PropertyRegistry
@@ -307,6 +309,16 @@ protected:
   std::map<std::pair<std::string, std::string>, PropertyValue::Type> prop_types_;
   // User-defined property values.
   std::map<PropertyKey, PropertyValue> prop_values_;
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+public:
+  PropertyValue getProperty(const AnalysisCorner *corner,
+                            std::string_view property);
+  void defineProperty(std::string_view property,
+                      const PropertyRegistry<const AnalysisCorner*>::PropertyHandler &handler);
+protected:
+  PropertyRegistry<const AnalysisCorner*> registry_analysis_corner_;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   Sta *sta_;
 };

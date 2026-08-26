@@ -2,6 +2,7 @@ sta_module_tests("search"
   TESTS
     analysis
     analysis_corner
+    analysis_corner_props
     annotated_write_verilog
     assigned_delays
     check_timing

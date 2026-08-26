@@ -1,32 +1,12 @@
-// OpenSTA, Static Timing Analyzer
-// Copyright (c) 2026, Parallax Software, Inc.
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
-//
-// The origin of this software must not be misrepresented; you must not
-// claim that you wrote the original software.
-//
-// Altered source versions must be plainly marked as such, and must not be
-// misrepresented as being the original software.
-//
-// This notice may not be removed or altered from any source distribution.
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026, The OpenROAD Authors
 
 // OpenROAD fork: analysis_corner support.
 
 %{
 
 #include "AnalysisCorner.hh"
+#include "Property.hh"
 #include "Scene.hh"
 #include "Sta.hh"
 #include "TclTypeHelpers.hh"
@@ -62,6 +42,10 @@ using namespace sta;
 
 %typemap(out) AnalysisCornerSeq {
   seqTclList<AnalysisCornerSeq, AnalysisCorner>($1, SWIGTYPE_p_AnalysisCorner, interp);
+}
+
+%typemap(in) AnalysisCornerSeq* {
+  $1 = tclListSeqPtr<AnalysisCorner*>($input, SWIGTYPE_p_AnalysisCorner, interp);
 }
 
 %inline %{
@@ -152,6 +136,42 @@ AnalysisCorner *
 cmd_analysis_corner()
 {
   return Sta::sta()->cmdAnalysisCorner();
+}
+
+// Property system integration: built-in and user-defined properties on
+// analysis_corner objects (get_property / define_property / set_property /
+// get_analysis_corners -filter). The generic property storage in
+// Properties is object-type keyed, so corners reuse it unmodified.
+PropertyValue
+analysis_corner_property(AnalysisCorner *corner,
+                         const char *property)
+{
+  Properties &properties = Sta::sta()->properties();
+  return properties.getProperty(corner, property);
+}
+
+void
+define_analysis_corner_property_cmd(const char *property,
+                                    const char *type)
+{
+  Properties &properties = Sta::sta()->properties();
+  properties.defineProperty<AnalysisCorner>("analysis_corner", property, type);
+}
+
+void
+set_analysis_corner_property_cmd(AnalysisCorner *corner,
+                                 const char *property,
+                                 const char *value)
+{
+  Properties &properties = Sta::sta()->properties();
+  properties.setProperty(corner, "analysis_corner", property, value);
+}
+
+AnalysisCornerSeq
+filter_analysis_corners(const char *filter_expression,
+                        AnalysisCornerSeq *corners)
+{
+  return filterAnalysisCorners(filter_expression, corners, Sta::sta());
 }
 
 %} // inline
