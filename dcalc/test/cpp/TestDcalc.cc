@@ -3592,6 +3592,46 @@ TEST_F(DesignDcalcTest, DmpCeffTwoPoleWithParasitics) {
   EXPECT_GT(graph->vertexCount(), 0);
 }
 
+TEST_F(DesignDcalcTest, DmpCeffTwoPoleReducesToPiPoleResidue) {
+  ASSERT_TRUE(design_loaded_);
+  Scene *corner = sta_->cmdScene();
+  Network *network = sta_->network();
+  Instance *top = network->topInstance();
+  const bool read_spef = sta_->readSpef("spef",
+                                        "test/reg1_asap7.spef",
+                                        top,
+                                        corner,
+                                        MinMaxAll::all(),
+                                        false,
+                                        false,
+                                        1.0f,
+                                        false);
+  ASSERT_TRUE(read_spef);
+
+  Instance *u1 = network->findChild(top, "u1");
+  ASSERT_NE(u1, nullptr);
+  Pin *y_pin = network->findPin(u1, "Y");
+  ASSERT_NE(y_pin, nullptr);
+  const Net *net = network->net(y_pin);
+  ASSERT_NE(net, nullptr);
+
+  Parasitics *parasitics = sta_->findParasitics("spef");
+  ASSERT_NE(parasitics, nullptr);
+  Parasitic *network_parasitic = parasitics->findParasiticNetwork(net);
+  ASSERT_NE(network_parasitic, nullptr);
+
+  ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_two_pole", sta_);
+  ASSERT_NE(calc, nullptr);
+  Parasitic *reduced = calc->reduceParasitic(network_parasitic,
+                                             y_pin,
+                                             RiseFall::rise(),
+                                             corner,
+                                             MinMax::max());
+  ASSERT_NE(reduced, nullptr);
+  EXPECT_TRUE(parasitics->isPiPoleResidue(reduced));
+  delete calc;
+}
+
 // R10_ DesignDcalcTest: reportDelayCalc exercises report path
 // Covers: GraphDelayCalc::reportDelayCalc
 TEST_F(DesignDcalcTest, ReportDelayCalcDmpElmore2) {
