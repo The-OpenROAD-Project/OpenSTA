@@ -207,6 +207,9 @@ public:
                             std::string_view property);
   PropertyValue getProperty(const Mode *mode,
                             std::string_view property);
+  // OpenROAD fork: analysis_corner support.
+  PropertyValue getProperty(const AnalysisCorner *corner,
+                            std::string_view property);
   PropertyValue getProperty(PathEnd *end,
                             std::string_view property);
   PropertyValue getProperty(Path *path,
@@ -243,6 +246,9 @@ public:
                       const PropertyRegistry<const Scene *>::PropertyHandler &handler);
   void defineProperty(std::string_view property,
                       const PropertyRegistry<const Mode *>::PropertyHandler &handler);
+  // OpenROAD fork: analysis_corner support.
+  void defineProperty(std::string_view property,
+                      const PropertyRegistry<const AnalysisCorner *>::PropertyHandler &handler);
 
   // User-defined, per-object mutable properties. defineProperty registers
   // a property of the given value type ("bool", "float" or "string");
@@ -303,22 +309,14 @@ protected:
   PropertyRegistry<const Clock*> registry_clock_;
   PropertyRegistry<const Scene*> registry_scene_;
   PropertyRegistry<const Mode*> registry_mode_;
+  // OpenROAD fork: analysis_corner support.
+  PropertyRegistry<const AnalysisCorner*> registry_analysis_corner_;
 
   // Value types of user-defined properties keyed by object type name and
   // property name.
   std::map<std::pair<std::string, std::string>, PropertyValue::Type> prop_types_;
   // User-defined property values.
   std::map<PropertyKey, PropertyValue> prop_values_;
-
-  // ---- OpenROAD fork: analysis_corner support (begin) ----
-public:
-  PropertyValue getProperty(const AnalysisCorner *corner,
-                            std::string_view property);
-  void defineProperty(std::string_view property,
-                      const PropertyRegistry<const AnalysisCorner*>::PropertyHandler &handler);
-protected:
-  PropertyRegistry<const AnalysisCorner*> registry_analysis_corner_;
-  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   Sta *sta_;
 };

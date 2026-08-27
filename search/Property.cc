@@ -1250,6 +1250,23 @@ Properties::getProperty(const Mode *mode,
 
 ////////////////////////////////////////////////////////////////
 
+// OpenROAD fork: analysis_corner support.
+PropertyValue
+Properties::getProperty(const AnalysisCorner *corner,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(corner->name());
+  else
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this corner returns a none value.
+    return registry_analysis_corner_.getProperty(corner, property,
+                                                 "analysis_corner", sta_);
+}
+
+////////////////////////////////////////////////////////////////
+
 PropertyValue
 Properties::getProperty(PathEnd *end,
                         std::string_view property)
@@ -1401,6 +1418,14 @@ Properties::defineProperty(std::string_view property,
   registry_mode_.defineProperty(property, handler);
 }
 
+// OpenROAD fork: analysis_corner support.
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const AnalysisCorner *>::PropertyHandler &handler)
+{
+  registry_analysis_corner_.defineProperty(property, handler);
+}
+
 ////////////////////////////////////////////////////////////////
 
 // Value type from the define_property -type argument.
@@ -1521,6 +1546,10 @@ template void Properties::defineProperty<Net>(std::string_view,
 template void Properties::defineProperty<Clock>(std::string_view,
                                                 std::string_view,
                                                 std::string_view);
+// OpenROAD fork: analysis_corner support.
+template void Properties::defineProperty<AnalysisCorner>(std::string_view,
+                                                          std::string_view,
+                                                          std::string_view);
 
 void
 Properties::setProperty(const void *object,
@@ -1536,33 +1565,6 @@ Properties::setProperty(const void *object,
   prop_values_[PropertyKey(object, property)] =
     coercePropertyValue(type_iter->second, value);
 }
-
-// ---- OpenROAD fork: analysis_corner support (begin) ----
-PropertyValue
-Properties::getProperty(const AnalysisCorner *corner,
-                        std::string_view property)
-{
-  if (property == "name"
-      || property == "full_name")
-    return PropertyValue(corner->name());
-  else
-    // Unknown properties throw PropertyUnknown; a user-defined property
-    // never set on this corner returns a none value.
-    return registry_analysis_corner_.getProperty(corner, property,
-                                                 "analysis_corner", sta_);
-}
-
-void
-Properties::defineProperty(std::string_view property,
-                           const PropertyRegistry<const AnalysisCorner*>::PropertyHandler &handler)
-{
-  registry_analysis_corner_.defineProperty(property, handler);
-}
-
-template void Properties::defineProperty<AnalysisCorner>(std::string_view,
-                                                         std::string_view,
-                                                         std::string_view);
-// ---- OpenROAD fork: analysis_corner support (end) ----
 
 ////////////////////////////////////////////////////////////////
 
