@@ -109,6 +109,15 @@ protected:
                   Level level);
   void findNext(Level to_level);
 
+  // ---- OpenROAD fork: BFS chunked dispatch (begin) ----
+  // Dispatch level_vertices to the worker pool in fixed-size chunks so
+  // idle threads pick up remaining work. Stop-gap until upstream BFS
+  // rework lands; on merge conflict take upstream and drop this.
+  void visitLevelChunked(VertexSeq &level_vertices,
+                         Level level,
+                         std::vector<VertexVisitor *> &visitors);
+  // ---- OpenROAD fork: BFS chunked dispatch (end) ----
+
   BfsIndex bfs_index_;
   Level level_min_;
   Level level_max_;

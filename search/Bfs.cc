@@ -182,25 +182,9 @@ BfsIterator::visitParallel(Level to_level,
             }
           }
           else {
-            size_t from = 0;
-            size_t chunk_size = vertex_count / thread_count;
-            BfsIndex bfs_index = bfs_index_;
-            for (size_t k = 0; k < thread_count; k++) {
-              // Last thread gets the left overs.
-              size_t to = (k == thread_count - 1) ? vertex_count : from + chunk_size;
-              dispatch_queue_->dispatch([=, this](size_t) {
-                for (size_t i = from; i < to; i++) {
-                  Vertex *vertex = level_vertices[i];
-                  if (vertex) {
-                    checkLevel(vertex, level);
-                    vertex->setBfsInQueue(bfs_index, false);
-                    visitors[k]->visit(vertex);
-                  }
-                }
-              });
-              from = to;
-            }
-            dispatch_queue_->finishTasks();
+            // ---- OpenROAD fork: BFS chunked dispatch (begin) ----
+            visitLevelChunked(level_vertices, level, visitors);
+            // ---- OpenROAD fork: BFS chunked dispatch (end) ----
           }
           level_vertices.clear();
           visit_count += vertex_count;
@@ -335,6 +319,39 @@ BfsIterator::findNext(Level to_level)
     incrLevel(first_level_);
   }
 }
+
+// ---- OpenROAD fork: BFS chunked dispatch (begin) ----
+void
+BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
+                               Level level,
+                               std::vector<VertexVisitor *> &visitors)
+{
+  // Tasks read level_vertices in place and unlocked. This relies on
+  // visitors never enqueuing at the current level (they only enqueue
+  // fanout/fanin, which levelize places at a higher/lower level).
+  // Chunk size vs. runtime is U-shaped; 8 is the smallest size at the
+  // bottom of the curve.
+  constexpr size_t chunk_size = 8;
+  size_t vertex_count = level_vertices.size();
+  BfsIndex bfs_index = bfs_index_;
+  for (size_t from = 0; from < vertex_count; from += chunk_size) {
+    size_t to = (from + chunk_size < vertex_count) ? from + chunk_size : vertex_count;
+    dispatch_queue_->dispatch([this, &level_vertices, from, to, level,
+                               bfs_index, &visitors](int thread_id) {
+      VertexVisitor *thread_visitor = visitors[thread_id];
+      for (size_t i = from; i < to; i++) {
+        Vertex *vertex = level_vertices[i];
+        if (vertex) {
+          checkLevel(vertex, level);
+          vertex->setBfsInQueue(bfs_index, false);
+          thread_visitor->visit(vertex);
+        }
+      }
+    });
+  }
+  dispatch_queue_->finishTasks();
+}
+// ---- OpenROAD fork: BFS chunked dispatch (end) ----
 
 ////////////////////////////////////////////////////////////////
 
