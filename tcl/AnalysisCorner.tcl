@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2026, The OpenROAD Authors
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2019-2025, The OpenROAD Authors
 
 # OpenROAD fork: analysis_corner support.
 # Sourced after Sta.tcl (list order in CMakeLists.txt/BUILD matters).
@@ -291,6 +291,12 @@ variable corner_scope_pending_cmds {
 
 proc check_corner_scope { cmd } {
   variable corner_scope_pending_cmds
+  # A build can embed this file without the analysis_corner swig commands
+  # (OpenROAD links its own swig module); no corner scope can exist
+  # there, so the guarded commands must pass through untouched.
+  if { [info commands cmd_analysis_corner] == "" } {
+    return
+  }
   if { [cmd_analysis_corner] != "NULL" } {
     if { [lsearch -exact $corner_scope_pending_cmds $cmd] >= 0 } {
       sta_error 3711 "$cmd is not yet supported in an analysis corner scope."
