@@ -6,7 +6,7 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//bazel:bison.bzl", "genyacc")
 load("//bazel:flex.bzl", "genlex")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
-load("//bazel:tcl_wrap_cc.bzl", "tcl_wrap_cc")
+load("//bazel:tcl_wrap_cc.bzl", "swig_defs", "tcl_wrap_cc")
 
 package(
     default_visibility = ["//:__subpackages__"],
@@ -219,6 +219,14 @@ filegroup(
         "verilog/Verilog.i",
     ],
     visibility = ["//:__subpackages__"],
+)
+
+# OpenROAD fork: analysis_corner support. Declares the fork's swig
+# options to dependent swig modules (dbSta); this file ships with the
+# submodule, so swapping in another OpenSTA swaps the options with it.
+swig_defs(
+    name = "sta_swig_defs",
+    swig_options = ["-DSTA_OPENROAD_FORK"],
 )
 
 tcl_wrap_cc(
