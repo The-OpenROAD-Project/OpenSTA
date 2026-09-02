@@ -50,13 +50,14 @@ proc define_analysis_corner { args } {
     set sdc_files $keys(-sdc)
   }
 
-  define_analysis_corner_cmd $name $liberty_min_files $liberty_max_files \
-    $spef_min_name $spef_max_name $sdc_files
+  set replaced [define_analysis_corner_cmd $name $liberty_min_files \
+                  $liberty_max_files $spef_min_name $spef_max_name $sdc_files]
 
-  # A redefine with data replaces the whole bundle: forget which
-  # (mode, corner) pairs the old SDC bundle was applied to so the new
-  # bundle applies to scenes defined from now on.
-  if { $liberty_min_files != {} || $spef_min_name != "" || $sdc_files != {} } {
+  # A redefine with data replaces the whole bundle (the cmd empties the
+  # corner's overlay Sdcs): forget which (mode, corner) pairs the old
+  # bundle was applied to so the new bundle applies to scenes defined
+  # from now on.
+  if { $replaced } {
     variable corner_bundle_applied
     foreach pair [dict keys $corner_bundle_applied] {
       if { [lindex $pair 1] == $name } {

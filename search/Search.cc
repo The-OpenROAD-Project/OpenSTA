@@ -1258,7 +1258,9 @@ ArrivalVisitor::seedArrivals(Vertex *vertex)
       search_->seedInputArrival(pin, vertex, mode, tag_bldr_);
     // Do not apply input delay to bidir load vertices.
     if (!(network_->direction(pin)->isBidirect() && !vertex->isBidirectDriver())
-        && !network_->isTopLevelPort(pin) && sdc->hasInputDelay(pin))
+        && !network_->isTopLevelPort(pin)
+        // OpenROAD fork: analysis_corner support.
+        && (sdc->hasInputDelay(pin) || modeHasCornerInputDelay(mode, pin)))
       search_->seedInputSegmentArrival(pin, vertex, mode, tag_bldr_);
     if (sdc->isPathDelayInternalFrom(pin) && !sdc->isLeafPinClock(pin))
       // set_min/max_delay -from internal pin.

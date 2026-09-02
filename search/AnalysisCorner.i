@@ -50,7 +50,10 @@ using namespace sta;
 
 %inline %{
 
-void
+// Returns true when the corner was (re)defined with data: the whole
+// bundle is replaced and the corner's overlay Sdcs are emptied. A bare
+// redefine preserves the bundle (makeAnalysisCorner is find-or-create).
+bool
 define_analysis_corner_cmd(const char *name,
                            StringSeq liberty_min_files,
                            StringSeq liberty_max_files,
@@ -59,15 +62,17 @@ define_analysis_corner_cmd(const char *name,
                            StringSeq sdc_files)
 {
   AnalysisCorner *corner = Sta::sta()->makeAnalysisCorner(name);
-  // Redefining with any data replaces the whole bundle; a bare redefine
-  // preserves it (makeAnalysisCorner is find-or-create). Min/max always
-  // arrive as a pair, so checking min suffices.
-  if (!liberty_min_files.empty() || spef_min_name[0] != '\0'
-      || !sdc_files.empty()) {
+  // Min/max always arrive as a pair, so checking min suffices.
+  bool replace = !liberty_min_files.empty() || spef_min_name[0] != '\0'
+    || !sdc_files.empty();
+  if (replace) {
+    // The old bundle's constraints must not survive the redefine.
+    Sta::sta()->clearAnalysisCornerSdc(corner);
     corner->setLiberty(liberty_min_files, liberty_max_files);
     corner->setSpef(spef_min_name, spef_max_name);
     corner->setSdc(sdc_files);
   }
+  return replace;
 }
 
 StringSeq

@@ -91,6 +91,23 @@ Sta::cmdCornerSdc() const
 }
 
 void
+Sta::clearAnalysisCornerSdc(AnalysisCorner *corner)
+{
+  bool cleared = corner->clearClockUncertainties();
+  for (Mode *mode : modes_) {
+    Sdc *sdc = mode->cornerSdc(corner);
+    if (sdc) {
+      sdc->clear();
+      cleared = true;
+    }
+  }
+  // Invalidate only when the corner actually had constraints: a
+  // first-time define with data reaches here with nothing to clear.
+  if (cleared)
+    search_->arrivalsInvalid();
+}
+
+void
 Sta::deleteAnalysisCorners()
 {
   deleteContents(analysis_corners_);
@@ -244,15 +261,15 @@ modeHasCornerDelay(const Mode *mode,
 }
 
 bool
-modeHasCornerInputDelay(const Mode *mode,
-                        const Pin *pin)
+modeHasCornerInputDelay1(const Mode *mode,
+                         const Pin *pin)
 {
   return modeHasCornerDelay(mode, pin, &Sdc::inputDelaysLeafPin);
 }
 
 bool
-modeHasCornerOutputDelay(const Mode *mode,
-                         const Pin *pin)
+modeHasCornerOutputDelay1(const Mode *mode,
+                          const Pin *pin)
 {
   return modeHasCornerDelay(mode, pin, &Sdc::outputDelaysLeafPin);
 }

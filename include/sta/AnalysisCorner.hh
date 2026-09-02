@@ -11,6 +11,7 @@
 #include <string_view>
 #include <vector>
 
+#include "Mode.hh"
 #include "SdcClass.hh"
 #include "StringUtil.hh"
 
@@ -64,10 +65,26 @@ std::vector<InputDelaySet*> cornerInputDelaySets(const Mode *mode,
                                                  const Pin *pin);
 std::vector<OutputDelaySet*> cornerOutputDelaySets(const Mode *mode,
                                                    const Pin *pin);
-bool modeHasCornerInputDelay(const Mode *mode,
-                             const Pin *pin);
-bool modeHasCornerOutputDelay(const Mode *mode,
+bool modeHasCornerInputDelay1(const Mode *mode,
                               const Pin *pin);
+bool modeHasCornerOutputDelay1(const Mode *mode,
+                               const Pin *pin);
+// Inline fast path for the hot gate call sites (arrival seeding,
+// path-end visiting): no corner overlays — the common case — costs one
+// load and branch instead of an out-of-line call.
+inline bool
+modeHasCornerInputDelay(const Mode *mode,
+                        const Pin *pin)
+{
+  return !mode->cornerSdcs().empty() && modeHasCornerInputDelay1(mode, pin);
+}
+
+inline bool
+modeHasCornerOutputDelay(const Mode *mode,
+                         const Pin *pin)
+{
+  return !mode->cornerSdcs().empty() && modeHasCornerOutputDelay1(mode, pin);
+}
 
 // Corner-overlay clock uncertainty lookups (defined in
 // search/AnalysisCorner.cc). Selection order at the read sites mirrors
@@ -173,7 +190,13 @@ public:
   // Lifecycle: the map keys are the mode's Clock objects, which die on
   // remove_clock / Sta::clear.
   void removeClockUncertainties(const Clock *clk) { clk_uncertainties_.erase(clk); }
-  void clearClockUncertainties() { clk_uncertainties_.clear(); }
+  // Returns true when any uncertainties were removed.
+  bool clearClockUncertainties()
+  {
+    bool had_uncertainties = !clk_uncertainties_.empty();
+    clk_uncertainties_.clear();
+    return had_uncertainties;
+  }
 
 private:
   std::string name_;

@@ -109,7 +109,9 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
         // Ignore segment startpoint paths.
         && !tag->isSegmentStart()) {
       // set_output_delay to timing check has precedence.
-      if (sdc->hasOutputDelay(pin))
+      if (sdc->hasOutputDelay(pin)
+          // OpenROAD fork: analysis_corner support.
+          || modeHasCornerOutputDelay(mode, pin))
         visitOutputDelayEnd(pin, path, end_rf, filtered, visitor,
                             is_constrained);
       else if (vertex->hasChecks())
