@@ -148,6 +148,11 @@ public:
                            const RiseFall *rf,
                            const Scene *scene,
                            const MinMax *min_max) override;
+  Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                             const Pin *drvr_pin,
+                             const RiseFall *rf,
+                             const Scene *scene,
+                             const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -165,6 +170,8 @@ public:
                            const MinMax *min_max) override;
 
 protected:
+  using ArcDelayCalc::reduceParasitic;
+
   void loadDelaySlew(const Pin *load_pin,
                      double drvr_slew,
                      const RiseFall *rf,
@@ -255,6 +262,18 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
                                              scene, min_max);
   }
   return parasitic;
+}
+
+Parasitic *
+DmpCeffTwoPoleDelayCalc::reduceParasitic(const Parasitic *parasitic_network,
+                                         const Pin *drvr_pin,
+                                         const RiseFall *rf,
+                                         const Scene *scene,
+                                         const MinMax *min_max)
+{
+  Parasitics *parasitics = scene->parasitics(min_max);
+  return parasitics->reduceToPiPoleResidue2(
+      parasitic_network, drvr_pin, rf, scene, min_max);
 }
 
 ArcDcalcResult
