@@ -29,6 +29,8 @@
 #include <string_view>
 #include <vector>
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ArcDelayCalc.hh"
 #include "CircuitSim.hh"
 #include "GraphClass.hh"
@@ -147,6 +149,41 @@ public:
   Mode *findMode(std::string_view mode_name) const;
   ModeSeq findModes(const std::string &mode_name) const;
   Sdc *cmdSdc() const;
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Definitions live in search/AnalysisCorner.cc.
+  AnalysisCorner *makeAnalysisCorner(std::string_view name);
+  AnalysisCorner *findAnalysisCorner(std::string_view name) const;
+  // Pattern match name.
+  AnalysisCornerSeq findAnalysisCorners(const std::string &pattern) const;
+  void setSceneAnalysisCorner(Scene *scene,
+                              AnalysisCorner *corner);
+  void deleteAnalysisCorners();
+  // Scope SDC commands to a corner overlay Sdc of the command mode
+  // (nullptr restores mode scope). Mirrors setCmdMode.
+  void setCmdAnalysisCorner(AnalysisCorner *corner) { cmd_analysis_corner_ = corner; }
+  AnalysisCorner *cmdAnalysisCorner() const { return cmd_analysis_corner_; }
+  // Sdc that corner-scoped SDC *write* commands target: the corner overlay
+  // when a corner scope is active, else the command mode Sdc. Read/query
+  // commands keep using cmdSdc() so names (clocks, ...) resolve against
+  // the mode Sdc. Defined in search/AnalysisCorner.cc.
+  Sdc *cmdCornerSdc() const;
+  // Corner-scoped set_clock_uncertainty on a clock (stored on the corner,
+  // not the shared Clock object).
+  void setAnalysisCornerClockUncertainty(AnalysisCorner *corner,
+                                         const Clock *clk,
+                                         const MinMaxAll *setup_hold,
+                                         float uncertainty);
+  void removeAnalysisCornerClockUncertainty(AnalysisCorner *corner,
+                                            const Clock *clk,
+                                            const MinMaxAll *setup_hold);
+  // Purge corner clock uncertainties keyed by dying Clock objects
+  // (nullptr purges all clocks).
+  void purgeAnalysisCornerClockUncertainties(const Clock *clk);
+  // Empty a corner's overlay Sdcs in every mode and its corner-stored
+  // clock uncertainties (bundle redefine).
+  void clearAnalysisCornerSdc(AnalysisCorner *corner);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   virtual LibertyLibrary *readLiberty(std::string_view filename,
                                       Scene *scene,
@@ -1653,6 +1690,11 @@ protected:
   SceneNameMap scene_name_map_;
   ModeNameMap mode_name_map_;
   ParasiticsNameMap parasitics_name_map_;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  AnalysisCornerSeq analysis_corners_;
+  AnalysisCornerNameMap analysis_corner_name_map_;
+  AnalysisCorner *cmd_analysis_corner_{nullptr};
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   VerilogReader *verilog_reader_{nullptr};
   CheckTiming *check_timing_{nullptr};
   CheckSlews *check_slews_{nullptr};

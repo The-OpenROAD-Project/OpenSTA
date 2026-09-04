@@ -24,6 +24,8 @@
 
 #include "PathEnd.hh"
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ClkInfo.hh"
 #include "Clock.hh"
 #include "DataCheck.hh"
@@ -333,7 +335,8 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
     const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
     const Mode *mode = tgt_clk_path->mode(sta);
     insertion = search->clockInsertion(tgt_clk, tgt_src_pin, tgt_clk_rf,
-                                       min_max, early_late, mode);
+                                       min_max, early_late, mode,
+                                       tgt_clk_path->scene(sta));
     if (clk_info->isPropagated()
         // Data check target clock is always propagated.
         || check_role->isDataCheck()) {
@@ -342,7 +345,8 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
       Arrival clk_arrival = tgt_clk_path->arrival();
       Delay path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
                                                     tgt_clk_rf, min_max,
-                                                    min_max, mode);
+                                                    min_max, mode,
+                                                    tgt_clk_path->scene(sta));
       latency = delayRemove(delayDiff(clk_arrival, tgt_clk_edge->time(), sta),
                             path_insertion);
     }
@@ -361,31 +365,45 @@ PathEnd::checkClkUncertainty(const ClockEdge *src_clk_edge,
                              const ClockEdge *tgt_clk_edge,
                              const Path *tgt_clk_path,
                              const TimingRole *check_role,
-                             const Sdc *sdc)
+                             const Sdc *sdc,
+                             const Scene *scene)
 {
 
   float inter_clk;
   bool inter_exists;
   checkInterClkUncertainty(src_clk_edge, tgt_clk_edge, check_role, sdc,
-                           inter_clk, inter_exists);
+                           inter_clk, inter_exists, scene);
   if (inter_exists)
     return inter_clk;
   else
-    return checkTgtClkUncertainty(tgt_clk_path, tgt_clk_edge, check_role, sdc);
+    return checkTgtClkUncertainty(tgt_clk_path, tgt_clk_edge, check_role, sdc,
+                                  scene);
 }
 
 float
 PathEnd::checkTgtClkUncertainty(const Path *tgt_clk_path,
                                 const ClockEdge *tgt_clk_edge,
                                 const TimingRole *check_role,
-                                const StaState *sta)
+                                const StaState *sta,
+                                const Scene *scene)
 {
   const MinMax *min_max = check_role->pathMinMax();
   const ClockUncertainties *uncertainties = nullptr;
   if (tgt_clk_path && tgt_clk_path->isClock(sta))
     uncertainties = tgt_clk_path->clkInfo(sta)->uncertainties();
-  else if (tgt_clk_edge)
+  else if (tgt_clk_edge) {
     uncertainties = &tgt_clk_edge->clock()->uncertainties();
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    // The clock-path branch above is corner-aware via ClkInfo; only the
+    // clock-object fallback needs the corner override.
+    if (scene) {
+      const ClockUncertainties *corner_unc =
+        cornerClkUncertainties(scene, tgt_clk_edge->clock());
+      if (corner_unc)
+        uncertainties = corner_unc;
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
   float uncertainty = 0.0;
   if (uncertainties) {
     bool exists;
@@ -405,7 +423,8 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
                                   const TimingRole *check_role,
                                   const Sdc *sdc,
                                   float &uncertainty,
-                                  bool &exists)
+                                  bool &exists,
+                                  const Scene *scene)
 {
   if (src_clk_edge
       && src_clk_edge != sdc->defaultArrivalClockEdge()
@@ -416,6 +435,23 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
                           tgt_clk_edge->transition(),
                           check_role->pathMinMax(),
                           uncertainty, exists);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    if (scene) {
+      float corner_uncertainty;
+      bool corner_exists;
+      cornerInterClockUncertainty(scene,
+                                  src_clk_edge->clock(),
+                                  src_clk_edge->transition(),
+                                  tgt_clk_edge->clock(),
+                                  tgt_clk_edge->transition(),
+                                  check_role->pathMinMax(),
+                                  corner_uncertainty, corner_exists);
+      if (corner_exists) {
+        uncertainty = corner_uncertainty;
+        exists = true;
+      }
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
     if (exists
         && check_role->genericRole() == TimingRole::setup())
       uncertainty = -uncertainty;
@@ -637,7 +673,8 @@ PathEndClkConstrained::targetClkArrivalNoCrpr(const StaState *sta) const
                                           targetClkEdge(sta),
                                           targetClkPath(),
                                           checkRole(sta),
-                                          sdc);
+                                          sdc,
+                                          path_->scene(sta));
   return delaySum(delaySum(delaySum(clk_arrival, uncertainty, sta),
                            targetClkMcpAdjustment(sta), sta),
                   targetClkPathMargin(sta), sta);
@@ -670,12 +707,13 @@ PathEndClkConstrained::targetNonInterClkUncertainty(const StaState *sta) const
   float inter_clk;
   bool inter_exists;
   checkInterClkUncertainty(src_clk_edge, tgt_clk_edge, check_role,
-                           sdc, inter_clk, inter_exists);
+                           sdc, inter_clk, inter_exists, path_->scene(sta));
   if (inter_exists)
     // This returns non inter-clock uncertainty.
     return 0.0;
   else
-    return checkTgtClkUncertainty(targetClkPath(), tgt_clk_edge, check_role, sta);
+    return checkTgtClkUncertainty(targetClkPath(), tgt_clk_edge, check_role, sta,
+                                  path_->scene(sta));
 }
 
 float
@@ -686,7 +724,7 @@ PathEndClkConstrained::interClkUncertainty(const StaState *sta) const
   bool exists;
   checkInterClkUncertainty(sourceClkEdge(sta), targetClkEdge(sta),
                            checkRole(sta), sdc,
-                           uncertainty, exists);
+                           uncertainty, exists, path_->scene(sta));
   if (exists)
     return uncertainty;
   else
@@ -698,7 +736,8 @@ PathEndClkConstrained::targetClkUncertainty(const StaState *sta) const
 {
   Sdc *sdc = path_->sdc(sta);
   return checkClkUncertainty(sourceClkEdge(sta), targetClkEdge(sta),
-                             targetClkPath(), checkRole(sta), sdc);
+                             targetClkPath(), checkRole(sta), sdc,
+                             path_->scene(sta));
 }
 
 float
@@ -1027,7 +1066,8 @@ PathEndCheck::clkSkew(const StaState *sta)
                    checkTgtClkUncertainty(clk_path_,
                                                     clk_path_->clkEdge(sta),
                                                     checkRole(sta),
-                                                    sta),
+                                                    sta,
+                                                    path_->scene(sta)),
                    sta);
   return skew;
 }
@@ -1469,12 +1509,22 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
                                               tgt_clk->defaultPin(),
                                               tgt_clk_rf,
                                               latency_min_max,
-                                              early_late, mode);
+                                              early_late, mode,
+                                              path_->scene(sta));
   else
     insertion = 0.0;
   if (!tgt_clk->isPropagated()
-      && !output_delay_->networkLatencyIncluded())
+      && !output_delay_->networkLatencyIncluded()) {
     latency = mode->sdc()->clockLatency(tgt_clk, tgt_clk_rf, latency_min_max);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    float corner_latency;
+    bool corner_exists;
+    cornerClockLatencyClk(path_->scene(sta), tgt_clk, tgt_clk_rf,
+                          latency_min_max, corner_latency, corner_exists);
+    if (corner_exists)
+      latency = corner_latency;
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
   else
     latency = 0.0;
 }

@@ -1,0 +1,21 @@
+=== corner-only output delay endpoint ===
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out1 (output)                           8.00    0.29    7.71 (MET)
+
+=== corner-only internal input delay segment start ===
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/D (DFF_X1)                         9.84    1.50    8.34 (MET)
+
+=== after redefine with data ===
+No paths found.
+
+No paths found.
+

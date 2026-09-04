@@ -293,6 +293,10 @@ Sta::makeComponents()
   updateComponentsState();
 
   makeObservers();
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  defineAnalysisCornerProperties(this);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -517,6 +521,9 @@ Sta::~Sta()
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
   deleteContents(scenes_);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  deleteAnalysisCorners();
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -525,6 +532,12 @@ Sta::clear()
   clearNonSdc();
   for (Mode *mode : modes_)
     mode->sdc()->clear();
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  for (Mode *mode : modes_)
+    mode->clearCornerSdcs();
+  // The mode Sdc clear above deleted all Clock objects.
+  purgeAnalysisCornerClockUncertainties(nullptr);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -547,6 +560,10 @@ Sta::clearNonSdc()
     mode->sim()->clear();
     // ref_pin edges are owned by the graph deleted below; force a rebuild.
     mode->sdc()->inputDelayRefPinEdgesInvalid();
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      corner_sdc->inputDelayRefPinEdgesInvalid();
+    // ---- OpenROAD fork: analysis_corner support (end) ----
   }
   search_->clear();
 
@@ -1226,6 +1243,9 @@ void
 Sta::removeClock(Clock *clk,
                  Sdc *sdc)
 {
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  purgeAnalysisCornerClockUncertainties(clk);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   sdc->removeClock(clk);
   search_->arrivalsInvalid();
   power_->activitiesInvalid();
