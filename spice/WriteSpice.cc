@@ -106,7 +106,8 @@ WriteSpice::writeHeader(std::string &title,
                         float time_step)
 {
   sta::print(spice_stream_, "* {}\n", title);
-  sta::print(spice_stream_, ".include \"{}\"\n", model_filename_);
+  if (!model_filename_.empty())
+    sta::print(spice_stream_, ".include \"{}\"\n", model_filename_);
   std::filesystem::path subckt_filename =
       std::filesystem::path(subckt_filename_).filename();
   sta::print(spice_stream_, ".include \"{}\"\n", subckt_filename.string());

@@ -25,14 +25,33 @@
 namespace eval sta {
 
 # Defined by SWIG interface Verilog.i.
-define_cmd_args "read_verilog" {filename}
+define_cmd_args "read_verilog" {filename} \
+  -help {The `read_verilog` command reads a gate level verilog netlist. After all verilog netlist and Liberty libraries are read the design must be linked with the `link_design` command.
+
+Verilog 2001 module port declaratations are supported. An example is shown below.
+
+```
+module top (input in1, in2, clk1, clk2, clk3,
+            output out);
+```
+
+Files compressed with gzip are automatically uncompressed.} \
+  -arg_help {
+    filename {The name of the verilog file to read.}
+  }
 
 proc_redirect read_verilog {
   read_verilog_cmd [file nativename [lindex $args 0]]
 }
 
 define_cmd_args "write_verilog" {[-include_pwr_gnd]\
-                                   [-remove_cells cells] filename}
+                                   [-remove_cells cells] filename} \
+  -help {The `write_verilog` command writes a Verilog netlist to filename. Use `-sort` to sort the instances so the results are reproducible across operating systems. Use `-remove_cells` to remove instances of lib_cells from the netlist.} \
+  -arg_help {
+    -include_pwr_gnd {Include power and ground pins on instances.}
+    -remove_cells {`lib_cells`: Liberty cells to remove from the Verilog netlist. Use `get_lib_cells`, a list of cells names, or a cell name with wildcards.}
+    filename {Filename for the liberty library.}
+  }
 
 proc write_verilog { args } {
   # -sort deprecated 12/12/2025

@@ -284,6 +284,11 @@ protected:
   void makeTableModels(LibertyCell *cell,
                        const LibertyGroup *timing_group,
                        TimingArcAttrs &timing_attrs);
+  bool makeRetainTableModels(LibertyCell *cell,
+                             const LibertyGroup *timing_group,
+                             const RiseFall *rf,
+                             TableModel *slew_model,
+                             TimingArcAttrs &timing_attrs);
   void readLvfModels(const LibertyGroup *timing_group,
                      const std::string &sigma_group_name,
                      const std::string &std_dev_group_name,

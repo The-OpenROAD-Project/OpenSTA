@@ -2733,8 +2733,11 @@ Sta::updateSceneLiberty(Scene *scene,
     LibertyLibrary *lib = network_->findLiberty(lib_file);
     if (lib == nullptr)
       lib = network_->findLibertyFilename(lib_file);
-    if (lib)
+    if (lib) {
       LibertyLibrary::makeSceneMap(lib, scene, min_max, network_, report_);
+      for (const MinMax *min_max : min_max->range())
+        scene->addLiberty(lib, min_max);
+    }
     else
       report_->warn(1555, "liberty name/filename {} not found.", lib_file);
   }

@@ -34,7 +34,19 @@
 
 namespace eval sta {
 
-define_cmd_args "read_sdc" {[-echo] [-mode mode_name] filename}
+define_cmd_args "read_sdc" {[-echo] [-mode mode_name] filename} \
+  -help {Read SDC commands from filename.
+
+If the mode does not exist it is created. Multiple SDC files can append commands to a mode by using the `-mode_name` argument for each one. If no `-mode` arguement is is used the commands are added to the current  mode.
+
+The `read_sdc` command stops and reports any errors encountered while reading a file unless `sta_continue_on_error` is 1.
+
+Files compressed with gzip are automatically uncompressed.} \
+  -arg_help {
+    -mode {Mode for the SDC commands in the file.}
+    -echo {Print each command before evaluating it.}
+    filename {SDC command file.}
+  }
 
 proc_redirect read_sdc {
   parse_key_args "read_sdc" args keys {-mode} flags {-echo}
@@ -62,7 +74,15 @@ proc_redirect read_sdc {
 ################################################################
 
 define_cmd_args "write_sdc" \
-  {[-mode mode] [-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename}
+  {[-mode mode] [-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename} \
+  -help {Write the constraints for the design in SDC format to filename.} \
+  -arg_help {
+    -gzip {Compress the SDC with gzip.}
+    -no_timestamp {Do not include a time and date in the SDC file.}
+    -mode {SDC mode to write. The default is the current mode.}
+    -map_hpins {Map hierarchical pins to leaf pins in the SDC.}
+    filename {The name of the file to write the constraints to.}
+  }
 
 proc write_sdc { args } {
   parse_key_args "write_sdc" args keys {-mode -digits} \
@@ -94,7 +114,11 @@ proc write_sdc { args } {
 #
 ################################################################
 
-define_cmd_args "current_instance" {[instance]}
+define_cmd_args "current_instance" {[instance]} \
+  -help {Set or report the current instance used for relative name lookup.} \
+  -arg_help {
+    instance {Not supported.}
+  }
 
 proc current_instance { {inst ""} } {
   if { $inst == "" } {
@@ -111,7 +135,11 @@ proc current_instance { {inst ""} } {
 
 ################################################################
 
-define_cmd_args "set_hierarchy_separator" { seperator }
+define_cmd_args "set_hierarchy_separator" { separator } \
+  -help {Set the character used to separate names in a hierarchical instance, net or pin name. This separator is used by the command interpreter to read arguments and print results. The default separator is '/'.} \
+  -arg_help {
+    separator {Character used to separate hierarchical names.}
+  }
 
 set ::hierarchy_separator "/"
 
@@ -135,7 +163,31 @@ proc check_path_divider { divider } {
 define_cmd_args "set_units" \
   {[-time time_unit] [-capacitance cap_unit] [-resistance res_unit]\
      [-voltage voltage_unit] [-current current_unit] [-power power_unit]\
-     [-distance distance_unit]}
+     [-distance distance_unit]} \
+  -help {The `set_units` command is used to check the units used by the STA command interpreter when parsing commands and reporting results. If the current units differ from the set_unit value a warning is printed. Use the `set_cmd_units` command to change the command units.
+
+Units are specified as a scale factor followed by a unit name. The scale factors are as follows.
+
+M 1E+6
+k 1E+3
+m 1E-3
+u 1E-6
+n 1E-9
+p 1E-12
+f 1E-15
+
+An example of the `set_units` command is shown below.
+
+`set_units` `-time` ns `-capacitance` pF `-current` mA `-voltage` V `-resistance` kOhm} \
+  -arg_help {
+    -capacitance {`cap_unit`: The capacitance scale factor followed by 'f'.}
+    -resistance {`res_unit`: The resistance scale factor followed by 'ohm'.}
+    -time {`time_unit`: The time scale factor followed by 's'.}
+    -voltage {`voltage_unit`: The voltage scale factor followed by 'v'.}
+    -current {`current_unit`: The current scale factor followed by 'A'.}
+    -power {`power_unit`: The power scale factor followed by 'w'.}
+    -distance {`distance_unit`: The distance scale factor followed by 'm'.}
+  }
 
 # Note that the set_units command does NOT actually set the units.
 # It merely checks that the current units are the same as the
@@ -204,7 +256,8 @@ proc check_unit_scale { unit scale } {
 #
 ################################################################
 
-define_cmd_args "all_clocks" {}
+define_cmd_args "all_clocks" {} \
+  -help {The `all_clocks` command returns a list of all clocks that have been defined.}
 
 proc all_clocks { } {
   return [get_clocks -quiet *]
@@ -212,7 +265,11 @@ proc all_clocks { } {
 
 ################################################################
 
-define_cmd_args "all_inputs" {[-no_clocks]}
+define_cmd_args "all_inputs" {[-no_clocks]} \
+  -help {The `all_inputs` command returns a list of all input and bidirect ports of the current design.} \
+  -arg_help {
+    -no_clocks {Exclude inputs defined as clock sources.}
+  }
 
 proc all_inputs { args } {
   parse_key_args "all_inputs" args keys {} flags {-no_clocks}
@@ -222,7 +279,8 @@ proc all_inputs { args } {
 
 ################################################################
 
-define_cmd_args "all_outputs" {}
+define_cmd_args "all_outputs" {} \
+  -help {The `all_outputs` command returns a list of all output and bidirect ports of the design.}
 
 proc all_outputs { args } {
   check_argc_eq0 "all_outputs" $args
@@ -233,7 +291,20 @@ proc all_outputs { args } {
 
 define_cmd_args all_registers \
   {[-clock clocks] [-rise_clock clocks] [-fall_clock clocks] [-cells] [-data_pins] [-clock_pins]\
-     [-async_pins] [-output_pins] [-level_sensitive] [-edge_triggered]}
+     [-async_pins] [-output_pins] [-level_sensitive] [-edge_triggered]} \
+  -help {The `all_registers` command returns a list of  register instances or register pins in the design. Options allow the list of registers to be restricted in various ways. The `-clock` keyword restrcts the registers to those that are clocked by a set of clocks. The `-cells` option returns the list of registers or latches (the default). The `-data_pins`, `-clock_pins`, `-async_pins` and `-output_pins` options cause `all_registers` to return a list of register pins rather than instances.} \
+  -arg_help {
+    -clock {`clock_names`: A list of clock names. Only registers clocked by these clocks are returned.}
+    -rise_clock {Only registers clocked by the rising edge of these clocks are returned.}
+    -fall_clock {Only registers clocked by the falling edge of these clocks are returned.}
+    -cells {Return a list of register instances.}
+    -data_pins {Return the register data pins.}
+    -clock_pins {Return the register clock pins.}
+    -async_pins {Return the register set/clear pins.}
+    -output_pins {Return the register output pins.}
+    -level_sensitive {Return level-sensitive latches.}
+    -edge_triggered {Return edge-triggered registers.}
+  }
 
 proc all_registers { args } {
   parse_key_args "all_registers" args keys {-clock -rise_clock -fall_clock} \
@@ -297,7 +368,8 @@ proc all_registers { args } {
 
 ################################################################
 
-define_cmd_args "current_design" {[design]}
+define_cmd_args "current_design" {[design]} \
+  -help {Set or report the current design. OpenSTA only supports one design.}
 
 variable current_design_name ""
 
@@ -324,7 +396,17 @@ proc current_design { {design ""} } {
 
 define_cmd_args "get_cells" \
   {[-hierarchical] [-hsc separator] [-filter expr]\
-     [-regexp] [-nocase] [-quiet] [-of_objects objects] [patterns]}
+     [-regexp] [-nocase] [-quiet] [-of_objects objects] [patterns]} \
+  -help {The `get_cells` command returns a list of all cell instances that match patterns.} \
+  -arg_help {
+    -hierarchical {Searches hierarchy levels below the current instance for matches.}
+    -hsc {`separator`: Character to use to separate hierarchical instance names in patterns.}
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    -of_objects {The name of a pin or net, a list of pins returned by `get_pins`, or a list of nets returned by `get_nets`. The `-hierarchical` option cannot be used with `-of_objects`.}
+    patterns {A list of instance name patterns.}
+  }
 
 define_cmd_alias "get_cell" "get_cells"
 
@@ -407,7 +489,14 @@ proc get_cells { args } {
 
 ################################################################
 
-define_cmd_args "get_clocks" {[-regexp] [-nocase] [-quiet] [-filter expr] [patterns]}
+define_cmd_args "get_clocks" {[-regexp] [-nocase] [-quiet] [-filter expr] [patterns]} \
+  -help {The `get_clocks` command returns a list of all clocks that have been defined.} \
+  -arg_help {
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    patterns {A list of clock name patterns.}
+  }
 
 define_cmd_alias "get_clock" "get_clocks"
 
@@ -452,7 +541,16 @@ proc get_clocks { args } {
 
 define_cmd_args "get_lib_cells" \
   {[-hsc separator] [-regexp] [-nocase] [-quiet] [-filter expr]\
-     [-of_objects objects] [patterns]}
+     [-of_objects objects] [patterns]} \
+  -help {The `get_lib_cells` command returns a list of library cells that match pattern. The library name can be prepended to the cell name pattern with the separator character, which defaults to `hierarchy_separator`.} \
+  -arg_help {
+    -of_objects {A list of instance objects.}
+    -hsc {`separator`: Character that separates the library name and cell name in patterns. Defaults to '/'.}
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    patterns {A list of library cell name patterns of the form library_name/cell_name.}
+  }
 
 define_cmd_alias "get_lib_cell" "get_lib_cells"
 
@@ -533,7 +631,16 @@ proc get_lib_cells { args } {
 
 define_cmd_args "get_lib_pins" \
   {[-hsc separator] [-regexp] [-nocase] [-quiet] [-filter expr]\
-     [-of_objects objects] [patterns]}
+     [-of_objects objects] [patterns]} \
+  -help {The `get_lib_pins` command returns a list of library ports that match pattern.     Use separator to separate the library and cell name patterns from the port name in pattern.} \
+  -arg_help {
+    -of_objects {A list of library cell objects.}
+    -hsc {`separator`: Character that separates the library name, cell name and port name in pattern. Defaults to '/'.}
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    patterns {A list of library port name patterns of the form library_name/cell_name/port_name.}
+  }
 
 define_cmd_alias "get_lib_pin" "get_lib_pins"
 
@@ -642,7 +749,14 @@ proc check_nocase_flag { flags_var } {
 
 ################################################################
 
-define_cmd_args "get_libs" {[-regexp] [-nocase] [-quiet] [-filter expr] [patterns]}
+define_cmd_args "get_libs" {[-regexp] [-nocase] [-quiet] [-filter expr] [patterns]} \
+  -help {The `get_libs` command returns a list of clocks that match patterns.} \
+  -arg_help {
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    patterns {A list of library name patterns.}
+  }
 
 define_cmd_alias "get_lib" "get_libs"
 
@@ -714,7 +828,17 @@ proc find_liberty_libraries_matching { pattern regexp nocase } {
 
 define_cmd_args "get_nets" \
   {[-hierarchical] [-hsc separator] [-regexp] [-nocase] [-quiet] [-filter expr]\
-     [-of_objects objects] [patterns]}
+     [-of_objects objects] [patterns]} \
+  -help {The `get_nets` command returns a list of all nets that match patterns.} \
+  -arg_help {
+    -hierarchical {Searches hierarchy levels below the current instance for matches.}
+    -hsc {`separator`: Character that separates the library name, cell name and port name in pattern. Defaults to '/'.}
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    -of_objects {The name of a pin or instance, a list of pins returned by `get_pins`, or a list of instances returned by `get_cells`. The `-hierarchical` option cannot be used with `-of_objects`.}
+    patterns {A list of net name patterns.}
+  }
 
 define_cmd_alias "get_net" "get_nets"
 
@@ -788,7 +912,23 @@ proc get_nets { args } {
 
 define_cmd_args "get_pins" \
   {[-hierarchical] [-hsc separator] [-quiet] [-filter expr]\
-     [-regexp] [-nocase] [-of_objects objects] [patterns]}
+     [-regexp] [-nocase] [-of_objects objects] [patterns]} \
+  -help {The `get_pins` command returns a list of all instance pins that match patterns.
+
+A useful idiom to find the driver pin for a net is the following.
+
+```
+get_pins -of_objects [get_net net_name] -filter "direction==output"
+```} \
+  -arg_help {
+    -hierarchical {Searches hierarchy levels below the current instance for matches.}
+    -hsc {`separator`: Character that separates the library name, cell name and port name in pattern. Defaults to '/'.}
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    -of_objects {The name of a net or instance, a list of nets returned by `get_nets`, or a list of instances returned by `get_cells`. The `-hierarchical` option cannot be used with `-of_objects`.}
+    patterns {A list of pin name patterns.}
+  }
 
 define_cmd_alias "get_pin" "get_pins"
 
@@ -878,7 +1018,15 @@ proc get_pins { args } {
 ################################################################
 
 define_cmd_args "get_ports" \
-  {[-quiet] [-filter expr] [-regexp] [-nocase] [-of_objects objects] [patterns]}
+  {[-quiet] [-filter expr] [-regexp] [-nocase] [-of_objects objects] [patterns]} \
+  -help {The `get_ports` command returns a list of all top level ports that match patterns.} \
+  -arg_help {
+    -filter {A filter expression of the form
+  "property==value"
+where property is a property supported by the `get_property` command.  See the section "Filter Expressions" for additional forms.}
+    -of_objects {The name of  net or a list of nets returned by `get_nets`.}
+    patterns {A list of port name patterns.}
+  }
 
 define_cmd_alias "get_port" "get_ports"
 
@@ -939,7 +1087,35 @@ proc get_ports { args } {
 
 define_cmd_args "create_clock" \
   {[-name name] [-period period] [-waveform waveform] [-add]\
-     [-comment comment] [pins]}
+     [-comment comment] [pins]} \
+  -help {The `create_clock` command defines the waveform of a clock used by the design.
+
+If no pin_list is specified the clock is virtual. A virtual clock can be refered to by name in input arrival and departure time commands but is not attached to any pins in the design.
+
+If no clock name is specified the name of the first pin is used as the clock name.
+
+If a wavform is not specified the clock rises at zero and falls at half the clock period. The waveform is a list with time the clock rises as the first element and the time it falls as the second element.
+
+If a clock is already defined on a pin the clock is redefined using the new clock parameters. If multiple clocks drive the same pin, use the `-add` option to prevent the existing definition from being overwritten.
+
+The following command creates a clock with a period of 10 time units that rises at time 0 and falls at 5 time units on the pin named clk1.
+
+```
+create_clock -period 10 clk1
+```
+
+The following command creates a clock with a period of 10 time units that is high at time zero, falls at time 2 and rises at time 8. The clock drives three pins named clk1, clk2, and clk3.
+
+```
+create_clock -period 10 -waveform {8 2} -name clk {clk1 clk2 clk3}
+```} \
+  -arg_help {
+    -period {`period`: The clock period.}
+    -name {`clock_name`: The name of the clock.}
+    -waveform {`edge_list`: A list of edge rise and fall time.}
+    -add {Add this clock to the clocks on pin_list.}
+    pin_list {A list of pins driven by the clock.}
+  }
 
 proc create_clock { args } {
   parse_key_args "create_clock" args \
@@ -1007,7 +1183,12 @@ proc create_clock { args } {
 
 ################################################################
 
-define_cmd_args "delete_clock" {[-all] clocks}
+define_cmd_args "delete_clock" {[-all] clocks} \
+  -help {Delete clocks.} \
+  -arg_help {
+    clocks {A list of clocks to remove.}
+    -all {Delete all clocks.}
+  }
 
 proc delete_clock { args } {
   parse_key_args "delete_clock" args keys {} flags {-all}
@@ -1030,7 +1211,60 @@ define_cmd_args "create_generated_clock" \
      [-divide_by divisor | -multiply_by multiplier]\
      [-duty_cycle duty_cycle] [-invert] [-edges edge_list]\
      [-edge_shift edge_shift_list] [-combinational] [-add]\
-     [-comment comment] port_pin_list}
+     [-comment comment] port_pin_list} \
+  -help {The `create_generated_clock` command is used to generate a clock from an existing clock definition. It is used to model clock generation circuits such as clock dividers and phase locked loops.
+
+The `-divide_by`, `-multiply_by` and `-edges` arguments are mutually exclusive.
+
+The `-multiply_by` option is used to generate a higher frequency clock from the source clock. The period of the generated clock is divided by multiplier. The clock multiplier must be a positive integer. If a duty cycle is specified the generated clock rises at zero and falls at period * duty_cycle / 100. If no duty cycle is specified the source clock edge times are divided by multiplier.
+
+The `-divide_by` option is used to generate a lower frequency clock from the source clock. The clock divisor must be a positive integer. If the clock divisor is a power of two the source clock period is multiplied by divisor, the clock rise time is the same as the source clock, and the clock fall edge is one half period later. If the clock divisor is not a power of two the source clock waveform edge times are multiplied by divisor.
+
+The `-edges` option forms the generated clock waveform by selecting edges from the source clock waveform.
+
+If the `-invert` option is specified the waveform derived above is inverted.
+
+If a clock is already defined on a pin the clock is redefined using the new clock parameters. If multiple clocks drive the same pin, use the `-add` option to prevent the existing definition from being overwritten.
+
+In the example show below generates a clock named gclk1 on register output pin r1/Q by dividing it by four.
+
+```
+create_clock -period 10 -waveform {1 8} clk1
+create_generated_clock -name gclk1 -source clk1 -divide_by 4 r1/Q
+```
+
+The generated clock has a period of 40, rises at time 1 and falls at time 21.
+
+In the example shown below the duty cycle is used to define the derived clock waveform.
+
+```
+create_generated_clock -name gclk1 -source clk1 -duty_cycle 50 \
+                       -multiply_by 2 r1/Q
+```
+
+The generated clock has a period of 5, rises at time .5 and falls at time 3.
+
+In the example shown below the first, third and fifth source clock edges are used to define the derived clock waveform.
+
+```
+create_generated_clock -name gclk1 -source clk1 -edges {1 3 5} r1/Q
+```
+
+The generated clock has a period of 20, rises at time 1 and falls at time 11.} \
+  -arg_help {
+    -name {`clock_name`: The name of the generated clock.}
+    -source {`master_pin`: A pin or port in the fanout of the master clock that is the source of the generated clock.}
+    -master_clock {`master_clock`: Use `-master_clock` to specify which source clock to use when multiple clocks are present on master_pin.}
+    -divide_by {`divisor`: Divide the master clock period by divisor.}
+    -multiply_by {`multiplier`: Multiply the master clock period by multiplier.}
+    -duty_cycle {`duty_cycle`: The percent of the period that the generated clock is high (between 0 and 100).}
+    -invert {Invert the master clock.}
+    -edges {`edge_list`: List of master clock edges to use in the generated clock. Edges are numbered from 1. edge_list must be 3 edges long.}
+    -edge_shift {`shift_list`: Not supported.}
+    -add {Add this clock to the existing clocks on pin_list.}
+    -combinational {The generated clock is combinational, equivalent to `-divide_by 1`.}
+    pin_list {A list of pins driven by the generated clock.}
+  }
 
 proc create_generated_clock { args } {
   parse_key_args "create_generated_clock" args keys \
@@ -1161,7 +1395,12 @@ proc create_generated_clock { args } {
 
 ################################################################
 
-define_cmd_args "delete_generated_clock" {[-all] clocks}
+define_cmd_args "delete_generated_clock" {[-all] clocks} \
+  -help {Delete generated clocks.} \
+  -arg_help {
+    clocks {A list of generated clocks to remove.}
+    -all {Delete all generated clocks.}
+  }
 
 proc delete_generated_clock { args } {
   remove_gclk_cmd "delete_generated_clock" $args
@@ -1191,7 +1430,23 @@ define_cmd_args "group_path" \
      [-from from_list] [-rise_from from_list] [-fall_from from_list]\
      [-through through_list] [-rise_through through_list]\
      [-fall_through through_list] [-to to_list] [-rise_to to_list]\
-     [-fall_to to_list]}
+     [-fall_to to_list]} \
+  -help {The `group_path` command is used to group paths reported by the `report_checks` command. See `set_false_path` for a description of allowed from_list, through_list and to_list objects.} \
+  -arg_help {
+    -name {`group_name`: The name of the path group.}
+    -weight {`weight`: Not supported.}
+    -critical_range {`range`: Not supported.}
+    -from {Group paths from a list of clocks, instances, ports, register clock pins, or latch data pins.}
+    -rise_from {Group  paths from the rising edge of clocks, instances, ports, register clock pins, or latch data pins.}
+    -fall_from {Group paths from the falling edge of clocks, instances, ports, register clock pins, or latch data pins.}
+    -through {Group paths through a list of instances, pins or nets.}
+    -rise_through {Group rising paths through a list of instances, pins or nets.}
+    -fall_through {Group falling paths through a list of instances, pins or nets.}
+    -to {Group paths to a list of clocks, instances, ports or pins.}
+    -rise_to {Group rising paths to a list of clocks, instances, ports or pins.}
+    -fall_to {Group falling paths to a list of clocks, instances, port-s or pins.}
+    -default {Restore the paths in the path group `-from`/`-to`/`-through`/`-to` to their default path group.}
+  }
 
 # The -weight and -critical_range arguments are ignored.
 proc group_path { args } {
@@ -1251,7 +1506,27 @@ proc check_exception_pins { from to } {
 
 define_cmd_args "set_clock_gating_check" \
   {[-setup setup_time] [-hold hold_time] [-rise] [-fall]\
-     [-low] [-high] [objects]}
+     [-low] [-high] [objects]} \
+  -help {The `set_clock_gating_check` command is used to add setup or hold timing checks for data signals used to gate clocks.
+
+If no objects are specified the setup/hold margin is global and applies to all clock gating circuits in the design. If neither of the `-rise` and `-fall` options are used the setup/hold margin applies to the rising and falling  edges of the clock gating signal.
+
+Normally the library cell function is used to determine the active state of the clock. The clock is active high for AND/NAND functions and active low for OR/NOR functions. The `-high` and `-low` options are used to specify the active state of the clock for other cells, such as a MUX.
+
+If multiple `set_clock_gating_check` commands apply to a clock gating instance he priority of the commands is shown below (highest to lowest priority).
+
+```
+clock enable pin
+instance
+clock pin
+clock
+global
+```} \
+  -arg_help {
+    -high {The gating clock is active high (pin and instance objects only).}
+    -low {The gating clock is active low (pin and instance objects only).}
+    objects {A list of clocks, instances, pins or ports.}
+  }
 
 proc set_clock_gating_check { args } {
   parse_key_args "set_clock_gating_check" args keys {-setup -hold } \
@@ -1315,7 +1590,16 @@ proc set_clock_gating_check1 { args rf setup_hold margin active_value } {
 
 define_cmd_args "set_clock_groups" \
   {[-name name] [-logically_exclusive] [-physically_exclusive]\
-     [-asynchronous] [-allow_paths] [-comment comment] -group clocks}
+     [-asynchronous] [-allow_paths] [-comment comment] -group clocks} \
+  -help {The `set_clock_groups` command is used to define groups of clocks that interact with each other. Clocks in different groups do not interact and paths between them are not reported. Use a `-group` argument for each clock group.} \
+  -arg_help {
+    -name {`name`: The clock group name.}
+    -logically_exclusive {The clocks in different groups do not interact logically but can be physically present on the same chip. Paths between clock groups are considered for noise analysis.}
+    -physically_exclusive {The clocks in different groups cannot be present at the same time on a chip. Paths between clock groups are not considered for noise analysis.}
+    -asynchronous {The clock groups are asynchronous. Paths between clock groups are considered for noise analysis.}
+    -allow_paths {Allow paths between clock groups (do not mark them as false).}
+    -group {A list of clocks in one group. Repeat `-group` for each group.}
+  }
 
 proc set_clock_groups { args } {
   parse_key_args "set_clock_groups" args \
@@ -1369,7 +1653,15 @@ proc set_clock_groups { args } {
 
 define_cmd_args "unset_clock_groups" \
   {[-logically_exclusive] [-physically_exclusive]\
-     [-asynchronous] [-name names] [-all]}
+     [-asynchronous] [-name names] [-all]} \
+  -help {The `unset_clock_groups` command removes clock groups defined with `set_clock_groups`. One of `-logically_exclusive`, `-physically_exclusive`, or `-asynchronous` is required. Use `-all` to remove every group of that type, or `-name` to remove named groups.} \
+  -arg_help {
+    -logically_exclusive {Remove logically exclusive clock groups.}
+    -physically_exclusive {Remove physically exclusive clock groups.}
+    -asynchronous {Remove asynchronous clock groups.}
+    -name {Names of clock groups to remove.}
+    -all {Remove all clock groups of the specified type.}
+  }
                                 
 proc unset_clock_groups { args } {
   unset_clk_groups_cmd "unset_clock_groups" $args
@@ -1429,7 +1721,16 @@ proc unset_clk_groups_cmd { cmd cmd_args } {
 
 define_cmd_args "set_clock_latency" \
   {[-source] [-clock clock] [-rise] [-fall] [-min] [-max]\
-     [-early] [-late] delay objects}
+     [-early] [-late] delay objects} \
+  -help {The `set_clock_latency` command describes expected delays of the clock tree when analyzing a design using ideal clocks. Use the `-source` option to specify latency at the clock source, also known as insertion delay. Source latency is delay in the clock tree that is external to the design or a clock tree internal to an instance that implements a complex logic function.
+
+`set_clock_latency` removes propagated clock properties for the clocks and pins objects.} \
+  -arg_help {
+    -source {The latency is at the clock source.}
+    -clock {`clock`: If multiple clocks are defined at a pin this use this option to specify the latency for a specific clock.}
+    delay {Clock source or insertion delay.}
+    objects {A list of clocks, pins or ports.}
+  }
 
 proc set_clock_latency { args } {
   parse_key_args "set_clock_latency" args keys {-clock} \
@@ -1486,7 +1787,13 @@ proc set_clock_latency { args } {
 
 ################################################################
 
-define_cmd_args "unset_clock_latency" {[-source] [-clock clock] objects}
+define_cmd_args "unset_clock_latency" {[-source] [-clock clock] objects} \
+  -help {The `unset_clock_latency` command removes the clock latency set with the `set_clock_latency` command.} \
+  -arg_help {
+    -source {Specifies source clock latency (clock insertion delay).}
+    -clock {If multiple clocks are defined at a pin, specify which clock latency to remove.}
+    objects {A list of clocks, pins or ports.}
+  }
 
 proc unset_clock_latency { args } {
   unset_clk_latency_cmd "unset_clock_latency" $args
@@ -1532,7 +1839,22 @@ proc unset_clk_latency_cmd { cmd cmd_args } {
 
 define_cmd_args "set_sense" \
   {[-type clock|data] [-positive] [-negative] [-pulse pulse_type]\
-     [-stop_propagation] [-clocks clocks] pins}
+     [-stop_propagation] [-clocks clocks] pins} \
+  -help {The `set_sense` command is used to modify the propagation of a clock signal. The clock sense is set with the `-positive` and `-negative` flags. Use the `-stop_propagation` flag to stop the clock from propagating beyond a pin. The `-positive`, `-negative`, `-stop_propagation`, and `-pulse` options are mutually exclusive. If the `-clocks` option is not used the command applies to all clocks that traverse pins. The `-pulse` option is currently not supported.} \
+  -arg_help {
+    -type {`clock`: Set the sense for clock paths. `data`: Set the sense for data paths (not supported).}
+    -positive {The clock sense is positive unate.}
+    -negative {The clock sense is negative unate.}
+    -pulse {`pulse_type`: rise_triggered_high_pulse
+rise_triggered_low_pulse
+fall_triggered_high_pulse
+fall_triggered_low_pulse
+Not supported.}
+    -stop_propagation {Stop propagating clocks at pins.}
+    -clocks {A list of clocks to apply the sense.}
+    clocks {A list of clocks to apply the sense.}
+    pins {A list of pins.}
+  }
 
 proc set_sense { args } {
   parse_key_args "set_sense" args keys {-type} flags {} 0
@@ -1553,7 +1875,16 @@ proc set_sense { args } {
 # deprecated in SDC 2.1
 define_cmd_args "set_clock_sense" \
   {[-positive] [-negative] [-pulse pulse_type] [-stop_propagation] \
-     [-clock clocks] pins}
+     [-clock clocks] pins} \
+  -help {The `set_clock_sense` command is deprecated as of SDC 2.1. Use `set_sense -type clock` instead.} \
+  -arg_help {
+    -positive {The clock sense is positive unate.}
+    -negative {The clock sense is negative unate.}
+    -pulse {Pulse type. Not supported.}
+    -stop_propagation {Stop propagating clocks at pins.}
+    -clock {A list of clocks to apply the sense.}
+    pins {A list of pins.}
+  }
 
 proc set_clock_sense { args } {
   sta_warn 415 "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
@@ -1599,7 +1930,12 @@ proc set_clock_sense_cmd1 { cmd cmd_args } {
 ################################################################
 
 define_cmd_args "set_clock_transition" \
-  {[-rise] [-fall] [-min] [-max] transition clocks}
+  {[-rise] [-fall] [-min] [-max] transition clocks} \
+  -help {The `set_clock_transition` command describes expected transition times of the clock tree when analyzing a design using ideal clocks.} \
+  -arg_help {
+    transition {Clock transition time (slew).}
+    clocks {A list of clocks.}
+  }
 
 proc set_clock_transition { args } {
   parse_key_args "set_clock_transition" args keys {} \
@@ -1623,7 +1959,11 @@ proc set_clock_transition { args } {
 
 ################################################################
 
-define_cmd_args "unset_clock_transition" {clocks}
+define_cmd_args "unset_clock_transition" {clocks} \
+  -help {The `unset_clock_transition` command removes the clock transition set with the `set_clock_transition` command.} \
+  -arg_help {
+    clocks {A list of clocks.}
+  }
 
 proc unset_clock_transition { args } {
   check_argc_eq1 "unset_clock_transition" $args
@@ -1639,7 +1979,31 @@ proc unset_clock_transition { args } {
 define_cmd_args "set_clock_uncertainty" \
   {[-from|-rise_from|-fall_from from_clock]\
      [-to|-rise_to|-fall_to to_clock] [-rise] [-fall]\
-     [-setup] [-hold] uncertainty [objects]}
+     [-setup] [-hold] uncertainty [objects]} \
+  -help {The `set_clock_uncertainty` command specifies the uncertainty or jitter in a clock. The uncertainty for a clock can be specified on its source pin or port, or the clock itself.
+
+```
+set_clock_uncertainty .1 [get_clock clk1]
+```
+
+Inter-clock uncertainty between the source and target clocks of timing checks is specified with the `-from`|`-rise_from`|`-fall_from` and `-to`|`-rise_to`|`-fall_to` arguments .
+
+```
+set_clock_uncertainty -from [get_clock clk1] -to [get_clocks clk2] .1
+```
+
+The following commands are equivalent.
+
+```
+set_clock_uncertainty -from [get_clock clk1] -rise_to [get_clocks clk2] .1
+set_clock_uncertainty -from [get_clock clk1] -to [get_clocks clk2] -rise .1
+```} \
+  -arg_help {
+    -from {`from_clock`: Inter-clock uncertainty source clock.}
+    -to {`to_clock`: Inter-clock uncertainty target clock.}
+    uncertainty {Clock uncertainty.}
+    objects {A list of clocks, ports or pins.}
+  }
 
 proc set_clock_uncertainty { args } {
   parse_key_args "set_clock_uncertainty" args \
@@ -1734,7 +2098,14 @@ proc set_clock_uncertainty { args } {
 define_cmd_args "unset_clock_uncertainty" \
   {[-from|-rise_from|-fall_from from_clock]\
      [-to|-rise_to|-fall_to to_clock] [-rise] [-fall]\
-     [-setup] [-hold] [objects]}
+     [-setup] [-hold] [objects]} \
+  -help {The `unset_clock_uncertainty` command removes clock uncertainty defined with the `set_clock_uncertainty` command.} \
+  -arg_help {
+    -from {`from_clock`: Inter-clock uncertainty source clock.}
+    -to {`to_clock`: Inter-clock uncertainty target clock.}
+    uncertainty {Clock uncertainty.}
+    objects {A list of clocks, ports or pins.}
+  }
 
 proc unset_clock_uncertainty { args } {
   unset_clk_uncertainty_cmd "unset_clock_uncertainty" $args
@@ -1820,7 +2191,14 @@ proc unset_clk_uncertainty_cmd { cmd cmd_args } {
 define_cmd_args "set_data_check" \
   {[-from from_pin] [-rise_from from_pin] [-fall_from from_pin]\
      [-to to_pin] [-rise_to to_pin] [-fall_to to_pin]\
-     [-setup | -hold] [-clock clock] margin}
+     [-setup | -hold] [-clock clock] margin} \
+  -help {The `set_data_check` command is used to add a setup or hold timing check between two pins.} \
+  -arg_help {
+    -from {`from_pin`: A pin used as the timing check reference.}
+    -to {`to_pin`: A pin that the setup/hold check is applied to.}
+    -clock {`clock`: The setup/hold check clock.}
+    margin {The setup or hold time margin.}
+  }
 
 proc set_data_check { args } {
   parse_key_args "set_data_check" args \
@@ -1877,7 +2255,13 @@ proc set_data_check { args } {
 define_cmd_args "unset_data_check" \
   {[-from from_pin] [-rise_from from_pin] [-fall_from from_pin]\
      [-to to_pin] [-rise_to to_pin] [-fall_to to_pin]\
-     [-setup | -hold] [-clock clock]}
+     [-setup | -hold] [-clock clock]} \
+  -help {The `unset_clock_transition` command removes a setup or hold check defined by the `set_data_check` command.} \
+  -arg_help {
+    -from {`from_object`: A pin used as the timing check reference.}
+    -to {`to_object`: A pin that the setup/hold check is applied to.}
+    -clock {The setup/hold check clock.}
+  }
 
 proc unset_data_check { args } {
   unset_data_checks_cmd "unset_data_check" $args
@@ -1935,7 +2319,43 @@ proc unset_data_checks_cmd { cmd cmd_args } {
 ################################################################
 
 define_cmd_args "set_disable_timing" \
-  {[-from from_port] [-to to_port] objects}
+  {[-from from_port] [-to to_port] objects} \
+  -help {The `set_disable_timing` command is used to disable paths though pins in the design. There are many different forms of the command depending on the objects specified in objects.
+
+All timing paths though an instance are disabled when objects contains an instance. Timing checks in the instance are not disabled.
+
+```
+set_disable_timing u2
+```
+
+The `-from` and `-to` options can be used to restrict the disabled path to those from, to or between specific pins on the instance.
+
+```
+set_disable_timing -from A u2
+set_disable_timing -to Z u2
+set_disable_timing -from A -to Z u2
+```
+
+A list of top level ports or instance pins can also be disabled.
+
+```
+set_disable_timing u2/Z
+set_disable_timing in1
+```
+
+Timing paths though all instances of a library cell in the design can be disabled by naming the cell using a hierarchy separator between the library and cell name. Paths from or to a cell port can be disabled with the `-from` and `-to` options or a port name after library and cell names.
+
+```
+set_disable_timing liberty1/snl_bufx2
+set_disable_timing -from A liberty1/snl_bufx
+set_disable_timing -to Z liberty1/snl_bufx
+set_disable_timing liberty1/snl_bufx2/A
+```} \
+  -arg_help {
+    -from {From pin of the disabled timing arc on an instance or cell.}
+    -to {To pin of the disabled timing arc on an instance or cell.}
+    objects {A list of instances, ports, pins, cells, cell/port, or library/cell/port.}
+  }
 
 # Parallax supports -from or -to alone.
 # OT requires both -from and -to args.
@@ -2086,7 +2506,13 @@ proc parse_disable_cell_ports { cell port_name } {
 ################################################################
 
 define_cmd_args "unset_disable_timing" \
-  {[-from from_port] [-to to_port] objects}
+  {[-from from_port] [-to to_port] objects} \
+  -help {The `unset_disable_timing` command is used to remove the effect of previous  `set_disable_timing` commands.} \
+  -arg_help {
+    -from {From pin of the disabled timing arc on an instance or cell.}
+    -to {To pin of the disabled timing arc on an instance or cell.}
+    objects {A list of instances, ports, pins, cells or [library/]cell/port.}
+  }
 
 proc unset_disable_timing { args } {
   unset_disable_cmd "unset_disable_timing" $args
@@ -2189,7 +2615,20 @@ define_cmd_args "set_false_path" \
      [-from from_list] [-rise_from from_list] [-fall_from from_list]\
      [-through through_list] [-rise_through through_list]\
      [-fall_through through_list] [-to to_list] [-rise_to to_list]\
-     [-fall_to to_list]}
+     [-fall_to to_list]} \
+  -help {The `set_false_path` command disables timing along a path from, through and to a group of design objects.
+
+Objects in from_list can be clocks, register/latch instances, or register/latch clock pins. The `-rise_from` and `-fall_from` keywords restrict the false paths to a specific clock edge.
+
+Objects in through_list can be nets, instances, instance pins, or hierarchical pins,. The `-rise_through` and `-fall_through` keywords restrict the false paths to a specific path edge that traverses through the object.
+
+Objects in to_list can be clocks, register/latch instances, or register/latch clock pins. The `-rise_to` and `-fall_to` keywords restrict the false paths to a specific transition at the path end.} \
+  -arg_help {
+    -reset_path {Remove any matching `set_false_path`, `set_multicycle_path`, `set_max_delay`, `set_min_delay` exceptions first.}
+    -from {A list of clocks, instances, ports or pins.}
+    -through {A list of instances, pins or nets.}
+    -to {A list of clocks, instances, ports or pins.}
+  }
 
 proc set_false_path { args } {
   parse_key_args "set_false_path" args \
@@ -2235,7 +2674,8 @@ proc set_false_path { args } {
 ################################################################
 
 define_cmd_args "set_ideal_latency" \
-  {[-rise] [-fall] [-min] [-max] delay objects}
+  {[-rise] [-fall] [-min] [-max] delay objects} \
+  -help {The `set_ideal_latency` command is parsed but ignored.}
 
 proc set_ideal_latency { args } {
   # ignored
@@ -2248,7 +2688,11 @@ define_cmd_args "set_ideal_net" { nets }
 
 ################################################################
 
-define_cmd_args "set_ideal_network" {[-no_propagation] objects}
+define_cmd_args "set_ideal_network" {[-no_propagation] objects} \
+  -help {The `set_ideal_network` command is parsed but ignored.} \
+  -arg_help {
+    -no_propagation {Do not propagate the ideal network. Ignored.}
+  }
 
 proc set_ideal_network { args } {
   # ignored
@@ -2257,7 +2701,8 @@ proc set_ideal_network { args } {
 ################################################################
 
 define_cmd_args "set_ideal_transition" \
-  {[-rise] [-fall] [-min] [-max] transition_time objects}
+  {[-rise] [-fall] [-min] [-max] transition_time objects} \
+  -help {The `set_ideal_transition` command is parsed but ignored.}
 
 proc set_ideal_transition { args } {
   # ignored
@@ -2270,7 +2715,35 @@ define_cmd_args "set_input_delay" \
      [-clock clock] [-clock_fall]\
      [-reference_pin ref_pin]\
      [-source_latency_included] [-network_latency_included]\
-     [-add_delay] delay port_pin_list}
+     [-add_delay] delay port_pin_list} \
+  -help {The `set_input_delay` command is used to specify the arrival time of an input signal.
+
+The following command sets the min, max, rise and fall times on the in1 input port 1.0 time units after the rising edge of clk1.
+
+```
+set_input_delay -clock clk1 1.0 [get_ports in1]
+```
+
+Use multiple commands with the `-add_delay` option to specify separate arrival times for min, max, rise and fall times or multiple clocks. For example, the following specifies separate arrival times with respect to clocks clk1 and clk2.
+
+```
+set_input_delay -clock clk1 1.0 [get_ports in1]
+set_input_delay -add_delay -clock clk2 2.0 [get_ports in1]
+```
+
+The `-reference_pin` option is used to specify an arrival time with respect to the arrival on a pin in the clock network. For propagated clocks, the input arrival time is relative to the clock arrival time at the reference pin (the clock source latency and network latency from the clock source to the reference pin). For ideal clocks, input arrival time is relative to the reference pin clock source latency. With the `-clock_fall` flag the arrival time is relative to the falling transition at the reference pin. If no clocks arrive at the reference pin the `set_input_delay` command is ignored. If no `-clock` is specified the arrival time is with respect to all clocks that arrive at the reference pin. The `-source_latency_included` and `-network_latency_included` options cannot be used with `-reference_pin`.
+
+Paths from inputs that do not have an arrival time defined by `set_input_delay` are not reported. Set the `sta_input_port_default_clock` variable to 1 to report paths from inputs without a `set_input_delay`.} \
+  -arg_help {
+    -clock {`clock`: The arrival time is from clock.}
+    -clock_fall {The arrival time is from the falling edge of clock.}
+    -reference_pin {`ref_pin`: The arrival time is with respect to the clock that arrives at ref_pin.}
+    -source_latency_included {D no add the clock source latency (insertion delay) to the delay value.}
+    -network_latency_included {Do not add the clock latency to the delay value when the clock is ideal.}
+    -add_delay {Add this arrival to any existing arrivals.}
+    delay {The arrival time after clock.}
+    pin_port_list {A list of pins or ports.}
+  }
 
 proc set_input_delay { args } {
   set_port_delay "set_input_delay" "set_input_delay_cmd" $args \
@@ -2336,7 +2809,13 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
 define_cmd_args "unset_input_delay" \
   {[-rise] [-fall] [-max] [-min]\
      [-clock clock] [-clock_fall]\
-     port_pin_list}
+     port_pin_list} \
+  -help {The `unset_input_delay` command removes a previously defined `set_input_delay`.} \
+  -arg_help {
+    -clock {Unset the arrival time from clock.}
+    -clock_fall {Unset the arrival time from the falling edge of clock}
+    pin_port_list {A list of pins or ports.}
+  }
 
 proc unset_input_delay { args } {
   unset_port_delay "unset_input_delay" "unset_input_delay_cmd" $args
@@ -2350,7 +2829,19 @@ define_cmd_args "set_max_delay" \
      [-from from_list] [-rise_from from_list] [-fall_from from_list]\
      [-through through_list] [-rise_through through_list]\
      [-fall_through through_list]\
-     [-to to_list] [-rise_to to_list] [-fall_to to_list] delay}
+     [-to to_list] [-rise_to to_list] [-fall_to to_list] delay} \
+  -help {The `set_max_delay` command constrains the maximum delay through combinational logic paths. See `set_false_path` for a description of allowed from_list, through_list and to_list objects. If the to_list ends at a timing check the setup/hold time is included in the path delay.
+
+When the `-ignore_clock_latency` option is used clock latency at the source and destination of the path delay is ignored. The constraint is reported in the default path group (**default**) rather than the clock path group when the path ends at a timing check.} \
+  -arg_help {
+    -from {A list of clocks, instances, ports or pins.}
+    -through {A list of instances, pins or nets.}
+    -to {A list of clocks, instances, ports or pins.}
+    -ignore_clock_latency {Ignore clock latency at the source and target registers.}
+    -probe {Do not break paths at internal pins (non startpoints).}
+    -reset_path {Remove any matching `set_false_path`, `set_multicycle_path`, `set_max_delay`, `set_min_delay` exceptions first.}
+    delay {The maximum delay.}
+  }
 
 proc set_max_delay { args } {
   set_path_delay "set_max_delay" $args max
@@ -2397,7 +2888,12 @@ proc set_path_delay { cmd args min_max } {
 
 ################################################################
 
-define_cmd_args "set_max_time_borrow" {limit objects}
+define_cmd_args "set_max_time_borrow" {limit objects} \
+  -help {The `set_max_time_borrow` command specifies the maximum amount of time that latches can borrow. Time borrowing is the time that a data input to a transparent latch arrives after the latch opens.} \
+  -arg_help {
+    delay {The maximum time the latches can borrow.}
+    objects {List of clocks, instances or pins.}
+  }
 
 proc set_max_time_borrow { limit objects } {
   check_positive_float "borrow_limit" $limit
@@ -2422,7 +2918,19 @@ define_cmd_args "set_min_delay" \
      [-from from_list] [-rise_from from_list] [-fall_from from_list]\
      [-through through_list] [-rise_through through_list]\
      [-fall_through through_list]\
-     [-to to_list] [-rise_to to_list] [-fall_to to_list] delay}
+     [-to to_list] [-rise_to to_list] [-fall_to to_list] delay} \
+  -help {The `set_min_delay` command constrains the minimum delay through combinational logic. See `set_false_path` for a description of allowed from_list, through_list and to_list objects. If the to_list ends at a timing check the setup/hold time is included in the path delay.
+
+When the `-ignore_clock_latency` option is used clock latency at the source and destination of the path delay is ignored. The constraint is reported in the default path group (**default**) rather than the clock path group when the path ends at a timing check.} \
+  -arg_help {
+    -from {A list of clocks, instances, ports or pins.}
+    -through {A list of instances, pins or nets.}
+    -to {A list of clocks, instances, ports or pins.}
+    -ignore_clock_latency {Ignore clock latency at the source and target registers.}
+    -probe {Do not break paths at internal pins (non startpoints).}
+    -reset_path {Remove any matching `set_false_path`, `set_multicycle_path`, `set_max_delay`, `set_min_delay` exceptions first.}
+    delay {The minimum delay.}
+  }
 
 proc set_min_delay { args } {
   set_path_delay "set_min_delay" $args min
@@ -2435,7 +2943,14 @@ define_cmd_args "set_path_margin" \
      [-from from_list] [-rise_from from_list] [-fall_from from_list]\
      [-through|-thr|-th through_list] [-rise_through|-rise_thr|-rise_th through_list]\
      [-fall_through|-fall_thr|-fall_th through_list]\
-     [-to to_list] [-rise_to to_list] [-fall_to to_list] margin}
+     [-to to_list] [-rise_to to_list] [-fall_to to_list] margin} \
+  -help {The `set_path_margin` command applies a signed slack adjustment to matching timing paths on the capture-clock side. A positive margin makes the path harder to meet and a negative margin makes it easier. If neither `-setup` nor `-hold` is specified the margin applies to both. See `set_false_path` for a description of allowed from_list, through_list and to_list objects. At least one of `-from`, `-through`, or `-to` is required. Matching exceptions are removed with `unset_path_exceptions`.} \
+  -arg_help {
+    -from {A list of clocks, instances, ports or pins.}
+    -through {A list of instances, pins or nets.}
+    -to {A list of clocks, instances, ports or pins.}
+    margin {Signed slack adjustment applied on the capture clock. A positive margin tightens the path and a negative margin loosens it.}
+  }
 
 proc set_path_margin { args } {
   parse_key_args "set_path_margin" args \
@@ -2485,7 +3000,13 @@ proc set_path_margin { args } {
 
 ################################################################
 
-define_cmd_args "set_min_pulse_width" {[-low] [-high] value [objects]}
+define_cmd_args "set_min_pulse_width" {[-low] [-high] value [objects]} \
+  -help {If `-low` and `-high` are not specified the minimum width applies to both high and low pulses.} \
+  -arg_help {
+    -high {Set the minimum high pulse width.}
+    -low {Set the minimum low pulse width.}
+    objects {List of pins, instances or clocks.}
+  }
 
 proc set_min_pulse_width { args } {
   parse_key_args "set_min_pulse_width" args keys {} flags {-low -high}
@@ -2528,7 +3049,17 @@ define_cmd_args "set_multicycle_path" \
      [-from from_list] [-rise_from from_list]\
      [-fall_from from_list] [-through through_list]\
      [-rise_through through_list] [-fall_through through_list]\
-     [-to to_list] [-rise_to to_list] [-fall_to to_list] path_multiplier}
+     [-to to_list] [-rise_to to_list] [-fall_to to_list] path_multiplier} \
+  -help {Normally the path between two registers or latches is assumed to take one clock cycle. The `set_multicycle_path` command overrides this assumption and allows multiple clock cycles for a timing check. See `set_false_path` for a description of allowed from_list, through_list and to_list objects.} \
+  -arg_help {
+    -start {Multiply the source clock period by period_multiplier.}
+    -end {Multiply the target clock period by period_multiplier.}
+    -from {A list of clocks, instances, ports or pins.}
+    -through {A list of instances, pins or nets.}
+    -to {A list of clocks, instances, ports or pins.}
+    -reset_path {Remove any matching `set_false_path`, `set_multicycle_path`, `set_max_delay`, `set_min_delay` exceptions first.}
+    path_multiplier {The number of clock periods to add to the path required time.}
+  }
 
 proc set_multicycle_path { args } {
   parse_key_args "set_multicycle_path" args \
@@ -2597,7 +3128,13 @@ define_cmd_args "unset_path_exceptions" \
      [-rise_from from_list] [-fall_from from_list]\
      [-through through_list] [-rise_through through_list]\
      [-fall_through through_list] [-to to_list] [-rise_to to_list]\
-     [-fall_to to_list]}
+     [-fall_to to_list]} \
+  -help {The `unset_path_exceptions` command removes any matching `set_false_path`, `set_multicycle_path`, `set_max_delay`, `set_min_delay`, and `set_path_margin` exceptions.} \
+  -arg_help {
+    -from {`from`: A list of clocks, instances, ports or pins.}
+    -through {`through`: A list of instances, pins or nets.}
+    -to {`to`: A list of clocks, instances, ports or pins.}
+  }
 
 proc unset_path_exceptions { args } {
   unset_path_exceptions_cmd "unset_path_exceptions" $args
@@ -2647,7 +3184,20 @@ define_cmd_args "set_output_delay" \
      [-clock clock] [-clock_fall]\
      [-reference_pin ref_pin]\
      [-source_latency_included] [-network_latency_included]\
-     [-add_delay] delay port_pin_list}
+     [-add_delay] delay port_pin_list} \
+  -help {The `set_output_delay` command is used to specify the external delay to a setup/hold check on an output port or internal pin that is clocked by clock. Unless the `-add_delay` option is specified any existing output delays are replaced.
+
+The `-reference_pin` option is used to specify a timing check with respect to the arrival on a pin in the clock network. For propagated clocks, the timing check is relative to the clock arrival time at the reference pin (the clock source latency and network latency from the clock source to the reference pin). For ideal clocks, the timing check is relative to the reference pin clock source latency. With the `-clock_fall` flag the timing check is relative to the falling edge of the reference pin. If no clocks arrive at the reference pin the `set_output_delay` command is ignored. If no `-clock` is specified the timing check is with respect to all clocks that arrive at the reference pin. The `-source_latency_included` and `-network_latency_included` options cannot be used with `-reference_pin`.} \
+  -arg_help {
+    -clock {`clock`: The external check is to clock. The default clock edge is rising.}
+    -clock_fall {The external check is to the falling edge of clock.}
+    -reference_pin {`ref_pin`: The external check is clocked by the clock that arrives at ref_pin.}
+    -source_latency_included {Do not add the clock source latency (insertion delay) to the delay value.}
+    -network_latency_included {Do not add the clock latency to the delay value when the clock is ideal.}
+    -add_delay {Add this output delay to any existing output delays.}
+    delay {The external delay to the check clocked by clock.}
+    pin_port_list {A list of pins or ports.}
+  }
 
 proc set_output_delay { args } {
   set_port_delay "set_output_delay" "set_output_delay_cmd" $args \
@@ -2659,7 +3209,13 @@ proc set_output_delay { args } {
 define_cmd_args "unset_output_delay" \
   {[-rise] [-fall] [-max] [-min]\
      [-clock clock] [-clock_fall]\
-     port_pin_list}
+     port_pin_list} \
+  -help {The `unset_output_delay` command a previously defined `set_output_delay`.} \
+  -arg_help {
+    -clock {The arrival time is from this clock.}
+    -clock_fall {The arrival time is from the falling edge of clock}
+    pin_port_list {A list of pins or ports.}
+  }
 
 proc unset_output_delay { args } {
   unset_port_delay "unset_output_delay" "unset_output_delay_cmd" $args
@@ -2694,7 +3250,11 @@ proc unset_port_delay { cmd swig_cmd cmd_args } {
 
 ################################################################
 
-define_cmd_args "set_propagated_clock" {objects}
+define_cmd_args "set_propagated_clock" {objects} \
+  -help {The `set_propagated_clock` command changes a clock tree from an ideal network that has no delay one that uses calculated or back-annotated gate and interconnect delays. When objects is a port or pin, clock delays downstream of the object are used.} \
+  -arg_help {
+    objects {A list of clocks, ports or pins.}
+  }
 
 proc set_propagated_clock { objects } {
   parse_clk_port_pin_arg $objects clks pins
@@ -2712,7 +3272,11 @@ proc set_propagated_clock { objects } {
 
 ################################################################
 
-define_cmd_args "unset_propagated_clock" {objects}
+define_cmd_args "unset_propagated_clock" {objects} \
+  -help {Remove a previous `set_propagated_clock` command.} \
+  -arg_help {
+    objects {A list of clocks, ports or pins.}
+  }
 
 proc unset_propagated_clock { objects } {
   parse_clk_port_pin_arg $objects clks pins
@@ -2731,7 +3295,13 @@ proc unset_propagated_clock { objects } {
 ################################################################
 
 define_cmd_args "set_case_analysis" \
-  {0|1|zero|one|rise|rising|fall|falling pins}
+  {0|1|zero|one|rise|rising|fall|falling pins} \
+  -help {The `set_case_analysis` command sets the signal on a port or pin to a constant logic value. No paths are propagated from constant pins. Constant values set with the `set_case_analysis` command are propagated through downstream gates.
+
+Conditional timing arcs with mode groups are controlled by logic values on the instance pins.} \
+  -arg_help {
+    port_or_pin_list {A list of ports or pins.}
+  }
 
 proc set_case_analysis { value pins } {
   if { !($value == "0" \
@@ -2752,7 +3322,11 @@ proc set_case_analysis { value pins } {
 
 ################################################################
 
-define_cmd_args "unset_case_analysis" {pins}
+define_cmd_args "unset_case_analysis" {pins} \
+  -help {The `unset_case_analysis` command removes the constant values defined by the `set_case_analysis` command.} \
+  -arg_help {
+    port_or_pin_list {A list of ports or pins.}
+  }
 
 proc unset_case_analysis { pins } {
   set pins1 [get_port_pins_error "pins" $pins]
@@ -2764,7 +3338,12 @@ proc unset_case_analysis { pins } {
 ################################################################
 
 define_cmd_args "set_drive" {[-rise] [-fall] [-min] [-max] \
-                               resistance ports}
+                               resistance ports} \
+  -help {The `set_drive` command describes the resistance of an input port external driver.} \
+  -arg_help {
+    resistance {The external drive resistance.}
+    ports {A list of ports.}
+  }
 
 proc set_drive { args } {
   parse_key_args "set_drive" args keys {} flags {-rise -fall -min -max}
@@ -2789,7 +3368,20 @@ define_cmd_args "set_driving_cell" \
      [-rise] [-fall] [-min] [-max]\
      [-pin pin] [-from_pin from_pin]\
      [-input_transition_rise trans_rise] [-input_transition_fall trans_fall]\
-     [-multiply_by factor] [-dont_scale] [-no_design_rule] ports}
+     [-multiply_by factor] [-dont_scale] [-no_design_rule] ports} \
+  -help {The `set_driving_cell` command describes an input port external driver.} \
+  -arg_help {
+    -lib_cell {`cell_name`: The driving cell.}
+    -library {`library`: The driving cell library.}
+    -pin {`pin`: The output port of the driving cell.}
+    -from_pin {`from_pin`: Use timing arcs from from_pin to the output pin.}
+    -input_transition_rise {`trans_rise`: The transition time for a rising input at from_pin.}
+    -input_transition_fall {`trans_fall`: The transition time for a falling input at from_pin.}
+    -multiply_by {Scale factor applied to the driving cell delay. Ignored.}
+    -dont_scale {Do not scale the driving cell delay. Ignored.}
+    -no_design_rule {Do not apply driving cell design rules. Ignored.}
+    ports {A list of ports.}
+  }
 
 proc set_driving_cell { args } {
   parse_key_args "set_driving_cell" args \
@@ -2907,7 +3499,8 @@ proc port_direction_any_output { dir } {
 
 ################################################################
 
-define_cmd_args "set_fanout_load" {fanout ports}
+define_cmd_args "set_fanout_load" {fanout ports} \
+  -help {This command is ignored.}
 
 proc set_fanout_load { fanout port_list } {
   sta_warn 461 "set_fanout_load not supported."
@@ -2916,7 +3509,12 @@ proc set_fanout_load { fanout port_list } {
 ################################################################
 
 define_cmd_args "set_input_transition" \
-  {[-rise] [-fall] [-min] [-max] transition ports}
+  {[-rise] [-fall] [-min] [-max] transition ports} \
+  -help {The `set_input_transition` command is used to specify the transition time (slew) of an input signal.} \
+  -arg_help {
+    transition {The transition time (slew).}
+    port_list {A list of ports.}
+  }
 
 proc set_input_transition { args } {
   parse_key_args "set_input_transition" args keys {-clock} \
@@ -2953,7 +3551,26 @@ proc set_input_transition { args } {
 # set_load net              overrides parasitics
 define_cmd_args "set_load" \
   {[-rise] [-fall] [-max] [-min] [-subtract_pin_load]\
-     [-pin_load] [-wire_load] capacitance objects}
+     [-pin_load] [-wire_load] capacitance objects} \
+  -help {The `set_load` command annotates wire capacitance on a net or external capacitance on a port. There are four different uses for the `set_load` commanc:
+
+```
+set_load -wire_load port  external port wire capacitance
+set_load -pin_load port   external port pin capacitance
+set_load port             same as -pin_load
+set_load net              net wire capacitance
+```
+
+External port capacitance can be annotated separately with the `-pin_load` and `-wire_load` options. Without the `-pin_load` and `-wire_load` options pin capacitance is annotated.
+
+When annotating net wire capacitance with the `-subtract_pin_load` option the capacitance of all instance pins connected to the net is subtracted from capacitance. Setting the capacitance on a net overrides SPEF parasitics for delay calculation.} \
+  -arg_help {
+    -subtract_pin_load {Subtract the capacitance of all instance pins connected to the net from capacitance (nets only). If the resulting capacitance is negative, zero is used. Pin capacitances are ignored by delay calculation when this option is used.}
+    -pin_load {capacitance is external instance pin capacitance (ports only).}
+    -wire_load {capacitance is external wire capacitance (ports only).}
+    capacitance {The capacitance, in library capacitance units.}
+    objects {A list of nets or ports.}
+  }
 
 proc set_load { args } {
   parse_key_args "set_load" args keys {} \
@@ -3004,7 +3621,11 @@ proc set_load { args } {
 
 ################################################################
 
-define_cmd_args "set_logic_dc" {port_list}
+define_cmd_args "set_logic_dc" {port_list} \
+  -help {Set a port or pin to a constant unknown logic value. No paths are propagated from constant pins.} \
+  -arg_help {
+    port_pin_list {List of ports or pins.}
+  }
 
 proc set_logic_dc { port_list } {
   set_logic_value $port_list "X"
@@ -3021,7 +3642,11 @@ proc set_logic_value { port_list value } {
 
 ################################################################
 
-define_cmd_args "set_logic_one" {port_list}
+define_cmd_args "set_logic_one" {port_list} \
+  -help {Set a port or pin to a constant logic one value. No paths are propagated from constant pins. Constant values set with the `set_logic_one` command are not propagated through downstream gates.} \
+  -arg_help {
+    port_pin_list {List of ports or pins.}
+  }
 
 proc set_logic_one { port_list } {
   set_logic_value $port_list "1"
@@ -3029,7 +3654,11 @@ proc set_logic_one { port_list } {
 
 ################################################################
 
-define_cmd_args "set_logic_zero" {port_list}
+define_cmd_args "set_logic_zero" {port_list} \
+  -help {Set a port or pin to a constant logic zero value. No paths are propagated from constant pins. Constant values set with the `set_logic_zero` command are not propagated through downstream gates.} \
+  -arg_help {
+    port_pin_list {List of ports or pins.}
+  }
 
 proc set_logic_zero { port_list } {
   set_logic_value $port_list "0"
@@ -3037,7 +3666,8 @@ proc set_logic_zero { port_list } {
 
 ################################################################
 
-define_cmd_args "set_max_area" {area}
+define_cmd_args "set_max_area" {area} \
+  -help {The `set_max_area` command is ignored during timing but is included in SDC files that are written.}
 
 proc set_max_area { area } {
   check_positive_float "area" $area
@@ -3046,7 +3676,11 @@ proc set_max_area { area } {
 
 ################################################################
 
-define_cmd_args "set_max_capacitance" {cap objects}
+define_cmd_args "set_max_capacitance" {cap objects} \
+  -help {The `set_max_capacitance` command is ignored during timing but is included in SDC files that are written.} \
+  -arg_help {
+    objects {List of ports or cells.}
+  }
 
 proc set_max_capacitance { cap objects } {
   set_capacitance_limit $cap "max" $objects
@@ -3069,7 +3703,11 @@ proc set_capacitance_limit { cap min_max objects } {
 
 ################################################################
 
-define_cmd_args "set_max_fanout" {fanout objects}
+define_cmd_args "set_max_fanout" {fanout objects} \
+  -help {The `set_max_fanout` command is ignored during timing but is included in SDC files that are written.} \
+  -arg_help {
+    objects {List of ports or cells.}
+  }
 
 proc set_max_fanout { fanout objects } {
   set_fanout_limit $fanout "max" $objects
@@ -3093,7 +3731,18 @@ proc set_fanout_limit { fanout min_max objects } {
 ################################################################
 
 define_cmd_args "set_max_transition" \
-  {[-clock_path] [-data_path] [-rise] [-fall] slew objects}
+  {[-clock_path] [-data_path] [-rise] [-fall] slew objects} \
+  -help {The `set_max_transition` command is specifies the maximum transition time (slew) design rule checked by the `report_check_types` `-max_transition` command.
+
+If specified for a design, the default maximum transition is set for the design.
+
+If specified for a clock, the maximum transition is applied to all pins in the clock domain. The `-clock_path` option restricts the maximum transition to clocks in clock paths. The `-data_path` option restricts the maximum transition to clocks data paths. The `-clock_path`, `-data_path`, `-rise` and `-fall` options only apply to clock objects.} \
+  -arg_help {
+    -data_path {Set the  max slew for data paths.}
+    -clock_path {Set the  max slew for clock paths.}
+    transition {The maximum slew/transition time.}
+    objects {List of clocks, ports or designs.}
+  }
 
 proc set_max_transition { args } {
   parse_key_args "set_max_transition" args keys {} \
@@ -3147,7 +3796,12 @@ proc set_max_transition { args } {
 ################################################################
 
 define_cmd_args "set_port_fanout_number" \
-  {[-max] [-min] fanout ports}
+  {[-max] [-min] fanout ports} \
+  -help {Set the external fanout for ports.} \
+  -arg_help {
+    fanout {The external fanout of the ports.}
+    port_list {A list of ports.}
+  }
 
 proc set_port_fanout_number { args } {
   parse_key_args "set_port_fanout_number" args keys {} flags {-max -min}
@@ -3165,7 +3819,12 @@ proc set_port_fanout_number { args } {
 
 ################################################################
 
-define_cmd_args "set_resistance" {[-min] [-max] resistance nets}
+define_cmd_args "set_resistance" {[-min] [-max] resistance nets} \
+  -help {Set the resistance of nets.} \
+  -arg_help {
+    resistance {The net resistance.}
+    nets {A list of nets.}
+  }
 
 proc set_resistance { args } {
   parse_key_args "set_resistance" args keys {} flags {-max -min}
@@ -3186,7 +3845,21 @@ proc set_resistance { args } {
 
 define_cmd_args "set_timing_derate" \
   {-early|-late [-rise] [-fall] [-clock] [-data] \
-     [-net_delay] [-cell_delay] [-cell_check] derate [objects]}
+     [-net_delay] [-cell_delay] [-cell_check] derate [objects]} \
+  -help {The `set_timing_derate` command is used to derate delay calculation results used by the STA. If the `-early` and `-late` flags are omitted the both min and max paths are derated. If the `-clock` and `-data` flags are not used the derating both clock and data paths are derated.
+
+Use the `unset_timing_derate` command to remove all derating factors.} \
+  -arg_help {
+    -early {Derate early (min) paths.}
+    -late {Derate late (max) paths.}
+    -clock {Derate paths in the clock network.}
+    -data {Derate data paths.}
+    -net_delay {Derate net (interconnect) delays.}
+    -cell_delay {Derate cell delays.}
+    -cell_check {Derate cell timing check margins.}
+    derate {The derating factor to apply to delays.}
+    objects {A list of instances, library cells, or nets.}
+  }
 
 proc set_timing_derate { args } {
   parse_key_args "set_timing_derate" args keys {} \
@@ -3276,7 +3949,8 @@ proc set_timing_derate { args } {
 
 ################################################################
 
-define_cmd_args "unset_timing_derate" {}
+define_cmd_args "unset_timing_derate" {} \
+  -help {Remove all derating factors set with the `set_timing_derate` command.}
 
 proc unset_timing_derate { args } {
   check_argc_eq0 "unset_timing_derate" $args
@@ -3418,7 +4092,12 @@ proc parse_comment_key { keys_var } {
 
 ################################################################
 
-define_cmd_args "set_min_capacitance" {cap objects}
+define_cmd_args "set_min_capacitance" {cap objects} \
+  -help {The `set_min_capacitance` command is ignored during timing but is included in SDC files that are written.} \
+  -arg_help {
+    capacitance {Minimum capacitance.}
+    objects {List of ports or cells.}
+  }
 
 proc set_min_capacitance { cap objects } {
   set_capacitance_limit $cap "min" $objects
@@ -3429,7 +4108,15 @@ proc set_min_capacitance { cap objects } {
 define_cmd_args "set_operating_conditions" \
   {[-analysis_type single|bc_wc|on_chip_variation] [-library lib]\
      [condition] [-min min_condition] [-max max_condition]\
-     [-min_library min_lib] [-max_library max_lib]}
+     [-min_library min_lib] [-max_library max_lib]} \
+  -help {The `set_operating_conditions` command is used to specify the type of analysis performed and the operating conditions used to derate library data.} \
+  -arg_help {
+    -analysis_type {`single`: Use one operating condition for min and max paths. `bc_wc`: Best case, worst case analysis. Setup checks use max_condition for clock and data paths. Hold checks use the min_condition for clock and data paths. `on_chip_variation`: The min and max operating conditions represent variations on the chip that can occur simultaneously. Setup checks use max_condition for data paths and    min_condition for clock paths. Hold checks use min_condition for data paths and max_condition for clock paths. This is the default analysis type.}
+    -library {`lib`: The name of the library that contains condition.}
+    condition {The operating condition for analysis type single.}
+    -min_library {`min_lib`: The name of the library that contains min_condition.}
+    -max_library {`max_lib`: The name of the library that contains max_condition.}
+  }
 
 proc set_operating_conditions { args } {
   parse_key_args "set_operating_conditions" args \
@@ -3495,7 +4182,8 @@ proc parse_op_cond_analysis_type { key_var } {
 
 ################################################################
 
-define_cmd_args "set_wire_load_min_block_size" {block_size}
+define_cmd_args "set_wire_load_min_block_size" {block_size} \
+  -help {The `set_wire_load_min_block_size` command is not supported.}
 
 proc set_wire_load_min_block_size { block_size } {
   sta_warn 477 "set_wire_load_min_block_size not supported."
@@ -3503,7 +4191,8 @@ proc set_wire_load_min_block_size { block_size } {
 
 ################################################################
 
-define_cmd_args "set_wire_load_mode" "top|enclosed|segmented"
+define_cmd_args "set_wire_load_mode" "top|enclosed|segmented" \
+  -help {The `set_wire_load_mode` command is ignored during timing but is included in SDC files that are written.}
 
 proc set_wire_load_mode { mode } {
   if { $mode == "top" \
@@ -3518,7 +4207,13 @@ proc set_wire_load_mode { mode } {
 ################################################################
 
 define_cmd_args "set_wire_load_model" \
-  {-name model_name [-library lib_name] [-min] [-max] [objects]}
+  {-name model_name [-library lib_name] [-min] [-max] [objects]} \
+  -help {Set the wire load model used to estimate net parasitics.} \
+  -arg_help {
+    -name {`model_name`: The name of a wire load model.}
+    -library {`library`: Library to look for model_name.}
+    objects {Not supported.}
+  }
 
 proc set_wire_load_model { args } {
   parse_key_args "set_wire_load_model" args keys {-name -library} \
@@ -3557,7 +4252,13 @@ proc set_wire_load_model { args } {
 ################################################################
 
 define_cmd_args "set_wire_load_selection_group" \
-  {[-library lib] [-min] [-max] group_name [objects]}
+  {[-library lib] [-min] [-max] group_name [objects]} \
+  -help {The `set_wire_load_selection_group` command is parsed but not supported.} \
+  -arg_help {
+    -library {Library to look for group_name.}
+    group_name {A wire load selection group name.}
+    objects {Not supported.}
+  }
 
 proc set_wire_load_selection_group { args } {
   parse_key_args "set_wire_load_selection_group" args keys {-library} \
@@ -3599,7 +4300,13 @@ proc set_wire_load_selection_group { args } {
 ################################################################
 
 define_cmd_args "set_voltage" \
-  {[-min min_case_value] [-object_list power_nets] max_case_voltage}
+  {[-min min_case_value] [-object_list power_nets] max_case_voltage} \
+  -help {The `set_voltage` command sets the supply voltage used by SDC. The max-case voltage is always set globally. If `-object_list` is given, it is also set on those power nets.} \
+  -arg_help {
+    -min {Minimum (min delay) voltage. If omitted, only the max-case voltage is set.}
+    -object_list {Power nets to apply the voltage to.}
+    max_case_voltage {Maximum (max delay) voltage.}
+  }
 
 proc set_voltage { args } {
   parse_key_args "set_voltage" args keys {-min -object_list} flags {}
@@ -3627,7 +4334,14 @@ proc set_voltage { args } {
 
 define_cmd_args "create_voltage_area" \
   {[-name name] [-coordinate coordinates] [-guard_band_x guard_x]\
-     [-guard_band_y guard_y] cells }
+     [-guard_band_y guard_y] cells } \
+  -help {This command is parsed and ignored by timing analysis.} \
+  -arg_help {
+    -name {Voltage area name. Ignored.}
+    -coordinate {Voltage area coordinates. Ignored.}
+    -guard_band_x {X guard band. Ignored.}
+    -guard_band_y {Y guard band. Ignored.}
+  }
 
 proc create_voltage_area { args } {
   # ignored
@@ -3635,7 +4349,11 @@ proc create_voltage_area { args } {
 
 ################################################################
 
-define_cmd_args "set_level_shifter_strategy" {[-rule rule_type]}
+define_cmd_args "set_level_shifter_strategy" {[-rule rule_type]} \
+  -help {This command is parsed and ignored by timing analysis.} \
+  -arg_help {
+    -rule {Level shifter rule. Ignored.}
+  }
 
 proc set_level_shifter_strategy { args } {
   # ignored
@@ -3643,7 +4361,11 @@ proc set_level_shifter_strategy { args } {
 
 ################################################################
 
-define_cmd_args "set_level_shifter_threshold" {[-voltage volt]}
+define_cmd_args "set_level_shifter_threshold" {[-voltage volt]} \
+  -help {This command is parsed and ignored by timing analysis.} \
+  -arg_help {
+    -voltage {Voltage threshold. Ignored.}
+  }
 
 proc set_level_shifter_threshold { args } {
   # ignored
@@ -3651,7 +4373,8 @@ proc set_level_shifter_threshold { args } {
 
 ################################################################
 
-define_cmd_args "set_max_dynamic_power" {power [unit]}
+define_cmd_args "set_max_dynamic_power" {power [unit]} \
+  -help {The `set_max_dynamic_power` command is ignored during timing but is included in SDC files that are written.}
 
 proc set_max_dynamic_power { power {unit {}} } {
   check_positive_float "power" $power
@@ -3661,7 +4384,8 @@ proc set_max_dynamic_power { power {unit {}} } {
 
 ################################################################
 
-define_cmd_args "set_max_leakage_power" {power [unit]}
+define_cmd_args "set_max_leakage_power" {power [unit]} \
+  -help {The `set_max_leakage_power` command is ignored during timing but is included in SDC files that are written.}
 
 proc set_max_leakage_power { power {unit {}} } {
   check_positive_float "power" $power
@@ -3677,7 +4401,14 @@ proc set_max_leakage_power { power {unit {}} } {
 
 define_cmd_args "set_pvt"\
   {insts [-min] [-max] [-process process] [-voltage voltage]\
-     [-temperature temperature]}
+     [-temperature temperature]} \
+  -help {The `set_pvt` command sets the process, voltage and temperature values used during delay calculation for a specific instance in the design.} \
+  -arg_help {
+    -process {`process`: A process value (float).}
+    -voltage {`voltage`: A voltage value (float).}
+    -temperature {`temperature`: A temperature value (float).}
+    instances {A list instances.}
+  }
 
 proc set_pvt { args } {
   parse_key_args "set_pvt" args \

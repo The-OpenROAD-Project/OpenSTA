@@ -1,0 +1,73 @@
+library(non_seq_timing) {
+    delay_model : table_lookup;
+    time_unit : "1ns";
+    capacitive_load_unit (1, pf);
+    input_threshold_pct_rise  : 50;
+    input_threshold_pct_fall  : 50;
+    output_threshold_pct_rise : 50;
+    output_threshold_pct_fall : 50;
+    slew_lower_threshold_pct_rise : 20;
+    slew_lower_threshold_pct_fall : 20;
+    slew_upper_threshold_pct_rise : 80;
+    slew_upper_threshold_pct_fall : 80;
+
+
+    cell(CKMUX) {
+        pin(CLK1)   { direction : input; }
+        pin(CLK2)   { direction : input; }
+        pin(CLKSEL) {
+            direction : input;
+            timing() {
+                related_pin : "CLK1";
+                timing_type : non_seq_setup_rising;
+                rise_constraint(scalar) { values ("0.050"); }
+                fall_constraint(scalar) { values ("0.050"); }
+            }
+            timing() {
+                related_pin : "CLK1";
+                timing_type : non_seq_hold_rising;
+                rise_constraint(scalar) { values ("0.020"); }
+                fall_constraint(scalar) { values ("0.020"); }
+            }
+            timing() {
+                related_pin : "CLK2";
+                timing_type : non_seq_setup_rising;
+                rise_constraint(scalar) { values ("0.050"); }
+                fall_constraint(scalar) { values ("0.050"); }
+            }
+            timing() {
+                related_pin : "CLK2";
+                timing_type : non_seq_hold_rising;
+                rise_constraint(scalar) { values ("0.020"); }
+                fall_constraint(scalar) { values ("0.020"); }
+            }
+        }
+        pin(CLKOUT) {
+            direction : output;
+            function  : "(!CLKSEL & CLK1) | (CLKSEL & CLK2)";
+            timing() {
+                related_pin : "CLK1";
+                when        : "!CLKSEL";
+                cell_rise(scalar)       { values ("0.030"); }
+                cell_fall(scalar)       { values ("0.030"); }
+                rise_transition(scalar) { values ("0.020"); }
+                fall_transition(scalar) { values ("0.020"); }
+            }
+            timing() {
+                related_pin : "CLK2";
+                when        : "CLKSEL";
+                cell_rise(scalar)       { values ("0.030"); }
+                cell_fall(scalar)       { values ("0.030"); }
+                rise_transition(scalar) { values ("0.020"); }
+                fall_transition(scalar) { values ("0.020"); }
+            }
+            timing() {
+                related_pin : "CLKSEL";
+                cell_rise(scalar)       { values ("0.025"); }
+                cell_fall(scalar)       { values ("0.025"); }
+                rise_transition(scalar) { values ("0.020"); }
+                fall_transition(scalar) { values ("0.020"); }
+            }
+        }
+    }
+}
