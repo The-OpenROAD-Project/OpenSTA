@@ -25,6 +25,7 @@
 #pragma once
 
 #include <functional>
+#include <iosfwd>
 #include <string_view>
 #include <vector>
 #include <map>
@@ -277,6 +278,22 @@ public:
   virtual void visitVariable(LibertyVariable *variable) = 0;
 };
 
+// Parse a Liberty file from an input stream.
+//
+// filename is used only as a label in diagnostic messages; it may but need not
+// correspond to a file on disk.
+//
+// The input stream should provide uncompressed text.
+void
+parseLibertyFile(std::istream& file_contents,
+                 std::string_view filename,
+                 LibertyGroupVisitor *library_visitor,
+                 Report *report);
+
+// Parse a Liberty file from a file.
+//
+// filename should be the path to the file, if ZLIB is included it may be
+// either compressed or uncompressed.
 void
 parseLibertyFile(std::string_view filename,
                  LibertyGroupVisitor *library_visitor,
