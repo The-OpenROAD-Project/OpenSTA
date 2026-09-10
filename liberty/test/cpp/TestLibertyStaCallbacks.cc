@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 #include <atomic>
+#include <sstream>
 #include <unistd.h>
 #include "Units.hh"
 #include "TimingRole.hh"
@@ -4342,6 +4343,52 @@ library(test_mbff_statetable) {
     << "MBFF2 uses statetable (no ff/latch) but hasSequentials() "
        "returned false — statetable cells are misclassified as "
        "combinational";
+}
+
+// Verifies in-memory parsing via std::istream& without touching the filesystem.
+TEST_F(StaLibertyTest,
+       ParserStreamOverload)
+{
+  const char *content = R"(
+  library(test_stream_overload) {
+    delay_model : table_lookup ;
+    time_unit : "1ns" ;
+    voltage_unit : "1V" ;
+    current_unit : "1mA" ;
+    capacitive_load_unit(1, ff) ;
+    define(custom_attr, cell, float) ;
+    my_variable = 42.0 ;
+    cell(SV1) {
+      area : 1.0 ;
+      pin(A) { direction : input ; capacitance : 0.01 ; }
+      pin(Z) { direction : output ; function : "A" ; }
+    }
+  }
+  )";
+
+  // Feed the parser directly from memory — no temp file involved.
+  std::stringstream stream(content);
+  RecordingLibertyVisitor visitor;
+  parseLibertyFile(stream, "<in-memory>", &visitor, sta_->report());
+
+  // Same expectations as the file-path variant: the visitor saw a library
+  // group with one define, one variable, and a cell with area=1.0.
+  EXPECT_GT(visitor.begin_count, 0);
+  EXPECT_EQ(visitor.begin_count, visitor.end_count);
+  ASSERT_EQ(visitor.root_groups.size(), 1u);
+  const LibertyGroup *library = visitor.root_groups.front();
+  ASSERT_NE(library, nullptr);
+  EXPECT_EQ(library->defineMap().size(), 1u);
+  EXPECT_EQ(visitor.variables.size(), 1u);
+  EXPECT_GT(visitor.simple_attrs.size(), 0u);
+
+  const LibertyGroup *cell = library->findSubgroup("cell");
+  ASSERT_NE(cell, nullptr);
+  float area = 0.0f;
+  bool exists = false;
+  cell->findAttrFloat("area", area, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(area, 1.0f);
 }
 
 } // namespace sta
