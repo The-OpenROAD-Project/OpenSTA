@@ -5089,7 +5089,9 @@ Sta::deletePinBefore(const Pin *pin)
     }
   }
 
+  bool port_delay_deleted = false;
   for (const Mode *mode : modes_) {
+    port_delay_deleted |= mode->sdc()->hasPortDelays(pin);
     mode->sdc()->deletePinBefore(pin);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
@@ -5098,6 +5100,9 @@ Sta::deletePinBefore(const Pin *pin)
     mode->sim()->deletePinBefore(pin);
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  // Tags on pins downstream from input delays reference the input delay.
+  if (port_delay_deleted)
+    search_->arrivalsInvalid();
 }
 
 void
