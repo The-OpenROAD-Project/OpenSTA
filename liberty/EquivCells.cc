@@ -377,8 +377,6 @@ equivCellSequentials(const LibertyCell *cell1,
        seq_itr1++, seq_itr2++) {
     const Sequential &seq1 = *seq_itr1;
     const Sequential &seq2 = *seq_itr2;
-    // isRegister separates ff groups from latch groups; without it, ff and
-    // latch cells with matching ports and functions compare equivalent.
     if (!(seq1.isRegister() == seq2.isRegister()
           && FuncExpr::equiv(seq1.clock(), seq2.clock())
           && FuncExpr::equiv(seq1.data(), seq2.data())

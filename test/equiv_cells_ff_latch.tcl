@@ -1,10 +1,6 @@
+# make_equiv_cells ff/latch
 # DFFHQx4 and DHLx1 have the same ports, the same Q function and the same
-# clock/data expressions.  Only the ff/latch group differs, so they must not
-# compare equivalent.
-#
-# find_equiv_cells on a cell with no equivalents returns an empty list rather
-# than crashing.
-
+# clock/data expressions.  Only the ff/latch group differs, so they are not equivalent.
 read_liberty asap7_seq.lib.gz
 
 set lib asap7sc7p5t_SEQ_RVT_TT_ccs_220123

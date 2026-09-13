@@ -206,8 +206,6 @@ seqPtrTclList(SEQ_TYPE *seq,
               Tcl_Interp *interp)
 {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  // A null sequence is an empty result, not a crash.  Functions like
-  // find_equiv_cells return null when there is nothing to report.
   if (seq) {
     for (const OBJECT_TYPE *obj : *seq) {
       Tcl_Obj *tcl_obj = SWIG_NewInstanceObj(const_cast<OBJECT_TYPE*>(obj),
