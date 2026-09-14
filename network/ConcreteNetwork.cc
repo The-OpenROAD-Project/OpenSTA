@@ -1441,7 +1441,8 @@ ConcreteNetwork::connect(Instance *inst,
     }
     else {
       cpin->net_ = cnet;
-      connectNetPin(cnet, cpin);
+      if (cnet)
+        connectNetPin(cnet, cpin);
     }
   }
   return reinterpret_cast<Pin*>(cpin);

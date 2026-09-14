@@ -111,14 +111,19 @@ Power::Power(StaState *sta) :
 void
 Power::clear()
 {
-  scene_ = nullptr;
   global_activity_.init();
   input_activity_.init();
+  clearNonSdc();
+}
+
+void
+Power::clearNonSdc()
+{
+  // Pin/instance keyed maps can hold dangling pointers after a network edit.
   user_activity_map_.clear();
   seq_activity_map_.clear();
   activity_map_.clear();
-  activities_valid_ = false;
-  instance_powers_.clear();
+  powerInvalid();
 }
 
 void
@@ -894,6 +899,7 @@ Power::ensureActivities(const Scene *scene)
     scene_ = scene;
     activities_valid_ = false;
     instance_powers_.clear();
+    instance_powers_valid_ = false;
   }
 
   if (!activities_valid_) {
@@ -1823,6 +1829,7 @@ Power::powerInvalid()
 {
   activities_valid_ = false;
   instance_powers_.clear();
+  instance_powers_valid_ = false;
   scene_ = nullptr;
 }
 

@@ -77,6 +77,9 @@ class Power : public StaState
 public:
   Power(StaState *sta);
   void clear();
+  // Clear network/graph-dependent state.
+  // Preserve set_power_activity annotations.
+  void clearNonSdc();
   void activitiesInvalid();
   void reportDesign(const Scene *scene,
                     int digits);

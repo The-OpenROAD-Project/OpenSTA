@@ -66,7 +66,7 @@ file mkdir $pdir1
 write_path_spice \
   -path_args {-sort_by_slack -path_delay max} \
   -spice_file [file join $pdir1 spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VPWR \
   -ground VGND \
@@ -78,7 +78,7 @@ file mkdir $pdir2
 write_path_spice \
   -path_args {-path_delay min} \
   -spice_file [file join $pdir2 spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VPWR \
   -ground VGND \
@@ -90,7 +90,7 @@ file mkdir $pdir3
 write_path_spice \
   -path_args {-sort_by_slack} \
   -spice_file [file join $pdir3 spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VPWR \
   -ground VGND \

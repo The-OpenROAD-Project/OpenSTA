@@ -931,6 +931,9 @@ public:
   OutputDelaySet *outputDelaysLeafPin(const Pin *leaf_pin) const;
   [[nodiscard]] bool hasOutputDelay(const Pin *leaf_pin) const;
 
+  // set_input_delay or set_output_delay defined on pin.
+  bool hasPortDelays(const Pin *pin);
+
   const PortExtCap *portExtCap(const Port *port) const;
   bool hasPortExtCap(const Port *port) const;
   void portExtCap(const Port *port,
@@ -1232,6 +1235,7 @@ protected:
                          InputDelay *except);
   void deleteInputDelaysReferencing(const Clock *clk);
   void deleteInputDelay(InputDelay *input_delay);
+  void deletePortDelayReferences(const Pin *pin);
 
   OutputDelay *findOutputDelay(const Pin *pin,
                                const ClockEdge *clk_edge);
@@ -1348,6 +1352,7 @@ protected:
   InputDelaySet input_delays_;
   InputDelaysPinMap input_delay_pin_map_;
   bool have_input_delay_ref_pins_{false};
+  bool have_output_delay_ref_pins_{false};
   // Input delays on hierarchical pins are indexed by the load pins.
   InputDelaysPinMap input_delay_leaf_pin_map_;
   InputDelaysPinMap input_delay_internal_pin_map_;

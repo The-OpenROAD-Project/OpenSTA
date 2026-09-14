@@ -29,6 +29,7 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "Bdd.hh"
 #include "Clock.hh"
@@ -58,7 +59,7 @@ pinNet(const Pin *pin,
 
 WriteSpice::WriteSpice(std::string_view spice_filename,
                        std::string_view subckt_filename,
-                       std::string_view lib_subckt_filename,
+                       StringSeq lib_subckt_filenames,
                        std::string_view model_filename,
                        std::string_view power_name,
                        std::string_view gnd_name,
@@ -69,7 +70,7 @@ WriteSpice::WriteSpice(std::string_view spice_filename,
   StaState(sta),
   spice_filename_(spice_filename),
   subckt_filename_(subckt_filename),
-  lib_subckt_filename_(lib_subckt_filename),
+  lib_subckt_filenames_(std::move(lib_subckt_filenames)),
   model_filename_(model_filename),
   power_name_(power_name),
   gnd_name_(gnd_name),
@@ -170,58 +171,61 @@ void
 WriteSpice::writeSubckts(StringSet &cell_names)
 {
   findCellSubckts(cell_names);
-  std::ifstream lib_subckts_stream{std::string(lib_subckt_filename_)};
-  if (lib_subckts_stream.is_open()) {
-    std::ofstream subckts_stream{std::string(subckt_filename_)};
-    if (subckts_stream.is_open()) {
-      std::string line;
-      int line_num = 0;
-      while (std::getline(lib_subckts_stream, line)) {
-        line_num++;
-        // .subckt <cell_name> [args..]
-        StringSeq tokens = parseTokens(line);
-        if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
-          const std::string &cell_name = tokens[1];
-          if (cell_names.contains(cell_name)) {
-            subckts_stream << line << "\n";
-            bool found_ends = false;
-            while (std::getline(lib_subckts_stream, line)) {
-              subckts_stream << line << "\n";
-              if (stringBeginEqual(line, ".ends")) {
-                subckts_stream << "\n";
-                found_ends = true;
-                break;
-              }
-            }
-            if (!found_ends)
-              report_->fileError(1606, lib_subckt_filename_, line_num,
-                                 "spice subckt for cell {} missing .ends.",
-                                 cell_name);
-            cell_names.erase(cell_name);
-          }
-          recordSpicePortNames(cell_name, tokens);
-        }
-      }
-      subckts_stream.close();
-      lib_subckts_stream.close();
+  std::ofstream subckts_stream{std::string(subckt_filename_)};
+  if (!subckts_stream.is_open())
+    throw FileNotWritable(subckt_filename_);
 
-      if (!cell_names.empty()) {
-        std::string missing_cells;
-        for (const std::string &cell_name : cell_names) {
-          missing_cells += "\n";
-          missing_cells += cell_name;
+  for (const std::string &lib_subckt_filename : lib_subckt_filenames_) {
+    std::ifstream lib_subckt_stream{lib_subckt_filename};
+    if (!lib_subckt_stream.is_open())
+      throw FileNotReadable(lib_subckt_filename);
+
+    std::string line;
+    int line_num = 0;
+    while (std::getline(lib_subckt_stream, line)) {
+      line_num++;
+      // .subckt <cell_name> [args..]
+      StringSeq tokens = parseTokens(line);
+      if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
+        const std::string &cell_name = tokens[1];
+        if (cell_names.contains(cell_name)) {
+          subckts_stream << line << "\n";
+          bool found_ends = false;
+          while (std::getline(lib_subckt_stream, line)) {
+            subckts_stream << line << "\n";
+            if (stringBeginEqual(line, ".ends")) {
+              subckts_stream << "\n";
+              found_ends = true;
+              break;
+            }
+          }
+          if (!found_ends)
+            report_->fileError(1606, lib_subckt_filename, line_num,
+                               "spice subckt for cell {} missing .ends.",
+                               cell_name);
+          cell_names.erase(cell_name);
         }
-        report_->error(1605, "The subkct file {} is missing definitions for {}",
-                       lib_subckt_filename_, missing_cells);
+        recordSpicePortNames(cell_name, tokens);
       }
-    }
-    else {
-      lib_subckts_stream.close();
-      throw FileNotWritable(subckt_filename_);
     }
   }
-  else
-    throw FileNotReadable(lib_subckt_filename_);
+
+  if (!cell_names.empty()) {
+    std::string missing_cells;
+    for (const std::string &cell_name : cell_names) {
+      missing_cells += "\n";
+      missing_cells += cell_name;
+    }
+    std::string lib_files;
+    const char *separator = "";
+    for (const std::string &filename : lib_subckt_filenames_) {
+      lib_files += separator;
+      lib_files += filename;
+      separator = ", ";
+    }
+    report_->error(1605, "The subckt file {} is missing definitions for {}",
+                   lib_files, missing_cells);
+  }
 }
 
 void
@@ -250,38 +254,43 @@ WriteSpice::recordSpicePortNames(std::string_view cell_name,
 void
 WriteSpice::findCellSubckts(StringSet &cell_names)
 {
-  std::ifstream lib_subckts_stream{std::string(lib_subckt_filename_)};
-  if (lib_subckts_stream.is_open()) {
-    std::string line;
-    while (std::getline(lib_subckts_stream, line)) {
-      // .subckt <cell_name> [args..]
-      StringSeq tokens = parseTokens(line);
-      if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
-        const std::string &cell_name = tokens[1];
-        if (cell_names.contains(cell_name)) {
-          // Scan the subckt definition for subckt calls.
-          std::string stmt;
-          while (std::getline(lib_subckts_stream, line)) {
-            if (line[0] == '+')
-              stmt += line.substr(1);
-            else {
-              // Process previous statement.
-              if (tolower(stmt[0]) == 'x') {
-                StringSeq tokens = parseTokens(line);
-                std::string &subckt_cell = tokens[tokens.size() - 1];
-                cell_names.insert(subckt_cell);
+  size_t cell_count = 0;
+  while (cell_names.size() > cell_count) {
+    cell_count = cell_names.size();
+    for (const std::string &lib_subckt_filename : lib_subckt_filenames_) {
+      std::ifstream lib_subckt_stream{lib_subckt_filename};
+      if (!lib_subckt_stream.is_open())
+        throw FileNotReadable(lib_subckt_filename);
+
+      std::string line;
+      while (std::getline(lib_subckt_stream, line)) {
+        // .subckt <cell_name> [args..]
+        StringSeq tokens = parseTokens(line);
+        if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
+          const std::string &cell_name = tokens[1];
+          if (cell_names.contains(cell_name)) {
+            // Scan the subckt definition for subckt calls.
+            std::string stmt;
+            while (std::getline(lib_subckt_stream, line)) {
+              if (line[0] == '+')
+                stmt += line.substr(1);
+              else {
+                // Process previous statement.
+                if (tolower(stmt[0]) == 'x') {
+                  StringSeq tokens = parseTokens(stmt);
+                  std::string &subckt_cell = tokens[tokens.size() - 1];
+                  cell_names.insert(subckt_cell);
+                }
+                stmt = line;
               }
-              stmt = line;
+              if (stringBeginEqual(line, ".ends"))
+                break;
             }
-            if (stringBeginEqual(line, ".ends"))
-              break;
           }
         }
       }
     }
   }
-  else
-    throw FileNotReadable(lib_subckt_filename_);
 }
 
 ////////////////////////////////////////////////////////////////

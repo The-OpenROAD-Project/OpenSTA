@@ -148,6 +148,11 @@ public:
                            const RiseFall *rf,
                            const Scene *scene,
                            const MinMax *min_max) override;
+  Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                             const Pin *drvr_pin,
+                             const RiseFall *rf,
+                             const Scene *scene,
+                             const MinMax *min_max) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -173,6 +178,8 @@ protected:
                      // Return values.
                      double &wire_delay,
                      double &load_slew) override;
+
+  using ArcDelayCalc::reduceParasitic;
 
 private:
   void loadDelay(double drvr_slew,
@@ -239,8 +246,8 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
   Parasitic *parasitic_network =
     parasitics->findParasiticNetwork(drvr_pin);
   if (parasitic_network) {
-    parasitic = parasitics->reduceToPiPoleResidue2(parasitic_network, drvr_pin, rf,
-                                                   scene, min_max);
+    parasitic = reduceParasitic(parasitic_network, drvr_pin, rf,
+                                scene, min_max);
     if (parasitic)
       return parasitic;
   }
@@ -255,6 +262,20 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
                                              scene, min_max);
   }
   return parasitic;
+}
+
+// Reduce to PiPoleResidue, the format loadDelaySlew consumes; the
+// inherited PiElmore reduction yields zero wire delays.
+Parasitic *
+DmpCeffTwoPoleDelayCalc::reduceParasitic(const Parasitic *parasitic_network,
+                                         const Pin *drvr_pin,
+                                         const RiseFall *rf,
+                                         const Scene *scene,
+                                         const MinMax *min_max)
+{
+  Parasitics *parasitics = scene->parasitics(min_max);
+  return parasitics->reduceToPiPoleResidue2(parasitic_network, drvr_pin, rf,
+                                            scene, min_max);
 }
 
 ArcDcalcResult
