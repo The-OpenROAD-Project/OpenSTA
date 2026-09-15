@@ -1535,26 +1535,6 @@ Properties::setProperty(const void *object,
     coercePropertyValue(type_iter->second, value);
 }
 
-void
-Properties::setStringProperty(const Cell *cell,
-                              std::string_view property,
-                              std::string_view value) 
-{
-  if (!isUserProperty("cell", property))
-    defineProperty<Cell>("cell", property, "string");
-  setProperty(cell, "cell", property, value);
-}
-
-void
-Properties::setStringProperty(const Instance *inst,
-                              std::string_view property,
-                              std::string_view value)
-{
-  if (!isUserProperty("instance", property))
-    defineProperty<Instance>("instance", property, "string");
-  setProperty(inst, "instance", property, value);
-}
-
 std::string
 Properties::stringProperty(const Cell *cell,
                            std::string_view property) const

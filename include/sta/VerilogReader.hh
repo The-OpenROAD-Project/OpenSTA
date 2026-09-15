@@ -36,8 +36,6 @@
 
 namespace sta {
 
-class Properties;
-
 class VerilogScanner;
 class VerilogParse;
 class Debug;
@@ -269,6 +267,13 @@ protected:
                    Instance *parent,
                    VerilogBindingTbl *parent_bindings,
                    bool is_leaf);
+  // Define (if needed) and set a string user property from a Verilog attribute.
+  void setAttribute(const Cell *cell,
+                    std::string_view key,
+                    std::string_view value);
+  void setAttribute(const Instance *inst,
+                    std::string_view key,
+                    std::string_view value);
   template <typename... Args>
   void linkWarn(int id,
                 std::string_view filename,
@@ -306,7 +311,6 @@ protected:
   std::string filename_;
   Report *report_;
   Debug *debug_;
-  Properties *properties_;
   NetworkReader *network_;
 
   Library *library_{nullptr};
