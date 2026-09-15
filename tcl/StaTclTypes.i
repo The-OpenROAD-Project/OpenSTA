@@ -206,10 +206,12 @@ seqPtrTclList(SEQ_TYPE *seq,
               Tcl_Interp *interp)
 {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  for (const OBJECT_TYPE *obj : *seq) {
-    Tcl_Obj *tcl_obj = SWIG_NewInstanceObj(const_cast<OBJECT_TYPE*>(obj),
-                                           swig_type, false);
-    Tcl_ListObjAppendElement(interp, list, tcl_obj);
+  if (seq) {
+    for (const OBJECT_TYPE *obj : *seq) {
+      Tcl_Obj *tcl_obj = SWIG_NewInstanceObj(const_cast<OBJECT_TYPE*>(obj),
+                                             swig_type, false);
+      Tcl_ListObjAppendElement(interp, list, tcl_obj);
+    }
   }
   Tcl_SetObjResult(interp, list);
 }

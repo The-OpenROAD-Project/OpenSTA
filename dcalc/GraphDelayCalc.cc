@@ -711,7 +711,6 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
                                || loadSlewChanged(fanout, load_slews_prev,
                                                   load_pin_index_map)) {
                              iter_->enqueue(fanout);
-                             fanout->setBfsPredecessorChanged(true);
                            }
                          });
   }
@@ -722,7 +721,6 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
     graph_->visitFanouts(vertex, search_non_latch_pred_,
                          [this] (Vertex *fanout) {
                            iter_->enqueue(fanout);
-                           fanout->setBfsPredecessorChanged(true);
                          });
   }
 }

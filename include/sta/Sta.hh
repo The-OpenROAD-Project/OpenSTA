@@ -1475,7 +1475,7 @@ public:
   void writePathSpice(const Path *path,
                       std::string_view spice_filename,
                       std::string_view subckt_filename,
-                      std::string_view lib_subckt_filename,
+                      StringSeq lib_subckt_filenames,
                       std::string_view model_filename,
                       std::string_view power_name,
                       std::string_view gnd_name,

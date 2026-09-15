@@ -80,7 +80,7 @@ file mkdir $spice_dir_min
 write_path_spice \
   -path_args {-path_delay min} \
   -spice_file [file join $spice_dir_min spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS
@@ -94,7 +94,7 @@ file mkdir $spice_dir_max
 write_path_spice \
   -path_args {-path_delay max -sort_by_slack} \
   -spice_file [file join $spice_dir_max spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS
@@ -108,7 +108,7 @@ file mkdir $spice_dir_hs
 write_path_spice \
   -path_args {-sort_by_slack} \
   -spice_file [file join $spice_dir_hs spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS \
@@ -123,7 +123,7 @@ file mkdir $spice_dir_xy
 write_path_spice \
   -path_args {-sort_by_slack} \
   -spice_file [file join $spice_dir_xy spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS \
@@ -139,7 +139,7 @@ file mkdir $spice_dir_sp
 write_path_spice \
   -path_args {-from in1} \
   -spice_file [file join $spice_dir_sp spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS

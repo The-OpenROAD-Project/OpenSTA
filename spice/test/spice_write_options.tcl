@@ -46,7 +46,7 @@ puts "--- write_path_spice default ---"
 write_path_spice \
   -path_args {-sort_by_slack} \
   -spice_file [file join $spice_dir spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS
@@ -55,7 +55,7 @@ puts "--- write_path_spice with -simulator hspice ---"
 write_path_spice \
   -path_args {-sort_by_slack} \
   -spice_file [file join $spice_dir spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS \
@@ -65,7 +65,7 @@ puts "--- write_path_spice with -simulator xyce ---"
 write_path_spice \
   -path_args {-sort_by_slack} \
   -spice_file [file join $spice_dir spice] \
-  -lib_subckt_file $subckt_file \
+  -lib_subckt_files $subckt_file \
   -model_file $model_file \
   -power VDD \
   -ground VSS \

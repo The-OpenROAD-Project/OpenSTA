@@ -26,7 +26,7 @@ namespace eval sta {
 
 define_cmd_args "write_path_spice" { -path_args path_args\
                                        -spice_file spice_file\
-                                       -lib_subckt_file lib_subckts_file\
+                                       -lib_subckt_files lib_subckts_files\
                                        -model_file model_file\
                                        -power power\
                                        -ground ground\
@@ -40,7 +40,7 @@ Example command:
 ```
 write_path_spice -path_args {-from "in0" -to "out1" -unconstrained} \
   -spice_directory $result_dir \
-  -lib_subckt_file "write_spice1.subckt" \
+  -lib_subckt_files "write_spice1.subckt" \
   -model_file "write_spice1.models" \
   -power VDD -ground VSS
 ```
@@ -51,7 +51,7 @@ When the simulator is Xyce, the .print statement selects the CSV format and writ
   -arg_help {
     -path_args {`-from`|`-through`|`-to` arguments as in `report_checks`.}
     -spice_file {Directory and path prefix for spice output files.}
-    -lib_subckt_file {Cell transistor level subckts.}
+    -lib_subckt_files {List of cell transistor level subckts filenames.}
     -model_file {Transistor model definitions .included by spice_file.}
     -power {Voltage supply name in voltage_map of the default liberty library.}
     -ground {Ground supply name in voltage_map of the default liberty library.}
@@ -60,7 +60,7 @@ When the simulator is Xyce, the .print statement selects the CSV format and writ
 
 proc write_path_spice { args } {
   parse_key_args "write_path_spice" args \
-    keys {-spice_file -lib_subckt_file -model_file \
+    keys {-spice_file -lib_subckt_files -lib_subckt_file -model_file \
             -power -ground -path_args -simulator} \
     flags {}
 
@@ -80,13 +80,25 @@ proc write_path_spice { args } {
     sta_error 1923 "No -spice_file specified."
   }
 
+  set lib_subckt_arg {}
   if { [info exists keys(-lib_subckt_file)] } {
-    set lib_subckt_file [file nativename $keys(-lib_subckt_file)]
-    if { ![file readable $lib_subckt_file] } {
-      sta_error 1924 "-lib_subckt_file $lib_subckt_file is not readable."
+    # deprecated 2026-09-04
+    sta_warn 1934 "-lib_subckt_file is deprecated. Use -lib_subckt_files."
+    set lib_subckt_arg $keys(-lib_subckt_file)
+  }
+  if { [info exists keys(-lib_subckt_files)] } {
+    set lib_subckt_arg $keys(-lib_subckt_files)
+  }
+  set lib_subckt_files {}
+  foreach f $lib_subckt_arg {
+    set f [file nativename $f]
+    if { ![file readable $f] } {
+      sta_error 1924 "-lib_subckt_files $f is not readable."
     }
-  } else {
-    sta_error 1925 "No -lib_subckt_file specified."
+    lappend lib_subckt_files $f
+  }
+  if { $lib_subckt_files == {} } {
+    sta_error 1925 "No -lib_subckt_files specified."
   }
 
   if { [info exists keys(-model_file)] } {
@@ -128,7 +140,7 @@ proc write_path_spice { args } {
       set spice_file1 ${path_file}.sp
       set subckt_file ${path_file}.subckt
       write_path_spice_cmd $path $spice_file1 $subckt_file \
-        $lib_subckt_file $model_file $power $ground $ckt_sim
+        $lib_subckt_files $model_file $power $ground $ckt_sim
       incr path_index
     }
   }
@@ -155,7 +167,7 @@ proc parse_ckt_sim_key { keys_var } {
 define_cmd_args "write_gate_spice" \
   { -gates {{instance input_port driver_port edge [delay]}...}\
       -spice_filename spice_filename\
-      -lib_subckt_file lib_subckts_file\
+      -lib_subckt_files lib_subckts_files\
       -model_file model_file\
       -power power\
       -ground ground\
@@ -165,8 +177,8 @@ define_cmd_args "write_gate_spice" \
 
 proc write_gate_spice { args } {
   parse_key_args "write_gate_spice" args \
-    keys {-gates -spice_filename -lib_subckt_file -model_file \
-            -power -ground -simulator -scene -corner}\
+    keys {-gates -spice_filename -lib_subckt_files -lib_subckt_file \
+            -model_file -power -ground -simulator -scene -corner}\
     flags {-measure_stmts -min -max}
 
   if { [info exists keys(-gates)] } {
@@ -184,13 +196,25 @@ proc write_gate_spice { args } {
     sta_error 1904 "No -spice_filename specified."
   }
 
+  set lib_subckt_arg {}
   if { [info exists keys(-lib_subckt_file)] } {
-    set lib_subckt_file [file nativename $keys(-lib_subckt_file)]
-    if { ![file readable $lib_subckt_file] } {
-      sta_error 1905 "-lib_subckt_file $lib_subckt_file is not readable."
+    # deprecated 2026-09-11
+    sta_warn 1935 "-lib_subckt_file is deprecated. Use -lib_subckt_files."
+    set lib_subckt_arg $keys(-lib_subckt_file)
+  }
+  if { [info exists keys(-lib_subckt_files)] } {
+    set lib_subckt_arg $keys(-lib_subckt_files)
+  }
+  set lib_subckt_files {}
+  foreach f $lib_subckt_arg {
+    set f [file nativename $f]
+    if { ![file readable $f] } {
+      sta_error 1905 "-lib_subckt_files $f is not readable."
     }
-  } else {
-    sta_error 1906 "No -lib_subckt_file specified."
+    lappend lib_subckt_files $f
+  }
+  if { $lib_subckt_files == {} } {
+    sta_error 1906 "No -lib_subckt_files specified."
   }
 
   if { [info exists keys(-model_file)] } {
@@ -224,7 +248,7 @@ proc write_gate_spice { args } {
   set spice_root [file rootname [file tail $spice_file]]
   set subckt_file [file join $spice_dir "$spice_root.subckt"]
   write_gate_spice_cmd $gates $spice_file $subckt_file \
-    $lib_subckt_file $model_file $power $ground $ckt_sim \
+    $lib_subckt_files $model_file $power $ground $ckt_sim \
     $scene $min_max
 }
 
