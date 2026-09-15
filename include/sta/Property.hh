@@ -257,6 +257,25 @@ public:
                    std::string_view property,
                    std::string_view value);
 
+  // Define (if needed) and set a string user property. Used for Verilog
+  // (* key = value *) attributes which are free-form keys.
+  void setStringProperty(const Cell *cell,
+                         std::string_view property,
+                         std::string_view value);
+  void setStringProperty(const Instance *inst,
+                         std::string_view property,
+                         std::string_view value);
+
+  // String user property value, or empty if undeclared / unset / not string.
+  std::string stringProperty(const Cell *cell,
+                             std::string_view property);
+  std::string stringProperty(const Instance *inst,
+                             std::string_view property);
+
+  // Drop stored user property values (network objects are destroyed on
+  // readNetlistBefore). Property definitions stay registered.
+  void clearUserPropertyValues();
+
 protected:
   PropertyValue portSlew(const Port *port,
                          const RiseFallBoth *rf,

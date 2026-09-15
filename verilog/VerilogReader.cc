@@ -36,6 +36,7 @@
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Report.hh"
+#include "Sta.hh"
 #include "Stats.hh"
 #include "StringUtil.hh"
 #include "VerilogNamespace.hh"
@@ -189,7 +190,8 @@ VerilogReader::makeModule(std::string_view module_vname,
   if (attr_stmts) {
     for (VerilogAttrStmt *stmt : *attr_stmts) {
       for (VerilogAttrEntry *entry : *stmt->attrs())
-        network_->setAttribute(cell, entry->key(), entry->value());
+        Sta::sta()->properties().setStringProperty(cell, entry->key(),
+                                                   entry->value());
     }
   }
 
@@ -1588,7 +1590,8 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
     VerilogAttrStmtSeq *attr_stmts = mod_inst->attrStmts();
     for (VerilogAttrStmt *stmt : *attr_stmts) {
       for (VerilogAttrEntry *entry : *stmt->attrs()) {
-        network_->setAttribute(inst, entry->key(), entry->value());
+        Sta::sta()->properties().setStringProperty(inst, entry->key(),
+                                                   entry->value());
       }
     }
 
@@ -1773,7 +1776,8 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
   VerilogAttrStmtSeq *attr_stmts = lib_inst->attrStmts();
   for (VerilogAttrStmt *stmt : *attr_stmts) {
     for (VerilogAttrEntry *entry : *stmt->attrs()) {
-      network_->setAttribute(inst, entry->key(), entry->value());
+      Sta::sta()->properties().setStringProperty(inst, entry->key(),
+                                                 entry->value());
     }
   }
   const StringSeq &net_names = lib_inst->netNames();

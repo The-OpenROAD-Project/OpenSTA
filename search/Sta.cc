@@ -756,6 +756,7 @@ void
 Sta::readNetlistBefore()
 {
   clear();
+  properties_.clearUserPropertyValues();
   NetworkReader *network_reader = networkReader();
   if (network_reader)
     network_reader->readNetlistBefore();

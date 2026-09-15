@@ -1535,6 +1535,56 @@ Properties::setProperty(const void *object,
     coercePropertyValue(type_iter->second, value);
 }
 
+void
+Properties::setStringProperty(const Cell *cell,
+                              std::string_view property,
+                              std::string_view value) 
+{
+  if (!isUserProperty("cell", property))
+    defineProperty<Cell>("cell", property, "string");
+  setProperty(cell, "cell", property, value);
+}
+
+void
+Properties::setStringProperty(const Instance *inst,
+                              std::string_view property,
+                              std::string_view value)
+{
+  if (!isUserProperty("instance", property))
+    defineProperty<Instance>("instance", property, "string");
+  setProperty(inst, "instance", property, value);
+}
+
+std::string
+Properties::stringProperty(const Cell *cell,
+                           std::string_view property)
+{
+  if (!isUserProperty("cell", property))
+    return {};
+  PropertyValue value = getProperty(cell, property);
+  if (value.type() == PropertyValue::Type::string)
+    return value.stringValue();
+  return {};
+}
+
+std::string
+Properties::stringProperty(const Instance *inst,
+                           std::string_view property)
+{
+  if (!isUserProperty("instance", property))
+    return {};
+  PropertyValue value = getProperty(inst, property);
+  if (value.type() == PropertyValue::Type::string)
+    return value.stringValue();
+  return {};
+}
+
+void
+Properties::clearUserPropertyValues()
+{
+  prop_values_.clear();
+}
+
 ////////////////////////////////////////////////////////////////
 
 template<class TYPE>
