@@ -1,4 +1,4 @@
-Documention is publish at https://opensta.readthedocs.io/en/latest/ using
+Documention is published at https://opensta.readthedocs.io/en/latest/ using
 .readthedocs.yaml.
 
 Command documention is declared in the various TCL command file such as search/Search.tcl.
