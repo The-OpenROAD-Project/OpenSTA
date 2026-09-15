@@ -170,6 +170,8 @@ public:
                      ParasiticNode *node2) override;
   uint32_t id(const ParasiticCapacitor *capacitor) const override;
   float value(const ParasiticCapacitor *capacitor) const override;
+  // OpenROAD-fork: SI-window
+  void setCapacitorValue(ParasiticCapacitor *capacitor, float value) override;
   ParasiticNode *node1(const ParasiticCapacitor *capacitor) const override;
   ParasiticNode *node2(const ParasiticCapacitor *capacitor) const override;
 

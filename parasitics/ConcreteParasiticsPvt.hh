@@ -303,6 +303,9 @@ public:
                           ConcreteParasiticNode *node2);
   uint32_t id() const { return id_; }
   float value() const { return value_; }
+  // OpenROAD-fork: SI-window -- per-device value override used by the
+  // OpenROAD window-aware coupling derate. Not used by stock OpenSTA.
+  void setValue(float value) { value_ = value; }
   ConcreteParasiticNode *node1() const { return node1_; }
   ConcreteParasiticNode *node2() const { return node2_; }
   void replaceNode(ConcreteParasiticNode *from_node,
