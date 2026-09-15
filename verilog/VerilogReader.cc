@@ -35,6 +35,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
+#include "Property.hh"
 #include "Report.hh"
 #include "Sta.hh"
 #include "Stats.hh"

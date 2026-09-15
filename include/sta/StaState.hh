@@ -48,6 +48,7 @@ class Latches;
 class DispatchQueue;
 class Variables;
 class DelayOps;
+class Properties;
 
 using ModeSeq = std::vector<Mode*>;
 using ModeSet = std::set<Mode*>;
@@ -104,6 +105,8 @@ public:
   bool crprActive(const Mode *mode) const;
   Variables *variables() { return variables_; }
   const Variables *variables() const { return variables_; }
+  Properties &properties() { return *properties_; }
+  const Properties &properties() const { return *properties_; }
   // Edge is default cond disabled by timing_disable_cond_default_arcs var.
   [[nodiscard]] bool isDisabledCondDefault(const Edge *edge) const;
   // Edge is disabled internal bidirect output path.
@@ -139,6 +142,7 @@ protected:
   DelayOps *delay_ops_;
   Latches *latches_;
   Variables *variables_;
+  Properties *properties_;
   size_t thread_count_;
   DispatchQueue *dispatch_queue_;
 };

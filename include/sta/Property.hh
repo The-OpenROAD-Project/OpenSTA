@@ -40,9 +40,6 @@ namespace sta {
 
 class Sta;
 class PropertyValue;
-
-class Sta;
-class PropertyValue;
 class Scene;
 class Mode;
 
@@ -268,9 +265,9 @@ public:
 
   // String user property value, or empty if undeclared / unset / not string.
   std::string stringProperty(const Cell *cell,
-                             std::string_view property);
+                             std::string_view property) const;
   std::string stringProperty(const Instance *inst,
-                             std::string_view property);
+                             std::string_view property) const;
 
   // Drop stored user property values (network objects are destroyed on
   // readNetlistBefore). Property definitions stay registered.
@@ -306,7 +303,7 @@ protected:
   // True if a user-defined property of this name was declared (via
   // defineProperty) on this object type.
   bool isUserProperty(std::string_view object_type,
-                      std::string_view property);
+                      std::string_view property) const;
 
   PropertyRegistry<const Library*> registry_library_;
   PropertyRegistry<const LibertyLibrary*> registry_liberty_library_;
