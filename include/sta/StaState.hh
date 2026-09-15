@@ -105,8 +105,8 @@ public:
   bool crprActive(const Mode *mode) const;
   Variables *variables() { return variables_; }
   const Variables *variables() const { return variables_; }
-  Properties &properties() { return *properties_; }
-  const Properties &properties() const { return *properties_; }
+  Properties *properties() { return properties_; }
+  const Properties *properties() const { return properties_; }
   // Edge is default cond disabled by timing_disable_cond_default_arcs var.
   [[nodiscard]] bool isDisabledCondDefault(const Edge *edge) const;
   // Edge is disabled internal bidirect output path.

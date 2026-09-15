@@ -440,7 +440,7 @@ make_report_path_attr_field(std::string attr_name,
                                const Network *network = sta->network();
                                const Pin *pin = path->pin(sta);
                                const Instance *inst = network->instance(pin);
-                               return sta->properties().stringProperty(inst, attr_name);
+                               return sta->properties()->stringProperty(inst, attr_name);
                              }
                              else
                                return "";

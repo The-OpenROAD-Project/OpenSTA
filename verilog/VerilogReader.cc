@@ -37,7 +37,7 @@
 #include "PortDirection.hh"
 #include "Property.hh"
 #include "Report.hh"
-#include "Sta.hh"
+#include "StaState.hh"
 #include "Stats.hh"
 #include "StringUtil.hh"
 #include "VerilogNamespace.hh"
@@ -113,6 +113,7 @@ public:
 VerilogReader::VerilogReader(NetworkReader *network) :
   report_(network->report()),
   debug_(network->debug()),
+  properties_(network->properties()),
   network_(network),
   zero_net_name_("zero_"),
   one_net_name_("one_")
@@ -191,8 +192,7 @@ VerilogReader::makeModule(std::string_view module_vname,
   if (attr_stmts) {
     for (VerilogAttrStmt *stmt : *attr_stmts) {
       for (VerilogAttrEntry *entry : *stmt->attrs())
-        Sta::sta()->properties().setStringProperty(cell, entry->key(),
-                                                   entry->value());
+        properties_->setStringProperty(cell, entry->key(), entry->value());
     }
   }
 
@@ -1591,8 +1591,7 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
     VerilogAttrStmtSeq *attr_stmts = mod_inst->attrStmts();
     for (VerilogAttrStmt *stmt : *attr_stmts) {
       for (VerilogAttrEntry *entry : *stmt->attrs()) {
-        Sta::sta()->properties().setStringProperty(inst, entry->key(),
-                                                   entry->value());
+        properties_->setStringProperty(inst, entry->key(), entry->value());
       }
     }
 
@@ -1776,10 +1775,8 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
       network_->makeInstance(cell, lib_inst->instanceName(), parent);
   VerilogAttrStmtSeq *attr_stmts = lib_inst->attrStmts();
   for (VerilogAttrStmt *stmt : *attr_stmts) {
-    for (VerilogAttrEntry *entry : *stmt->attrs()) {
-      Sta::sta()->properties().setStringProperty(inst, entry->key(),
-                                                 entry->value());
-    }
+    for (VerilogAttrEntry *entry : *stmt->attrs())
+      properties_->setStringProperty(inst, entry->key(), entry->value());
   }
   const StringSeq &net_names = lib_inst->netNames();
   LibertyCellPortBitIterator port_iter(lib_cell);

@@ -36,6 +36,8 @@
 
 namespace sta {
 
+class Properties;
+
 class VerilogScanner;
 class VerilogParse;
 class Debug;
@@ -304,6 +306,7 @@ protected:
   std::string filename_;
   Report *report_;
   Debug *debug_;
+  Properties *properties_;
   NetworkReader *network_;
 
   Library *library_{nullptr};
