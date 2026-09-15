@@ -36,7 +36,6 @@
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
 #include "PowerClass.hh"
-#include "Property.hh"
 #include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
 #include "SdcClass.hh"
@@ -1437,7 +1436,7 @@ public:
   void writePathSpice(const Path *path,
                       std::string_view spice_filename,
                       std::string_view subckt_filename,
-                      std::string_view lib_subckt_filename,
+                      StringSeq lib_subckt_filenames,
                       std::string_view model_filename,
                       std::string_view power_name,
                       std::string_view gnd_name,
@@ -1500,13 +1499,12 @@ public:
   void setUseDefaultArrivalClock(bool enable);
   ////////////////////////////////////////////////////////////////
 
-  Properties &properties() { return properties_; }
-
 protected:
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.
   virtual void makeVariables();
+  virtual void makeProperties();
   virtual void makeReport();
   virtual void makeDebug();
   virtual void makeUnits();
@@ -1666,7 +1664,6 @@ protected:
   Tcl_Interp *tcl_interp_{nullptr};
   bool update_genclks_{false};
   EquivCells *equiv_cells_{nullptr};
-  Properties properties_{this};
 
   // Singleton sta used by tcl command interpreter.
   inline static Sta *sta_{nullptr};

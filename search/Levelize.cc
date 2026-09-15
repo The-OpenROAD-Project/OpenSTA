@@ -354,14 +354,6 @@ Levelize::findTopologicalOrder()
       if (searchThru(edge))
         in_degree[to_vertex] += 1;
     }
-    // Levelize bidirect driver as if it was a fanout of the bidirect load.
-    const Pin *pin = vertex->pin();
-    if (graph_delay_calc_->bidirectDrvrSlewFromLoad(pin)
-        && !vertex->isBidirectDriver()) {
-      Vertex *to_vertex = graph_->pinDrvrVertex(pin);
-      ;
-      in_degree[to_vertex] += 1;
-    }
   }
 
   std::deque<Vertex *> queue;

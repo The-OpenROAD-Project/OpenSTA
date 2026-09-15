@@ -1442,7 +1442,7 @@ Properties::coercePropertyValue(PropertyValue::Type type,
 
 bool
 Properties::isUserProperty(std::string_view object_type,
-                           std::string_view property)
+                           std::string_view property) const
 {
   return prop_types_.contains({std::string(object_type), std::string(property)});
 }
@@ -1533,6 +1533,36 @@ Properties::setProperty(const void *object,
                           object_type, property);
   prop_values_[PropertyKey(object, property)] =
     coercePropertyValue(type_iter->second, value);
+}
+
+std::string
+Properties::stringProperty(const Cell *cell,
+                           std::string_view property) const
+{
+  if (!isUserProperty("cell", property))
+    return {};
+  PropertyValue value = const_cast<Properties*>(this)->getProperty(cell, property);
+  if (value.type() == PropertyValue::Type::string)
+    return value.stringValue();
+  return {};
+}
+
+std::string
+Properties::stringProperty(const Instance *inst,
+                           std::string_view property) const
+{
+  if (!isUserProperty("instance", property))
+    return {};
+  PropertyValue value = const_cast<Properties*>(this)->getProperty(inst, property);
+  if (value.type() == PropertyValue::Type::string)
+    return value.stringValue();
+  return {};
+}
+
+void
+Properties::clearUserPropertyValues()
+{
+  prop_values_.clear();
 }
 
 ////////////////////////////////////////////////////////////////

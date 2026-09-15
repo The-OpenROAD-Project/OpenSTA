@@ -2668,19 +2668,12 @@ The `set_data_check` command is used to add a setup or hold timing check between
 `-clock` {: #opt-set_data_check-clock }
 : `clock`: The setup/hold check clock.
 
-## set_disable_clock_gating_check
-
-<pre><code>set_disable_clock_gating_check
-    objects</code></pre>
-
-The `set_disable_clock_gating_check` command disables clock gating checks on Liberty cells, instances, ports, or pins. When a Liberty cell is specified, the check is disabled for every instance of that cell.
-
 ## set_disable_inferred_clock_gating
 
 <pre><code>set_disable_inferred_clock_gating
     objects</code></pre>
 
-The `set_disable_inferred_clock_gating` command is deprecated. Use `set_disable_clock_gating_check` instead.
+The `set_disable_inferred_clock_gating` command disables clock gating checks on a clock gating instance, clock gating pin, or clock gating enable pin.
 
 ## set_disable_timing
 
@@ -4139,19 +4132,12 @@ The `unset_clock_transition` command removes a setup or hold check defined by th
 `-clock` {: #opt-unset_data_check-clock }
 : The setup/hold check clock.
 
-## unset_disable_clock_gating_check
-
-<pre><code>unset_disable_clock_gating_check
-    objects</code></pre>
-
-The `unset_disable_clock_gating_check` command removes a previous `set_disable_clock_gating_check`.
-
 ## unset_disable_inferred_clock_gating
 
 <pre><code>unset_disable_inferred_clock_gating
     objects</code></pre>
 
-The `unset_disable_inferred_clock_gating` command is deprecated. Use `unset_disable_clock_gating_check` instead.
+The `unset_disable_inferred_clock_gating` command removes a previous `set_disable_inferred_clock_gating` command.
 
 ## unset_disable_timing
 
@@ -4365,8 +4351,8 @@ The `with_output_to_variable` command redirects the output of Tcl commands to a 
     path_args
     <a href="#opt-write_path_spice-spice_file">-spice_file</a>
     spice_file
-    <a href="#opt-write_path_spice-lib_subckt_file">-lib_subckt_file</a>
-    lib_subckts_file
+    <a href="#opt-write_path_spice-lib_subckt_files">-lib_subckt_files</a>
+    lib_subckts_files
     <a href="#opt-write_path_spice-model_file">-model_file</a>
     model_file
     <a href="#opt-write_path_spice-power">-power</a>
@@ -4382,7 +4368,7 @@ The spice netlists used by the path are written to subckt_file, which spice_file
 Example command:
 
 ```
-write_path_spice -path_args {-from "in0" -to "out1" -unconstrained}  -spice_directory $result_dir  -lib_subckt_file "write_spice1.subckt"  -model_file "write_spice1.models"  -power VDD -ground VSS
+write_path_spice -path_args {-from "in0" -to "out1" -unconstrained}  -spice_directory $result_dir  -lib_subckt_files "write_spice1.subckt"  -model_file "write_spice1.models"  -power VDD -ground VSS
 ```
 
 When the simulator is hspice, .measure statements will be added to the spice netlist.
@@ -4397,8 +4383,8 @@ When the simulator is Xyce, the .print statement selects the CSV format and writ
 `-spice_file` {: #opt-write_path_spice-spice_file }
 : Directory and path prefix for spice output files.
 
-`-lib_subckt_file` {: #opt-write_path_spice-lib_subckt_file }
-: Cell transistor level subckts.
+`-lib_subckt_files` {: #opt-write_path_spice-lib_subckt_files }
+: List of cell transistor level subckts filenames.
 
 `-model_file` {: #opt-write_path_spice-model_file }
 : Transistor model definitions .included by spice_file.

@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <map>
 #include <string>
+#include <utility>
 
 #include "ArcDelayCalc.hh"
 #include "CheckCapacitances.hh"
@@ -80,6 +81,7 @@
 #include "PocvMode.hh"
 #include "PortDirection.hh"
 #include "PowerClass.hh"
+#include "Property.hh"
 #include "ReportPath.hh"
 #include "ReportTcl.hh"
 #include "RiseFallMinMaxDelay.hh"
@@ -271,6 +273,7 @@ void
 Sta::makeComponents()
 {
   makeVariables();
+  makeProperties();
   makeReport();
   makeDebug();
   makeUnits();
@@ -471,6 +474,12 @@ Sta::makeVariables()
 }
 
 void
+Sta::makeProperties()
+{
+  properties_ = new Properties(this);
+}
+
+void
 Sta::setSta(Sta *sta)
 {
   sta_ = sta;
@@ -513,6 +522,7 @@ Sta::~Sta()
   delete equiv_cells_;
   delete dispatch_queue_;
   delete variables_;
+  delete properties_;
   delete delay_ops_;
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
@@ -523,6 +533,7 @@ void
 Sta::clear()
 {
   clearNonSdc();
+  power_->clear();
   for (Mode *mode : modes_)
     mode->sdc()->clear();
 }
@@ -534,7 +545,6 @@ Sta::clearNonSdc()
   levelize_->clear();
   deleteParasitics();
   graph_delay_calc_->clear();
-  power_->clear();
   if (check_min_pulse_widths_)
     check_min_pulse_widths_->clear();
   if (check_min_periods_)
@@ -631,6 +641,7 @@ void
 Sta::networkChangedNonSdc()
 {
   clearNonSdc();
+  power_->clearNonSdc();
 }
 
 void
@@ -754,6 +765,7 @@ void
 Sta::readNetlistBefore()
 {
   clear();
+  properties_->clearUserPropertyValues();
   NetworkReader *network_reader = networkReader();
   if (network_reader)
     network_reader->readNetlistBefore();
@@ -5052,11 +5064,16 @@ Sta::deletePinBefore(const Pin *pin)
     }
   }
 
+  bool port_delay_deleted = false;
   for (const Mode *mode : modes_) {
+    port_delay_deleted |= mode->sdc()->hasPortDelays(pin);
     mode->sdc()->deletePinBefore(pin);
     mode->sim()->deletePinBefore(pin);
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  // Tags on pins downstream from input delays reference the input delay.
+  if (port_delay_deleted)
+    search_->arrivalsInvalid();
 }
 
 void
@@ -6132,14 +6149,15 @@ void
 Sta::writePathSpice(const Path *path,
                     std::string_view spice_filename,
                     std::string_view subckt_filename,
-                    std::string_view lib_subckt_filename,
+                    StringSeq lib_subckt_filenames,
                     std::string_view model_filename,
                     std::string_view power_name,
                     std::string_view gnd_name,
                     CircuitSim ckt_sim)
 {
   ensureLibLinked();
-  sta::writePathSpice(path, spice_filename, subckt_filename, lib_subckt_filename,
+  sta::writePathSpice(path, spice_filename, subckt_filename,
+                      std::move(lib_subckt_filenames),
                       model_filename, power_name, gnd_name, ckt_sim, this);
 }
 

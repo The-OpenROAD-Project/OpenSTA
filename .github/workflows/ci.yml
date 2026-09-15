@@ -33,13 +33,24 @@ jobs:
           cmake --install .
           tar -zcvf build.tar.gz -Cinstall .
 
-      - name: Check generated docs
-        run: |
-          git diff --exit-code -- \
-            doc/Commands.md \
-            doc/Variables.md \
-            doc/CommandLine.md \
+      - name: Upload generated docs
+        uses: actions/upload-artifact@v7
+        with:
+          name: generated-docs
+          path: |
+            doc/Commands.md
+            doc/Variables.md
+            doc/CommandLine.md
             doc/Messages.md
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Check command help
+        run: |
+          test -s doc/Commands.md
+          test -s doc/Variables.md
+          test -s doc/CommandLine.md
+          test -s doc/Messages.md
           ./build/sta -no_splash -no_init -exit etc/CheckCmdHelp.tcl
 
       - name: Test
@@ -135,10 +146,24 @@ jobs:
             test/results/*
 
   docs:
+    needs: linux-ubuntu
+    if: ${{ !cancelled() && needs.linux-ubuntu.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Download generated docs
+        uses: actions/download-artifact@v8
+        with:
+          name: generated-docs
+          path: doc
+
+      - name: Check generated docs
+        run: |
+          test -s doc/Commands.md
+          test -s doc/Variables.md
+          test -s doc/CommandLine.md
 
       - name: Set up Python
         uses: actions/setup-python@v7

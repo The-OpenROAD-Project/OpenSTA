@@ -52,7 +52,7 @@ class WriteSpice : public StaState
 public:
   WriteSpice(std::string_view spice_filename,
              std::string_view subckt_filename,
-             std::string_view lib_subckt_filename,
+             StringSeq lib_subckt_filenames,
              std::string_view model_filename,
              std::string_view power_name,
              std::string_view gnd_name,
@@ -170,7 +170,7 @@ protected:
 
   const std::string spice_filename_;
   const std::string subckt_filename_;
-  const std::string lib_subckt_filename_;
+  const StringSeq lib_subckt_filenames_;
   const std::string model_filename_;
   const std::string power_name_;
   const std::string gnd_name_;

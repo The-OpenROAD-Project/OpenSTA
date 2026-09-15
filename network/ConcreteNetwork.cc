@@ -587,15 +587,6 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
   ccell->setIsLeaf(is_leaf);
 }
 
-void
-ConcreteNetwork::setAttribute(Cell *cell,
-                              std::string_view key,
-                              std::string_view value)
-{
-  ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
-  ccell->setAttribute(key, value);
-}
-
 Library *
 ConcreteNetwork::library(const Cell *cell) const
 {
@@ -634,21 +625,6 @@ ConcreteNetwork::filename(const Cell *cell) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->filename();
-}
-
-std::string
-ConcreteNetwork::getAttribute(const Cell *cell,
-                              std::string_view key) const
-{
-  const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
-  return ccell->getAttribute(key);
-}
-
-const AttributeMap &
-ConcreteNetwork::attributeMap(const Cell *cell) const
-{
-  const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
-  return ccell->attributeMap();
 }
 
 Port *
@@ -972,21 +948,6 @@ ConcreteNetwork::id(const Instance *instance) const
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(instance);
   return inst->id();
-}
-
-std::string
-ConcreteNetwork::getAttribute(const Instance *inst,
-                              std::string_view key) const
-{
-  const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
-  return cinst->getAttribute(key);
-}
-
-const AttributeMap &
-ConcreteNetwork::attributeMap(const Instance *inst) const
-{
-  const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
-  return cinst->attributeMap();
 }
 
 Cell *
@@ -1400,15 +1361,6 @@ ConcreteNetwork::connect(Instance *inst,
   return connect(inst, reinterpret_cast<Port*>(port), net);
 }
 
-void
-ConcreteNetwork::setAttribute(Instance *inst,
-                              std::string_view key,
-                              std::string_view value)
-{
-  ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
-  cinst->setAttribute(key, value);
-}
-
 Pin *
 ConcreteNetwork::connect(Instance *inst,
                          Port *port,
@@ -1441,7 +1393,8 @@ ConcreteNetwork::connect(Instance *inst,
     }
     else {
       cpin->net_ = cnet;
-      connectNetPin(cnet, cpin);
+      if (cnet)
+        connectNetPin(cnet, cpin);
     }
   }
   return reinterpret_cast<Pin*>(cpin);
@@ -1723,22 +1676,6 @@ InstanceChildIterator *
 ConcreteInstance::childIterator() const
 {
   return new ConcreteInstanceChildIterator(children_);
-}
-
-void
-ConcreteInstance::setAttribute(std::string_view key,
-                               std::string_view value)
-{
-  attribute_map_[std::string(key)] = value;
-}
-
-std::string
-ConcreteInstance::getAttribute(std::string_view key) const
-{
-  const auto &itr = attribute_map_.find(key);
-  if (itr != attribute_map_.end())
-    return itr->second;
-  return "";
 }
 
 void

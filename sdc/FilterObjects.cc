@@ -271,7 +271,7 @@ filterObjects(std::string_view property,
               std::set<T*> &all,
               Sta *sta)
 {
-  Properties &properties = sta->properties();
+  Properties *properties = sta->properties();
   Network *network = sta->network();
   auto filtered_objects = std::set<T*>();
   bool exact_match = (op == "==");
@@ -279,7 +279,7 @@ filterObjects(std::string_view property,
   bool not_match = (op == "!=");
   bool not_pattern_match = (op == "!~");
   for (T *object : all) {
-    PropertyValue value = properties.getProperty(object, property);
+    PropertyValue value = properties->getProperty(object, property);
     std::string prop = value.to_string(network);
     if (value.type() == PropertyValue::Type::bool_) {
       // Canonicalize bool true/false to 1/0.
@@ -305,7 +305,7 @@ filterObjects(std::string_view filter_expression,
 {
   Report *report = sta->report();
   Network *network = sta->network();
-  Properties &properties = sta->properties();
+  Properties *properties = sta->properties();
   std::vector<T*> result;
   if (objects) {
     std::set<T*> all;
@@ -364,7 +364,7 @@ filterObjects(std::string_view filter_expression,
           (token->kind() == FilterExpr::Token::Kind::defined);
         auto result = std::set<T*>();
         for (auto object : all) {
-          PropertyValue value = properties.getProperty(object, token->text());
+          PropertyValue value = properties->getProperty(object, token->text());
           bool is_defined = false;
           switch (value.type()) {
           case PropertyValue::Type::float_:

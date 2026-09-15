@@ -485,7 +485,7 @@ proc cleanse_valgrind_logfile { test } {
   set mem_errors 0
   gets $tmp line
   while { ![eof $tmp] } {
-    if {[regexp "^==" $line]} {
+    if {[regexp {^==[0-9]+==} $line]} {
       puts $valgrind $line
       if {[regexp $valgrind_leak_regexp $line]} {
         set leak 1

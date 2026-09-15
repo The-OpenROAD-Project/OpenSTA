@@ -148,6 +148,8 @@ record_public_tests {
   disable_clock_gating_check_port
   disable_clock_gating_check_sdc
   disconnect_mcp_pin
+  dmp_two_pole_reduce
+  equiv_cells_ff_latch
   get_filter
   get_is_buffer
   get_is_memory
@@ -168,6 +170,8 @@ record_public_tests {
   non_seq_timing
   package_require
   path_group_names
+  port_delay_delete_inst
+  power_network_changed
   power_json
   prima3
   prima_singular

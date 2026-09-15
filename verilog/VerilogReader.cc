@@ -35,7 +35,9 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
+#include "Property.hh"
 #include "Report.hh"
+#include "StaState.hh"
 #include "Stats.hh"
 #include "StringUtil.hh"
 #include "VerilogNamespace.hh"
@@ -167,6 +169,28 @@ VerilogReader::module(Cell *cell)
 }
 
 void
+VerilogReader::setAttribute(const Cell *cell,
+                            std::string_view key,
+                            std::string_view value)
+{
+  Properties *properties = network_->properties();
+  if (!properties->isUserProperty("cell", key))
+    properties->defineProperty<Cell>("cell", key, "string");
+  properties->setProperty(cell, "cell", key, value);
+}
+
+void
+VerilogReader::setAttribute(const Instance *inst,
+                            std::string_view key,
+                            std::string_view value)
+{
+  Properties *properties = network_->properties();
+  if (!properties->isUserProperty("instance", key))
+    properties->defineProperty<Instance>("instance", key, "string");
+  properties->setProperty(inst, "instance", key, value);
+}
+
+void
 VerilogReader::makeModule(std::string_view module_vname,
                           VerilogNetSeq *ports,
                           VerilogStmtSeq *stmts,
@@ -189,7 +213,7 @@ VerilogReader::makeModule(std::string_view module_vname,
   if (attr_stmts) {
     for (VerilogAttrStmt *stmt : *attr_stmts) {
       for (VerilogAttrEntry *entry : *stmt->attrs())
-        network_->setAttribute(cell, entry->key(), entry->value());
+        setAttribute(cell, entry->key(), entry->value());
     }
   }
 
@@ -1587,9 +1611,8 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
         network_->makeInstance(cell, mod_inst->instanceName(), parent);
     VerilogAttrStmtSeq *attr_stmts = mod_inst->attrStmts();
     for (VerilogAttrStmt *stmt : *attr_stmts) {
-      for (VerilogAttrEntry *entry : *stmt->attrs()) {
-        network_->setAttribute(inst, entry->key(), entry->value());
-      }
+      for (VerilogAttrEntry *entry : *stmt->attrs())
+        setAttribute(inst, entry->key(), entry->value());
     }
 
     // Make all pins so timing arcs are built and get_pins finds them.
@@ -1772,9 +1795,8 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
       network_->makeInstance(cell, lib_inst->instanceName(), parent);
   VerilogAttrStmtSeq *attr_stmts = lib_inst->attrStmts();
   for (VerilogAttrStmt *stmt : *attr_stmts) {
-    for (VerilogAttrEntry *entry : *stmt->attrs()) {
-      network_->setAttribute(inst, entry->key(), entry->value());
-    }
+    for (VerilogAttrEntry *entry : *stmt->attrs())
+      setAttribute(inst, entry->key(), entry->value());
   }
   const StringSeq &net_names = lib_inst->netNames();
   LibertyCellPortBitIterator port_iter(lib_cell);
