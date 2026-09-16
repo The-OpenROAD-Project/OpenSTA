@@ -348,8 +348,7 @@ Sta::updateComponentsState()
   report_path_->copyState(this);
   check_timing_->copyState(this);
   clk_skews_->copyState(this);
-  if (power_)
-    power_->copyState(this);
+  power_->copyState(this);
 }
 
 void

@@ -397,7 +397,6 @@ private:
   VcdCountReader vcd_reader_;
   VcdParse vcd_parse_;
   const Sdc *sdc_;
-  Power *power_;
 
   static constexpr double sim_clk_period_tolerance_ = .1;
 };
