@@ -1394,6 +1394,7 @@ public:
                                 const LibertyCell *to_cell);
 
   // Power API.
+  using StaState::power;
   void reportPowerDesign(const Scene *scene,
                          int digits);
   void reportPowerInsts(const InstanceSeq &insts,
@@ -1407,8 +1408,6 @@ public:
   void reportPowerInstsJson(const InstanceSeq &insts,
                             const Scene *scene,
                             int digits);
-  Power *power() { return power_; }
-  const Power *power() const { return power_; }
   void power(const Scene *scene,
              // Return values.
              PowerResult &total,
@@ -1660,7 +1659,6 @@ protected:
   CheckMaxSkews *check_max_skews_{nullptr};
   ClkSkews *clk_skews_{nullptr};
   ReportPath *report_path_{nullptr};
-  Power *power_{nullptr};
   Tcl_Interp *tcl_interp_{nullptr};
   bool update_genclks_{false};
   EquivCells *equiv_cells_{nullptr};

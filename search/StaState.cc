@@ -54,6 +54,7 @@ StaState::StaState() :
   latches_(nullptr),
   variables_(nullptr),
   properties_(nullptr),
+  power_(nullptr),
   thread_count_(1),
   dispatch_queue_(nullptr)
 {

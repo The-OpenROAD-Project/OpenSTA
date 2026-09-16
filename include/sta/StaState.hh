@@ -49,6 +49,7 @@ class DispatchQueue;
 class Variables;
 class DelayOps;
 class Properties;
+class Power;
 
 using ModeSeq = std::vector<Mode*>;
 using ModeSet = std::set<Mode*>;
@@ -107,6 +108,8 @@ public:
   const Variables *variables() const { return variables_; }
   Properties *properties() { return properties_; }
   const Properties *properties() const { return properties_; }
+  Power *power() { return power_; }
+  const Power *power() const { return power_; }
   // Edge is default cond disabled by timing_disable_cond_default_arcs var.
   [[nodiscard]] bool isDisabledCondDefault(const Edge *edge) const;
   // Edge is disabled internal bidirect output path.
@@ -143,6 +146,7 @@ protected:
   Latches *latches_;
   Variables *variables_;
   Properties *properties_;
+  Power *power_;
   size_t thread_count_;
   DispatchQueue *dispatch_queue_;
 };
