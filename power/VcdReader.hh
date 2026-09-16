@@ -30,7 +30,7 @@
 
 namespace sta {
 
-class Sta;
+class StaState;
 
 void
 readVcdActivities(std::string_view filename,
@@ -38,6 +38,6 @@ readVcdActivities(std::string_view filename,
                   const Mode *mode,
                   VcdTime begin_time,
                   VcdTime end_time,
-                  Sta *sta);
+                  StaState *sta);
 
 } // namespace sta
