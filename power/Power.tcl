@@ -317,10 +317,7 @@ proc read_vcd { args } {
   if { [info exists keys(-scope)] } {
     set scope $keys(-scope)
   }
-  set mode_name [cmd_mode_name]
-  if { [info exists keys(-mode)] } {
-    set mode_name $keys(-mode)
-  }
+  set mode [parse_mode keys]
   set begin_time $sta::vcd_null_time
   if { [info exists keys(-begin_time)] } {
     set begin_time $keys(-begin_time)
@@ -329,7 +326,7 @@ proc read_vcd { args } {
   if { [info exists keys(-end_time)] } {
     set end_time $keys(-end_time)
   }
-  read_vcd_file $filename $scope $mode_name $begin_time $end_time
+  read_vcd_file $filename $scope $mode $begin_time $end_time
 }
 
 ################################################################

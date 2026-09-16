@@ -861,9 +861,9 @@ set_cmd_mode(std::string mode_name)
 }
 
 ModeSeq
-find_modes(std::string mode_name)
+find_modes(std::string mode_names)
 {
-  return Sta::sta()->findModes(mode_name);
+  return Sta::sta()->findModes(mode_names);
 }
 
 Mode *

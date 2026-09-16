@@ -35,7 +35,7 @@ class Sta;
 void
 readVcdActivities(std::string_view filename,
                   std::string_view scope,
-                  std::string_view mode_name,
+                  const Mode *mode,
                   VcdTime begin_time,
                   VcdTime end_time,
                   Sta *sta);
