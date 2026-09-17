@@ -25,9 +25,11 @@
 #pragma once
 
 #include <array>
-#include <map>
+#include <atomic>
+#include <cstdint>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 
 #include "MinMax.hh"
 #include "Parasitics.hh"
@@ -43,8 +45,12 @@ constexpr size_t min_max_rise_fall_count = MinMax::index_count * RiseFall::index
 // the min values are populated for the min parasitics and
 // max values for max parasitics.
 using MinMaxRiseFallParasitics = std::array<ConcreteParasitic*, min_max_rise_fall_count>;
-using ConcreteParasiticMap = std::map<const Pin*, MinMaxRiseFallParasitics>;
-using ConcreteParasiticNetworkMap = std::map<const Net*, ConcreteParasiticNetwork>;
+// Hashed rather than ordered: these are looked up under a global lock on the
+// multithreaded delay calculation path, and a red-black tree walk over ~180k
+// driver pins is ~18 dependent pointer loads inside the critical section.
+// Nothing iterates either map in key order.
+using ConcreteParasiticMap = std::unordered_map<const Pin*, MinMaxRiseFallParasitics>;
+using ConcreteParasiticNetworkMap = std::unordered_map<const Net*, ConcreteParasiticNetwork>;
 
 // This class acts as a BUILDER for parasitics.
 class ConcreteParasitics : public Parasitics
@@ -185,6 +191,9 @@ public:
 
 protected:
   void deleteParasiticsImpl();
+  const MinMaxRiseFallParasitics *lookupDrvrParasitics(const Pin *drvr_pin) const;
+  void noteDrvrParasitics(const Pin *drvr_pin,
+                          const MinMaxRiseFallParasitics *slots) const;
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);
@@ -196,6 +205,11 @@ protected:
   // and transition.
   ConcreteParasiticMap drvr_parasitic_map_;
   ConcreteParasiticNetworkMap parasitic_network_map_;
+  // Bumped whenever an entry is erased from drvr_parasitic_map_, so the
+  // per-thread record in ConcreteParasitics.cc can tell that a pointer it
+  // holds into the map may have been freed. Read on every lookup, so it is
+  // kept off the mutex's cache line.
+  alignas(64) std::atomic<uint64_t> map_generation_{0};
   mutable std::mutex lock_;
 
   friend class ConcretePiElmore;
