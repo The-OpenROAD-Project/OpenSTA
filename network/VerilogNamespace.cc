@@ -81,6 +81,13 @@ isAlnumUnderscore(char ch)
   return std::isalnum(static_cast<unsigned char>(ch)) != 0 || ch == '_';
 }
 
+// Simple identifiers must begin with a letter or underscore.
+static bool
+isIdentifierStart(char ch)
+{
+  return std::isalpha(static_cast<unsigned char>(ch)) != 0 || ch == '_';
+}
+
 static std::string
 staToVerilog(std::string_view sta_name)
 {
@@ -110,6 +117,8 @@ staToVerilog(std::string_view sta_name)
       escaped_name += ch;
     }
   }
+  if (!sta_name.empty() && !isIdentifierStart(sta_name[0]))
+    escaped = true;
   if (escaped) {
     // Add a terminating space.
     escaped_name += ' ';
@@ -151,6 +160,8 @@ staToVerilog2(std::string_view sta_name)
       escaped_name += ch;
     }
   }
+  if (!sta_name.empty() && !isIdentifierStart(sta_name[0]))
+    escaped = true;
   if (escaped) {
     // Add a terminating space.
     escaped_name += ' ';
