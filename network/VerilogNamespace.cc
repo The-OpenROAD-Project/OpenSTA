@@ -91,8 +91,6 @@ isIdentifierStart(char ch)
 static std::string
 staToVerilog(std::string_view sta_name)
 {
-  // Leave room for leading escape and trailing space if the name
-  // needs to be escaped.
   // Assume the name has to be escaped and start copying while scanning.
   std::string escaped_name =  "\\";
   bool escaped = false;
@@ -133,8 +131,6 @@ staToVerilog2(std::string_view sta_name)
 {
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
-  // Leave room for leading escape and trailing space if the name
-  // needs to be escaped.
   std::string escaped_name =  "\\";
   // Assume the name has to be escaped and start copying while scanning.
   bool escaped = false;
