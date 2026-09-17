@@ -1559,6 +1559,18 @@ Properties::stringProperty(const Instance *inst,
   return {};
 }
 
+std::string
+Properties::stringProperty(const Pin *pin,
+                           std::string_view property) const
+{
+  if (!isUserProperty("pin", property))
+    return {};
+  PropertyValue value = const_cast<Properties*>(this)->getProperty(pin, property);
+  if (value.type() == PropertyValue::Type::string)
+    return value.stringValue();
+  return {};
+}
+
 void
 Properties::clearUserPropertyValues()
 {

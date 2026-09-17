@@ -259,6 +259,8 @@ public:
                              std::string_view property) const;
   std::string stringProperty(const Instance *inst,
                              std::string_view property) const;
+  std::string stringProperty(const Pin *pin,
+                             std::string_view property) const;
 
   // Drop stored user property values (network objects are destroyed on
   // readNetlistBefore). Property definitions stay registered.

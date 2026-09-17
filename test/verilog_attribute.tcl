@@ -18,3 +18,10 @@ set instance_attr2 [get_property $inst attr2]
 puts "instance: $instance_name attribute \"src\" = $instance_src_location"
 puts "instance: $instance_name attribute \"attr1\" = $instance_attr1"
 puts "instance: $instance_name attribute \"attr2\" = $instance_attr2"
+
+define_property -object_type pin -type string src
+set pin [get_pin _1415_/Q]
+set_property $pin src "synthesis/tests/counter.v:25.5-25.10"
+puts "pin: _1415_/Q attribute \"src\" = [get_property $pin src]"
+
+report_checks -fields {src_attr}
