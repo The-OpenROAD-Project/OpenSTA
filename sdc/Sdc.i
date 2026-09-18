@@ -778,6 +778,14 @@ disable_clock_gating_check_pin(Pin *pin)
 }
 
 void
+disable_clock_gating_check_lib_cell(LibertyCell *cell)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->disableClockGatingCheck(cell, sdc);
+}
+
+void
 unset_disable_clock_gating_check_inst(Instance *inst)
 {
   Sta *sta = Sta::sta();
@@ -791,6 +799,14 @@ unset_disable_clock_gating_check_pin(Pin *pin)
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->cmdSdc();
   sta->removeDisableClockGatingCheck(pin, sdc);
+}
+
+void
+unset_disable_clock_gating_check_lib_cell(LibertyCell *cell)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->removeDisableClockGatingCheck(cell, sdc);
 }
 
 EdgeSeq

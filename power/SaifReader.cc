@@ -47,7 +47,7 @@ namespace sta {
 bool
 readSaif(const char *filename,
          const char *scope,
-         Sta *sta)
+         StaState *sta)
 {
   SaifReader reader(filename, scope, sta);
   bool success = reader.read();
@@ -56,11 +56,10 @@ readSaif(const char *filename,
 
 SaifReader::SaifReader(const char *filename,
                        const char *scope,
-                       Sta *sta) :
+                       StaState *sta) :
   StaState(sta),
   filename_(filename),
-  scope_(scope),
-  power_(sta->power())
+  scope_(scope)
 {
 }
 

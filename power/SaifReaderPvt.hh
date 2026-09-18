@@ -53,7 +53,7 @@ class SaifReader : public StaState
 public:
   SaifReader(const char *filename,
              const char *scope,
-             Sta *sta);
+             StaState *sta);
   bool read();
 
   void setDivider(char divider);
@@ -81,7 +81,6 @@ private:
   size_t in_scope_level_ = 0;
   std::vector<Instance*> path_;      // Path within scope.
   std::set<const Pin*> annotated_pins_;
-  Power *power_;
 };
 
 } // namespace sta

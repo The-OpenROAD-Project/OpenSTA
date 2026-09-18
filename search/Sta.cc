@@ -81,6 +81,7 @@
 #include "PocvMode.hh"
 #include "PortDirection.hh"
 #include "PowerClass.hh"
+#include "Property.hh"
 #include "ReportPath.hh"
 #include "ReportTcl.hh"
 #include "RiseFallMinMaxDelay.hh"
@@ -272,6 +273,7 @@ void
 Sta::makeComponents()
 {
   makeVariables();
+  makeProperties();
   makeReport();
   makeDebug();
   makeUnits();
@@ -350,9 +352,7 @@ Sta::updateComponentsState()
   report_path_->copyState(this);
   check_timing_->copyState(this);
   clk_skews_->copyState(this);
-
-  if (power_)
-    power_->copyState(this);
+  power_->copyState(this);
 }
 
 void
@@ -476,6 +476,12 @@ Sta::makeVariables()
 }
 
 void
+Sta::makeProperties()
+{
+  properties_ = new Properties(this);
+}
+
+void
 Sta::setSta(Sta *sta)
 {
   sta_ = sta;
@@ -518,6 +524,7 @@ Sta::~Sta()
   delete equiv_cells_;
   delete dispatch_queue_;
   delete variables_;
+  delete properties_;
   delete delay_ops_;
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
@@ -773,6 +780,7 @@ void
 Sta::readNetlistBefore()
 {
   clear();
+  properties_->clearUserPropertyValues();
   NetworkReader *network_reader = networkReader();
   if (network_reader)
     network_reader->readNetlistBefore();
@@ -1922,6 +1930,14 @@ Sta::disableClockGatingCheck(Pin *pin,
 }
 
 void
+Sta::disableClockGatingCheck(LibertyCell *cell,
+                             Sdc *sdc)
+{
+  sdc->disableClockGatingCheck(cell);
+  search_->endpointsInvalid();
+}
+
+void
 Sta::removeDisableClockGatingCheck(Instance *inst,
                                    Sdc *sdc)
 {
@@ -1934,6 +1950,14 @@ Sta::removeDisableClockGatingCheck(Pin *pin,
                                    Sdc *sdc)
 {
   sdc->removeDisableClockGatingCheck(pin);
+  search_->endpointsInvalid();
+}
+
+void
+Sta::removeDisableClockGatingCheck(LibertyCell *cell,
+                                   Sdc *sdc)
+{
+  sdc->removeDisableClockGatingCheck(cell);
   search_->endpointsInvalid();
 }
 

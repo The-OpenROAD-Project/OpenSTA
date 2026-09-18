@@ -560,6 +560,35 @@ proc find_scenes { scenes_arg } {
 
 ################################################################
 
+# -mode keyword is optional.
+# If -mode keyword is missing return cmd mode.
+proc parse_mode { keys_var } {
+  upvar 1 $keys_var keys
+
+  if { [info exists keys(-mode)] } {
+    set mode_arg $keys(-mode)
+    if { [is_object $mode_arg] } {
+      set object_type [object_type $mode_arg]
+      if { $object_type == "Mode" } {
+        return $mode_arg
+      } else {
+        sta_error 145 "mode object type '$object_type' is not a mode."
+      }
+    } else {
+      set mode [find_mode $mode_arg]
+      if { $mode == "NULL" } {
+        sta_error 146 "$mode_arg is not the name of a mode."
+      } else {
+        return $mode
+      }
+    }
+  } else {
+    return [cmd_mode]
+  }
+}
+
+################################################################
+
 proc parse_rise_fall_flags { flags_var } {
   upvar 1 $flags_var flags
   if { [info exists flags(-rise)] && ![info exists flags(-fall)] } {

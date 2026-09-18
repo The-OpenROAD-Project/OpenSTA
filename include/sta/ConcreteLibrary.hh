@@ -112,10 +112,6 @@ public:
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
   void setIsLeaf(bool is_leaf);
-  void setAttribute(std::string_view key,
-                    std::string_view value);
-  std::string getAttribute(std::string_view key) const;
-  const AttributeMap &attributeMap() const { return attribute_map_; }
 
   // Cell acts as port factory.
   ConcretePort *makePort(std::string_view name);
@@ -169,7 +165,6 @@ protected:
   // Port bit count (expanded buses).
   int port_bit_count_{0};
   bool is_leaf_;
-  AttributeMap attribute_map_;
 
 private:
   friend class ConcreteLibrary;
