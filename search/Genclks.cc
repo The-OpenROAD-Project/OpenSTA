@@ -31,7 +31,6 @@
 #include "Debug.hh"
 #include "ExceptionPath.hh"
 #include "Graph.hh"
-#include "Levelize.hh"
 #include "Mode.hh"
 #include "Network.hh"
 #include "Path.hh"
@@ -52,20 +51,17 @@ class GenclkInfo
 {
 public:
   GenclkInfo(Clock *gclk,
-             Level gclk_level,
              FilterPath *src_filter,
              const StaState *sta);
   ~GenclkInfo();
   EdgeSet &fdbkEdges() { return fdbk_edges_; }
   VertexSet &fanins() { return fanins_; }
-  Level gclkLevel() const { return gclk_level_; }
   FilterPath *srcFilter() const { return src_filter_; }
   bool foundLatchFdbkEdges() const { return found_latch_fdbk_edges_; }
   void setFoundLatchFdbkEdges(bool found);
 
 protected:
   Clock *gclk_;
-  Level gclk_level_;
   VertexSet fanins_;
   EdgeSet fdbk_edges_;
   bool found_latch_fdbk_edges_{false};
@@ -73,11 +69,9 @@ protected:
 };
 
 GenclkInfo::GenclkInfo(Clock *gclk,
-                       Level gclk_level,
                        FilterPath *src_filter,
                        const StaState *sta) :
   gclk_(gclk),
-  gclk_level_(gclk_level),
   fanins_(makeVertexSet(sta->graph())),
   src_filter_(src_filter)
 {
@@ -139,40 +133,6 @@ Genclks::srcPath(const Pin *pin) const
     return graph_->pinLoadVertex(pin);
 }
 
-Level
-Genclks::clkPinMaxLevel(const Clock *clk) const
-{
-  Level max_level = 0;
-  for (const Pin *pin : clk->leafPins()) {
-    Vertex *vertex = srcPath(pin);
-    max_level = std::max(max_level, vertex->level());
-  }
-  return max_level;
-}
-
-class ClockPinMaxLevelLess
-{
-public:
-  ClockPinMaxLevelLess(const Genclks *genclks);
-  bool operator()(Clock *clk1,
-                  Clock *clk2) const;
-
-protected:
-  const Genclks *genclks_;
-};
-
-ClockPinMaxLevelLess::ClockPinMaxLevelLess(const Genclks *genclks) :
-  genclks_(genclks)
-{
-}
-
-bool
-ClockPinMaxLevelLess::operator()(Clock *clk1,
-                                 Clock *clk2) const
-{
-  return genclks_->clkPinMaxLevel(clk1) < genclks_->clkPinMaxLevel(clk2);
-}
-
 // Generated clock source paths.
 // The path between the source clock and generated clock is used
 // to find the insertion delay (source latency) when the clock is
@@ -193,10 +153,6 @@ Genclks::ensureInsertionDelays()
         gclks.push_back(clk);
       }
     }
-
-    // Generated clocks derived from a generated clock inherit its
-    // insertion delay, so sort the clocks by source pin level.
-    sort(gclks, ClockPinMaxLevelLess(this));
 
     for (Clock *gclk : gclks) {
       if (gclk->masterClk()) {
@@ -455,7 +411,7 @@ Genclks::findInsertionDelays(Clock *gclk)
   VertexQueue insert_queue;
   GenClkInsertionSearchPred srch_pred(gclk, genclk_info, this);
   seedSrcPins(gclk, src_filter, insert_queue, srch_pred);
-  // Propagate arrivals to generated clk root pin level.
+  // Propagate arrivals to generated clk root pin.
   findSrcArrivals(gclk, genclk_info, insert_queue);
   // Unregister the filter so that it is not triggered by other searches.
   // The exception itself has to stick around because the source path
@@ -467,8 +423,7 @@ GenclkInfo *
 Genclks::makeGenclkInfo(Clock *gclk)
 {
   FilterPath *src_filter = makeSrcFilter(gclk, mode_->sdc());
-  Level gclk_level = clkPinMaxLevel(gclk);
-  GenclkInfo *genclk_info = new GenclkInfo(gclk, gclk_level, src_filter, this);
+  GenclkInfo *genclk_info = new GenclkInfo(gclk, src_filter, this);
   findFanin(gclk, genclk_info->fanins());
   genclk_info_map_[gclk] = genclk_info;
   return genclk_info;
@@ -506,8 +461,7 @@ Genclks::findLatchFdbkEdges(const Clock *clk)
 }
 
 // Generated clock insertion delays propagate through latch D->Q.
-// This exposes loops through latches that are not discovered and
-// flagged by levelization.  Find these loops with a depth first
+// This exposes loops through latches.Find these loops with a depth first
 // search from the master clock source pins and record them to prevent
 // the clock insertion search from searching through them.
 //
@@ -518,14 +472,13 @@ void
 Genclks::findLatchFdbkEdges(const Clock *gclk,
                             GenclkInfo *genclk_info)
 {
-  Level gclk_level = genclk_info->gclkLevel();
   EdgeSet &fdbk_edges = genclk_info->fdbkEdges();
   for (const Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
     VertexSet path_vertices = makeVertexSet(this);
     VertexSet visited_vertices = makeVertexSet(this);
     SearchPred1 srch_pred(this);
-    findLatchFdbkEdges(vertex, gclk_level, srch_pred, path_vertices,
+    findLatchFdbkEdges(vertex, srch_pred, path_vertices,
                        visited_vertices, fdbk_edges);
   }
   genclk_info->setFoundLatchFdbkEdges(true);
@@ -533,7 +486,6 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
 
 void
 Genclks::findLatchFdbkEdges(Vertex *from_vertex,
-                            Level gclk_level,
                             SearchPred &srch_pred,
                             VertexSet &path_vertices,
                             VertexSet &visited_vertices,
@@ -552,9 +504,8 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
         fdbk_edges.insert(edge);
       }
       else if (srch_pred.searchThru(edge, mode_)
-               && srch_pred.searchTo(to_vertex, mode_)
-               && to_vertex->level() <= gclk_level)
-        findLatchFdbkEdges(to_vertex, gclk_level, srch_pred, path_vertices,
+               && srch_pred.searchTo(to_vertex, mode_))
+        findLatchFdbkEdges(to_vertex, srch_pred, path_vertices,
                            visited_vertices, fdbk_edges);
     }
     path_vertices.erase(from_vertex);
@@ -781,8 +732,6 @@ Genclks::findSrcArrivals(Clock *gclk,
   GenClkArrivalSearchPred eval_pred(gclk, this);
   GenclkSrcArrivalVisitor arrival_visitor(gclk, genclk_info, insert_queue, mode_);
   arrival_visitor.init(true, false, &eval_pred);
-  // This cannot restrict the search level because loops in the clock tree
-  // can circle back to the generated clock src pin.
   // Parallel visit is slightly slower (at last check).
   while (!insert_queue.empty()) {
     Vertex *vertex = insert_queue.front();
