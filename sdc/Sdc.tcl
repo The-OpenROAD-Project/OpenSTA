@@ -48,14 +48,11 @@ Files compressed with gzip are automatically uncompressed.} \
     filename {SDC command file.}
   }
 
-# An .sdc file is a domain specific language that is almost tcl.  The
-# one reading it needs that tcl does not give is the bus subscript: in
-# foo[2] the brackets are part of a name, where tcl sees a command
-# substitution.  sta_unknown (tcl/Util.tcl) supplies that reading as the
-# global namespace's unknown handler.  It is installed here, for the
-# extent of read_sdc, and the previous handler is put back on the way
-# out, so the .sdc reading stays an implementation detail of read_sdc
-# and nothing outside it sees anything but stock tcl.
+# An .sdc file is a domain specific language that is almost tcl.
+# In signal names such as foo[2] the brackets are a subscript and
+# not a TCL command substitution.
+# The sta_unknown proc handles the evaluation error for numeric procedures
+# such as "[2]".
 proc sdc_unknown_begin {} {
   set prev [namespace eval :: { namespace unknown }]
   namespace eval :: { namespace unknown ::sta_unknown }
