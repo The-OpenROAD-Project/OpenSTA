@@ -48,6 +48,24 @@ Files compressed with gzip are automatically uncompressed.} \
     filename {SDC command file.}
   }
 
+# An .sdc file is a domain specific language that is almost tcl.  The
+# one reading it needs that tcl does not give is the bus subscript: in
+# foo[2] the brackets are part of a name, where tcl sees a command
+# substitution.  sta_unknown (tcl/Util.tcl) supplies that reading as the
+# global namespace's unknown handler.  It is installed here, for the
+# extent of read_sdc, and the previous handler is put back on the way
+# out, so the .sdc reading stays an implementation detail of read_sdc
+# and nothing outside it sees anything but stock tcl.
+proc sdc_unknown_begin {} {
+  set prev [namespace eval :: { namespace unknown }]
+  namespace eval :: { namespace unknown ::sta_unknown }
+  return $prev
+}
+
+proc sdc_unknown_end { prev } {
+  namespace eval :: [list namespace unknown $prev]
+}
+
 proc_redirect read_sdc {
   parse_key_args "read_sdc" args keys {-mode} flags {-echo}
 
@@ -55,19 +73,24 @@ proc_redirect read_sdc {
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
 
-  if { [info exists keys(-mode)] } {
-    set mode_name $keys(-mode)
-    set prev_mode [cmd_mode_name]
-    try {
-      set_cmd_mode $mode_name
-      include_file $filename $echo 0
-    } finally {
-      if { $prev_mode != "default" } {
-        set_cmd_mode $prev_mode
+  set prev_unknown [sdc_unknown_begin]
+  try {
+    if { [info exists keys(-mode)] } {
+      set mode_name $keys(-mode)
+      set prev_mode [cmd_mode_name]
+      try {
+        set_cmd_mode $mode_name
+        include_file $filename $echo 0
+      } finally {
+        if { $prev_mode != "default" } {
+          set_cmd_mode $prev_mode
+        }
       }
+    } else {
+      include_file $filename $echo 0
     }
-  } else {
-    include_file $filename $echo 0
+  } finally {
+    sdc_unknown_end $prev_unknown
   }
 }
 
