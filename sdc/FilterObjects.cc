@@ -603,7 +603,7 @@ filterExprToPostfix(std::string_view expr,
 AnalysisCornerSeq
 filterAnalysisCorners(std::string_view filter_expression,
                       AnalysisCornerSeq *corners,
-                      Sta *sta)
+                      StaState *sta)
 {
   return filterObjects<AnalysisCorner>(filter_expression, corners,
                                        [] (const AnalysisCorner *corner1,

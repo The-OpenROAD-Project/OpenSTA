@@ -50,7 +50,7 @@ purgeCornerClkRefs(const Mode *mode,
 AnalysisCornerSeq
 filterAnalysisCorners(std::string_view filter_expression,
                       AnalysisCornerSeq *corners,
-                      Sta *sta);
+                      StaState *sta);
 
 // Corner-overlay IO delay lookups (defined in search/AnalysisCorner.cc).
 // Override semantics are wholesale per pin: when a scene's corner overlay

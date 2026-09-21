@@ -1555,7 +1555,7 @@ TEST_F(StaDesignTest, SearchClkPathArrival2) {
 TEST_F(StaDesignTest, PropertyPinArrivalRf) {
   ASSERT_NO_THROW(( [&](){
   // Cover Properties::pinArrival(pin, rf, min_max)
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("r1/D");
   if (pin) {
     PropertyValue pv = props.getProperty(pin, "arrival_max_rise");
@@ -1570,7 +1570,7 @@ TEST_F(StaDesignTest, PropertyPinArrivalRf) {
 TEST_F(StaDesignTest, PropertyPinSlackMinMax) {
   ASSERT_NO_THROW(( [&](){
   // Cover Properties::pinSlack(pin, min_max)
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("r1/D");
   if (pin) {
     PropertyValue pv = props.getProperty(pin, "slack_max");
@@ -1585,7 +1585,7 @@ TEST_F(StaDesignTest, PropertyPinSlackMinMax) {
 TEST_F(StaDesignTest, PropertyPinSlackRf) {
   ASSERT_NO_THROW(( [&](){
   // Cover Properties::pinSlack(pin, rf, min_max)
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("r1/D");
   if (pin) {
     PropertyValue pv = props.getProperty(pin, "slack_max_rise");
@@ -1600,7 +1600,7 @@ TEST_F(StaDesignTest, PropertyPinSlackRf) {
 TEST_F(StaDesignTest, PropertyDelayPropertyValue) {
   ASSERT_NO_THROW(( [&](){
   // Cover Properties::delayPropertyValue, resistancePropertyValue, capacitancePropertyValue
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Graph *graph = sta_->graph();
   Vertex *v = findVertex("r1/D");
   if (v && graph) {
@@ -1618,7 +1618,7 @@ TEST_F(StaDesignTest, PropertyDelayPropertyValue) {
 TEST_F(StaDesignTest, PropertyGetCellAndLibrary) {
   ASSERT_NO_THROW(( [&](){
   // Cover PropertyRegistry<Cell*>::getProperty, PropertyRegistry<Library*>::getProperty
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Cell *cell = network->cell(top);
@@ -1637,7 +1637,7 @@ TEST_F(StaDesignTest, PropertyGetCellAndLibrary) {
 
 TEST_F(StaDesignTest, PropertyUnknownException) {
   // Cover PropertyUnknown constructor and what()
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("r1/D");
   if (pin) {
     try {
@@ -2881,7 +2881,7 @@ TEST_F(StaDesignTest, PropertyLibrary) {
   Network *network = sta_->cmdNetwork();
   Library *library = network->findLibrary("Nangate45");
   if (library) {
-    PropertyValue val = sta_->properties().getProperty(library, "name");
+    PropertyValue val = sta_->properties()->getProperty(library, "name");
     EXPECT_NE(val.type(), PropertyValue::Type::none);
   }
 
@@ -2897,7 +2897,7 @@ TEST_F(StaDesignTest, PropertyCell) {
     Instance *inst = iter->next();
     Cell *cell = network->cell(inst);
     if (cell) {
-      PropertyValue val = sta_->properties().getProperty(cell, "name");
+      PropertyValue val = sta_->properties()->getProperty(cell, "name");
       EXPECT_NE(val.type(), PropertyValue::Type::none);
     }
   }
@@ -2911,11 +2911,11 @@ TEST_F(StaDesignTest, PropertyClock) {
   Sdc *sdc = sta_->cmdSdc();
   Clock *clk = sdc->findClock("clk");
   if (clk) {
-    PropertyValue val = sta_->properties().getProperty(clk, "name");
+    PropertyValue val = sta_->properties()->getProperty(clk, "name");
     EXPECT_NE(val.type(), PropertyValue::Type::none);
-    PropertyValue val2 = sta_->properties().getProperty(clk, "period");
+    PropertyValue val2 = sta_->properties()->getProperty(clk, "period");
     EXPECT_NE(val2.type(), PropertyValue::Type::none);
-    PropertyValue val3 = sta_->properties().getProperty(clk, "sources");
+    PropertyValue val3 = sta_->properties()->getProperty(clk, "sources");
     EXPECT_NE(val3.type(), PropertyValue::Type::none);
   }
 
@@ -3370,9 +3370,9 @@ TEST_F(StaDesignTest, PropertyEdge) {
       VertexInEdgeIterator edge_iter(v, graph);
       if (edge_iter.hasNext()) {
         Edge *edge = edge_iter.next();
-        PropertyValue val = sta_->properties().getProperty(edge, "from_pin");
+        PropertyValue val = sta_->properties()->getProperty(edge, "from_pin");
         EXPECT_NE(val.type(), PropertyValue::Type::none);
-        PropertyValue val2 = sta_->properties().getProperty(edge, "sense");
+        PropertyValue val2 = sta_->properties()->getProperty(edge, "sense");
         EXPECT_NE(val2.type(), PropertyValue::Type::none);
       }
     }
@@ -3389,7 +3389,7 @@ TEST_F(StaDesignTest, PropertyNet) {
   NetIterator *net_iter = network->netIterator(top);
   if (net_iter->hasNext()) {
     Net *net = net_iter->next();
-    PropertyValue val = sta_->properties().getProperty(net, "name");
+    PropertyValue val = sta_->properties()->getProperty(net, "name");
     EXPECT_NE(val.type(), PropertyValue::Type::none);
   }
   delete net_iter;
@@ -3406,9 +3406,9 @@ TEST_F(StaDesignTest, PropertyPort) {
   if (out) {
     Port *port = network->port(out);
     if (port) {
-      PropertyValue val = sta_->properties().getProperty(port, "name");
+      PropertyValue val = sta_->properties()->getProperty(port, "name");
       EXPECT_NE(val.type(), PropertyValue::Type::none);
-      PropertyValue val2 = sta_->properties().getProperty(port, "direction");
+      PropertyValue val2 = sta_->properties()->getProperty(port, "direction");
       EXPECT_NE(val2.type(), PropertyValue::Type::none);
     }
   }
@@ -3426,9 +3426,9 @@ TEST_F(StaDesignTest, PropertyLibertyCell) {
     Instance *inst = iter->next();
     LibertyCell *lib_cell = network->libertyCell(inst);
     if (lib_cell) {
-      PropertyValue val = sta_->properties().getProperty(lib_cell, "name");
+      PropertyValue val = sta_->properties()->getProperty(lib_cell, "name");
       EXPECT_NE(val.type(), PropertyValue::Type::none);
-      PropertyValue val2 = sta_->properties().getProperty(lib_cell, "area");
+      PropertyValue val2 = sta_->properties()->getProperty(lib_cell, "area");
       EXPECT_NE(val2.type(), PropertyValue::Type::none);
     }
   }
@@ -3449,9 +3449,9 @@ TEST_F(StaDesignTest, PropertyLibertyPort) {
       LibertyCellPortIterator port_iter(lib_cell);
       if (port_iter.hasNext()) {
         LibertyPort *port = port_iter.next();
-        PropertyValue val = sta_->properties().getProperty(port, "name");
+        PropertyValue val = sta_->properties()->getProperty(port, "name");
         EXPECT_NE(val.type(), PropertyValue::Type::none);
-        PropertyValue val2 = sta_->properties().getProperty(port, "direction");
+        PropertyValue val2 = sta_->properties()->getProperty(port, "direction");
         EXPECT_NE(val2.type(), PropertyValue::Type::none);
       }
     }
@@ -3467,7 +3467,7 @@ TEST_F(StaDesignTest, PropertyLibertyLibrary) {
   LibertyLibraryIterator *lib_iter = network->libertyLibraryIterator();
   if (lib_iter->hasNext()) {
     LibertyLibrary *lib = lib_iter->next();
-    PropertyValue val = sta_->properties().getProperty(lib, "name");
+    PropertyValue val = sta_->properties()->getProperty(lib, "name");
     EXPECT_NE(val.type(), PropertyValue::Type::none);
   }
   delete lib_iter;
@@ -3483,7 +3483,7 @@ TEST_F(StaDesignTest, PropertyInstance) {
   InstanceChildIterator *iter = network->childIterator(top);
   if (iter->hasNext()) {
     Instance *inst = iter->next();
-    PropertyValue val = sta_->properties().getProperty(inst, "name");
+    PropertyValue val = sta_->properties()->getProperty(inst, "name");
     EXPECT_NE(val.type(), PropertyValue::Type::none);
   }
 
@@ -3501,7 +3501,7 @@ TEST_F(StaDesignTest, PropertyTimingArcSet) {
     LibertyCell *lib_cell = network->libertyCell(inst);
     if (lib_cell) {
       for (TimingArcSet *arc_set : lib_cell->timingArcSets()) {
-        PropertyValue val = sta_->properties().getProperty(arc_set, "name");
+        PropertyValue val = sta_->properties()->getProperty(arc_set, "name");
         EXPECT_NE(val.type(), PropertyValue::Type::none);
         break;  // just test one
       }
@@ -3522,11 +3522,11 @@ TEST_F(StaDesignTest, PropertyPathEnd) {
     true, false, false, false, false, false);
   for (const auto &end : ends) {
     if (end) {
-      PropertyValue val = sta_->properties().getProperty(end, "startpoint");
+      PropertyValue val = sta_->properties()->getProperty(end, "startpoint");
       EXPECT_NE(val.type(), PropertyValue::Type::none);
-      PropertyValue val2 = sta_->properties().getProperty(end, "endpoint");
+      PropertyValue val2 = sta_->properties()->getProperty(end, "endpoint");
       EXPECT_NE(val2.type(), PropertyValue::Type::none);
-      PropertyValue val3 = sta_->properties().getProperty(end, "slack");
+      PropertyValue val3 = sta_->properties()->getProperty(end, "slack");
       EXPECT_NE(val3.type(), PropertyValue::Type::none);
       break;  // just test one
     }
@@ -3548,9 +3548,9 @@ TEST_F(StaDesignTest, PropertyPath) {
     if (end) {
       Path *path = end->path();
       if (path) {
-        PropertyValue val = sta_->properties().getProperty(path, "pin");
+        PropertyValue val = sta_->properties()->getProperty(path, "pin");
         EXPECT_NE(val.type(), PropertyValue::Type::none);
-        PropertyValue val2 = sta_->properties().getProperty(path, "arrival");
+        PropertyValue val2 = sta_->properties()->getProperty(path, "arrival");
         EXPECT_NE(val2.type(), PropertyValue::Type::none);
       }
       break;
@@ -3572,29 +3572,29 @@ TEST_F(StaDesignTest, PropertiesGetPropertyPin) {
   Pin *out = network->findPin(top, "out");
   if (out) {
     // These trigger pinArrival internally
-    PropertyValue val_arr = sta_->properties().getProperty(out, "arrival_max_rise");
+    PropertyValue val_arr = sta_->properties()->getProperty(out, "arrival_max_rise");
     EXPECT_NE(val_arr.type(), PropertyValue::Type::none);
-    PropertyValue val_arr2 = sta_->properties().getProperty(out, "arrival_max_fall");
+    PropertyValue val_arr2 = sta_->properties()->getProperty(out, "arrival_max_fall");
     EXPECT_NE(val_arr2.type(), PropertyValue::Type::none);
-    PropertyValue val_arr3 = sta_->properties().getProperty(out, "arrival_min_rise");
+    PropertyValue val_arr3 = sta_->properties()->getProperty(out, "arrival_min_rise");
     EXPECT_NE(val_arr3.type(), PropertyValue::Type::none);
-    PropertyValue val_arr4 = sta_->properties().getProperty(out, "arrival_min_fall");
+    PropertyValue val_arr4 = sta_->properties()->getProperty(out, "arrival_min_fall");
     EXPECT_NE(val_arr4.type(), PropertyValue::Type::none);
     // These trigger pinSlack internally
-    PropertyValue val_slk = sta_->properties().getProperty(out, "slack_max");
+    PropertyValue val_slk = sta_->properties()->getProperty(out, "slack_max");
     EXPECT_NE(val_slk.type(), PropertyValue::Type::none);
-    PropertyValue val_slk2 = sta_->properties().getProperty(out, "slack_max_rise");
+    PropertyValue val_slk2 = sta_->properties()->getProperty(out, "slack_max_rise");
     EXPECT_NE(val_slk2.type(), PropertyValue::Type::none);
-    PropertyValue val_slk3 = sta_->properties().getProperty(out, "slack_max_fall");
+    PropertyValue val_slk3 = sta_->properties()->getProperty(out, "slack_max_fall");
     EXPECT_NE(val_slk3.type(), PropertyValue::Type::none);
-    PropertyValue val_slk4 = sta_->properties().getProperty(out, "slack_min");
+    PropertyValue val_slk4 = sta_->properties()->getProperty(out, "slack_min");
     EXPECT_NE(val_slk4.type(), PropertyValue::Type::none);
-    PropertyValue val_slk5 = sta_->properties().getProperty(out, "slack_min_rise");
+    PropertyValue val_slk5 = sta_->properties()->getProperty(out, "slack_min_rise");
     EXPECT_NE(val_slk5.type(), PropertyValue::Type::none);
-    PropertyValue val_slk6 = sta_->properties().getProperty(out, "slack_min_fall");
+    PropertyValue val_slk6 = sta_->properties()->getProperty(out, "slack_min_fall");
     EXPECT_NE(val_slk6.type(), PropertyValue::Type::none);
     // Slew
-    PropertyValue val_slew = sta_->properties().getProperty(out, "slew_max");
+    PropertyValue val_slew = sta_->properties()->getProperty(out, "slew_max");
     EXPECT_NE(val_slew.type(), PropertyValue::Type::none);
   }
 
@@ -3611,7 +3611,7 @@ TEST_F(StaDesignTest, PropertiesGetPropertyCell) {
     Instance *inst = iter->next();
     Cell *cell = network->cell(inst);
     if (cell) {
-      PropertyValue val = sta_->properties().getProperty(cell, "name");
+      PropertyValue val = sta_->properties()->getProperty(cell, "name");
       EXPECT_NE(val.type(), PropertyValue::Type::none);
     }
   }
@@ -3625,7 +3625,7 @@ TEST_F(StaDesignTest, PropertiesGetPropertyLibrary) {
   Network *network = sta_->cmdNetwork();
   Library *lib = network->findLibrary("Nangate45_typ");
   if (lib) {
-    PropertyValue val = sta_->properties().getProperty(lib, "name");
+    PropertyValue val = sta_->properties()->getProperty(lib, "name");
     EXPECT_NE(val.type(), PropertyValue::Type::none);
   }
 
@@ -3640,7 +3640,7 @@ TEST_F(StaDesignTest, PropertyUnknown) {
   Pin *out = network->findPin(top, "out");
   if (out) {
     try {
-      PropertyValue val = sta_->properties().getProperty(out, "nonexistent_prop");
+      PropertyValue val = sta_->properties()->getProperty(out, "nonexistent_prop");
       EXPECT_EQ(val.type(), PropertyValue::Type::none);
     } catch (std::exception &e) {
       // Expected PropertyUnknown exception
