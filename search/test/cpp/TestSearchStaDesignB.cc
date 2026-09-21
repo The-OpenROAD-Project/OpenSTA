@@ -4427,4 +4427,176 @@ TEST_F(StaDesignTest, WorstSlackVertex) {
   }() ));
 }
 
+////////////////////////////////////////////////////////////////
+// User properties on cells and instances.
+//
+// Replaces the network attribute coverage (ConcreteCell/ConcreteNetwork/
+// SdcNetwork get/setAttribute and attributeMap) dropped when upstream moved
+// verilog attributes into Properties ("use properties for verilog
+// attributes"). The storage is keyed by object pointer and object type
+// rather than by network, so these live here, where an Sta exists to own
+// the property table.
+
+static Instance *
+firstChildInstance(Network *network)
+{
+  Instance *top = network->topInstance();
+  InstanceChildIterator *iter = network->childIterator(top);
+  Instance *child = iter->hasNext() ? iter->next() : nullptr;
+  delete iter;
+  return child;
+}
+
+static Cell *
+firstChildCell(Network *network)
+{
+  Instance *inst = firstChildInstance(network);
+  return inst ? network->cell(inst) : nullptr;
+}
+
+// Set then read back a cell property.
+TEST_F(StaDesignTest, UserPropertyCellSetGet) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Cell *cell = firstChildCell(network);
+  ASSERT_NE(cell, nullptr);
+
+  props->defineProperty<Cell>("cell", "area_attr", "string");
+  props->setProperty(cell, "cell", "area_attr", "1.5");
+  EXPECT_EQ(props->stringProperty(cell, "area_attr"), "1.5");
+}
+
+// A declared property never set on the object reads back empty, and an
+// undeclared name reads back empty rather than throwing.
+TEST_F(StaDesignTest, UserPropertyCellUnset) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Cell *cell = firstChildCell(network);
+  ASSERT_NE(cell, nullptr);
+
+  props->defineProperty<Cell>("cell", "declared_only", "string");
+  EXPECT_EQ(props->stringProperty(cell, "declared_only"), "");
+  EXPECT_EQ(props->stringProperty(cell, "nonexistent"), "");
+}
+
+// Several properties coexist on one cell without aliasing.
+TEST_F(StaDesignTest, UserPropertyCellMultiple) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Cell *cell = firstChildCell(network);
+  ASSERT_NE(cell, nullptr);
+
+  props->defineProperty<Cell>("cell", "k1", "string");
+  props->defineProperty<Cell>("cell", "k2", "string");
+  props->setProperty(cell, "cell", "k1", "v1");
+  props->setProperty(cell, "cell", "k2", "v2");
+  EXPECT_EQ(props->stringProperty(cell, "k1"), "v1");
+  EXPECT_EQ(props->stringProperty(cell, "k2"), "v2");
+}
+
+// Set then read back an instance property, the shape read_verilog uses for
+// the yosys "src" and "dont_touch" attributes.
+TEST_F(StaDesignTest, UserPropertyInstanceSetGet) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Instance *inst = firstChildInstance(network);
+  ASSERT_NE(inst, nullptr);
+
+  props->defineProperty<Instance>("instance", "src", "string");
+  props->setProperty(inst, "instance", "src", "design.v:15.3-15.47");
+  EXPECT_EQ(props->stringProperty(inst, "src"), "design.v:15.3-15.47");
+  EXPECT_EQ(props->stringProperty(inst, "dont_touch"), "");
+}
+
+// Values are per object: setting one instance does not touch its siblings.
+TEST_F(StaDesignTest, UserPropertyInstanceIsPerObject) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Instance *top = network->topInstance();
+  InstanceChildIterator *iter = network->childIterator(top);
+  ASSERT_TRUE(iter->hasNext());
+  Instance *inst1 = iter->next();
+  ASSERT_TRUE(iter->hasNext());
+  Instance *inst2 = iter->next();
+  delete iter;
+  ASSERT_NE(inst1, inst2);
+
+  props->defineProperty<Instance>("instance", "dont_touch", "string");
+  props->setProperty(inst1, "instance", "dont_touch", "1");
+  EXPECT_EQ(props->stringProperty(inst1, "dont_touch"), "1");
+  EXPECT_EQ(props->stringProperty(inst2, "dont_touch"), "");
+}
+
+// isUserProperty reports only declared names, and is scoped per object type.
+TEST_F(StaDesignTest, UserPropertyIsUserProperty) {
+  Properties *props = sta_->properties();
+
+  EXPECT_FALSE(props->isUserProperty("instance", "src"));
+  props->defineProperty<Instance>("instance", "src", "string");
+  EXPECT_TRUE(props->isUserProperty("instance", "src"));
+  // Declared on instances, not on cells.
+  EXPECT_FALSE(props->isUserProperty("cell", "src"));
+}
+
+// The property table belongs to the Sta, not to a network wrapper: a value
+// set through one network is visible through the other. This is what the
+// deleted SdcNetwork attribute-forwarding tests covered.
+TEST_F(StaDesignTest, UserPropertyVisibleThroughBothNetworks) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->network();
+  Network *cmd_network = sta_->cmdNetwork();
+  Instance *inst = firstChildInstance(network);
+  ASSERT_NE(inst, nullptr);
+  // The adapter delegates rather than wrapping, so the handle is the same.
+  Instance *cmd_inst = cmd_network->findInstance(network->pathName(inst));
+  ASSERT_EQ(cmd_inst, inst);
+
+  props->defineProperty<Instance>("instance", "src", "string");
+  props->setProperty(inst, "instance", "src", "design.v:1.1-1.2");
+  EXPECT_EQ(props->stringProperty(cmd_inst, "src"), "design.v:1.1-1.2");
+}
+
+// stringProperty is a string accessor: a property declared with another
+// value type reads back empty through it, and keeps its own type through
+// getProperty.
+TEST_F(StaDesignTest, UserPropertyNonStringType) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Cell *cell = firstChildCell(network);
+  ASSERT_NE(cell, nullptr);
+
+  props->defineProperty<Cell>("cell", "area_f", "float");
+  props->setProperty(cell, "cell", "area_f", "1.5");
+  EXPECT_EQ(props->stringProperty(cell, "area_f"), "");
+  PropertyValue value = props->getProperty(cell, "area_f");
+  EXPECT_EQ(value.type(), PropertyValue::Type::float_);
+}
+
+// clearUserPropertyValues drops stored values but keeps declarations, so a
+// property stays defined across a netlist re-read.
+TEST_F(StaDesignTest, UserPropertyClearValues) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Cell *cell = firstChildCell(network);
+  ASSERT_NE(cell, nullptr);
+
+  props->defineProperty<Cell>("cell", "keep_me", "string");
+  props->setProperty(cell, "cell", "keep_me", "v");
+  ASSERT_EQ(props->stringProperty(cell, "keep_me"), "v");
+
+  props->clearUserPropertyValues();
+  EXPECT_TRUE(props->isUserProperty("cell", "keep_me"));
+  EXPECT_EQ(props->stringProperty(cell, "keep_me"), "");
+}
+
+// Setting a property that was never declared is an error (STA-2211).
+TEST_F(StaDesignTest, UserPropertySetUndeclared) {
+  Properties *props = sta_->properties();
+  Network *network = sta_->cmdNetwork();
+  Cell *cell = firstChildCell(network);
+  ASSERT_NE(cell, nullptr);
+
+  EXPECT_ANY_THROW(props->setProperty(cell, "cell", "undeclared", "v"));
+}
+
 } // namespace sta
