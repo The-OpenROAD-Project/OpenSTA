@@ -1,17 +1,16 @@
 # verilog attribute parse/access via properties
-read_liberty ../examples/sky130hd_tt.lib.gz
+read_liberty ../examples/asap7_small_ss.lib.gz
 read_verilog verilog_attribute.v
 link_design counter
 create_clock -name clk [get_ports clk] -period 50
 
-set instance [sta::top_instance]
-set cell [$instance cell]
-set cell_name [$cell name]
-set src_location [get_property $cell src]
-puts "top_instance:\"$cell_name\" attribute \"src\" = $src_location"
+set top_inst [sta::top_instance]
+set top_cell [$top_inst cell]
+set src_location [get_property $top_cell "src"]
+puts "top_cell: attribute \"src\" = $src_location"
 
 set instance_name "_1415_"
-set inst [sta::find_instance $instance_name]
+set inst [get_cell $instance_name]
 set instance_src_location [get_property $inst src]
 set instance_attr1 [get_property $inst attr1]
 set instance_attr2 [get_property $inst attr2]

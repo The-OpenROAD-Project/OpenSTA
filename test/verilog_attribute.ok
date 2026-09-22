@@ -1,4 +1,4 @@
-top_instance:"counter" attribute "src" = synthesis/tests/counter.v:16.1-32.10
+top_cell: attribute "src" = synthesis/tests/counter.v:16.1-32.10
 instance: _1415_ attribute "src" = synthesis/tests/counter.v:22.3-28.6
 instance: _1415_ attribute "attr1" = test_attr1
 instance: _1415_ attribute "attr2" = test_attr2
@@ -12,21 +12,21 @@ Path Type: max
 -------------------------------------------------------------------------------------------------
    0.00    0.00   clock clk (rise edge)
    0.00    0.00   clock network delay (ideal)
-   0.00    0.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1) synthesis/tests/counter.v:22.3-28.6
-   0.33    0.33 v _1415_/Q (sky130_fd_sc_hd__dfrtp_1)  synthesis/tests/counter.v:25.5-25.10
-   0.00    0.33 v _1416_[0]/D (sky130_fd_sc_hd__dfrtp_1) synthesis/tests/counter.v:22.3-28.6
-           0.33   data arrival time
+   0.00    0.00 ^ _1415_/CLK (DFFHQx4_ASAP7_75t_R)     synthesis/tests/counter.v:22.3-28.6
+  99.31   99.31 ^ _1415_/Q (DFFHQx4_ASAP7_75t_R)       synthesis/tests/counter.v:25.5-25.10
+   0.00   99.31 ^ _1416_[0]/D (DFFHQx4_ASAP7_75t_R)    synthesis/tests/counter.v:22.3-28.6
+          99.31   data arrival time
 
   50.00   50.00   clock clk (rise edge)
    0.00   50.00   clock network delay (ideal)
    0.00   50.00   clock reconvergence pessimism
-          50.00 ^ _1416_[0]/CLK (sky130_fd_sc_hd__dfrtp_1)
-  -0.12   49.88   library setup time
-          49.88   data required time
+          50.00 ^ _1416_[0]/CLK (DFFHQx4_ASAP7_75t_R)
+ -19.33   30.67   library setup time
+          30.67   data required time
 -------------------------------------------------------------------------------------------------
-          49.88   data required time
-          -0.33   data arrival time
+          30.67   data required time
+         -99.31   data arrival time
 -------------------------------------------------------------------------------------------------
-          49.55   slack (MET)
+         -68.64   slack (VIOLATED)
 
 

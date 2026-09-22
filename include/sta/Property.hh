@@ -53,7 +53,7 @@ public:
   PropertyValue getProperty(TYPE object,
                             std::string_view property,
                             std::string_view type_name,
-                            Sta *sta);
+                            Sta *sta) const;
 
 private:
   std::map<std::string, PropertyHandler, std::less<>> registry_;
@@ -254,7 +254,8 @@ public:
                    std::string_view property,
                    std::string_view value);
 
-  // String user property value, or empty if undeclared / unset / not string.
+  // User string property value, or empty if undeclared, unset, or not a string.
+  // These accessors are specifically used for verilog attributes.
   std::string stringProperty(const Cell *cell,
                              std::string_view property) const;
   std::string stringProperty(const Instance *inst,
