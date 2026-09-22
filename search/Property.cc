@@ -1570,11 +1570,12 @@ std::string
 Properties::stringProperty(const Cell *cell,
                            std::string_view property) const
 {
-  if (!isUserProperty("cell", property))
-    return {};
-  PropertyValue value = const_cast<Properties*>(this)->getProperty(cell, property);
-  if (value.type() == PropertyValue::Type::string)
-    return value.stringValue();
+  if (isUserProperty("cell", property)) {
+    PropertyValue value = registry_cell_.getProperty(cell, property,
+                                                     "cell", sta_);
+    if (value.type() == PropertyValue::Type::string)
+      return value.stringValue();
+  }
   return {};
 }
 
@@ -1582,11 +1583,12 @@ std::string
 Properties::stringProperty(const Instance *inst,
                            std::string_view property) const
 {
-  if (!isUserProperty("instance", property))
-    return {};
-  PropertyValue value = const_cast<Properties*>(this)->getProperty(inst, property);
-  if (value.type() == PropertyValue::Type::string)
-    return value.stringValue();
+  if (isUserProperty("instance", property)) {
+    PropertyValue value = registry_instance_.getProperty(inst, property,
+                                                         "instance", sta_);
+    if (value.type() == PropertyValue::Type::string)
+      return value.stringValue();
+  }
   return {};
 }
 
@@ -1594,11 +1596,11 @@ std::string
 Properties::stringProperty(const Pin *pin,
                            std::string_view property) const
 {
-  if (!isUserProperty("pin", property))
-    return {};
-  PropertyValue value = const_cast<Properties*>(this)->getProperty(pin, property);
-  if (value.type() == PropertyValue::Type::string)
-    return value.stringValue();
+  if (isUserProperty("pin", property)) {
+    PropertyValue value = registry_pin_.getProperty(pin, property, "pin", sta_);
+    if (value.type() == PropertyValue::Type::string)
+      return value.stringValue();
+  }
   return {};
 }
 
@@ -1615,7 +1617,7 @@ PropertyValue
 PropertyRegistry<TYPE>::getProperty(TYPE object,
                                     std::string_view property,
                                     std::string_view type_name,
-                                    Sta *sta)
+                                    Sta *sta) const
 
 {
   auto itr = registry_.find(property);

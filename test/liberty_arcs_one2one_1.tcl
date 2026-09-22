@@ -6,6 +6,6 @@ create_clock -name clk -period 0
 set_input_delay -clock clk 0 [all_inputs]
 set_output_delay -clock clk 0 [all_outputs]
 for {set i 0} {$i < 8} {incr i} {
-    puts "report_edges -from partial_wide_inv_cell/A[$i]"
-    report_edges -from partial_wide_inv_cell/A[$i]
+    puts "report_edges -from partial_wide_inv_cell/A\[$i\]"
+    report_edges -from "partial_wide_inv_cell/A\[$i\]"
 }
