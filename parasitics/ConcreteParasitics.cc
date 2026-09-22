@@ -25,7 +25,7 @@
 #include "ConcreteParasitics.hh"
 
 #include <algorithm> // max
-#include <atomic>
+#include <atomic> // OpenROAD fork: parasitics lookup cache
 
 #include "ConcreteParasiticsPvt.hh"
 #include "Debug.hh"
@@ -45,6 +45,53 @@
 // inheritance graph (ConcreteParasitic only included once).
 
 namespace sta {
+
+// ---- OpenROAD fork: parasitics lookup cache (begin) ----
+// findParasitic looks up the same driver pin once per rise/fall per min/max,
+// back to back on one thread. Each thread remembers its last hit so the
+// repeats skip lock_. Misses are not remembered, since a later insert would
+// make them stale. A remembered row survives inserts and rehash but not
+// erasure, so every erase bumps the global erase count (global, so a
+// ConcreteParasitics reallocated at a freed one's address cannot match).
+// Relies on each driver pin being visited by one thread during delay calc.
+namespace {
+
+alignas(64) std::atomic<uint64_t> drvr_parasitics_erase_count{0};
+
+struct DrvrParasiticsHit
+{
+  const ConcreteParasitics *owner = nullptr;
+  const Pin *drvr_pin = nullptr;
+  const MinMaxRiseFallParasitics *parasitics = nullptr;
+  uint64_t erase_count = 0;
+};
+
+thread_local DrvrParasiticsHit last_drvr_parasitics_hit;
+
+const MinMaxRiseFallParasitics *
+findDrvrParasitics(const ConcreteParasitics *owner,
+                   const ConcreteParasiticMap &drvr_parasitic_map,
+                   std::mutex &lock,
+                   const Pin *drvr_pin)
+{
+  DrvrParasiticsHit &hit = last_drvr_parasitics_hit;
+  uint64_t erase_count =
+    drvr_parasitics_erase_count.load(std::memory_order_relaxed);
+  if (hit.owner == owner
+      && hit.drvr_pin == drvr_pin
+      && hit.erase_count == erase_count)
+    return hit.parasitics;
+
+  LockGuard guard(lock);
+  auto itr = drvr_parasitic_map.find(drvr_pin);
+  if (itr == drvr_parasitic_map.end())
+    return nullptr;
+  hit = {owner, drvr_pin, &itr->second, erase_count};
+  return hit.parasitics;
+}
+
+}  // namespace
+// ---- OpenROAD fork: parasitics lookup cache (end) ----
 
 bool
 ConcreteParasitic::isPiElmore() const
@@ -783,7 +830,9 @@ ConcreteParasitics::deleteParasiticsImpl()
       delete parasitics[i];
   }
   drvr_parasitic_map_.clear();
-  map_generation_.fetch_add(1, std::memory_order_release);
+  // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+  drvr_parasitics_erase_count.fetch_add(1, std::memory_order_relaxed);
+  // ---- OpenROAD fork: parasitics lookup cache (end) ----
 
   parasitic_network_map_.clear();
 }
@@ -797,7 +846,9 @@ ConcreteParasitics::deleteParasitics(const Pin *drvr_pin)
     for (size_t i = 0; i < min_max_rise_fall_count; i++)
       delete parasitics[i];
     drvr_parasitic_map_.erase(itr);
-    map_generation_.fetch_add(1, std::memory_order_release);
+    // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+    drvr_parasitics_erase_count.fetch_add(1, std::memory_order_relaxed);
+    // ---- OpenROAD fork: parasitics lookup cache (end) ----
   }
 }
 
@@ -910,68 +961,18 @@ minMaxRiseFallIndex(const MinMax *min_max,
   return min_max->index() * RiseFall::index_count + rf->index();
 }
 
-// Per-thread record of the last driver pin looked up in drvr_parasitic_map_.
-// The map is keyed on the driver pin alone, and findParasitic asks for the same
-// pin once per rise/fall per min/max, so remembering the last one skips most of
-// the lookups and the lock with them.
-//
-// Both std::map and std::unordered_map are node based, so the recorded pointer
-// survives rehash. It does not survive erasure, and the record outlives the
-// phase that created it, so map_generation_ detects that across phases.
-namespace {
-
-struct LastDrvrLookup
-{
-  const ConcreteParasitics *owner = nullptr;
-  const Pin *pin = nullptr;
-  const MinMaxRiseFallParasitics *slots = nullptr;
-  uint64_t generation = 0;
-};
-
-thread_local LastDrvrLookup last_drvr_lookup;
-
-}  // namespace
-
-// Returns the parasitic slots for drvr_pin, or null if it has none, consulting
-// the per-thread record before taking lock_.
-const MinMaxRiseFallParasitics *
-ConcreteParasitics::lookupDrvrParasitics(const Pin *drvr_pin) const
-{
-  uint64_t generation = map_generation_.load(std::memory_order_relaxed);
-  if (last_drvr_lookup.owner == this
-      && last_drvr_lookup.pin == drvr_pin
-      && last_drvr_lookup.generation == generation)
-    return last_drvr_lookup.slots;
-
-  const MinMaxRiseFallParasitics *slots = nullptr;
-  {
-    LockGuard lock(lock_);
-    auto itr = drvr_parasitic_map_.find(drvr_pin);
-    if (itr != drvr_parasitic_map_.end())
-      slots = &itr->second;
-  }
-  last_drvr_lookup = {this, drvr_pin, slots, generation};
-  return slots;
-}
-
-// Records slots for drvr_pin, which the make* functions call after inserting so
-// a miss recorded moments earlier is replaced rather than left stale.
-void
-ConcreteParasitics::noteDrvrParasitics(const Pin *drvr_pin,
-                                       const MinMaxRiseFallParasitics *slots) const
-{
-  last_drvr_lookup = {this, drvr_pin, slots,
-                      map_generation_.load(std::memory_order_relaxed)};
-}
-
 Parasitic *
 ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
                                  const RiseFall *rf,
                                  const MinMax *min_max) const
 {
-  const MinMaxRiseFallParasitics *slots = lookupDrvrParasitics(drvr_pin);
-  if (slots) {
-    ConcreteParasitic *parasitic = (*slots)[minMaxRiseFallIndex(min_max, rf)];
+  // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+  const MinMaxRiseFallParasitics *drvr_parasitics =
+    findDrvrParasitics(this, drvr_parasitic_map_, lock_, drvr_pin);
+  if (drvr_parasitics) {
+    const MinMaxRiseFallParasitics &parasitics = *drvr_parasitics;
+  // ---- OpenROAD fork: parasitics lookup cache (end) ----
+    ConcreteParasitic *parasitic = parasitics[minMaxRiseFallIndex(min_max, rf)];
     if (parasitic && parasitic->isPiElmore())
       return parasitic;
   }
@@ -990,10 +991,9 @@ ConcreteParasitics::makePiElmore(const Pin *drvr_pin,
   auto itr = drvr_parasitic_map_.find(drvr_pin);
   ConcretePiElmore *pi_elmore = nullptr;
   size_t mm_rf_index = minMaxRiseFallIndex(min_max, rf);
-  MinMaxRiseFallParasitics *slots = nullptr;
   if (itr != drvr_parasitic_map_.end()) {
-    slots = &itr->second;
-    ConcreteParasitic *parasitic = (*slots)[mm_rf_index];
+    MinMaxRiseFallParasitics &parasitics = itr->second;
+    ConcreteParasitic *parasitic = parasitics[mm_rf_index];
     if (parasitic && parasitic->isPiElmore()) {
       pi_elmore = dynamic_cast<ConcretePiElmore*>(parasitic);
       pi_elmore->setPiModel(c2, rpi, c1);
@@ -1002,17 +1002,16 @@ ConcreteParasitics::makePiElmore(const Pin *drvr_pin,
     else {
       delete parasitic;
       pi_elmore = new ConcretePiElmore(c2, rpi, c1);
-      (*slots)[mm_rf_index] = pi_elmore;
+      parasitics[mm_rf_index] = pi_elmore;
     }
   }
   else {
-    slots = &drvr_parasitic_map_[drvr_pin];
+    MinMaxRiseFallParasitics &parasitics = drvr_parasitic_map_[drvr_pin];
     for (size_t i = 0; i < min_max_rise_fall_count; i++)
-      (*slots)[i] = nullptr;
+      parasitics[i] = nullptr;
     pi_elmore = new ConcretePiElmore(c2, rpi, c1);
-    (*slots)[mm_rf_index] = pi_elmore;
+    parasitics[mm_rf_index] = pi_elmore;
   }
-  noteDrvrParasitics(drvr_pin, slots);
   return pi_elmore;
 }
 
@@ -1086,9 +1085,14 @@ ConcreteParasitics::findPiPoleResidue(const Pin *drvr_pin,
                                       const RiseFall *rf,
                                       const MinMax *min_max) const
 {
-  const MinMaxRiseFallParasitics *slots = lookupDrvrParasitics(drvr_pin);
-  if (slots) {
-    ConcreteParasitic *parasitic = (*slots)[minMaxRiseFallIndex(min_max, rf)];
+  // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+  const MinMaxRiseFallParasitics *drvr_parasitics =
+    findDrvrParasitics(this, drvr_parasitic_map_, lock_, drvr_pin);
+  if (drvr_parasitics) {
+    const MinMaxRiseFallParasitics &parasitics = *drvr_parasitics;
+  // ---- OpenROAD fork: parasitics lookup cache (end) ----
+    size_t mm_rf_index = minMaxRiseFallIndex(min_max, rf);
+    ConcreteParasitic *parasitic = parasitics[mm_rf_index];
     if (parasitic && parasitic->isPiPoleResidue())
       return parasitic;
   }
@@ -1230,9 +1234,9 @@ ConcreteParasitics::makeParasiticNetwork(const Net *net,
     for (const Pin *drvr_pin : *network_->drivers(net))
       deleteParasitics(drvr_pin);
   }
-  return &parasitic_network_map_.emplace(net,
-                                         ConcreteParasiticNetwork(net, includes_pin_caps,
-                                                                  network_)).first->second;
+  parasitic_network_map_.emplace(net, ConcreteParasiticNetwork(net, includes_pin_caps,
+                                                               network_));
+  return &parasitic_network_map_.find(net)->second;
 }
 
 void
