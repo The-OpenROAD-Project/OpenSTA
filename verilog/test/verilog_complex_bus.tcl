@@ -178,10 +178,10 @@ foreach net {stage1[0] stage1[7] stage2[0] stage2[7] internal_carry internal_ove
 #---------------------------------------------------------------
 puts "--- Test 8: fanin/fanout ---"
 set fi [get_fanin -to [get_ports {result[0]}] -flat]
-puts "fanin to result[0]: [llength $fi]"
+puts "fanin to result\[0\]: [llength $fi]"
 
 set fo [get_fanout -from [get_ports {data_a[0]}] -flat]
-puts "fanout from data_a[0]: [llength $fo]"
+puts "fanout from data_a\[0\]: [llength $fo]"
 
 set fi_cells [get_fanin -to [get_ports carry] -only_cells]
 puts "fanin cells to carry: [llength $fi_cells]"

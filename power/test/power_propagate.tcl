@@ -103,9 +103,9 @@ report_power
 unset_power_activity -input
 
 # Set per-port activity
-set_power_activity -input_ports [get_ports req_msg[0]] -activity 0.8 -duty 0.5
+set_power_activity -input_ports [get_ports {req_msg[0]}] -activity 0.8 -duty 0.5
 report_power
-unset_power_activity -input_ports [get_ports req_msg[0]]
+unset_power_activity -input_ports [get_ports {req_msg[0]}]
 
 # Set per-pin activity
 set clk_pins [get_pins */CLK]
