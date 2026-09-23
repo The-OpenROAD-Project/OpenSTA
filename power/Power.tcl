@@ -318,7 +318,7 @@ proc read_vcd { args } {
     set scope $keys(-scope)
   }
   set mode [parse_mode keys]
-  set begin_time $sta::vcd_null_time
+  set begin_time $::sta::vcd_null_time
   if { [info exists keys(-begin_time)] } {
     set begin_time $keys(-begin_time)
   }
