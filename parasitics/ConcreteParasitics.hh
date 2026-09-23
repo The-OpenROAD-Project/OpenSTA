@@ -30,6 +30,7 @@
 #include <string>
 #include <unordered_map> // OpenROAD fork: parasitics lookup cache
 
+#include "ConcreteParasiticsPvt.hh" // OpenROAD fork: parasitics lookup cache
 #include "MinMax.hh"
 #include "Parasitics.hh"
 
@@ -47,8 +48,8 @@ using MinMaxRiseFallParasitics = std::array<ConcreteParasitic*, min_max_rise_fal
 // ---- OpenROAD fork: parasitics lookup cache (begin) ----
 // Hashed: looked up under lock_ on the multithreaded delay calc path.
 using ConcreteParasiticMap = std::unordered_map<const Pin*, MinMaxRiseFallParasitics>;
+using ConcreteParasiticNetworkMap = std::unordered_map<const Net*, ConcreteParasiticNetwork>;
 // ---- OpenROAD fork: parasitics lookup cache (end) ----
-using ConcreteParasiticNetworkMap = std::map<const Net*, ConcreteParasiticNetwork>;
 
 // This class acts as a BUILDER for parasitics.
 class ConcreteParasitics : public Parasitics
