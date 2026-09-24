@@ -7,11 +7,11 @@ See [API changes](ApiChanges.md) for changes to the STA API.
 
 In a future release the TCL command interpreter will not support
 unquoted signal bus names such as foo[2] or command abbreviation.
-Both issue warnings now. Use {} bracketEs around the bus name to
+Both issue warnings now. Use {} braces around the bus name to
 suppress warnings.
 
 The read_sdc continues to support subscripted bus names.
-Command abbreviation issues a warniing.
+Command abbreviation issues a warning.
 
 ## 2026/09/04
 
