@@ -3,12 +3,15 @@
 This file summarizes user visible changes for each release.
 See [API changes](ApiChanges.md) for changes to the STA API.
 
-## 2026/09/20
+## 2026/09/24
 
-The TCL command interpreter no longer supports unquoted signal bus names
-such as foo[2]. Enclose the signal name in brackets to prevent command
-substitution for the subscript, as in {foo[2]}. The read_sdc command
-does not require bus subscripts to be quoted.
+In a future release the TCL command interpreter will not support
+unquoted signal bus names such as foo[2] or command abbreviation.
+Both issue warnings now. Use {} bracketEs around the bus name to
+suppress warnings.
+
+The read_sdc continues to support subscripted bus names.
+Command abbreviation issues a warniing.
 
 ## 2026/09/04
 

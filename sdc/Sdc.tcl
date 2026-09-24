@@ -48,21 +48,6 @@ Files compressed with gzip are automatically uncompressed.} \
     filename {SDC command file.}
   }
 
-# An .sdc file is a domain specific language that is almost tcl.
-# In signal names such as foo[2] the brackets are a subscript and
-# not a TCL command substitution.
-# The sta_unknown proc handles the evaluation error for numeric procedures
-# such as "[2]".
-proc sdc_unknown_begin {} {
-  set prev [namespace eval :: { namespace unknown }]
-  namespace eval :: { namespace unknown ::sta_unknown }
-  return $prev
-}
-
-proc sdc_unknown_end { prev } {
-  namespace eval :: [list namespace unknown $prev]
-}
-
 proc_redirect read_sdc {
   parse_key_args "read_sdc" args keys {-mode} flags {-echo}
 
@@ -70,7 +55,8 @@ proc_redirect read_sdc {
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
 
-  set prev_unknown [sdc_unknown_begin]
+  set prev_unknown [namespace eval :: { namespace unknown }]
+  namespace eval :: { namespace unknown sta::sta_sdc_unknown }
   try {
     if { [info exists keys(-mode)] } {
       set mode_name $keys(-mode)
@@ -87,8 +73,51 @@ proc_redirect read_sdc {
       include_file $filename $echo 0
     }
   } finally {
-    sdc_unknown_end $prev_unknown
+    namespace eval :: [list namespace unknown $prev_unknown]
   }
+}
+
+# Unknown proc handler for SDC files.
+# Warn for unquoted bus subscripts such as bus[0] and command abbreviations.
+#
+# read_sdc installs this handler for the extent of the .sdc file and
+# restores the previous one on the way out (see sdc/Sdc.tcl).
+proc sta_sdc_unknown { args } {
+  global errorCode errorInfo
+
+  set name [lindex $args 0]
+  if { [llength $args] == 1 && [is_bus_subscript $args] } {
+    return "\[$args\]"
+  }
+
+  # Command name abbreviation support.
+  set ret [catch {set cmds [info commands $name*]} msg]
+  if {[string equal $name "::"]} {
+    set name ""
+  }
+  if { $ret != 0 } {
+    return -code $ret -errorcode $errorCode \
+      "Error in unknown while checking if \"$name\" is a unique command abbreviation: $msg."
+  }
+  if { [llength $cmds] == 1 } {
+    sta::sta_warn 338 "command abbreviation will not be supported in a future release."
+    return [uplevel 1 [lreplace $args 0 0 $cmds]]
+  }
+  if { [llength $cmds] > 1 } {
+    if {[string equal $name ""]} {
+      return -code error "Empty command name \"\""
+    } else {
+      return -code error \
+        "Ambiguous command name \"$name\": [lsort $cmds]."
+    }
+  }
+  return [uplevel 1 [::unknown {*}$args]]
+}
+
+proc is_bus_subscript { subscript } {
+  return [expr [string is integer $subscript] \
+            || [string match $subscript "*"] \
+            || [regexp {[0-9]+:[0-9]} $subscript]]
 }
 
 ################################################################
