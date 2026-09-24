@@ -1,0 +1,45 @@
+before cg1
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg1/B (AND2)                            1.00    0.00    1.00 (MET)
+
+before cg2
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg2/B (AND2)                            1.00    0.00    1.00 (MET)
+
+disable en1
+cg1
+No paths found.
+
+cg2
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg2/B (AND2)                            1.00    0.00    1.00 (MET)
+
+unset en1
+cg1
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg1/B (AND2)                            1.00    0.00    1.00 (MET)
+
+cg2
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg2/B (AND2)                            1.00    0.00    1.00 (MET)
+

@@ -32,7 +32,7 @@ AnalysisCorner::AnalysisCorner(std::string_view name,
 void
 defineAnalysisCornerProperties(Sta *sta)
 {
-  sta->properties().defineProperty("analysis_corner",
+  sta->properties()->defineProperty("analysis_corner",
     [] (const Scene *scene,
         Sta *) -> PropertyValue {
       AnalysisCorner *corner = scene->analysisCorner();

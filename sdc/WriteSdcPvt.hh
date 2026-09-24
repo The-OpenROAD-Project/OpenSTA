@@ -62,6 +62,7 @@ public:
   void writeDisabledInstances() const;
   void writeDisabledPins() const;
   void writeDisabledEdges() const;
+  void writeDisabledClockGatingChecks() const;
   void writeDisabledEdge(Edge *edge) const;
   void findMatchingEdges(Edge *edge,
                          EdgeSet &matches) const;

@@ -130,7 +130,7 @@ puts "--- write_path_spice specific endpoints ---"
 set dir5 [make_result_file spice_gcd_specific]
 file mkdir $dir5
 write_path_spice \
-  -path_args {-from req_msg[0]} \
+  -path_args {-from {req_msg[0]}} \
   -spice_file [file join $dir5 spice] \
   -lib_subckt_files $subckt_file \
   -model_file $model_file \

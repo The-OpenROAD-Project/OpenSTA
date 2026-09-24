@@ -1136,20 +1136,30 @@ proc_redirect report_clock_min_period {
 
 ################################################################
 
-define_cmd_args "set_disable_inferred_clock_gating" { objects } \
-  -help {The `set_disable_inferred_clock_gating` command disables clock gating checks on a clock gating instance, clock gating pin, or clock gating enable pin.} \
+define_cmd_args "set_disable_clock_gating_check" { objects } \
+  -help {The `set_disable_clock_gating_check` command disables clock gating checks on Liberty cells, instances, ports, or pins. When a Liberty cell is specified, the check is disabled for every instance of that cell.} \
   -arg_help {
-    objects {A list of clock gating instances, clock gating pins, or clock enable pins.}
+    objects {A list of Liberty cells, instances, ports, or pins.}
   }
 
-proc set_disable_inferred_clock_gating { objects } {
-  set_disable_inferred_clock_gating_cmd $objects
+proc set_disable_clock_gating_check { objects } {
+  set_disable_clock_gating_check_cmd $objects
 }
 
-proc set_disable_inferred_clock_gating_cmd { objects } {
-  parse_inst_port_pin_arg $objects insts pins
+proc set_disable_clock_gating_check_cmd { objects } {
+  set libcells {}
+  set insts {}
+  set ports {}
+  set pins {}
+  get_object_args $objects {} libcells {} {} insts ports pins {} {} {}
+  foreach lc $libcells {
+    disable_clock_gating_check_lib_cell $lc
+  }
   foreach inst $insts {
     disable_clock_gating_check_inst $inst
+  }
+  foreach port $ports {
+    disable_clock_gating_check_pin [get_port_pin $port]
   }
   foreach pin $pins {
     disable_clock_gating_check_pin $pin
@@ -1158,24 +1168,62 @@ proc set_disable_inferred_clock_gating_cmd { objects } {
 
 ################################################################
 
-define_cmd_args "unset_disable_inferred_clock_gating" { objects } \
-  -help {The `unset_disable_inferred_clock_gating` command removes a previous `set_disable_inferred_clock_gating` command.} \
+define_cmd_args "unset_disable_clock_gating_check" { objects } \
+  -help {The `unset_disable_clock_gating_check` command removes a previous `set_disable_clock_gating_check`.} \
   -arg_help {
-    objects {A list of clock gating instances, clock gating pins, or clock enable pins.}
+    objects {A list of Liberty cells, instances, ports, or pins.}
   }
 
-proc unset_disable_inferred_clock_gating { objects } {
-  unset_disable_inferred_clock_gating_cmd $objects
+proc unset_disable_clock_gating_check { objects } {
+  unset_disable_clock_gating_check_cmd $objects
 }
 
-proc unset_disable_inferred_clock_gating_cmd { objects } {
-  parse_inst_port_pin_arg $objects insts pins
+proc unset_disable_clock_gating_check_cmd { objects } {
+  set libcells {}
+  set insts {}
+  set ports {}
+  set pins {}
+  get_object_args $objects {} libcells {} {} insts ports pins {} {} {}
+  foreach lc $libcells {
+    unset_disable_clock_gating_check_lib_cell $lc
+  }
   foreach inst $insts {
     unset_disable_clock_gating_check_inst $inst
+  }
+  foreach port $ports {
+    unset_disable_clock_gating_check_pin [get_port_pin $port]
   }
   foreach pin $pins {
     unset_disable_clock_gating_check_pin $pin
   }
+}
+
+################################################################
+
+# deprecated 2026-08-18
+define_cmd_args "set_disable_inferred_clock_gating" { objects } \
+  -help {The `set_disable_inferred_clock_gating` command is deprecated. Use `set_disable_clock_gating_check` instead.} \
+  -arg_help {
+    objects {A list of Liberty cells, instances, ports, or pins.}
+  }
+
+proc set_disable_inferred_clock_gating { objects } {
+  sta_warn 528 "set_disable_inferred_clock_gating is deprecated. Use set_disable_clock_gating_check."
+  set_disable_clock_gating_check_cmd $objects
+}
+
+################################################################
+
+# deprecated 2026-08-18
+define_cmd_args "unset_disable_inferred_clock_gating" { objects } \
+  -help {The `unset_disable_inferred_clock_gating` command is deprecated. Use `unset_disable_clock_gating_check` instead.} \
+  -arg_help {
+    objects {A list of Liberty cells, instances, ports, or pins.}
+  }
+
+proc unset_disable_inferred_clock_gating { objects } {
+  sta_warn 529 "unset_disable_inferred_clock_gating is deprecated. Use unset_disable_clock_gating_check."
+  unset_disable_clock_gating_check_cmd $objects
 }
 
 ################################################################

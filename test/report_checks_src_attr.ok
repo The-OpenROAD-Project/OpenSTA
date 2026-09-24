@@ -7,22 +7,22 @@ Path Type: max
 ---------------------------------------------------------------------------------------------------------------
            0.00    0.00    0.00   clock clk (rise edge)
                    0.00    0.00   clock network delay (ideal)
-           0.00    0.00    0.00 ^ _1415_/CLK (sky130_fd_sc_hd__dfrtp_1) synthesis/tests/counter.v:22.3-28.6
-   0.00    0.04    0.33    0.33 v _1415_/Q (sky130_fd_sc_hd__dfrtp_1)  synthesis/tests/counter.v:22.3-28.6
+           0.00    0.00    0.00 ^ _1415_/CLK (DFFHQx4_ASAP7_75t_R)     synthesis/tests/counter.v:22.3-28.6
+   0.52   14.99   99.31   99.31 ^ _1415_/Q (DFFHQx4_ASAP7_75t_R)       synthesis/tests/counter.v:22.3-28.6
                                   mid (net)                            synthesis/tests/counter.v:22.3-28.6
-           0.04    0.00    0.33 v _1416_[0]/D (sky130_fd_sc_hd__dfrtp_1) synthesis/tests/counter.v:22.3-28.6
-                           0.33   data arrival time
+          14.99    0.00   99.31 ^ _1416_[0]/D (DFFHQx4_ASAP7_75t_R)    synthesis/tests/counter.v:22.3-28.6
+                          99.31   data arrival time
 
            0.00   10.00   10.00   clock clk (rise edge)
                    0.00   10.00   clock network delay (ideal)
                    0.00   10.00   clock reconvergence pessimism
-                          10.00 ^ _1416_[0]/CLK (sky130_fd_sc_hd__dfrtp_1)
-                  -0.12    9.88   library setup time
-                           9.88   data required time
+                          10.00 ^ _1416_[0]/CLK (DFFHQx4_ASAP7_75t_R)
+                 -19.33   -9.33   library setup time
+                          -9.33   data required time
 ---------------------------------------------------------------------------------------------------------------
-                           9.88   data required time
-                          -0.33   data arrival time
+                          -9.33   data required time
+                         -99.31   data arrival time
 ---------------------------------------------------------------------------------------------------------------
-                           9.55   slack (MET)
+                        -108.64   slack (VIOLATED)
 
 

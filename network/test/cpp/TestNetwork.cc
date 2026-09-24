@@ -361,13 +361,9 @@ TEST(ConcreteCellTest, MakeBusPort) {
   EXPECT_EQ(bus->size(), 4);
 }
 
-TEST(ConcreteCellTest, AttributeMap) {
-  ConcreteLibrary lib("test_lib", "test.lib", false);
-  ConcreteCell *cell = lib.makeCell("INV", true, "");
-  cell->setAttribute("area", "1.5");
-  EXPECT_EQ(cell->getAttribute("area"), "1.5");
-  EXPECT_EQ(cell->getAttribute("nonexistent"), "");
-}
+// Cell attributes were replaced by the Properties user property API
+// (upstream "use properties for verilog attributes"); the network layer no
+// longer stores them, so there is nothing to test here.
 
 TEST(ConcreteCellTest, SetName) {
   ConcreteLibrary lib("test_lib", "test.lib", false);
@@ -1198,24 +1194,8 @@ TEST(ConcreteNetworkTest, SetIsLeaf) {
   EXPECT_FALSE(network.isLeaf(cell));
 }
 
-TEST(ConcreteNetworkTest, SetAttribute) {
-  ConcreteNetwork network;
-  Library *lib = network.makeLibrary("attr_lib", "attr.lib");
-  Cell *cell = network.makeCell(lib, "CELL1", true, "attr.lib");
-  network.setAttribute(cell, "area", "1.5");
-  std::string val = network.getAttribute(cell, "area");
-  EXPECT_EQ(val, "1.5");
-}
-
-TEST(ConcreteNetworkTest, AttributeMap) {
-  ConcreteNetwork network;
-  Library *lib = network.makeLibrary("amap_lib", "amap.lib");
-  Cell *cell = network.makeCell(lib, "CELL1", true, "amap.lib");
-  network.setAttribute(cell, "k1", "v1");
-  network.setAttribute(cell, "k2", "v2");
-  const auto &attrs = network.attributeMap(cell);
-  EXPECT_EQ(attrs.size(), 2u);
-}
+// Network cell attributes were replaced by the Properties user property API
+// (upstream "use properties for verilog attributes").
 
 TEST(ConcreteNetworkTest, CellLibrary) {
   ConcreteNetwork network;
@@ -2115,14 +2095,8 @@ TEST_F(ConcreteNetworkLinkedTest, TermId) {
   EXPECT_GE(id, 0u);
 }
 
-// Network: setAttribute for Instance
-TEST_F(ConcreteNetworkLinkedTest, InstanceSetAttribute) {
-  network_.setAttribute(u1_, "key1", "val1");
-  std::string val = network_.getAttribute(u1_, "key1");
-  EXPECT_EQ(val, "val1");
-  const auto &attrs = network_.attributeMap(u1_);
-  EXPECT_EQ(attrs.size(), 1u);
-}
+// Network instance attributes were replaced by the Properties user property
+// API (upstream "use properties for verilog attributes").
 
 // Network: findInstance
 TEST_F(ConcreteNetworkLinkedTest, FindInstanceByPath) {

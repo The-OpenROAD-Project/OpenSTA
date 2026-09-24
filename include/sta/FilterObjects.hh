@@ -37,68 +37,68 @@
 
 namespace sta {
 
-class Sta;
+class StaState;
 class Report;
 
 PortSeq
 filterPorts(std::string_view filter_expression,
             PortSeq *ports,
-            Sta *sta);
+            StaState *sta);
 
 InstanceSeq
 filterInstances(std::string_view filter_expression,
                 InstanceSeq *insts,
-                Sta *sta);
+                StaState *sta);
 
 PinSeq
 filterPins(std::string_view filter_expression,
            PinSeq *pins,
-           Sta *sta);
+           StaState *sta);
 
 NetSeq
 filterNets(std::string_view filter_expression,
            NetSeq *nets,
-           Sta *sta);
+           StaState *sta);
 
 ClockSeq
 filterClocks(std::string_view filter_expression,
              ClockSeq *clks,
-             Sta *sta);
+             StaState *sta);
 
 SceneSeq
 filterScenes(std::string_view filter_expression,
              SceneSeq *scenes,
-             Sta *sta);
+             StaState *sta);
 
 ModeSeq
 filterModes(std::string_view filter_expression,
             ModeSeq *modes,
-            Sta *sta);
+            StaState *sta);
 
 LibertyCellSeq
 filterLibCells(std::string_view filter_expression,
                LibertyCellSeq *cells,
-               Sta *sta);
+               StaState *sta);
 
 LibertyPortSeq
 filterLibPins(std::string_view filter_expression,
               LibertyPortSeq *ports,
-              Sta *sta);
+              StaState *sta);
 
 LibertyLibrarySeq
 filterLibertyLibraries(std::string_view filter_expression,
                        LibertyLibrarySeq *libs,
-                       Sta *sta);
+                       StaState *sta);
 
 EdgeSeq
 filterTimingArcs(std::string_view filter_expression,
                   EdgeSeq *edges,
-                  Sta *sta);
+                  StaState *sta);
 
 PathEndSeq
 filterPathEnds(std::string_view filter_expression,
                PathEndSeq *ends,
-               Sta *sta);
+               StaState *sta);
 
 // For FilterExpr unit tests.
 StringSeq

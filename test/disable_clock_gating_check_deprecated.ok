@@ -1,0 +1,47 @@
+before cg1
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg1/B (AND2)                            1.00    0.00    1.00 (MET)
+
+before cg2
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg2/B (AND2)                            1.00    0.00    1.00 (MET)
+
+disable cg1
+Warning 528: disable_clock_gating_check_deprecated.tcl line 14, set_disable_inferred_clock_gating is deprecated. Use set_disable_clock_gating_check.
+cg1
+No paths found.
+
+cg2
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg2/B (AND2)                            1.00    0.00    1.00 (MET)
+
+unset cg1
+Warning 529: disable_clock_gating_check_deprecated.tcl line 21, unset_disable_inferred_clock_gating is deprecated. Use unset_disable_clock_gating_check.
+cg1
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg1/B (AND2)                            1.00    0.00    1.00 (MET)
+
+cg2
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg2/B (AND2)                            1.00    0.00    1.00 (MET)
+

@@ -26,11 +26,11 @@
 
 namespace sta {
 
-class Sta;
+class StaState;
 
 bool
 readSaif(const char *filename,
          const char *scope,
-         Sta *sta);
+         StaState *sta);
 
 } // namespace sta

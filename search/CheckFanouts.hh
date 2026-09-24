@@ -32,7 +32,6 @@
 #include "Mode.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
-#include "Sta.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -80,7 +79,7 @@ using FanoutCheckHeap = BoundedHeap<FanoutCheck, FanoutCheckSlackLess>;
 class CheckFanouts
 {
 public:
-  CheckFanouts(const Sta *sta);
+  CheckFanouts(const StaState *sta);
   void clear();
   // Return pins with the min/max fanout limit slack.
   // net=null check all nets
@@ -120,7 +119,7 @@ protected:
                  bool &limit_exists) const;
   float fanoutLoad(const Pin *pin) const;
 
-  const Sta *sta_;
+  const StaState *sta_;
   FanoutCheckSeq checks_;
   FanoutCheckHeap heap_;
 };
