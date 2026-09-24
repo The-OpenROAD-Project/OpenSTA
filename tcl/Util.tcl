@@ -702,19 +702,16 @@ define_common_arg_help {
   -no_line_splits {Do not split long lines into multiple lines.}
 }
 
-# sta namespace end
-}
-
-################################################################
-
+# Unknown proc handler for command interpreter.
 # Bus signal names like foo[2] or bar[31:0] use brackets that
 # look like "eval" to TCL. Catch the numeric "function" with the
 # namespace's unknown handler and return the value instead of an error.
-proc sta_unknown { args } {
+proc sta_cmd_unknown { args } {
   global errorCode errorInfo
   
   set name [lindex $args 0]
-  if { [llength $args] == 1 && [is_bus_subscript $args] } {
+  if { [llength $args] == 1 && [sta::is_bus_subscript $args] } {
+    sta::sta_warn 336 "bus subscripts will require quoting with {}'s in a future release."
     return "\[$args\]"
   }
   
@@ -728,6 +725,7 @@ proc sta_unknown { args } {
       "Error in unknown while checking if \"$name\" is a unique command abbreviation: $msg."
   }
   if { [llength $cmds] == 1 } {
+    sta::sta_warn 337 "command abbreviation will not be supported in a future release."
     return [uplevel 1 [lreplace $args 0 0 $cmds]]
   }
   if { [llength $cmds] > 1 } {
@@ -741,10 +739,7 @@ proc sta_unknown { args } {
   return [uplevel 1 [::unknown {*}$args]]
 }
 
-proc is_bus_subscript { subscript } {
-  return [expr [string is integer $subscript] \
-            || [string match $subscript "*"] \
-            || [regexp {[0-9]+:[0-9]} $subscript]]
+# sta namespace end
 }
 
-namespace unknown sta_unknown
+namespace unknown sta::sta_cmd_unknown

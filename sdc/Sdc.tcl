@@ -55,20 +55,69 @@ proc_redirect read_sdc {
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
 
-  if { [info exists keys(-mode)] } {
-    set mode_name $keys(-mode)
-    set prev_mode [cmd_mode_name]
-    try {
-      set_cmd_mode $mode_name
-      include_file $filename $echo 0
-    } finally {
-      if { $prev_mode != "default" } {
-        set_cmd_mode $prev_mode
+  set prev_unknown [namespace eval :: { namespace unknown }]
+  namespace eval :: { namespace unknown sta::sta_sdc_unknown }
+  try {
+    if { [info exists keys(-mode)] } {
+      set mode_name $keys(-mode)
+      set prev_mode [cmd_mode_name]
+      try {
+        set_cmd_mode $mode_name
+        include_file $filename $echo 0
+      } finally {
+        if { $prev_mode != "default" } {
+          set_cmd_mode $prev_mode
+        }
       }
+    } else {
+      include_file $filename $echo 0
     }
-  } else {
-    include_file $filename $echo 0
+  } finally {
+    namespace eval :: [list namespace unknown $prev_unknown]
   }
+}
+
+# Unknown proc handler for SDC files.
+# Warn for unquoted bus subscripts such as bus[0] and command abbreviations.
+#
+# read_sdc installs this handler for the extent of the .sdc file and
+# restores the previous one on the way out (see sdc/Sdc.tcl).
+proc sta_sdc_unknown { args } {
+  global errorCode errorInfo
+
+  set name [lindex $args 0]
+  if { [llength $args] == 1 && [is_bus_subscript $args] } {
+    return "\[$args\]"
+  }
+
+  # Command name abbreviation support.
+  set ret [catch {set cmds [info commands $name*]} msg]
+  if {[string equal $name "::"]} {
+    set name ""
+  }
+  if { $ret != 0 } {
+    return -code $ret -errorcode $errorCode \
+      "Error in unknown while checking if \"$name\" is a unique command abbreviation: $msg."
+  }
+  if { [llength $cmds] == 1 } {
+    sta::sta_warn 338 "command abbreviation will not be supported in a future release."
+    return [uplevel 1 [lreplace $args 0 0 $cmds]]
+  }
+  if { [llength $cmds] > 1 } {
+    if {[string equal $name ""]} {
+      return -code error "Empty command name \"\""
+    } else {
+      return -code error \
+        "Ambiguous command name \"$name\": [lsort $cmds]."
+    }
+  }
+  return [uplevel 1 [::unknown {*}$args]]
+}
+
+proc is_bus_subscript { subscript } {
+  return [expr [string is integer $subscript] \
+            || [string match $subscript "*"] \
+            || [regexp {[0-9]+:[0-9]} $subscript]]
 }
 
 ################################################################
