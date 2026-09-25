@@ -584,11 +584,6 @@ LibertyCell *liberty_cell() { return Sta::sta()->cmdNetwork()->libertyCell(self)
 bool is_leaf() { return Sta::sta()->cmdNetwork()->isLeaf(self); }
 CellPortIterator *
 port_iterator() { return Sta::sta()->cmdNetwork()->portIterator(self); }
-std::string
-get_attribute(const char *key)
-{
-  return Sta::sta()->cmdNetwork()->getAttribute(self, key);
-}
 
 Port *
 find_port(const char *name)
@@ -647,21 +642,6 @@ Pin *
 find_pin(const char *name)
 {
   return Sta::sta()->ensureLinked()->findPin(self, name);
-}
-
-std::string
-get_attribute(const char *key)
-{
-  return Sta::sta()->ensureLinked()->getAttribute(self, key);
-}
-
-void
-set_attribute(const char *key,
-              const char *value)
-{
-  sta::Sta *sta = Sta::sta();
-  sta->ensureLinked();
-  sta->networkReader()->setAttribute(self, key, value);
 }
 
 } // Instance methods

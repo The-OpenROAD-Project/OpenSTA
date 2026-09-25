@@ -381,7 +381,7 @@ public:
                     VcdTime begin_time,
                     VcdTime end_time,
                     const Sdc *sdc,
-                    Sta *sta);
+                    StaState *sta);
   void readActivities();
 
 private:
@@ -397,7 +397,6 @@ private:
   VcdCountReader vcd_reader_;
   VcdParse vcd_parse_;
   const Sdc *sdc_;
-  Power *power_;
 
   static constexpr double sim_clk_period_tolerance_ = .1;
 };
@@ -405,12 +404,11 @@ private:
 void
 readVcdActivities(std::string_view filename,
                   std::string_view scope,
-                  std::string_view mode_name,
+                  const Mode *mode,
                   VcdTime begin_time,
                   VcdTime end_time,
-                  Sta *sta)
+                  StaState *sta)
 {
-  const Mode *mode = sta->findMode(mode_name);
   const Sdc *sdc = mode->sdc();
   ReadVcdActivities reader(filename, scope, begin_time, end_time, sdc, sta);
   reader.readActivities();
@@ -421,19 +419,14 @@ ReadVcdActivities::ReadVcdActivities(std::string_view filename,
                                      VcdTime begin_time,
                                      VcdTime end_time,
                                      const Sdc *sdc,
-                                     Sta *sta) :
+                                     StaState *sta) :
   StaState(sta),
   filename_(filename),
   begin_time_(begin_time),
   end_time_(end_time),
-  vcd_reader_(scope,
-              sdc_network_,
-              report_,
-              debug_),
-  vcd_parse_(report_,
-             debug_),
-  sdc_(sdc),
-  power_(sta->power())
+  vcd_reader_(scope, sdc_network_, report_, debug_),
+  vcd_parse_(report_, debug_),
+  sdc_(sdc)
 {
 }
 

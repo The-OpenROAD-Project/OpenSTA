@@ -207,13 +207,13 @@ clock_min_period(const char *mode_name)
 void
 read_vcd_file(const char *filename,
               const char *scope,
-              const char *mode_name,
+              const Mode *mode,
               int64_t begin_time,
               int64_t end_time)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
-  readVcdActivities(filename, scope, mode_name, begin_time, end_time, sta);
+  readVcdActivities(filename, scope, mode, begin_time, end_time, sta);
 }
 
 ////////////////////////////////////////////////////////////////

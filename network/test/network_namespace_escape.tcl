@@ -45,10 +45,10 @@ puts "sdc nets: [llength $sdc_nets]"
 
 # Bus port queries in SDC namespace
 set sdc_bus_in [get_ports {data_in[*]}]
-puts "sdc data_in[*]: [llength $sdc_bus_in]"
+puts "sdc data_in\[*\]: [llength $sdc_bus_in]"
 
 set sdc_bus_out [get_ports {data_out[*]}]
-puts "sdc data_out[*]: [llength $sdc_bus_out]"
+puts "sdc data_out\[*\]: [llength $sdc_bus_out]"
 
 # Individual bit queries in SDC namespace
 foreach i {0 1 2 3} {

@@ -723,35 +723,35 @@ TEST_F(StaDesignTest, CheckTiming) {
 // --- Property methods ---
 
 TEST_F(StaDesignTest, PropertyGetPinArrival) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
   props.getProperty(pin, "arrival_max_rise");
 }
 
 TEST_F(StaDesignTest, PropertyGetPinSlack) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("r3/D");
   ASSERT_NE(pin, nullptr);
   props.getProperty(pin, "slack_max");
 }
 
 TEST_F(StaDesignTest, PropertyGetPinSlew) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
   props.getProperty(pin, "slew_max");
 }
 
 TEST_F(StaDesignTest, PropertyGetPinArrivalFall) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
   props.getProperty(pin, "arrival_max_fall");
 }
 
 TEST_F(StaDesignTest, PropertyGetInstanceName) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Instance *u1 = network->findChild(top, "u1");
@@ -760,7 +760,7 @@ TEST_F(StaDesignTest, PropertyGetInstanceName) {
 }
 
 TEST_F(StaDesignTest, PropertyGetNetName) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Network *network = sta_->cmdNetwork();
   Pin *pin = findPin("u1/Z");
   ASSERT_NE(pin, nullptr);
@@ -1632,7 +1632,7 @@ TEST_F(StaDesignTest, ReadLibertyFile) {
 // --- Property: getProperty on LibertyLibrary ---
 
 TEST_F(StaDesignTest, PropertyGetPropertyLibertyLibrary) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   ASSERT_NE(lib_, nullptr);
   props.getProperty(lib_, "name");
 }
@@ -1640,7 +1640,7 @@ TEST_F(StaDesignTest, PropertyGetPropertyLibertyLibrary) {
 // --- Property: getProperty on LibertyCell ---
 
 TEST_F(StaDesignTest, PropertyGetPropertyLibertyCell) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   props.getProperty(buf, "name");
@@ -2033,7 +2033,7 @@ TEST_F(StaDesignTest, SearchTotalNegativeSlackCorner) {
 // --- Property: getProperty on Edge ---
 
 TEST_F(StaDesignTest, PropertyGetEdge) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Vertex *v = findVertex("u1/Z");
   ASSERT_NE(v, nullptr);
   VertexInEdgeIterator edge_iter(v, sta_->graph());
@@ -2046,7 +2046,7 @@ TEST_F(StaDesignTest, PropertyGetEdge) {
 // --- Property: getProperty on Clock ---
 
 TEST_F(StaDesignTest, PropertyGetClock) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
   props.getProperty(clk, "name");
@@ -2055,7 +2055,7 @@ TEST_F(StaDesignTest, PropertyGetClock) {
 // --- Property: getProperty on LibertyPort ---
 
 TEST_F(StaDesignTest, PropertyGetLibertyPort) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   LibertyCell *buf = lib_->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
   LibertyPort *port = buf->findLibertyPort("A");
@@ -2066,7 +2066,7 @@ TEST_F(StaDesignTest, PropertyGetLibertyPort) {
 // --- Property: getProperty on Port ---
 
 TEST_F(StaDesignTest, PropertyGetPort) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   Network *network = sta_->cmdNetwork();
   Instance *top = network->topInstance();
   Cell *cell = network->cell(top);
@@ -2851,7 +2851,7 @@ TEST_F(StaDesignTest, PropertyGetPathEnd) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     props.getProperty(ends[0], "slack");
   }
 
@@ -2865,7 +2865,7 @@ TEST_F(StaDesignTest, PropertyGetPath) {
   ASSERT_NE(v, nullptr);
   Path *path = sta_->vertexWorstArrivalPath(v, MinMax::max());
   if (path && !path->isNull()) {
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     props.getProperty(path, "arrival");
   }
 }
@@ -2880,7 +2880,7 @@ TEST_F(StaDesignTest, PropertyGetTimingArcSet) {
     Edge *edge = edge_iter.next();
     TimingArcSet *arc_set = edge->timingArcSet();
     if (arc_set) {
-      Properties &props = sta_->properties();
+      Properties &props = *sta_->properties();
       try {
         props.getProperty(arc_set, "from_pin");
       } catch (...) {}
@@ -3835,7 +3835,7 @@ TEST_F(StaDesignTest, PropertyGetLibrary) {
   LibraryIterator *lib_iter = network->libraryIterator();
   if (lib_iter->hasNext()) {
     Library *lib = lib_iter->next();
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     PropertyValue pv = props.getProperty(lib, "name");
     EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   }
@@ -3847,14 +3847,14 @@ TEST_F(StaDesignTest, PropertyGetCell) {
   Instance *top = network->topInstance();
   Cell *cell = network->cell(top);
   if (cell) {
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     PropertyValue pv = props.getProperty(cell, "name");
     EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   }
 }
 
 TEST_F(StaDesignTest, PropertyGetLibertyLibrary) {
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(lib_, "name");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
 }
@@ -3862,7 +3862,7 @@ TEST_F(StaDesignTest, PropertyGetLibertyLibrary) {
 TEST_F(StaDesignTest, PropertyGetLibertyCell) {
   LibertyCell *cell = lib_->findLibertyCell("DFF_X1");
   ASSERT_NE(cell, nullptr);
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(cell, "name");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
 }
@@ -3872,7 +3872,7 @@ TEST_F(StaDesignTest, PropertyGetLibertyPort2) {
   ASSERT_NE(cell, nullptr);
   LibertyPort *port = cell->findLibertyPort("D");
   ASSERT_NE(port, nullptr);
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(port, "name");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
 }
@@ -3883,7 +3883,7 @@ TEST_F(StaDesignTest, PropertyGetInstance) {
   InstanceChildIterator *child_iter = network->childIterator(top);
   if (child_iter->hasNext()) {
     Instance *inst = child_iter->next();
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     PropertyValue pv = props.getProperty(inst, "name");
     EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   }
@@ -3893,7 +3893,7 @@ TEST_F(StaDesignTest, PropertyGetInstance) {
 TEST_F(StaDesignTest, PropertyGetPin) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(pin, "name");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
 }
@@ -3901,7 +3901,7 @@ TEST_F(StaDesignTest, PropertyGetPin) {
 TEST_F(StaDesignTest, PropertyGetPinDirection) {
   Pin *pin = findPin("r1/Q");
   ASSERT_NE(pin, nullptr);
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(pin, "direction");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
 }
@@ -3912,7 +3912,7 @@ TEST_F(StaDesignTest, PropertyGetNet) {
   ASSERT_NE(pin, nullptr);
   Net *net = network->net(pin);
   if (net) {
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     PropertyValue pv = props.getProperty(net, "name");
     EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   }
@@ -3921,7 +3921,7 @@ TEST_F(StaDesignTest, PropertyGetNet) {
 TEST_F(StaDesignTest, PropertyGetClock2) {
   Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(clk, "name");
   EXPECT_EQ(pv.type(), PropertyValue::Type::string);
 }
@@ -3929,7 +3929,7 @@ TEST_F(StaDesignTest, PropertyGetClock2) {
 TEST_F(StaDesignTest, PropertyGetClockPeriod) {
   Clock *clk = sta_->cmdSdc()->findClock("clk");
   ASSERT_NE(clk, nullptr);
-  Properties &props = sta_->properties();
+  Properties &props = *sta_->properties();
   PropertyValue pv = props.getProperty(clk, "period");
   EXPECT_EQ(pv.type(), PropertyValue::Type::float_);
 }
@@ -3941,7 +3941,7 @@ TEST_F(StaDesignTest, PropertyGetPort2) {
   CellPortIterator *port_iter = network->portIterator(cell);
   if (port_iter->hasNext()) {
     Port *port = port_iter->next();
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     PropertyValue pv = props.getProperty(port, "name");
     EXPECT_EQ(pv.type(), PropertyValue::Type::string);
   }
@@ -3954,7 +3954,7 @@ TEST_F(StaDesignTest, PropertyGetEdge2) {
   VertexInEdgeIterator edge_iter(v, sta_->graph());
   if (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     props.getProperty(edge, "from_pin");
   }
 }
@@ -3968,7 +3968,7 @@ TEST_F(StaDesignTest, PropertyGetPathEndSlack) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     props.getProperty(ends[0], "startpoint");
   props.getProperty(ends[0], "endpoint");
   }
@@ -3985,7 +3985,7 @@ TEST_F(StaDesignTest, PropertyGetPathEndMore) {
     10, 1, false, false, -INF, INF, false, group_names,
     true, false, false, false, false, false);
   if (!ends.empty()) {
-    Properties &props = sta_->properties();
+    Properties &props = *sta_->properties();
     props.getProperty(ends[0], "startpoint_clock");
   props.getProperty(ends[0], "endpoint_clock");
   props.getProperty(ends[0], "points");

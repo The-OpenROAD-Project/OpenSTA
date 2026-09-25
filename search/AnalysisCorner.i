@@ -157,16 +157,16 @@ PropertyValue
 analysis_corner_property(AnalysisCorner *corner,
                          const char *property)
 {
-  Properties &properties = Sta::sta()->properties();
-  return properties.getProperty(corner, property);
+  Properties *properties = Sta::sta()->properties();
+  return properties->getProperty(corner, property);
 }
 
 void
 define_analysis_corner_property_cmd(const char *property,
                                     const char *type)
 {
-  Properties &properties = Sta::sta()->properties();
-  properties.defineProperty<AnalysisCorner>("analysis_corner", property, type);
+  Properties *properties = Sta::sta()->properties();
+  properties->defineProperty<AnalysisCorner>("analysis_corner", property, type);
 }
 
 void
@@ -174,8 +174,8 @@ set_analysis_corner_property_cmd(AnalysisCorner *corner,
                                  const char *property,
                                  const char *value)
 {
-  Properties &properties = Sta::sta()->properties();
-  properties.setProperty(corner, "analysis_corner", property, value);
+  Properties *properties = Sta::sta()->properties();
+  properties->setProperty(corner, "analysis_corner", property, value);
 }
 
 AnalysisCornerSeq

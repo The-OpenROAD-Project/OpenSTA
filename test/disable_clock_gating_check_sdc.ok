@@ -1,0 +1,22 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design top
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 1.0000 [get_ports {clk}]
+set_input_delay 0.0000 -clock [get_clocks {clk}] -add_delay [get_ports {d1}]
+set_input_delay 0.0000 -clock [get_clocks {clk}] -add_delay [get_ports {d2}]
+set_input_delay 0.0000 -clock [get_clocks {clk}] -add_delay [get_ports {en1}]
+set_input_delay 0.0000 -clock [get_clocks {clk}] -add_delay [get_ports {en2}]
+set_disable_clock_gating_check [get_lib_cells {disable_clock_gating_check/AND2}]
+set_disable_clock_gating_check [get_cells {cg1}]
+set_disable_clock_gating_check [get_ports {en1}]
+set_disable_clock_gating_check [get_pins {cg2/B}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################
