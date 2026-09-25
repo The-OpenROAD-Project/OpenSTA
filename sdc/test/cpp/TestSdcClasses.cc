@@ -4854,15 +4854,9 @@ TEST_F(SdcInitTest, SdcSetVoltageOnNet) {
 }
 
 // Sdc: clkStopPropagation
-// Sdc: isDisableClockGatingCheck
-TEST_F(SdcInitTest, SdcIsDisableClockGatingCheckInstNull) {
-  Sdc *sdc = sta_->cmdSdc();
-  EXPECT_FALSE(sdc->isDisableClockGatingCheck(static_cast<const Instance*>(nullptr)));
-}
-
-TEST_F(SdcInitTest, SdcIsDisableClockGatingCheckPinNull) {
-  Sdc *sdc = sta_->cmdSdc();
-  EXPECT_FALSE(sdc->isDisableClockGatingCheck(static_cast<const Pin*>(nullptr)));
-}
+// isDisableClockGatingCheck takes no null argument: every Pin decodes to an
+// iterm, bterm or modIterm, each of which has an instance, so the null cases
+// these tests asserted are unreachable. The Instance overload looks up the
+// instance's liberty cell, so a null argument dereferences it.
 
 } // namespace sta

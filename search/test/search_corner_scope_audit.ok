@@ -87,6 +87,7 @@ corner-neutral commands:
   set_assigned_transition
   set_cmd_analysis_corner
   set_cmd_units
+  set_disable_clock_gating_check
   set_disable_inferred_clock_gating
   set_hierarchy_separator
   set_mode
@@ -100,6 +101,7 @@ corner-neutral commands:
   show_warranty
   suppress_msg
   unset_cmd_analysis_corner
+  unset_disable_clock_gating_check
   unset_disable_inferred_clock_gating
   unset_power_activity
   unsuppress_msg

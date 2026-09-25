@@ -624,8 +624,8 @@ TEST_F(StaInitTest, IncrementalDelayTolerance) {
 
 // Properties
 TEST_F(StaInitTest, PropertiesAccess) {
-  Properties &props = sta_->properties();
-  Properties &props2 = sta_->properties();
+  Properties &props = *sta_->properties();
+  Properties &props2 = *sta_->properties();
   EXPECT_EQ(&props, &props2);
 }
 

@@ -708,10 +708,16 @@ public:
 
   void disableClockGatingCheck(Instance *inst);
   void disableClockGatingCheck(Pin *pin);
+  void disableClockGatingCheck(LibertyCell *cell);
   void removeDisableClockGatingCheck(Instance *inst);
   void removeDisableClockGatingCheck(Pin *pin);
+  void removeDisableClockGatingCheck(LibertyCell *cell);
   bool isDisableClockGatingCheck(const Pin *pin) const;
   bool isDisableClockGatingCheck(const Instance *inst) const;
+  bool isDisableClockGatingCheck(const LibertyCell *cell) const;
+  const InstanceSet &disabledClockGatingChecksInst() const;
+  const PinSet &disabledClockGatingChecksPin() const;
+  const LibertyCellSet &disabledClockGatingChecksLibCell() const;
   // set_LogicValue::zero, set_LogicValue::one, set_logic_dc
   void setLogicValue(const Pin *pin,
                      LogicValue value);
@@ -1388,6 +1394,7 @@ protected:
   DisabledInstancePortsMap disabled_inst_ports_;
   InstanceSet disabled_clk_gating_checks_inst_;
   PinSet disabled_clk_gating_checks_pin_;
+  LibertyCellSet disabled_clk_gating_checks_lib_cell_;
   ExceptionPathSet exceptions_;
   size_t exception_id_{0}; // Unique ID for exceptions.
 

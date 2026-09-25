@@ -141,7 +141,12 @@ record_example_tests {
 }
 
 record_public_tests {
-  port_delay_delete_inst
+  disable_clock_gating_check_cell
+  disable_clock_gating_check_deprecated
+  disable_clock_gating_check_inst
+  disable_clock_gating_check_pin
+  disable_clock_gating_check_port
+  disable_clock_gating_check_sdc
   disconnect_mcp_pin
   dmp_two_pole_reduce
   equiv_cells_ff_latch
@@ -165,6 +170,7 @@ record_public_tests {
   non_seq_timing
   package_require
   path_group_names
+  port_delay_delete_inst
   power_network_changed
   power_json
   prima3

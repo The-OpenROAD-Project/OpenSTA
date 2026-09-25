@@ -51,10 +51,10 @@ puts "roundtrip ports: [llength $rt_ports]"
 
 # Verify bus ports after roundtrip
 set rt_din [get_ports {data_in[*]}]
-puts "roundtrip data_in[*]: [llength $rt_din]"
+puts "roundtrip data_in\[*\]: [llength $rt_din]"
 
 set rt_dout [get_ports {data_out[*]}]
-puts "roundtrip data_out[*]: [llength $rt_dout]"
+puts "roundtrip data_out\[*\]: [llength $rt_dout]"
 
 # Timing after roundtrip
 create_clock -name clk -period 10 [get_ports clk]

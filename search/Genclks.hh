@@ -91,7 +91,6 @@ public:
                       const RiseFall *rf,
                       const MinMax *min_max) const;
   Vertex *srcPath(const Pin *pin) const;
-  Level clkPinMaxLevel(const Clock *clk) const;
   void copyGenClkSrcPaths(Vertex *vertex,
                           TagGroupBldr *tag_bldr);
 
@@ -141,7 +140,6 @@ private:
   void findLatchFdbkEdges(const Clock *clk,
                           GenclkInfo *genclk_info);
   void findLatchFdbkEdges(Vertex *vertex,
-                          Level gclk_level,
                           SearchPred &srch_pred,
                           VertexSet &path_vertices,
                           VertexSet &visited_vertices,

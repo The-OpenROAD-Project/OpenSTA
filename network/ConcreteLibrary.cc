@@ -261,22 +261,6 @@ ConcreteCell::setIsLeaf(bool is_leaf)
   is_leaf_ = is_leaf;
 }
 
-void
-ConcreteCell::setAttribute(std::string_view key,
-                           std::string_view value)
-{
-  attribute_map_[std::string(key)] = value;
-}
-
-std::string
-ConcreteCell::getAttribute(std::string_view key) const
-{
-  const auto &itr = attribute_map_.find(key);
-  if (itr != attribute_map_.end())
-    return itr->second;
-  return "";
-}
-
 ConcretePort *
 ConcreteCell::findPort(std::string_view name) const
 {

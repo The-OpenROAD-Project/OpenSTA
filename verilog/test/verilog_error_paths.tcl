@@ -100,13 +100,13 @@ set fo [get_fanout -from [get_ports sel] -flat]
 puts "fanout from sel: [llength $fo]"
 
 set fi_cells [get_fanin -to [get_ports {dout[0]}] -only_cells]
-puts "fanin cells to dout[0]: [llength $fi_cells]"
+puts "fanin cells to dout\[0\]: [llength $fi_cells]"
 
 set fo_cells [get_fanout -from [get_ports {din[0]}] -only_cells]
-puts "fanout cells from din[0]: [llength $fo_cells]"
+puts "fanout cells from din\[0\]: [llength $fo_cells]"
 
 set fo_end [get_fanout -from [get_ports {din[1]}] -endpoints_only]
-puts "fanout endpoints from din[1]: [llength $fo_end]"
+puts "fanout endpoints from din\[1\]: [llength $fo_end]"
 
 #---------------------------------------------------------------
 # Test 4: Write verilog with various options
