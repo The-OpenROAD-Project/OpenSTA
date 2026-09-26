@@ -25,6 +25,7 @@
 #include "ConcreteParasitics.hh"
 
 #include <algorithm> // max
+#include <atomic> // OpenROAD fork: parasitics lookup cache
 
 #include "ConcreteParasiticsPvt.hh"
 #include "Debug.hh"
@@ -44,6 +45,53 @@
 // inheritance graph (ConcreteParasitic only included once).
 
 namespace sta {
+
+// ---- OpenROAD fork: parasitics lookup cache (begin) ----
+// findParasitic looks up the same driver pin once per rise/fall per min/max,
+// back to back on one thread. Each thread remembers its last hit so the
+// repeats skip lock_. Misses are not remembered, since a later insert would
+// make them stale. A remembered row survives inserts and rehash but not
+// erasure, so every erase bumps the global erase count (global, so a
+// ConcreteParasitics reallocated at a freed one's address cannot match).
+// Relies on each driver pin being visited by one thread during delay calc.
+namespace {
+
+alignas(64) std::atomic<uint64_t> drvr_parasitics_erase_count{0};
+
+struct DrvrParasiticsHit
+{
+  const ConcreteParasitics *owner = nullptr;
+  const Pin *drvr_pin = nullptr;
+  const MinMaxRiseFallParasitics *parasitics = nullptr;
+  uint64_t erase_count = 0;
+};
+
+thread_local DrvrParasiticsHit last_drvr_parasitics_hit;
+
+const MinMaxRiseFallParasitics *
+findDrvrParasitics(const ConcreteParasitics *owner,
+                   const ConcreteParasiticMap &drvr_parasitic_map,
+                   std::mutex &lock,
+                   const Pin *drvr_pin)
+{
+  DrvrParasiticsHit &hit = last_drvr_parasitics_hit;
+  uint64_t erase_count =
+    drvr_parasitics_erase_count.load(std::memory_order_relaxed);
+  if (hit.owner == owner
+      && hit.drvr_pin == drvr_pin
+      && hit.erase_count == erase_count)
+    return hit.parasitics;
+
+  LockGuard guard(lock);
+  auto itr = drvr_parasitic_map.find(drvr_pin);
+  if (itr == drvr_parasitic_map.end())
+    return nullptr;
+  hit = {owner, drvr_pin, &itr->second, erase_count};
+  return hit.parasitics;
+}
+
+}  // namespace
+// ---- OpenROAD fork: parasitics lookup cache (end) ----
 
 bool
 ConcreteParasitic::isPiElmore() const
@@ -782,6 +830,9 @@ ConcreteParasitics::deleteParasiticsImpl()
       delete parasitics[i];
   }
   drvr_parasitic_map_.clear();
+  // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+  drvr_parasitics_erase_count.fetch_add(1, std::memory_order_relaxed);
+  // ---- OpenROAD fork: parasitics lookup cache (end) ----
 
   parasitic_network_map_.clear();
 }
@@ -795,6 +846,9 @@ ConcreteParasitics::deleteParasitics(const Pin *drvr_pin)
     for (size_t i = 0; i < min_max_rise_fall_count; i++)
       delete parasitics[i];
     drvr_parasitic_map_.erase(itr);
+    // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+    drvr_parasitics_erase_count.fetch_add(1, std::memory_order_relaxed);
+    // ---- OpenROAD fork: parasitics lookup cache (end) ----
   }
 }
 
@@ -912,10 +966,12 @@ ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
                                  const RiseFall *rf,
                                  const MinMax *min_max) const
 {
-  LockGuard lock(lock_);
-  auto itr = drvr_parasitic_map_.find(drvr_pin);
-  if (itr != drvr_parasitic_map_.end()) {
-    const MinMaxRiseFallParasitics &parasitics = itr->second;
+  // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+  const MinMaxRiseFallParasitics *drvr_parasitics =
+    findDrvrParasitics(this, drvr_parasitic_map_, lock_, drvr_pin);
+  if (drvr_parasitics) {
+    const MinMaxRiseFallParasitics &parasitics = *drvr_parasitics;
+  // ---- OpenROAD fork: parasitics lookup cache (end) ----
     ConcreteParasitic *parasitic = parasitics[minMaxRiseFallIndex(min_max, rf)];
     if (parasitic && parasitic->isPiElmore())
       return parasitic;
@@ -1029,10 +1085,12 @@ ConcreteParasitics::findPiPoleResidue(const Pin *drvr_pin,
                                       const RiseFall *rf,
                                       const MinMax *min_max) const
 {
-  LockGuard lock(lock_);
-  auto itr = drvr_parasitic_map_.find(drvr_pin);
-  if (itr != drvr_parasitic_map_.end()) {
-    const MinMaxRiseFallParasitics &parasitics = itr->second;
+  // ---- OpenROAD fork: parasitics lookup cache (begin) ----
+  const MinMaxRiseFallParasitics *drvr_parasitics =
+    findDrvrParasitics(this, drvr_parasitic_map_, lock_, drvr_pin);
+  if (drvr_parasitics) {
+    const MinMaxRiseFallParasitics &parasitics = *drvr_parasitics;
+  // ---- OpenROAD fork: parasitics lookup cache (end) ----
     size_t mm_rf_index = minMaxRiseFallIndex(min_max, rf);
     ConcreteParasitic *parasitic = parasitics[mm_rf_index];
     if (parasitic && parasitic->isPiPoleResidue())
