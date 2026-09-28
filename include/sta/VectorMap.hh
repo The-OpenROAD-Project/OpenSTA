@@ -394,6 +394,35 @@ public:
     data_.clear();
   }
 
+  // OpenROAD-fork: tag-match
+  // Reserve backing storage to avoid reallocations during repeated inserts.
+  void reserve(size_type n) {
+    data_.reserve(n);
+  }
+
+  // OpenROAD-fork: tag-match
+  // Lookup that also reports the sorted insertion position (lower_bound index)
+  // when the key is absent, so a subsequent insertAtPos() can skip the second
+  // binary search. The returned iterator behaves exactly like find(); pos is the
+  // index where the key would be inserted to keep data_ sorted.
+  iterator findInsertHint(const Key& key, size_type &pos) {
+    auto it = findInsertPos(key);
+    pos = static_cast<size_type>(it - data_.begin());
+    if (it != data_.end() && !comp_(key, it->first))
+      return iterator(it);
+    return end();
+  }
+
+  // OpenROAD-fork: tag-match
+  // Insert key/value at a position previously returned by findInsertHint().
+  // The caller guarantees the key is absent and pos is its lower_bound index,
+  // so the sorted order is preserved identically to operator[]/insert().
+  void insertAtPos(size_type pos,
+                   const Key& key,
+                   const Value& value) {
+    data_.insert(data_.begin() + pos, std::make_pair(key, value));
+  }
+
   // Capacity
   bool empty() const {
     return data_.empty();
