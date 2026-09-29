@@ -421,8 +421,6 @@ define_cmd_args "report_slews" {[-scenes scenes] [-digits digits]\
     pin {A pin or port.}
   }
 
-define_cmd_alias "report_slew" "report_slews"
-
 proc report_slews { args } {
   global sta_report_default_digits
 
