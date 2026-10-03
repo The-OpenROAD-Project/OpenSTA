@@ -438,7 +438,7 @@ VerilogWriter::writeInstBusPinBit(const Instance *inst,
 
 // Verilog "ports" are not distinct from nets.
 // Use an assign statement to alias the net when it is connected to
-// multiple output ports.
+// a port with a different name.
 void
 VerilogWriter::writeAssigns(const Instance *inst)
 {
@@ -454,14 +454,22 @@ VerilogWriter::writeAssigns(const Instance *inst)
           && (include_pwr_gnd_
               || !(network_->isPower(net) || network_->isGround(net)))
           && (network_->direction(port)->isAnyOutput()
+              || network_->direction(port)->isInput()
               || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
           && network_->name(port) != network_->name(net)) {
         // Port name is different from net name.
         std::string port_vname = netVerilogName(std::string(network_->name(port)));
         std::string net_vname = netVerilogName(std::string(network_->name(net)));
-        sta::print(stream_, " assign {} = {};\n",
-                   port_vname,
-                   net_vname);
+        if (network_->direction(port)->isInput()) {
+          sta::print(stream_, " assign {} = {};\n",
+                     net_vname,
+                     port_vname);
+        }
+        else {
+          sta::print(stream_, " assign {} = {};\n",
+                     port_vname,
+                     net_vname);
+        }
       }
     }
   }
