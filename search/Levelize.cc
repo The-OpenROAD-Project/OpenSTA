@@ -243,7 +243,7 @@ Levelize::findBackEdges()
   EdgeSeq path;
   FindBackEdgesStack stack;
   VertexSeq roots = sortedRootsWithFanout();
-  for (Vertex *vertex : roots_) {
+  for (Vertex *vertex : roots) {
     vertex->setVisited(true);
     vertex->setOnPath(true);
     stack.emplace(vertex, new VertexOutEdgeIterator(vertex, graph_));

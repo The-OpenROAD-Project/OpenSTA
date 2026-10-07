@@ -92,6 +92,8 @@ SpefReader::SpefReader(std::string_view filename,
 bool
 SpefReader::read()
 {
+  parasitics_->ensureParasitics();
+
   bool success;
   gzstream::igzstream stream(std::string(filename_).c_str());
   if (stream.is_open()) {

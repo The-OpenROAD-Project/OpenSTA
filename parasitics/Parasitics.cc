@@ -75,6 +75,28 @@ Parasitics::report(const Parasitic *parasitic) const
   }
 }
 
+void
+Parasitics::ensureParasitics()
+{
+  auto make_parasitics = [this] (const Instance *inst) {
+    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      if (network_->isDriver(pin))
+        ensureParasitics(pin);
+    }
+    delete pin_iter;
+  };
+
+  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
+  while (leaf_iter->hasNext()) {
+    const Instance *inst = leaf_iter->next();
+    make_parasitics(inst);
+  }
+  delete leaf_iter;
+  make_parasitics(network_->topInstance());
+}
+
 const Net *
 Parasitics::findParasiticNet(const Pin *pin) const
 {

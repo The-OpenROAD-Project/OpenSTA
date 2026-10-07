@@ -230,8 +230,8 @@ protected:
                         const TimingArc *&arc);
   void initWireDelays(Vertex *drvr_vertex);
   void initRootSlews(Vertex *vertex);
-  void zeroSlewAndWireDelays(Vertex *drvr_vertex,
-                             const RiseFall *rf);
+  void zeroDrvrSlew(Vertex *drvr_vertex,
+                    const RiseFall *rf);
   void findVertexDelay(Vertex *vertex,
 		       ArcDelayCalc *arc_delay_calc);
   DrvrLoadSlews loadSlews(LoadPinIndexMap &load_pin_index_map);
@@ -345,6 +345,8 @@ class MultiDrvrNet
 public:
   VertexSeq &drvrs() { return drvrs_; }
   const VertexSeq &drvrs() const { return drvrs_; }
+  Vertex *dcalcDrvr() const { return dcalc_drvr_; }
+  void setDcalcDrvr(Vertex *drvr);
   bool parallelGates(const Network *network) const;
   void netCaps(const RiseFall *rf,
                const Scene *scene,
@@ -355,14 +357,14 @@ public:
 	       float &fanout,
 	       bool &has_net_load) const;
   void findCaps(const StaState *sta);
-  bool loadSlewsInited() const { return load_slews_inited_; }
-  void setLoadSlewsInited(bool inited);
 
 private:
   VertexSeq drvrs_;
+  // Driver that triggers delay calculation for all the drivers on the net.
+  Vertex *dcalc_drvr_{nullptr};
   // [drvr_rf->index][dcalc_ap->index]
   std::vector<NetCaps> net_caps_;
-  bool load_slews_inited_{false};
+
 };
 
 } // namespace sta

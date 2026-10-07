@@ -1081,6 +1081,8 @@ Sta::setWireload(Wireload *wireload,
                  Sdc *sdc)
 {
   sdc->setWireload(wireload, min_max);
+  for (auto &[name, parasitics] : parasitics_name_map_)
+    parasitics->ensureParasitics();
   delaysInvalid();
 }
 
@@ -4623,6 +4625,8 @@ Sta::makeInstanceAfter(const Instance *inst)
             search_->endpointInvalid(vertex);
           if (bidir_drvr_vertex)
             search_->endpointInvalid(bidir_drvr_vertex);
+          for (auto &[name, parasitics] : parasitics_name_map_)
+            parasitics->ensureParasitics(pin);
         }
       }
       graph_->makeInstanceEdges(inst);
@@ -4637,6 +4641,8 @@ Sta::makePortPinAfter(Pin *pin)
   if (graph_) {
     Vertex *vertex, *bidir_drvr_vertex;
     graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
+    for (auto &[name, parasitics] : parasitics_name_map_)
+      parasitics->ensureParasitics(pin);
   }
 }
 
@@ -4999,6 +5005,8 @@ Sta::deleteNetBefore(const Net *net)
       corner_sdc->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  for (auto [name, parasitics] : parasitics_name_map_)
+    parasitics->deleteNetBefore(net);
   clk_skews_->clear();
   power_->powerInvalid();
 }

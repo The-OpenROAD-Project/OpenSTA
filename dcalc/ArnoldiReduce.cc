@@ -322,16 +322,20 @@ ArnoldiReduce::findPt(ParasiticNode *node)
 rcmodel *
 ArnoldiReduce::makeRcmodelDrv()
 {
-  ParasiticNode *drv_node =
-      parasitics_->findParasiticNode(parasitic_network_, drvr_pin_);
-  ts_point *pdrv = findPt(drv_node);
-  makeRcmodelDfs(pdrv);
-  getRC();
-  if (ctot_ < 1e-22)  // 1e-10ps
+  ParasiticNode *drv_node = parasitics_->findParasiticNode(parasitic_network_,
+                                                           drvr_pin_);
+  if (drv_node) {
+    ts_point *pdrv = findPt(drv_node);
+    makeRcmodelDfs(pdrv);
+    getRC();
+    if (ctot_ < 1e-22)  // 1e-10ps
+      return nullptr;
+    setTerms(pdrv);
+    makeRcmodelFromTs();
+    return makeRcmodelFromW();
+  }
+  else
     return nullptr;
-  setTerms(pdrv);
-  makeRcmodelFromTs();
-  return makeRcmodelFromW();
 }
 
 #define ts_orient(pp, ee) \
