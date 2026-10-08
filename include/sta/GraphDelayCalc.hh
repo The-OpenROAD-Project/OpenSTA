@@ -46,6 +46,7 @@ class SearchPred;
 
 using MultiDrvrNetMap = std::map<const Vertex*, MultiDrvrNet*>;
 using DrvrLoadSlews = std::vector<SlewSeq>;
+using RiseFallExists = std::array<bool, RiseFall::index_count>;
 
 // This class traverses the graph calling the arc delay calculator and
 // annotating delays on graph edges.
@@ -196,18 +197,20 @@ protected:
   MultiDrvrNet *makeMultiDrvrNet(Vertex *drvr_vertex);
   bool hasMultiDrvrs(Vertex *drvr_vertex);
   Vertex *firstLoad(Vertex *drvr_vertex);
-  bool findDriverDelays1(Vertex *drvr_vertex,
+  void findDriverDelays1(Vertex *drvr_vertex,
 			 MultiDrvrNet *multi_drvr,
 			 ArcDelayCalc *arc_delay_calc,
-                         LoadPinIndexMap &load_pin_index_map);
+                         LoadPinIndexMap &load_pin_index_map,
+                         RiseFallExists &load_slew_set);
   void initLoadSlews(Vertex *drvr_vertex);
   bool findDriverEdgeDelays(Vertex *drvr_vertex,
                             const MultiDrvrNet *multi_drvr,
                             Edge *edge,
                             ArcDelayCalc *arc_delay_calc,
                             LoadPinIndexMap &load_pin_index_map,
-                            // Return value.
-                            std::array<bool, RiseFall::index_count> &delay_exists);
+                            // Return values.
+                            RiseFallExists &drvr_slew_set,
+                            RiseFallExists &load_slew_set);
   bool findDriverArcDelays(Vertex *drvr_vertex,
                            const MultiDrvrNet *multi_drvr,
                            Edge *edge,
@@ -232,6 +235,8 @@ protected:
   void initRootSlews(Vertex *vertex);
   void zeroDrvrSlew(Vertex *drvr_vertex,
                     const RiseFall *rf);
+  void zeroUnsetLoadSlews(LoadPinIndexMap &load_pin_index_map,
+                          RiseFallExists &load_slew_set);
   void findVertexDelay(Vertex *vertex,
 		       ArcDelayCalc *arc_delay_calc);
   DrvrLoadSlews loadSlews(LoadPinIndexMap &load_pin_index_map);
