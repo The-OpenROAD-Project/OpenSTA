@@ -5709,6 +5709,13 @@ Sdc::groupPathsTo(const ExceptionPathSet *to_exceptions,
 
 ////////////////////////////////////////////////////////////////
 
+bool
+Sdc::wireloadModelsEnabled() const
+{
+  return wireload_[MinMax::minIndex()]
+    || wireload_[MinMax::maxIndex()];
+}
+
 Wireload *
 Sdc::wireload(const MinMax *min_max) const
 {

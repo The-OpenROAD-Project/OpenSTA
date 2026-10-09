@@ -105,8 +105,10 @@ Parasitics::findParasiticNet(const Pin *pin) const
   // Use the net connected to the pin's terminal.
   if (net == nullptr && network_->isTopLevelPort(pin)) {
     Term *term = network_->term(pin);
-    if (term)
-      return network_->net(term);
+    if (term) {
+      Net *term_net = network_->net(term);
+      return term_net ? network_->highestConnectedNet(term_net) : nullptr;
+    }
     else
       return nullptr;
   }

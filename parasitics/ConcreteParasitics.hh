@@ -191,6 +191,8 @@ protected:
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);
+  // Make driver map entries for reduced parastitics.
+  void ensureReducedParasitics(const Net *net);
 
   std::string name_;
   std::string filename_;

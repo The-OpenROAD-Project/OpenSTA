@@ -623,7 +623,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
   NetIdPair net_id(net, id);
   auto id_node = sub_nodes_.find(net_id);
   if (id_node == sub_nodes_.end()) {
-    Net *net1 = network->highestNetAbove(const_cast<Net*>(net));
+    const Net *net1 = network->highestNetAbove(net);
     node = new ConcreteParasiticNode(net, id, network->highestNetAbove(net1) != net_);
     sub_nodes_[net_id] = node;
     if (net == net_)
@@ -641,7 +641,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Pin *pin,
   ConcreteParasiticNode *node;
   auto pin_node = pin_nodes_.find(pin);
   if (pin_node == pin_nodes_.end()) {
-    Net *net = network->net(pin);
+    const Net *net = network->net(pin);
     // Pins on the top level instance may not have nets.
     // Use the net connected to the pin's terminal.
     if (net == nullptr && network->isTopLevelPort(pin)) {
@@ -944,6 +944,18 @@ ConcreteParasitics::ensureParasitics(const Pin *drvr_pin)
   drvr_parasitic_map_.try_emplace(drvr_pin);
 }
 
+void
+ConcreteParasitics::ensureReducedParasitics(const Net *net)
+{
+  NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network_->isDriver(pin))
+      drvr_parasitic_map_.try_emplace(pin);
+  }
+  delete pin_iter;
+}
+
 Parasitic *
 ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
                                  const RiseFall *rf,
@@ -1205,9 +1217,15 @@ Parasitic *
 ConcreteParasitics::makeParasiticNetwork(const Net *net,
                                          bool includes_pin_caps)
 {
-  ConcreteParasiticNetwork &parasitic = parasitic_network_map_.find(net)->second;
-  parasitic.init(net, includes_pin_caps);
-  return &parasitic;
+  ConcreteParasiticNetwork *parasitic = nullptr;
+  auto itr = parasitic_network_map_.find(net);
+  if (itr == parasitic_network_map_.end())
+    parasitic = &parasitic_network_map_.try_emplace(net, network_).first->second;
+  else
+    parasitic = &itr->second;
+  parasitic->init(net, includes_pin_caps);
+  ensureReducedParasitics(net);
+  return parasitic;
 }
 
 void

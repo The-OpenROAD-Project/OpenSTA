@@ -92,8 +92,6 @@ SpefReader::SpefReader(std::string_view filename,
 bool
 SpefReader::read()
 {
-  parasitics_->ensureParasitics();
-
   bool success;
   gzstream::igzstream stream(std::string(filename_).c_str());
   if (stream.is_open()) {
@@ -416,18 +414,19 @@ SpefReader::dspfBegin(Net *net,
       parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_);
     }
     else {
-      Net *parasitic_owner = net;
+      const Net *owner = net;
       NetTermIterator *term_iter = network_->termIterator(net);
       if (term_iter->hasNext()) {
         Term *term = term_iter->next();
         Pin *hpin = network_->pin(term);
-        parasitic_owner = network_->net(hpin);
+        owner = network_->net(hpin);
       }
       delete term_iter;
-      parasitic_ = parasitics_->findParasiticNetwork(parasitic_owner);
+      // The highest connected net owns the parasitic network.
+      owner = network_->highestConnectedNet(owner);
+      parasitic_ = parasitics_->findParasiticNetwork(owner);
       if (parasitic_ == nullptr)
-        parasitic_ =
-            parasitics_->makeParasiticNetwork(parasitic_owner, pin_cap_included_);
+        parasitic_ = parasitics_->makeParasiticNetwork(owner, pin_cap_included_);
     }
     net_ = net;
   }

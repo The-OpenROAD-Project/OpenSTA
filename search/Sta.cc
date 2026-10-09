@@ -1081,8 +1081,6 @@ Sta::setWireload(Wireload *wireload,
                  Sdc *sdc)
 {
   sdc->setWireload(wireload, min_max);
-  for (auto &[name, parasitics] : parasitics_name_map_)
-    parasitics->ensureParasitics();
   delaysInvalid();
 }
 
@@ -3748,9 +3746,17 @@ void
 Sta::delayCalcPreamble()
 {
   ensureLevelized();
+  bool wireloads_enabled = false;
   for (Mode *mode : modes_) {
     mode->sim()->ensureConstantsPropagated();
     mode->clkNetwork()->ensureClkNetwork();
+    if (mode->sdc()->wireloadModelsEnabled())
+      wireloads_enabled = true;
+  }
+  if (wireloads_enabled) {
+    // Make parasitic maps for wireload parasitics so avoid locking them.
+    for (auto &[name, parasitics] : parasitics_name_map_)
+      parasitics->ensureParasitics();
   }
 }
 
