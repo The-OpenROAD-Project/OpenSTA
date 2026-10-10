@@ -994,7 +994,9 @@ Sta::setLatchBorrowLimit(const Pin *pin,
                          Sdc *sdc)
 {
   sdc->setLatchBorrowLimit(pin, limit);
-  search_->requiredInvalid(pin);
+  const Instance *inst = network_->instance(pin);
+  search_->arrivalInvalid(inst);
+  search_->requiredInvalid(inst);
 }
 
 void
@@ -1003,6 +1005,7 @@ Sta::setLatchBorrowLimit(const Instance *inst,
                          Sdc *sdc)
 {
   sdc->setLatchBorrowLimit(inst, limit);
+  search_->arrivalInvalid(inst);
   search_->requiredInvalid(inst);
 }
 

@@ -120,6 +120,7 @@ public:
   // Invalidate vertex arrival time.
   void arrivalInvalid(Vertex *vertex);
   void arrivalInvalid(const Pin *pin);
+  void arrivalInvalid(const Instance *inst);
   // Invalidate all required times.
   void requiredsInvalid();
   // Invalidate vertex required time.

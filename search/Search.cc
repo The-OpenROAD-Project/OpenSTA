@@ -899,6 +899,19 @@ Search::arrivalInvalid(const Pin *pin)
 }
 
 void
+Search::arrivalInvalid(const Instance *inst)
+{
+  if (graph_) {
+    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      arrivalInvalid(pin);
+    }
+    delete pin_iter;
+  }
+}
+
+void
 Search::requiredInvalid(const Instance *inst)
 {
   if (graph_) {
