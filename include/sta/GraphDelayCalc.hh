@@ -129,17 +129,17 @@ public:
   //  Liberty port min_period attribute.
   void minPeriod(const Pin *pin,
                  const Scene *scene,
-		 // Return values.
-		 float &min_period,
-		 bool &exists);
+                 // Return values.
+                 float &min_period,
+                 bool &exists);
 
   Slew edgeFromSlew(const Vertex *from_vertex,
-		    const RiseFall *from_rf,
-		    const Edge *edge,
+                    const RiseFall *from_rf,
+                    const Edge *edge,
                     const Scene *scene,
                     const MinMax *min_max);
   Slew edgeFromSlew(const Vertex *from_vertex,
-		    const RiseFall *from_rf,
+                    const RiseFall *from_rf,
                     const TimingRole *role,
                     const Scene *scene,
                     const MinMax *min_max);
@@ -149,48 +149,48 @@ protected:
   void seedInvalidDelays();
   void initSlew(Vertex *vertex);
   void seedRootSlew(Vertex *vertex,
-		    ArcDelayCalc *arc_delay_calc);
+                    ArcDelayCalc *arc_delay_calc);
   void seedRootSlews();
   void seedDrvrSlew(Vertex *vertex,
-		    ArcDelayCalc *arc_delay_calc);
+                    ArcDelayCalc *arc_delay_calc);
   void seedNoDrvrSlew(Vertex *drvr_vertex,
-		      const Pin *drvr_pin,
-		      const RiseFall *rf,
+                      const Pin *drvr_pin,
+                      const RiseFall *rf,
                       const Scene *scene,
                       const MinMax *min_max,
-		      ArcDelayCalc *arc_delay_calc);
+                      ArcDelayCalc *arc_delay_calc);
   void seedNoDrvrCellSlew(Vertex *drvr_vertex,
-			  const Pin *drvr_pin,
-			  const RiseFall *rf,
-			  const InputDrive *drive,
+                          const Pin *drvr_pin,
+                          const RiseFall *rf,
+                          const InputDrive *drive,
                           const Scene *scene,
                           const MinMax *min_max,
-			  ArcDelayCalc *arc_delay_calc);
+                          ArcDelayCalc *arc_delay_calc);
   void seedLoadSlew(Vertex *vertex);
   void setInputPortWireDelays(Vertex *vertex);
   void findInputDriverDelay(const LibertyCell *drvr_cell,
-			    const Pin *drvr_pin,
-			    Vertex *drvr_vertex,
-			    const RiseFall *rf,
-			    const LibertyPort *from_port,
+                            const Pin *drvr_pin,
+                            Vertex *drvr_vertex,
+                            const RiseFall *rf,
+                            const LibertyPort *from_port,
                             const DriveCellSlews *from_slews,
-			    const LibertyPort *to_port,
+                            const LibertyPort *to_port,
                             const Scene *scene,
                             const MinMax *min_max,
                             ArcDelayCalc *arc_delay_calc);
   LibertyPort *driveCellDefaultFromPort(const LibertyCell *cell,
-					const LibertyPort *to_port);
+                                        const LibertyPort *to_port);
   int findPortIndex(const LibertyCell *cell,
-		    const LibertyPort *port);
+                    const LibertyPort *port);
   void findInputArcDelay(const Pin *drvr_pin,
-			 Vertex *drvr_vertex,
-			 const TimingArc *arc,
-			 float from_slew,
+                         Vertex *drvr_vertex,
+                         const TimingArc *arc,
+                         float from_slew,
                          const Scene *scene,
                          const MinMax *min_max,
                          ArcDelayCalc *arc_delay_calc);
   void findDriverDelays(Vertex *drvr_vertex,
-			ArcDelayCalc *arc_delay_calc,
+                        ArcDelayCalc *arc_delay_calc,
                         LoadPinIndexMap &load_pin_index_map);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_vertex);
@@ -198,8 +198,8 @@ protected:
   bool hasMultiDrvrs(Vertex *drvr_vertex);
   Vertex *firstLoad(Vertex *drvr_vertex);
   void findDriverDelays1(Vertex *drvr_vertex,
-			 MultiDrvrNet *multi_drvr,
-			 ArcDelayCalc *arc_delay_calc,
+                         MultiDrvrNet *multi_drvr,
+                         ArcDelayCalc *arc_delay_calc,
                          LoadPinIndexMap &load_pin_index_map,
                          RiseFallExists &load_slew_set);
   void initLoadSlews(Vertex *drvr_vertex);
@@ -238,7 +238,7 @@ protected:
   void zeroUnsetLoadSlews(LoadPinIndexMap &load_pin_index_map,
                           RiseFallExists &load_slew_set);
   void findVertexDelay(Vertex *vertex,
-		       ArcDelayCalc *arc_delay_calc);
+                       ArcDelayCalc *arc_delay_calc);
   DrvrLoadSlews loadSlews(LoadPinIndexMap &load_pin_index_map);
   void enqueueCheckEdges(Vertex *vertex);
   bool loadSlewChanged(Vertex *load_vertex,
@@ -276,10 +276,10 @@ protected:
                              DcalcAPIndex ap_index);
   void findLatchEdgeDelays(Edge *edge);
   void findCheckEdgeDelays(Edge *edge,
-			   ArcDelayCalc *arc_delay_calc);
+                           ArcDelayCalc *arc_delay_calc);
   void deleteMultiDrvrNets();
   Slew checkEdgeClkSlew(const Vertex *from_vertex,
-			const RiseFall *from_rf,
+                        const RiseFall *from_rf,
                         const Scene *scene,
                         const MinMax *min_max);
   float loadCap(const Pin *drvr_pin,
@@ -356,11 +356,11 @@ public:
   void netCaps(const RiseFall *rf,
                const Scene *scene,
                const MinMax *min_max,
-	       // Return values.
-	       float &pin_cap,
-	       float &wire_cap,
-	       float &fanout,
-	       bool &has_net_load) const;
+               // Return values.
+               float &pin_cap,
+               float &wire_cap,
+               float &fanout,
+               bool &has_net_load) const;
   void findCaps(const StaState *sta);
 
 private:
