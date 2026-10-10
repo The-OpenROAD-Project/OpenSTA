@@ -5828,6 +5828,7 @@ size_t
 Sta::fanoutViolationCount(const MinMax *min_max,
                           const ModeSeq &modes)
 {
+  checkFanoutPreamble();
   FanoutCheckSeq &checks = check_fanouts_->check(nullptr, 0, true, modes, min_max);
   return checks.size();
 }
