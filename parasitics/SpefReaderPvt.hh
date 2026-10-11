@@ -124,6 +124,7 @@ private:
   std::string stripped(std::string_view spef_name) const;
   ParasiticNode *findParasiticNode(std::string_view name,
                                    bool local_only);
+  const Net *dspefNet(const Net *net);
 
   std::string_view filename_;
   SpefScanner *scanner_;

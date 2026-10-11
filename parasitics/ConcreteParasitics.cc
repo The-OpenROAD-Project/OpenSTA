@@ -1231,7 +1231,11 @@ ConcreteParasitics::makeParasiticNetwork(const Net *net,
 void
 ConcreteParasitics::deleteParasiticNetwork(const Net *net)
 {
-  parasitic_network_map_.find(net)->second.init(net, false);
+  auto itr = parasitic_network_map_.find(net);
+  if (itr != parasitic_network_map_.end()) {
+    ConcreteParasiticNetwork &pararsitic = itr->second;
+    pararsitic.init(net, false);
+  }
 }
 
 const Net *

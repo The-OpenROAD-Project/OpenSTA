@@ -61,7 +61,7 @@ static const Slew default_slew = 0.0;
 
 static bool
 isLeafDriver(const Pin *pin,
-	     const Network *network);
+             const Network *network);
 
 ////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ DcalcPred::searchFrom(const Vertex *from_vertex,
   Net *net = network->net(from_pin);
   return !(sdc->isDisabledConstraint(from_pin)
            || sim->isConstant(from_vertex)
-	   || (net && (network->isPower(net)
+           || (net && (network->isPower(net)
                        || network->isGround(net))));
 }
 
@@ -106,7 +106,7 @@ DcalcPred::searchThru(Edge *edge,
   const TimingRole *role = edge->role();
   return !(role->isTimingCheck()
            || (role == TimingRole::regSetClr()
-	       && !variables->presetClrArcsEnabled())
+               && !variables->presetClrArcsEnabled())
            || edge->isDisabledLoop()
            || sdc->isDisabledConstraint(edge)
            || sdc->isDisabledCondDefault(edge)
@@ -229,17 +229,17 @@ GraphDelayCalc::delayInvalid(const Pin *pin)
     if (network_->isHierarchical(pin)) {
       EdgesThruHierPinIterator edge_iter(pin, network_, graph_);
       while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	delayInvalid(edge->from(graph_));
+        Edge *edge = edge_iter.next();
+        delayInvalid(edge->from(graph_));
       }
     }
     else {
       Vertex *vertex, *bidirect_drvr_vertex;
       graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
       if (vertex)
-	delayInvalid(vertex);
+        delayInvalid(vertex);
       if (bidirect_drvr_vertex)
-	delayInvalid(bidirect_drvr_vertex);
+        delayInvalid(bidirect_drvr_vertex);
     }
   }
 }
@@ -882,7 +882,7 @@ GraphDelayCalc::firstLoad(Vertex *drvr_vertex)
 
 static bool
 isLeafDriver(const Pin *pin,
-	     const Network *network)
+             const Network *network)
 {
   PortDirection *dir = network->direction(pin);
   const Instance *inst = network->instance(pin);
@@ -1463,7 +1463,7 @@ GraphDelayCalc::parasiticLoad(const Pin *drvr_pin,
       // PiModel includes both pin and external caps.
       float parasitic_cap = parasitics->capacitance(parasitic);
       if (parasitic_cap >= pin_cap)
-	wire_cap = parasitic_cap - pin_cap;
+        wire_cap = parasitic_cap - pin_cap;
       else {
         wire_cap = 0.0;
         // Ignore parasitic if pin cap is greater.
@@ -1507,12 +1507,12 @@ GraphDelayCalc::netCaps(const Pin *drvr_pin,
 {
   if (multi_drvr)
     multi_drvr->netCaps(rf, scene, min_max,
-			pin_cap, wire_cap, fanout, has_net_load);
+                        pin_cap, wire_cap, fanout, has_net_load);
   else {
     const Sdc *sdc = scene->sdc();
     // Find pin and external pin/wire capacitance.
     sdc->connectedCap(drvr_pin, rf, scene, min_max,
-		       pin_cap, wire_cap, fanout, has_net_load);
+                       pin_cap, wire_cap, fanout, has_net_load);
   }
 }
 
@@ -1766,9 +1766,9 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
 void
 GraphDelayCalc::minPeriod(const Pin *pin,
                           const Scene *scene,
-			  // Return values.
-			  float &min_period,
-			  bool &exists)
+                          // Return values.
+                          float &min_period,
+                          bool &exists)
 {
   exists = false;
   const MinMax *min_max = MinMax::max();
@@ -1821,11 +1821,11 @@ void
 MultiDrvrNet::netCaps(const RiseFall *drvr_rf,
                       const Scene *scene,
                       const MinMax *min_max,
-		      // Return values.
-		      float &pin_cap,
-		      float &wire_cap,
-		      float &fanout,
-		      bool &has_net_load) const
+                      // Return values.
+                      float &pin_cap,
+                      float &wire_cap,
+                      float &fanout,
+                      bool &has_net_load) const
 {
   int index = scene->dcalcAnalysisPtIndex(min_max) * RiseFall::index_count
     + drvr_rf->index();

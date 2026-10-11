@@ -75,7 +75,7 @@ Path::Path(Vertex *vertex,
            const StaState *sta) :
   prev_path_(nullptr),
   arrival_(0.0),
-  required_(0.0),
+  required_(delayInitValue(tag->minMax()->opposite())),
   tag_index_(tag->index()),
   is_enum_(false),
   prev_arc_idx_(0)
@@ -93,7 +93,7 @@ Path::Path(Vertex *vertex,
            const StaState *sta) :
   prev_path_(prev_path),
   arrival_(arrival),
-  required_(0.0),
+  required_(delayInitValue(tag->minMax()->opposite())),
   tag_index_(tag->index()),
   is_enum_(false)
 {
@@ -118,7 +118,7 @@ Path::Path(Vertex *vertex,
            const StaState *sta) :
   prev_path_(prev_path),
   arrival_(arrival),
-  required_(0.0),
+  required_(delayInitValue(tag->minMax()->opposite())),
   tag_index_(tag->index()),
   is_enum_(is_enum)
 {
@@ -157,7 +157,7 @@ Path::init(Vertex *vertex,
   tag_index_ = tag->index(), prev_path_ = nullptr;
   prev_arc_idx_ = 0;
   arrival_ = 0.0;
-  required_ = 0.0;
+  required_ = delayInitValue(tag->minMax()->opposite());
   is_enum_ = false;
 }
 
@@ -172,7 +172,7 @@ Path::init(Vertex *vertex,
   tag_index_ = tag->index(), prev_path_ = nullptr;
   prev_arc_idx_ = 0;
   arrival_ = arrival;
-  required_ = 0.0;
+  required_ = delayInitValue(tag->minMax()->opposite());
   is_enum_ = false;
 }
 
@@ -196,7 +196,7 @@ Path::init(Vertex *vertex,
     prev_arc_idx_ = 0;
   }
   arrival_ = arrival;
-  required_ = 0.0;
+  required_ = delayInitValue(tag->minMax()->opposite());
   is_enum_ = false;
 }
 

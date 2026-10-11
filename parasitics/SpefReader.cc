@@ -414,19 +414,10 @@ SpefReader::dspfBegin(Net *net,
       parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_);
     }
     else {
-      const Net *owner = net;
-      NetTermIterator *term_iter = network_->termIterator(net);
-      if (term_iter->hasNext()) {
-        Term *term = term_iter->next();
-        Pin *hpin = network_->pin(term);
-        owner = network_->net(hpin);
-      }
-      delete term_iter;
-      // The highest connected net owns the parasitic network.
-      owner = network_->highestConnectedNet(owner);
-      parasitic_ = parasitics_->findParasiticNetwork(owner);
+      const Net *dspef_net = dspefNet(net);
+      parasitic_ = parasitics_->findParasiticNetwork(dspef_net);
       if (parasitic_ == nullptr)
-        parasitic_ = parasitics_->makeParasiticNetwork(owner, pin_cap_included_);
+        parasitic_ = parasitics_->makeParasiticNetwork(dspef_net, pin_cap_included_);
     }
     net_ = net;
   }
@@ -437,12 +428,30 @@ SpefReader::dspfBegin(Net *net,
   delete total_cap;
 }
 
+const Net *
+SpefReader::dspefNet(const Net *net)
+{
+  const Net *dspef_net = net;
+  NetTermIterator *term_iter = network_->termIterator(net);
+  if (term_iter->hasNext()) {
+    Term *term = term_iter->next();
+    Pin *hpin = network_->pin(term);
+    const Net *term_net = network_->net(hpin);
+    if (term_net)
+      dspef_net = term_net;
+  }
+  delete term_iter;
+  // The highest connected net owns the parasitic network.
+  return network_->highestConnectedNet(dspef_net);
+}
+
 void
 SpefReader::dspfFinish()
 {
   if (parasitic_ && reduce_) {
-    arc_delay_calc_->reduceParasitic(parasitic_, net_, scene_, min_max_);
-    parasitics_->deleteParasiticNetwork(net_);
+    const Net *dspef_net = dspefNet(net_);
+    arc_delay_calc_->reduceParasitic(parasitic_, dspef_net, scene_, min_max_);
+    parasitics_->deleteParasiticNetwork(dspef_net);
   }
   parasitic_ = nullptr;
   net_ = nullptr;
