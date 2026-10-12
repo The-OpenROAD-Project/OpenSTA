@@ -1810,7 +1810,7 @@ TEST_F(ConcreteNetworkLinkedTest, IsConnectedNetNet) {
 
 // Network: highestNetAbove
 TEST_F(ConcreteNetworkLinkedTest, HighestNetAbove) {
-  Net *highest = network_.highestNetAbove(net1_);
+  const Net *highest = network_.highestNetAbove(net1_);
   EXPECT_EQ(highest, net1_);
 }
 
