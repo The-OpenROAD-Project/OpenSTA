@@ -895,7 +895,8 @@ Search::arrivalInvalid(const Pin *pin)
   if (graph_) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    arrivalInvalid(vertex);
+    if (vertex)
+      arrivalInvalid(vertex);
     if (bidirect_drvr_vertex)
       arrivalInvalid(bidirect_drvr_vertex);
   }
@@ -933,7 +934,8 @@ Search::requiredInvalid(const Pin *pin)
   if (graph_) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    requiredInvalid(vertex);
+    if (vertex)
+      requiredInvalid(vertex);
     if (bidirect_drvr_vertex)
       requiredInvalid(bidirect_drvr_vertex);
   }
