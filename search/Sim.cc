@@ -796,6 +796,19 @@ Sim::setIsDisabledCond(Edge *edge,
   }
 }
 
+// cond_set has an arc to every edge arc_set has an arc to.
+static bool
+coversArcs(const TimingArcSet *cond_set,
+           const TimingArcSet *arc_set)
+{
+  for (const TimingArc *arc : arc_set->arcs()) {
+    const RiseFall *to_rf = arc->toEdge()->asRiseFall();
+    if (to_rf == nullptr || cond_set->arcTo(to_rf) == nullptr)
+      return false;
+  }
+  return true;
+}
+
 bool
 Sim::isDisabledCond(Edge *edge,
                     const Instance *inst,
@@ -834,7 +847,8 @@ Sim::isDisabledCond(Edge *edge,
     is_disabled = false;
     for (TimingArcSet *cond_set : cell->timingArcSets(from_port, to_port)) {
       FuncExpr *cond = cond_set->cond();
-      if (cond && evalExpr(cond, inst) == LogicValue::one) {
+      if (cond && evalExpr(cond, inst) == LogicValue::one
+          && coversArcs(cond_set, arc_set)) {
         disable_cond = cond;
         is_disabled = true;
         break;
