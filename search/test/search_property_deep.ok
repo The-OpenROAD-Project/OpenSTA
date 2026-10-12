@@ -89,8 +89,8 @@ endpoint_clock: clk
 --- Path properties deep ---
 path pin: out1
 path arrival: 1.0361974472905544e-10
-path required: 0.0
-path slack: -1.0361974472905544e-10
+path required: 1.0000000150474662e+30
+path slack: 1.0000000150474662e+30
 path edge: ^
 path pins count: 8
 --- report_checks -format full ---

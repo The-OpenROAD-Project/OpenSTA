@@ -870,31 +870,31 @@ Path Type: max
 --- PathEnd attributes on different types ---
   vertex pin: reg1/D
   path arrival: 1.0481947532170466e-9
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: reg1/D
   path arrival: 1.0459734189893766e-9
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: reg1/D
   path arrival: 1.0453631293927401e-9
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: out1
   path arrival: 8.148756669434931e-11
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: out1
   path arrival: 7.541753332951373e-11
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: reg2/D
   path arrival: 1.0092450486443028e-10
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: reg2/D
   path arrival: 1.0341291711846168e-10
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: reg1/D
   path arrival: 1.0459734189893766e-9
-  path required: 0.0
+  path required: 1.0000000150474662e+30
   vertex pin: reg1/D
   path arrival: 1.0440722730820085e-9
-  path required: 0.0
+  path required: 1.0000000150474662e+30
 --- find_timing_paths min_max ---
 Warning 502: search_multiclock.tcl line 1, find_timing_paths -endpoint_count is deprecated. Use -endpoint_path_count instead.
 Min_max paths: 18
