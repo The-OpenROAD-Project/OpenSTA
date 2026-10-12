@@ -288,6 +288,7 @@ TEST_F(StaDesignTest, VertexWorstRequiredPath) {
 TEST_F(StaDesignTest, VertexWorstRequiredPathRf) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
+  sta_->findRequireds();
   Path *path = sta_->vertexWorstRequiredPath(v, RiseFall::rise(), MinMax::max());
   EXPECT_NE(path, nullptr);
 }
@@ -2205,6 +2206,7 @@ TEST_F(StaDesignTest, VertexWorstArrivalPathRf) {
 TEST_F(StaDesignTest, VertexWorstSlackPath) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
+  sta_->findRequireds();
   Path *path = sta_->vertexWorstSlackPath(v, MinMax::max());
   EXPECT_NE(path, nullptr);
 }
@@ -2212,6 +2214,7 @@ TEST_F(StaDesignTest, VertexWorstSlackPath) {
 TEST_F(StaDesignTest, VertexWorstSlackPathRf) {
   Vertex *v = findVertex("r3/D");
   ASSERT_NE(v, nullptr);
+  sta_->findRequireds();
   Path *path = sta_->vertexWorstSlackPath(v, RiseFall::rise(), MinMax::max());
   EXPECT_NE(path, nullptr);
 }
