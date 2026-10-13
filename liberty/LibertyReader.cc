@@ -23,17 +23,12 @@
 // This notice may not be removed or altered from any source distribution.
 
 #include "LibertyReader.hh"
-#include "LibertyBinaryCommon.hh"
-#include "LibertyBinaryReader.hh"
 
-#include <algorithm>
 #include <cctype>
 #include <cstdlib>
-#include <cstring>
 #include <functional>
 #include <memory>
 #include <set>
-#include <streambuf>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -41,7 +36,6 @@
 #include "ConcreteLibrary.hh"
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "EnumNameMap.hh"
 #include "EquivCells.hh"
 #include "Format.hh"
@@ -67,7 +61,6 @@
 #include "Transition.hh"
 #include "Units.hh"
 #include "Wireload.hh"
-#include "util/gzstream.hh"
 
 extern int LibertyParse_debug;
 
@@ -78,37 +71,6 @@ static void
 scaleFloats(FloatSeq &floats,
             float scale,
             size_t first = 0);
-
-// ---- OpenROAD fork: binary liberty support (begin) ----
-// Replay the format probe before reading the rest of the same stream. Neither
-// gzip streams nor FIFOs support rewinding, and reopening a FIFO loses data.
-class LibertyInputStreambuf : public std::streambuf
-{
-public:
-  LibertyInputStreambuf(char *prefix,
-                        size_t size,
-                        std::streambuf *source) :
-    source_(source)
-  {
-    setg(prefix, prefix, prefix + size);
-  }
-
-protected:
-  int_type underflow() override { return source_->sgetc(); }
-  int_type uflow() override { return source_->sbumpc(); }
-  std::streamsize xsgetn(char *dest,
-                        std::streamsize count) override
-  {
-    std::streamsize size = std::min<std::streamsize>(egptr() - gptr(), count);
-    std::memcpy(dest, gptr(), size);
-    gbump(static_cast<int>(size));
-    return size + source_->sgetn(dest + size, count - size);
-  }
-
-private:
-  std::streambuf *source_;
-};
-// ---- OpenROAD fork: binary liberty support (end) ----
 
 LibertyLibrary *
 readLibertyFile(std::string_view filename,
@@ -136,25 +98,7 @@ LibertyLibrary *
 LibertyReader::readLibertyFile(std::string_view filename)
 {
   //::LibertyParse_debug = 1;
-  // ---- OpenROAD fork: binary liberty support (begin) ----
-  std::string fn(filename);
-  gzstream::igzstream source(fn.c_str());
-  if (!source.is_open())
-    throw FileNotReadable(filename);
-
-  char magic[LIBERTY_BINARY_MAGIC_SIZE];
-  source.read(magic, sizeof(magic));
-  size_t prefix_size = source.gcount();
-  LibertyInputStreambuf buffer(magic, prefix_size, source.rdbuf());
-  std::istream stream(&buffer);
-  if (std::string_view(magic, prefix_size) == LIBERTY_BINARY_MAGIC) {
-    LibertyBinaryReader bin_reader(this, filename, report_);
-    // Errors on a malformed file.
-    bin_reader.read(&stream);
-  }
-  else
-    parseLibertyStream(&stream, filename, this, report_);
-  // ---- OpenROAD fork: binary liberty support (end) ----
+  parseLibertyFile(filename, this, report_);
   return library_;
 }
 

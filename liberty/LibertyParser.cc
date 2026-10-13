@@ -24,15 +24,19 @@
 
 #include "LibertyParser.hh"
 
+#include <algorithm>
 #include <cstring>
 #include <istream>
 #include <regex>
+#include <streambuf>
 #include <string>
 #include <string_view>
 #include <utility>
 
 #include "ContainerHelpers.hh"
 #include "Error.hh"
+#include "LibertyBinaryCommon.hh"
+#include "LibertyBinaryReader.hh"
 #include "LibertyParse.hh"
 #include "LibertyScanner.hh"
 #include "Report.hh"
@@ -42,16 +46,59 @@
 namespace sta {
 
 // ---- OpenROAD fork: binary liberty support (begin) ----
-void
+// Replay the format probe before reading the rest of the same stream. Neither
+// gzip streams nor FIFOs support rewinding, and reopening a FIFO loses data.
+class LibertyInputStreambuf : public std::streambuf
+{
+public:
+  LibertyInputStreambuf(char *prefix,
+                        size_t size,
+                        std::streambuf *source) :
+    source_(source)
+  {
+    setg(prefix, prefix, prefix + size);
+  }
+
+protected:
+  int_type underflow() override { return source_->sgetc(); }
+  int_type uflow() override { return source_->sbumpc(); }
+  std::streamsize xsgetn(char *dest,
+                        std::streamsize count) override
+  {
+    std::streamsize size = std::min<std::streamsize>(egptr() - gptr(), count);
+    std::memcpy(dest, gptr(), size);
+    gbump(static_cast<int>(size));
+    return size + source_->sgetn(dest + size, count - size);
+  }
+
+private:
+  std::streambuf *source_;
+};
+
+// Binary liberty files are recognized by their magic number, so every caller
+// of parseLibertyFile reads both formats.
+static void
 parseLibertyStream(std::istream *stream,
                    std::string_view filename,
                    LibertyGroupVisitor *library_visitor,
                    Report *report)
 {
-  LibertyParser reader(filename, library_visitor, report);
-  LibertyScanner scanner(stream, filename, &reader, report);
-  LibertyParse parser(&scanner, &reader);
-  parser.parse();
+  char magic[LIBERTY_BINARY_MAGIC_SIZE];
+  stream->read(magic, sizeof(magic));
+  size_t prefix_size = stream->gcount();
+  LibertyInputStreambuf buffer(magic, prefix_size, stream->rdbuf());
+  std::istream input(&buffer);
+  if (std::string_view(magic, prefix_size) == LIBERTY_BINARY_MAGIC) {
+    LibertyBinaryReader bin_reader(library_visitor, filename, report);
+    // Errors on a malformed file.
+    bin_reader.read(&input);
+  }
+  else {
+    LibertyParser reader(filename, library_visitor, report);
+    LibertyScanner scanner(&input, filename, &reader, report);
+    LibertyParse parser(&scanner, &reader);
+    parser.parse();
+  }
 }
 // ---- OpenROAD fork: binary liberty support (end) ----
 

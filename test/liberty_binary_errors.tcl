@@ -206,6 +206,23 @@ catch { write_liberty_binary $same_lib $same_lib_alias } result
 puts_error $result
 diff_files liberty_float_as_str.lib $same_lib
 
+# A binary liberty input, compressed or not, is refused.
+set blib_input [make_result_file liberty_binary_errors_input.blib]
+write_liberty_binary liberty_float_as_str.lib $blib_input
+set stream [open $blib_input rb]
+set bytes [read $stream]
+close $stream
+set gz_input [make_result_file liberty_binary_errors_input.blib.gz]
+set stream [open $gz_input wb]
+puts -nonewline $stream [zlib gzip $bytes]
+close $stream
+set out_file [make_result_file liberty_binary_errors_input_out.blib]
+foreach input [list $blib_input $gz_input] {
+  catch { write_liberty_binary $input $out_file } result
+  puts_error $result
+  puts "output written: [file exists $out_file]"
+}
+
 # An unwritable output path is reported.
 catch { write_liberty_binary liberty_float_as_str.lib /nonexistent_dir/out.blib } result
 puts_error $result

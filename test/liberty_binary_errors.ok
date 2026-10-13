@@ -18,4 +18,8 @@ partial output left behind: 0
 Error: 1899 output liberty_binary_errors_same.lib is the input liberty file.
 Error: 1899 output ./liberty_binary_errors_same.lib is the input liberty file.
 No differences found.
+Error: 1898 liberty_binary_errors_input.blib is already a binary liberty file.
+output written: 0
+Error: 1898 liberty_binary_errors_input.blib.gz is already a binary liberty file.
+output written: 0
 Error: cannot write file /nonexistent_dir/out.blib.

@@ -13,7 +13,10 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 #include <vector>
+
+#include "util/gzstream.hh"
 
 namespace {
 
@@ -68,6 +71,19 @@ hashFile(const char *filename,
   return true;
 }
 
+// True if the file, after any gzip decompression, starts with the binary
+// liberty magic number.
+bool
+isLibertyBinaryFile(const char *filename)
+{
+  gzstream::igzstream stream(filename);
+  if (!stream.is_open())
+    return false;
+  char magic[sta::LIBERTY_BINARY_MAGIC_SIZE];
+  stream.read(magic, sizeof(magic));
+  return std::string_view(magic, stream.gcount()) == sta::LIBERTY_BINARY_MAGIC;
+}
+
 } // namespace
 
 namespace sta {
@@ -83,6 +99,10 @@ writeLibertyBinary(const char *in_filename,
   std::error_code error;
   if (std::filesystem::equivalent(in_filename, out_filename, error))
     report->error(1899, "output {} is the input liberty file.", out_filename);
+  // parseLibertyFile reads binary liberty too, so a .blib input would be
+  // re-encoded with the .blib itself recorded as the source.
+  if (isLibertyBinaryFile(in_filename))
+    report->error(1898, "{} is already a binary liberty file.", in_filename);
 
   // Hash the source before creating the output so an unreadable input leaves
   // nothing behind.
