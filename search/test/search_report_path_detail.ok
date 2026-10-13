@@ -87,8 +87,8 @@ Warning 502: search_report_path_detail.tcl line 1, find_timing_paths -endpoint_c
   clk_skew: 0.0
 --- Path methods ---
   arrival: 1.0028596009181712e-10
-  required: 0.0
-  slack: -1.0028596009181712e-10
+  required: 1.0000000150474662e+30
+  slack: 1.0000000150474662e+30
   pin: out1
   edge: ^
   tag: 18 default ^max clk ^ clk_src clk crpr_pin null

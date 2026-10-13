@@ -213,14 +213,15 @@ class ConcreteParasiticNetwork : public ParasiticNetwork,
                                  public ConcreteParasitic
 {
 public:
-  ConcreteParasiticNetwork(const Net *net,
-                           bool includes_pin_caps,
-                           const Network *network);
+  ConcreteParasiticNetwork(const Network *network);
   ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic) noexcept;
   ~ConcreteParasiticNetwork() override;
   bool isParasiticNetwork() const override { return true; }
+  void init(const Net *net,
+            bool includes_pin_caps);
   const Net *net() const { return net_; }
   bool includesPinCaps() const { return includes_pin_caps_; }
+  bool empty() const;
   ConcreteParasiticNode *findParasiticNode(const Net *net,
                                            uint32_t id,
                                            const Network *network) const;
@@ -254,13 +255,13 @@ private:
   void deleteNodes();
   void deleteDevices();
 
-  const Net *net_;
+  const Net *net_{nullptr};
   ConcreteParasiticSubNodeMap sub_nodes_;
   ConcreteParasiticPinNodeMap pin_nodes_;
   ParasiticResistorSeq resistors_;
   ParasiticCapacitorSeq capacitors_;
   unsigned max_node_id_:31{0};
-  bool includes_pin_caps_:1;
+  bool includes_pin_caps_:1{false};
 };
 
 class ConcreteParasiticNode : public ParasiticNode

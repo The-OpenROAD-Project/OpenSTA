@@ -1363,7 +1363,6 @@ TEST(R6_LibertyLibraryTest, DefaultBidirectPinResBoth) {
 }
 
 TEST(R6_LibertyLibraryTest, DefaultInoutPinRes) {
-  PortDirection::init();
   LibertyLibrary lib("test_lib", "test.lib");
   float res;
   bool exists;

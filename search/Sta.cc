@@ -247,7 +247,6 @@ void
 initSta()
 {
   initElapsedTime();
-  PortDirection::init();
   initLiberty();
   initDelayConstants();
   registerDelayCalcs();
@@ -263,7 +262,6 @@ deleteAllMemory()
     Sta::setSta(nullptr);
   }
   deleteDelayCalcs();
-  PortDirection::destroy();
   deleteLiberty();
 }
 
@@ -1013,7 +1011,9 @@ Sta::setLatchBorrowLimit(const Pin *pin,
                          Sdc *sdc)
 {
   sdc->setLatchBorrowLimit(pin, limit);
-  search_->requiredInvalid(pin);
+  const Instance *inst = network_->instance(pin);
+  search_->arrivalInvalid(inst);
+  search_->requiredInvalid(inst);
 }
 
 void
@@ -1022,6 +1022,7 @@ Sta::setLatchBorrowLimit(const Instance *inst,
                          Sdc *sdc)
 {
   sdc->setLatchBorrowLimit(inst, limit);
+  search_->arrivalInvalid(inst);
   search_->requiredInvalid(inst);
 }
 
@@ -3648,7 +3649,7 @@ Sta::findRequired(Vertex *vertex)
   search_->findAllArrivals();
   if (search_->isEndpoint(vertex)
       // Need to include downstream required times if there is fanout.
-      && !hasFanout(vertex, search_->searchAdj(), graph_, cmd_mode_))
+      && !hasFanout(vertex, search_->evalPred(), graph_, cmd_mode_))
     search_->seedRequired(vertex);
   else
     search_->findRequireds(vertex->level());
@@ -3734,7 +3735,7 @@ void
 Sta::findDelays()
 {
   delayCalcPreamble();
-  graph_delay_calc_->findDelays(levelize_->maxLevel());
+  graph_delay_calc_->findDelays();
 }
 
 void
@@ -3748,9 +3749,17 @@ void
 Sta::delayCalcPreamble()
 {
   ensureLevelized();
+  bool wireloads_enabled = false;
   for (Mode *mode : modes_) {
     mode->sim()->ensureConstantsPropagated();
     mode->clkNetwork()->ensureClkNetwork();
+    if (mode->sdc()->wireloadModelsEnabled())
+      wireloads_enabled = true;
+  }
+  if (wireloads_enabled) {
+    // Make parasitic maps for wireload parasitics so avoid locking them.
+    for (auto &[name, parasitics] : parasitics_name_map_)
+      parasitics->ensureParasitics();
   }
 }
 
@@ -4625,6 +4634,8 @@ Sta::makeInstanceAfter(const Instance *inst)
             search_->endpointInvalid(vertex);
           if (bidir_drvr_vertex)
             search_->endpointInvalid(bidir_drvr_vertex);
+          for (auto &[name, parasitics] : parasitics_name_map_)
+            parasitics->ensureParasitics(pin);
         }
       }
       graph_->makeInstanceEdges(inst);
@@ -4639,6 +4650,8 @@ Sta::makePortPinAfter(Pin *pin)
   if (graph_) {
     Vertex *vertex, *bidir_drvr_vertex;
     graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
+    for (auto &[name, parasitics] : parasitics_name_map_)
+      parasitics->ensureParasitics(pin);
   }
 }
 
@@ -5001,6 +5014,8 @@ Sta::deleteNetBefore(const Net *net)
       corner_sdc->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  for (auto [name, parasitics] : parasitics_name_map_)
+    parasitics->deleteNetBefore(net);
   clk_skews_->clear();
   power_->powerInvalid();
 }
@@ -5871,6 +5886,7 @@ size_t
 Sta::fanoutViolationCount(const MinMax *min_max,
                           const ModeSeq &modes)
 {
+  checkFanoutPreamble();
   FanoutCheckSeq &checks = check_fanouts_->check(nullptr, 0, true, modes, min_max);
   return checks.size();
 }

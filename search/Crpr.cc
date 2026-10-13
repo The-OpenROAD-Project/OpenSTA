@@ -208,38 +208,32 @@ CheckCrpr::findCrpr(const Path *src_clk_path,
         break;
     }
   }
-  const Path *src_clk_path2 = src_clk_path1;
-  const Path *tgt_clk_path2 = tgt_clk_path1;
-  // src_clk_path2 and tgt_clk_path2 are now in the same (gen)clk src path.
-  // Use the vertex levels to back up the deeper path to see if they
-  // overlap.
-  int src_level = src_clk_path2->vertex(this)->level();
-  int tgt_level = tgt_clk_path2->vertex(this)->level();
-  while (src_clk_path2->pin(this) != tgt_clk_path2->pin(this)) {
-    int level_diff = src_level - tgt_level;
-    if (level_diff >= 0) {
-      src_clk_path2 = src_clk_path2->prevPath();
-      if (src_clk_path2 == nullptr
-          || src_clk_path2->isNull())
-        break;
-      src_level = src_clk_path2->vertex(this)->level();
-    }
-    if (level_diff <= 0) {
-      tgt_clk_path2 = tgt_clk_path2->prevPath();
-      if (tgt_clk_path2 == nullptr
-          || tgt_clk_path2->isNull())
-        break;
-      tgt_level = tgt_clk_path2->vertex(this)->level();
-    }
+  std::map<const Pin*, const Path*> src_pin_map;
+  const Path *src = src_clk_path1;
+  while (src && !src->isNull()) {
+    src_pin_map[src->pin(this)]  = src;
+    src = src->prevPath();
   }
-  if (src_clk_path2 && !src_clk_path2->isNull()
-      && tgt_clk_path2 && !tgt_clk_path2->isNull()
-      && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
-          || same_pin)) {
+
+  const Path *tgt = tgt_clk_path1;
+  src = nullptr;
+  Pin *tgt_pin = nullptr;
+  while (tgt && !tgt->isNull()) {
+    tgt_pin = tgt->pin(this);
+    auto src_itr = src_pin_map.find(tgt_pin);
+    if (src_itr != src_pin_map.end()) {
+      src = src_itr->second;
+      break;
+    }
+    tgt = tgt->prevPath();
+  }
+  if (src
+      && (same_pin
+          || src->transition(this) == tgt->transition(this))) {
     debugPrint(debug_, "crpr", 2, "crpr pin {}",
-               network_->pathName(src_clk_path2->pin(this)));
-    crpr = findCrpr1(src_clk_path2, tgt_clk_path2);
-    crpr_pin = src_clk_path2->pin(this);
+               network_->pathName(tgt_pin));
+    crpr = findCrpr1(src, tgt);
+    crpr_pin = tgt_pin;
   }
 }
 
