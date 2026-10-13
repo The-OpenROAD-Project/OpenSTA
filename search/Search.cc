@@ -100,7 +100,8 @@ EvalPred::searchThru(Edge *edge,
         || !edge->isDisabledLoop())
     && (search_thru_latches_
         || role->isLatchDtoQ()
-        || sta_->latches()->latchDtoQState(edge, mode) == LatchEnableState::open);
+        || sta_->latches()->latchDtoQState(edge, mode) == LatchEnableState::open)
+    && !sta_->isDisabledBidirectInstPath(edge);
 }
 
 bool
@@ -113,31 +114,6 @@ EvalPred::searchTo(const Vertex *to_vertex,
       && !(sdc->isLeafPinClock(to_pin) && !sdc->isPathDelayInternalTo(to_pin))
       // Fanin paths are broken by path delay internal pin startpoints.
       && !sdc->isPathDelayInternalFromBreak(to_pin);
-}
-
-////////////////////////////////////////////////////////////////
-
-// EvalPred unless
-//  latch D->Q edge
-class SearchThru : public EvalPred
-{
-public:
-  SearchThru(const StaState *sta);
-  bool searchThru(Edge *edge,
-                  const Mode *mode) const override;
-};
-
-SearchThru::SearchThru(const StaState *sta) :
-  EvalPred(sta)
-{
-}
-
-bool
-SearchThru::searchThru(Edge *edge,
-                       const Mode *mode) const
-{
-  return EvalPred::searchThru(edge, mode)
-    && !edge->role()->isLatchDtoQ();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -243,7 +219,6 @@ SearchAdj::searchThru(Edge *edge) const
 Search::Search(StaState *sta) :
   StaState(sta),
 
-  search_thru_(new SearchThru(this)),
   search_adj_(new SearchAdj(this)),
   eval_pred_(new EvalPred(this)),
 
@@ -298,7 +273,6 @@ Search::~Search()
   delete[] tags_;
   delete[] tag_groups_;
   delete tag_group_set_;
-  delete search_thru_;
   delete search_adj_;
   delete eval_pred_;
   delete arrival_visitor_;
@@ -414,7 +388,6 @@ Search::copyState(const StaState *sta)
   required_iter_->copyState(sta);
   arrival_visitor_->copyState(sta);
   eval_pred_->copyState(sta);
-  search_thru_->copyState(sta);
   search_adj_->copyState(sta);
   visit_path_ends_->copyState(sta);
   gated_clk_->copyState(sta);
@@ -3241,7 +3214,7 @@ bool
 Search::isEndpoint(Vertex *vertex) const
 {
   for (const Mode *mode : modes_) {
-    if (isEndpoint(vertex, search_thru_, mode))
+    if (isEndpoint(vertex, eval_pred_, mode))
       return true;
   }
   return false;
@@ -3252,7 +3225,7 @@ Search::isEndpoint(Vertex *vertex,
                    const ModeSeq &modes) const
 {
   for (const Mode *mode : modes) {
-    if (isEndpoint(vertex, search_thru_, mode))
+    if (isEndpoint(vertex, eval_pred_, mode))
       return true;
   }
   return false;
@@ -3262,7 +3235,7 @@ bool
 Search::isEndpoint(Vertex *vertex,
                    const Mode *mode) const
 {
-  return isEndpoint(vertex, search_thru_, mode);
+  return isEndpoint(vertex, eval_pred_, mode);
 }
 
 bool
