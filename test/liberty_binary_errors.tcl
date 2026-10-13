@@ -7,6 +7,40 @@ proc puts_error { msg } {
   puts [string map [list "$result_dir/" ""] $msg]
 }
 
+# The index the next string added to a .blib string table gets, which is the
+# current entry count.
+proc blib_next_string_index { blib_file } {
+  set stream [open $blib_file rb]
+  set bytes [read $stream]
+  close $stream
+  binary scan [string range $bytes 12 15] iu path_length
+  binary scan [string range $bytes [expr { 24 + $path_length }] end] wu table_offset
+  binary scan [string range $bytes $table_offset end] iu string_count
+  return $string_count
+}
+
+# Insert records before the library's end tag in a .blib and add name to its
+# string table at blib_next_string_index.
+proc insert_blib_records { blib_file records name } {
+  set stream [open $blib_file rb]
+  set bytes [read $stream]
+  close $stream
+  binary scan [string range $bytes 12 15] iu path_length
+  set offset_location [expr { 24 + $path_length }]
+  binary scan [string range $bytes $offset_location [expr { $offset_location + 7 }]] wu table_offset
+  binary scan [string range $bytes $table_offset [expr { $table_offset + 3 }]] iu string_count
+  # The library's end tag and the EOF tag come just before the string table.
+  set insert_offset [expr { $table_offset - 2 }]
+  set bytes "[string range $bytes 0 [expr { $insert_offset - 1 }]]$records[string range $bytes $insert_offset end]"
+  incr table_offset [string length $records]
+  set bytes [string replace $bytes $offset_location [expr { $offset_location + 7 }] [binary format wu $table_offset]]
+  set bytes [string replace $bytes $table_offset [expr { $table_offset + 3 }] [binary format iu [expr { $string_count + 1 }]]]
+  append bytes [binary format iu [string length $name]] $name [binary format iu $string_count]
+  set stream [open $blib_file wb]
+  puts -nonewline $stream $bytes
+  close $stream
+}
+
 # A truncated .blib is rejected rather than partially loaded.
 set blib_file [make_result_file liberty_binary_errors.blib]
 write_liberty_binary liberty_float_as_str.lib $blib_file
@@ -68,6 +102,15 @@ set stream [open $dup_blib wb]
 puts -nonewline $stream $bytes
 close $stream
 catch { read_liberty $dup_blib } result
+puts_error $result
+
+# The string table ends the file, so bytes after it are rejected.
+set after_table_blib [make_result_file liberty_binary_errors_after_table.blib]
+write_liberty_binary liberty_float_as_str.lib $after_table_blib
+set stream [open $after_table_blib ab]
+puts -nonewline $stream [binary format c 0]
+close $stream
+catch { read_liberty $after_table_blib } result
 puts_error $result
 
 # The body must contain one complete group and EOF exactly at its boundary.
@@ -137,32 +180,17 @@ foreach depth {1001 100000 1000} {
   close $stream
   set depth_blib [make_result_file ${stem}.blib]
   write_liberty_binary $source_file $depth_blib
-  set stream [open $depth_blib rb]
-  set bytes [read $stream]
-  close $stream
-  binary scan [string range $bytes 12 15] iu path_length
-  set offset_location [expr { 24 + $path_length }]
-  binary scan [string range $bytes $offset_location [expr { $offset_location + 7 }]] wu table_offset
-  binary scan [string range $bytes $table_offset [expr { $table_offset + 3 }]] iu string_count
 
-  # Unknown groups are ignored by LibertyReader. Add their type to the string
-  # table and insert nested groups before the library's end tag. The library
-  # itself counts as the first nesting level.
-  set group_type ignored_depth_group
+  # Unknown groups are ignored by LibertyReader. Insert nested groups of a new
+  # type before the library's end tag. The library itself counts as the first
+  # nesting level.
+  set group_type_index [blib_next_string_index $depth_blib]
   set group_begin [binary format ccc 1 0 1]
-  append group_begin [binary format iu $string_count] [binary format iu 0]
+  append group_begin [binary format iu $group_type_index] [binary format iu 0]
   set nested [string repeat $group_begin [expr { $depth - 1 }]]
   append nested [string repeat [binary format c 2] [expr { $depth - 1 }]]
   if { $depth == 1000 } { append nested $nested }
-  set insert_offset [expr { $table_offset - 2 }]
-  set bytes "[string range $bytes 0 [expr { $insert_offset - 1 }]]$nested[string range $bytes $insert_offset end]"
-  incr table_offset [string length $nested]
-  set bytes [string replace $bytes $offset_location [expr { $offset_location + 7 }] [binary format wu $table_offset]]
-  set bytes [string replace $bytes $table_offset [expr { $table_offset + 3 }] [binary format iu [expr { $string_count + 1 }]]]
-  append bytes [binary format iu [string length $group_type]] $group_type [binary format iu $string_count]
-  set stream [open $depth_blib wb]
-  puts -nonewline $stream $bytes
-  close $stream
+  insert_blib_records $depth_blib $nested ignored_depth_group
 
   if { $depth > 1000 } {
     if { ![catch { read_liberty $depth_blib } result] } {
@@ -173,6 +201,32 @@ foreach depth {1001 100000 1000} {
     read_liberty $depth_blib
     puts "nesting limit cells: [llength [get_lib_cells ${stem}/*]]"
   }
+}
+
+# Records the writer never emits are rejected: a simple attribute without
+# exactly one value, and an empty float sequence, which would read back as a
+# float. LibertyReader would ignore the attribute if it were accepted.
+foreach corruption {simple_attr_count empty_float_seq} {
+  set stem liberty_binary_errors_$corruption
+  set source_file [make_result_file ${stem}.lib]
+  set stream [open $source_file wb]
+  puts -nonewline $stream [string map [list liberty_float_as_str $stem] $source_text]
+  close $stream
+  set bad_blib [make_result_file ${stem}.blib]
+  write_liberty_binary $source_file $bad_blib
+  # Records are a tag, a line delta, the name's string index and a value
+  # count, followed by the values.
+  set name_index [blib_next_string_index $bad_blib]
+  if { $corruption == "simple_attr_count" } {
+    set record [binary format cccii 3 0 1 $name_index 2][binary format cr 2 1.0]
+  } else {
+    set record [binary format cccii 4 0 1 $name_index 1][binary format ci 5 0]
+  }
+  insert_blib_records $bad_blib $record ignored_attr
+  if { ![catch { read_liberty $bad_blib } result] } {
+    error "$corruption was accepted"
+  }
+  puts_error $result
 }
 
 # A missing .blib reports the file, not a corrupt file.

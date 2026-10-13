@@ -3,6 +3,7 @@ libraries loaded: 0
 Error: 1902 liberty_binary_errors_v1.blib is binary liberty version 1; this build reads version 3. Regenerate it with write_liberty_binary.
 Error: 1900 liberty_binary_errors_body.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_dup_index.blib is not a valid binary liberty file.
+Error: 1900 liberty_binary_errors_after_table.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_early_eof.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_trailing.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_missing_eof.blib is not a valid binary liberty file.
@@ -10,6 +11,8 @@ Error: 1900 liberty_binary_errors_empty_body.blib is not a valid binary liberty 
 Error: 1900 liberty_binary_errors_depth_1001.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_depth_100000.blib is not a valid binary liberty file.
 nesting limit cells: 1
+Error: 1900 liberty_binary_errors_simple_attr_count.blib is not a valid binary liberty file.
+Error: 1900 liberty_binary_errors_empty_float_seq.blib is not a valid binary liberty file.
 Error: cannot read file does_not_exist.blib.
 Error: cannot read file does_not_exist.lib.
 partial output left behind: 0

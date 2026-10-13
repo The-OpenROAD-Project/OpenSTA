@@ -166,6 +166,9 @@ LibertyBinaryReader::read(std::istream *stream)
   size_t body_offset = cursor_.offset();
   cursor_.seek(string_table_offset);
   readStringTable();
+  // The string table ends the file.
+  if (cursor_.remaining() != 0)
+    corruptError();
   // Records cannot consume string-table bytes, even if a terminator is missing.
   cursor_ = BinaryCursor(buffer.data() + body_offset,
                          string_table_offset - body_offset);
@@ -272,7 +275,9 @@ LibertyBinaryReader::readSimpleAttr()
 {
   int line = readLine();
   std::string name = readString();
-  readUInt32(); // Consume count (always 1 in the format).
+  // Simple attributes have exactly one value.
+  if (readUInt32() != 1)
+    corruptError();
   LibertyAttrValue *val = readValue();
   // makeSimpleAttr takes ownership of the value and dispatches to the visitor.
   parser_.makeSimpleAttr(std::move(name), val, line);
@@ -433,15 +438,16 @@ LibertyBinaryReader::readValue()
     return parser_.makeAttrValueFloat(readFloatValue());
   else if (val_type == LibertyBinaryValueType::value_float_seq) {
     uint32_t count = readUInt32();
-    // Divide rather than multiply so a huge count cannot wrap the size.
-    if (count > cursor_.remaining() / sizeof(float))
+    // An empty sequence would read back as a float. Divide rather than
+    // multiply so a huge count cannot wrap the size.
+    if (count == 0
+        || count > cursor_.remaining() / sizeof(float))
       corruptError();
     size_t bytes = static_cast<size_t>(count) * sizeof(float);
     // The floats follow 1-byte tags, so they are neither aligned nor float
     // objects; copy the bytes out instead of reading through a float pointer.
     std::vector<float> seq(count);
-    if (count > 0)
-      std::memcpy(seq.data(), cursor_.current(), bytes);
+    std::memcpy(seq.data(), cursor_.current(), bytes);
     cursor_.setPtr(cursor_.current() + bytes);
     return parser_.makeAttrValueFloatSeq(std::move(seq));
   }
