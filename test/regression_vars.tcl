@@ -156,6 +156,7 @@ record_public_tests {
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
+  get_property_arrival_first
   get_scenes
   get_objrefs
   include_error_line
