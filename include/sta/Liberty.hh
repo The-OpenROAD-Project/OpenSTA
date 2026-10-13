@@ -536,7 +536,9 @@ public:
   bool leakagePowerExists() const { return leakage_power_exists_; }
 
   // Register, Latch or Statetable.
-  bool hasSequentials() const;
+  bool isSequential() const;
+  // deprecated 2026-06-22 (use isSequential)
+  bool hasSequentials() const __attribute__ ((deprecated));
   const SequentialSeq &sequentials() const { return sequentials_; }
   // Find the sequential with the output connected to an (internal) port.
   Sequential *outputPortSequential(LibertyPort *port);
@@ -861,6 +863,8 @@ public:
   void setIsRegOutput(bool is_reg_out);
   bool isLatchData() const { return is_latch_data_; }
   void setIsLatchData(bool is_latch_data);
+  bool isLatchOutput() const { return is_latch_output_; }
+  void setIsLatchOutput(bool is_latch_output);
   // Is the clock for timing checks.
   bool isCheckClk() const { return is_check_clk_; }
   void setIsCheckClk(bool is_clk);
@@ -956,6 +960,7 @@ protected:
   bool is_reg_clk_:1 {false};
   bool is_reg_output_:1 {false};
   bool is_latch_data_: 1 {false};
+  bool is_latch_output_:1 {false};
   bool is_check_clk_:1 {false};
   bool is_clk_gate_clk_:1 {false};
   bool is_clk_gate_enable_:1 {false};

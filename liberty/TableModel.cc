@@ -103,9 +103,9 @@ GateTableModel::slewModel() const
 void
 GateTableModel::setIsScaled(bool is_scaled)
 {
-  if (delay_models_)
+  if (delay_models_ && delay_models_->model())
     delay_models_->model()->setIsScaled(is_scaled);
-  if (slew_models_)
+  if (slew_models_ && slew_models_->model())
     slew_models_->model()->setIsScaled(is_scaled);
 }
 

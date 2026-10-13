@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <map>
 #include <string>
+#include <utility>
 
 #include "ArcDelayCalc.hh"
 #include "CheckCapacitances.hh"
@@ -80,6 +81,7 @@
 #include "PocvMode.hh"
 #include "PortDirection.hh"
 #include "PowerClass.hh"
+#include "Property.hh"
 #include "ReportPath.hh"
 #include "ReportTcl.hh"
 #include "RiseFallMinMaxDelay.hh"
@@ -191,6 +193,7 @@ StaSimObserver::StaSimObserver(StaState *sta) :
 void
 StaSimObserver::valueChangeAfter(const Pin *pin)
 {
+  graph_delay_calc_->delayInvalid(pin);
   Vertex *vertex = graph_->pinDrvrVertex(pin);
   if (vertex) {
     search_->arrivalInvalid(vertex);
@@ -270,6 +273,7 @@ void
 Sta::makeComponents()
 {
   makeVariables();
+  makeProperties();
   makeReport();
   makeDebug();
   makeUnits();
@@ -292,6 +296,10 @@ Sta::makeComponents()
   updateComponentsState();
 
   makeObservers();
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  defineAnalysisCornerProperties(this);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -344,9 +352,7 @@ Sta::updateComponentsState()
   report_path_->copyState(this);
   check_timing_->copyState(this);
   clk_skews_->copyState(this);
-
-  if (power_)
-    power_->copyState(this);
+  power_->copyState(this);
 }
 
 void
@@ -470,6 +476,12 @@ Sta::makeVariables()
 }
 
 void
+Sta::makeProperties()
+{
+  properties_ = new Properties(this);
+}
+
+void
 Sta::setSta(Sta *sta)
 {
   sta_ = sta;
@@ -512,18 +524,29 @@ Sta::~Sta()
   delete equiv_cells_;
   delete dispatch_queue_;
   delete variables_;
+  delete properties_;
   delete delay_ops_;
   deleteContents(parasitics_name_map_);
   deleteContents(modes_);
   deleteContents(scenes_);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  deleteAnalysisCorners();
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
 Sta::clear()
 {
   clearNonSdc();
+  power_->clear();
   for (Mode *mode : modes_)
     mode->sdc()->clear();
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  for (Mode *mode : modes_)
+    mode->clearCornerSdcs();
+  // The mode Sdc clear above deleted all Clock objects.
+  purgeCornerClkUncertainties(nullptr);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 }
 
 void
@@ -533,7 +556,6 @@ Sta::clearNonSdc()
   levelize_->clear();
   deleteParasitics();
   graph_delay_calc_->clear();
-  power_->clear();
   if (check_min_pulse_widths_)
     check_min_pulse_widths_->clear();
   if (check_min_periods_)
@@ -544,6 +566,12 @@ Sta::clearNonSdc()
   for (Mode *mode : modes_) {
     mode->clkNetwork()->clkPinsInvalid();
     mode->sim()->clear();
+    // ref_pin edges are owned by the graph deleted below; force a rebuild.
+    mode->sdc()->inputDelayRefPinEdgesInvalid();
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      corner_sdc->inputDelayRefPinEdgesInvalid();
+    // ---- OpenROAD fork: analysis_corner support (end) ----
   }
   search_->clear();
 
@@ -628,6 +656,7 @@ void
 Sta::networkChangedNonSdc()
 {
   clearNonSdc();
+  power_->clearNonSdc();
 }
 
 void
@@ -785,6 +814,7 @@ void
 Sta::readNetlistBefore()
 {
   clear();
+  properties_->clearUserPropertyValues();
   NetworkReader *network_reader = networkReader();
   if (network_reader)
     network_reader->readNetlistBefore();
@@ -1178,6 +1208,38 @@ Sta::setMaxArea(float area,
                 Sdc *sdc)
 {
   sdc->setMaxArea(area);
+}
+
+float
+Sta::maxArea(const Sdc *sdc) const
+{
+  return sdc->maxArea();
+}
+
+void
+Sta::setMaxDynamicPower(float power,
+                        Sdc *sdc)
+{
+  sdc->setMaxDynamicPower(power);
+}
+
+float
+Sta::maxDynamicPower(const Sdc *sdc) const
+{
+  return sdc->maxDynamicPower();
+}
+
+void
+Sta::setMaxLeakagePower(float power,
+                        Sdc *sdc)
+{
+  sdc->setMaxLeakagePower(power);
+}
+
+float
+Sta::maxLeakagePower(const Sdc *sdc) const
+{
+  return sdc->maxLeakagePower();
 }
 
 void
@@ -1761,8 +1823,9 @@ Sta::isDisabledConstraint(Edge *edge,
 {
   Pin *from_pin = edge->from(graph_)->pin();
   Pin *to_pin = edge->to(graph_)->pin();
-  return sdc->isDisabledConstraint(from_pin) || sdc->isDisabledConstraint(to_pin)
-      || sdc->isDisabledConstraint(edge);
+  return sdc->isDisabledConstraint(from_pin)
+    || sdc->isDisabledConstraint(to_pin)
+    || sdc->isDisabledConstraint(edge);
 }
 
 bool
@@ -1901,6 +1964,14 @@ Sta::disableClockGatingCheck(Pin *pin,
 }
 
 void
+Sta::disableClockGatingCheck(LibertyCell *cell,
+                             Sdc *sdc)
+{
+  sdc->disableClockGatingCheck(cell);
+  search_->endpointsInvalid();
+}
+
+void
 Sta::removeDisableClockGatingCheck(Instance *inst,
                                    Sdc *sdc)
 {
@@ -1913,6 +1984,14 @@ Sta::removeDisableClockGatingCheck(Pin *pin,
                                    Sdc *sdc)
 {
   sdc->removeDisableClockGatingCheck(pin);
+  search_->endpointsInvalid();
+}
+
+void
+Sta::removeDisableClockGatingCheck(LibertyCell *cell,
+                                   Sdc *sdc)
+{
+  sdc->removeDisableClockGatingCheck(cell);
   search_->endpointsInvalid();
 }
 
@@ -2066,6 +2145,19 @@ Sta::makePathDelay(ExceptionFrom *from,
   sdc->makePathDelay(from, thrus, to, min_max, ignore_clk_latency, break_path, delay,
                      comment);
   search_->endpointsInvalid();
+  search_->arrivalsInvalid();
+}
+
+void
+Sta::makePathMargin(ExceptionFrom *from,
+                    ExceptionThruSeq *thrus,
+                    ExceptionTo *to,
+                    const MinMaxAll *min_max,
+                    float margin,
+                    std::string_view comment,
+                    Sdc *sdc)
+{
+  sdc->makePathMargin(from, thrus, to, min_max, margin, comment);
   search_->arrivalsInvalid();
 }
 
@@ -2718,8 +2810,11 @@ Sta::updateSceneLiberty(Scene *scene,
     LibertyLibrary *lib = network_->findLiberty(lib_file);
     if (lib == nullptr)
       lib = network_->findLibertyFilename(lib_file);
-    if (lib)
+    if (lib) {
       LibertyLibrary::makeSceneMap(lib, scene, min_max, network_, report_);
+      for (const MinMax *min_max : min_max->range())
+        scene->addLiberty(lib, min_max);
+    }
     else
       report_->warn(1555, "liberty name/filename {} not found.", lib_file);
   }
@@ -2891,6 +2986,14 @@ Sta::reportPathEnds(PathEndSeq *ends)
 void
 Sta::reportPath(const Path *path)
 {
+  report_path_->reportPath(path);
+}
+
+void
+Sta::reportPathVerbose(const Path *path)
+{
+  const StringSeq field_names = {"input_pins", "slew", "capacitance"};
+  setReportPathFields(field_names);
   report_path_->reportPath(path);
 }
 
@@ -3679,8 +3782,10 @@ void
 Sta::delayCalcPreamble()
 {
   ensureLevelized();
-  for (Mode *mode : modes_)
+  for (Mode *mode : modes_) {
+    mode->sim()->ensureConstantsPropagated();
     mode->clkNetwork()->ensureClkNetwork();
+  }
 }
 
 void
@@ -4466,9 +4571,15 @@ Sta::makeNet(const char *name,
 {
   NetworkEdit *network = networkCmdEdit();
   std::string escaped = escapeBrackets(name, network);
-  Net *net = network->makeNet(escaped, parent);
-  // Sta notification unnecessary.
-  return net;
+  if (network->findNet(parent, escaped)) {
+    report_->warn(1557, "net {} already exists.", name);
+    return nullptr;
+  }
+  else {
+    Net *net = network->makeNet(escaped, parent);
+    // Sta notification unnecessary.
+    return net;
+  }
 }
 
 void
@@ -4544,6 +4655,10 @@ Sta::makeInstanceAfter(const Instance *inst)
         if (pin) {
           Vertex *vertex, *bidir_drvr_vertex;
           graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
+          if (vertex)
+            search_->endpointInvalid(vertex);
+          if (bidir_drvr_vertex)
+            search_->endpointInvalid(bidir_drvr_vertex);
         }
       }
       graph_->makeInstanceEdges(inst);
@@ -4579,16 +4694,14 @@ Sta::replaceEquivCellBefore(const Instance *inst,
           VertexOutEdgeIterator edge_iter(vertex, graph_);
           while (edge_iter.hasNext()) {
             Edge *edge = edge_iter.next();
-            Vertex *to_vertex = edge->to(graph_);
-            if (network_->instance(to_vertex->pin()) == inst) {
+            if (!edge->isWire()) {
               TimingArcSet *from_set = edge->timingArcSet();
               // Find corresponding timing arc set.
               TimingArcSet *to_set = to_cell->findTimingArcSet(from_set);
               if (to_set)
                 edge->setTimingArcSet(to_set);
               else
-                report_->critical(
-                    1556, "corresponding timing arc set not found in equiv cells");
+                report_->critical(1563, "corresponding timing arc set not found in equiv cells");
             }
           }
         }
@@ -4684,8 +4797,7 @@ Sta::replaceCellBefore(const Instance *inst,
         VertexOutEdgeIterator edge_iter(vertex, graph_);
         while (edge_iter.hasNext()) {
           Edge *edge = edge_iter.next();
-          Vertex *to_vertex = edge->to(graph_);
-          if (network_->instance(to_vertex->pin()) == inst)
+          if (!edge->isWire())
             deleteEdge(edge);
         }
       }
@@ -4916,8 +5028,13 @@ Sta::deleteNetBefore(const Net *net)
     }
     delete pin_iter;
   }
-  for (Mode *mode : modes_)
+  for (Mode *mode : modes_) {
     mode->sdc()->deleteNetBefore(net);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      corner_sdc->deleteNetBefore(net);
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
   clk_skews_->clear();
   power_->powerInvalid();
 }
@@ -4948,6 +5065,10 @@ Sta::deleteLeafInstanceBefore(const Instance *inst)
   for (Mode *mode : modes_) {
     mode->sim()->deleteInstanceBefore(inst);
     mode->sdc()->deleteInstanceBefore(inst);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      corner_sdc->deleteInstanceBefore(inst);
+    // ---- OpenROAD fork: analysis_corner support (end) ----
   }
   clk_skews_->clear();
   power_->powerInvalid();
@@ -5026,11 +5147,20 @@ Sta::deletePinBefore(const Pin *pin)
     }
   }
 
+  bool port_delay_deleted = false;
   for (const Mode *mode : modes_) {
+    port_delay_deleted |= mode->sdc()->hasPortDelays(pin);
     mode->sdc()->deletePinBefore(pin);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      corner_sdc->deletePinBefore(pin);
+    // ---- OpenROAD fork: analysis_corner support (end) ----
     mode->sim()->deletePinBefore(pin);
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  // Tags on pins downstream from input delays reference the input delay.
+  if (port_delay_deleted)
+    search_->arrivalsInvalid();
 }
 
 void
@@ -5129,9 +5259,11 @@ Sta::delaysInvalidFromFanin(Vertex *vertex)
   VertexInEdgeIterator edge_iter(vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    Vertex *from_vertex = edge->from(graph_);
-    delaysInvalidFrom(from_vertex);
-    search_->requiredInvalid(from_vertex);
+    if (edge->isWire()) {
+      Vertex *from_vertex = edge->from(graph_);
+      delaysInvalidFrom(from_vertex);
+      search_->requiredInvalid(from_vertex);
+    }
   }
 }
 
@@ -6104,14 +6236,15 @@ void
 Sta::writePathSpice(const Path *path,
                     std::string_view spice_filename,
                     std::string_view subckt_filename,
-                    std::string_view lib_subckt_filename,
+                    StringSeq lib_subckt_filenames,
                     std::string_view model_filename,
                     std::string_view power_name,
                     std::string_view gnd_name,
                     CircuitSim ckt_sim)
 {
   ensureLibLinked();
-  sta::writePathSpice(path, spice_filename, subckt_filename, lib_subckt_filename,
+  sta::writePathSpice(path, spice_filename, subckt_filename,
+                      std::move(lib_subckt_filenames),
                       model_filename, power_name, gnd_name, ckt_sim, this);
 }
 

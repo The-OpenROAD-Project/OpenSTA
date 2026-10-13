@@ -34,7 +34,7 @@ while {[$port_iter has_next]} {
       set mdir [sta::liberty_port_direction $mem]
       set m_is_bit [$mem is_bus_bit]
       if {$count < 3} {
-        puts "    member[$count]: $mname dir=$mdir bit=$m_is_bit"
+        puts "    member\[$count\]: $mname dir=$mdir bit=$m_is_bit"
       }
       incr count
     }

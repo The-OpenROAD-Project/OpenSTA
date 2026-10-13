@@ -52,6 +52,7 @@
 #include "PathGroup.hh"
 #include "PortDelay.hh"
 #include "PortDirection.hh"
+#include "Property.hh"
 #include "Report.hh"
 #include "Scene.hh"
 #include "Sdc.hh"
@@ -1134,6 +1135,9 @@ ReportPath::reportJson(const PathEnd *end,
                  delayAsFloat(end->checkCrpr(this)));
     result += sta::format("  \"margin\": {:.3e},\n",
                  delayAsFloat(end->margin(this)));
+    if (end->hasPathMargin())
+      result += sta::format("  \"path_margin\": {:.3e},\n",
+                   end->targetClkPathMargin(this));
     result += sta::format("  \"required_time\": {:.3e},\n",
                  delayAsFloat(end->requiredTimeOffset(this)));
     result += sta::format("  \"slack\": {:.3e}\n",
@@ -1197,7 +1201,7 @@ ReportPath::reportJson(const PathExpanded &expanded,
                               sdc_network_->name(cell));
       result += sta::format("{:>{}}    \"verilog_src\": \"{}\",\n",
                             "", indent,
-                            sdc_network_->getAttribute(inst, "src"));
+                            properties_->stringProperty(inst, "src"));
     }
 
     result += sta::format("{:>{}}    \"pin\": \"{}\",\n",
@@ -2263,9 +2267,11 @@ ReportPath::tgtClkInsertionOffet(const Path *clk_path,
   const MinMax *min_max = clk_path->minMax(this);
   const Mode *mode = clk_path->mode(this);
   Arrival path_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
-                                                   min_max, min_max, mode);
+                                                   min_max, min_max, mode,
+                                                   clk_path->scene(this));
   Arrival tgt_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
-                                                  min_max, early_late, mode);
+                                                  min_max, early_late, mode,
+                                                  clk_path->scene(this));
   return delayAsFloat(delayDiff(tgt_insertion, path_insertion, this));
 }
 
@@ -2417,7 +2423,8 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
         const Arrival insertion = search_->clockInsertion(src_clk, src_clk_pin,
                                                           src_clk_rf,
                                                           min_max,
-                                                          early_late, mode);
+                                                          early_late, mode,
+                                                          src_path->scene(this));
         reportClkSrcLatency(insertion, gclk_time, early_late);
       }
       PathExpanded src_expanded(src_path, this);
@@ -2466,9 +2473,9 @@ ReportPath::reportPathLine(const Path *path,
   Slew slew = graph_->slew(vertex, rf, slew_index);
   float cap = field_blank_;
   Instance *inst = network_->instance(pin);
-  std::string src_attr;
-  if (inst)
-    src_attr = network_->getAttribute(inst, "src");
+  std::string src_attr = properties_->stringProperty(pin, "src");
+  if (src_attr.empty() && inst)
+    src_attr = properties_->stringProperty(inst, "src");
   // Don't show capacitance field for input pins.
   if (is_driver && field_capacitance_->enabled())
     cap = graph_delay_calc_->loadCap(pin, rf, scene, min_max);
@@ -2569,6 +2576,11 @@ ReportPath::reportClkUncertainty(const PathEnd *end,
   if (inter_uncertainty != 0.0)
     reportLine("inter-clock uncertainty", inter_uncertainty,
                clk_arrival, early_late);
+  if (end->hasPathMargin()) {
+    float margin = end->targetClkPathMargin(this);
+    clk_arrival = delaySum(clk_arrival, margin, this);
+    reportLine("path margin", margin, clk_arrival, early_late);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2748,9 +2760,9 @@ ReportPath::reportPath6(const Path *path,
     bool is_clk_start = path1->vertex(this) == clk_start;
     bool is_clk = path1->isClock(search_);
     Instance *inst = network_->instance(pin);
-    std::string src_attr;
-    if (inst)
-      src_attr = network_->getAttribute(inst, "src");
+    std::string src_attr = properties_->stringProperty(pin, "src");
+    if (src_attr.empty() && inst)
+      src_attr = properties_->stringProperty(inst, "src");
     // Always show the search start point (register clk pin).
     // Skip reporting the clk tree unless it is requested.
     if (is_clk_start

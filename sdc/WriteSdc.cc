@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <cstring>
 #include <set>
 #include <string>
 #include <string_view>
@@ -976,6 +977,7 @@ WriteSdc::writeDisables() const
   writeDisabledInstances();
   writeDisabledPins();
   writeDisabledEdges();
+  writeDisabledClockGatingChecks();
 }
 
 void
@@ -1108,6 +1110,47 @@ WriteSdc::writeDisabledPins() const
 }
 
 void
+WriteSdc::writeDisabledClockGatingChecks() const
+{
+  const LibertyCellSet &lib_cells = sdc_->disabledClockGatingChecksLibCell();
+  if (!lib_cells.empty()) {
+    LibertyCellSeq sorted;
+    for (LibertyCell *cell : lib_cells)
+      sorted.push_back(cell);
+    std::sort(sorted.begin(), sorted.end(),
+              [] (const LibertyCell *a, const LibertyCell *b) {
+                return a->name() < b->name();
+              });
+    for (const LibertyCell *cell : sorted) {
+      sta::print(stream_, "set_disable_clock_gating_check ");
+      writeGetLibCell(cell);
+      sta::print(stream_, "\n");
+    }
+  }
+  const InstanceSet &insts = sdc_->disabledClockGatingChecksInst();
+  if (!insts.empty()) {
+    InstanceSeq sorted_insts;
+    for (const Instance *inst : insts)
+      sorted_insts.push_back(inst);
+    sort(sorted_insts, InstancePathNameLess(sdc_network_));
+    for (const Instance *inst : sorted_insts) {
+      sta::print(stream_, "set_disable_clock_gating_check ");
+      writeGetInstance(inst);
+      sta::print(stream_, "\n");
+    }
+  }
+  const PinSet &pins_set = sdc_->disabledClockGatingChecksPin();
+  if (!pins_set.empty()) {
+    PinSeq sorted_pins = sortByPathName(&pins_set, sdc_network_);
+    for (const Pin *pin : sorted_pins) {
+      sta::print(stream_, "set_disable_clock_gating_check ");
+      writeGetPin(pin, false);
+      sta::print(stream_, "\n");
+    }
+  }
+}
+
+void
 WriteSdc::writeDisabledEdges() const
 {
   EdgeSeq edges;
@@ -1231,6 +1274,10 @@ WriteSdc::writeExceptionCmd(ExceptionPath *exception) const
     if (exception->ignoreClkLatency())
       sta::print(stream_, " -ignore_clock_latency");
   }
+  else if (exception->isPathMargin()) {
+    sta::print(stream_, "set_path_margin");
+    writeSetupHoldFlag(exception->minMax());
+  }
   else if (exception->isGroupPath()) {
     if (exception->isDefault())
       sta::print(stream_, "group_path -default");
@@ -1250,6 +1297,10 @@ WriteSdc::writeExceptionValue(ExceptionPath *exception) const
   else if (exception->isPathDelay()) {
     sta::print(stream_, " ");
     writeTime(exception->delay());
+  }
+  else if (exception->isPathMargin()) {
+    sta::print(stream_, " ");
+    writeTime(exception->margin());
   }
 }
 
@@ -2031,6 +2082,8 @@ WriteSdc::writeDesignRules() const
   writeCapLimits();
   writeFanoutLimits();
   writeMaxArea();
+  writeMaxDynamicPower();
+  writeMaxLeakagePower();
 }
 
 void
@@ -2258,6 +2311,28 @@ WriteSdc::writeMaxArea() const
   if (max_area > 0.0) {
     sta::print(stream_, "set_max_area ");
     writeFloat(max_area);
+    sta::print(stream_, "\n");
+  }
+}
+
+void
+WriteSdc::writeMaxDynamicPower() const
+{
+  float max_power = sdc_->maxDynamicPower();
+  if (max_power > 0.0) {
+    sta::print(stream_, "set_max_dynamic_power ");
+    writeFloat(max_power);
+    sta::print(stream_, "\n");
+  }
+}
+
+void
+WriteSdc::writeMaxLeakagePower() const
+{
+  float max_power = sdc_->maxLeakagePower();
+  if (max_power > 0.0) {
+    sta::print(stream_, "set_max_leakage_power ");
+    writeFloat(max_power);
     sta::print(stream_, "\n");
   }
 }

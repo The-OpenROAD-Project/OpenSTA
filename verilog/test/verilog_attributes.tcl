@@ -8,7 +8,7 @@ source ../../test/helpers.tcl
 #---------------------------------------------------------------
 puts "--- Test 1: Yosys attributes ---"
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../test/verilog_attribute.v
+read_verilog verilog_attribute_sky130.v
 link_design counter
 
 set cells [get_cells *]

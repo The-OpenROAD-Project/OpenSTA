@@ -26,7 +26,12 @@
 
 namespace eval sta {
 
-define_cmd_args "make_instance" {inst_path lib_cell}
+define_cmd_args "make_instance" {inst_path lib_cell} \
+  -help {The `make_instance` command makes an instance of library cell lib_cell.} \
+  -arg_help {
+    inst_path {A hierarchical instance name.}
+    lib_cell {The library cell of the new instance.}
+  }
 
 proc make_instance { inst_path lib_cell } {
   set lib_cell [get_lib_cell_warn "lib_cell" $lib_cell]
@@ -53,7 +58,11 @@ proc make_instance { inst_path lib_cell } {
 
 ################################################################
 
-define_cmd_args "make_net" {net_path}
+define_cmd_args "make_net" {net_path} \
+  -help {Creates a net for each hierarchical net name.} \
+  -arg_help {
+    net_name_list {A list of net names.}
+  }
 
 proc make_net { net_path } {
   # Copy backslashes that will be removed by foreach.
@@ -73,7 +82,12 @@ proc make_net { net_path } {
 
 ################################################################
 
-define_cmd_args "make_port" {port_name direction}
+define_cmd_args "make_port" {port_name direction} \
+  -help {The `make_port` command creates a port on the top-level cell. `direction` is `input`, `output`, `bidirect`, `tristate`, `internal`, `power`, or `ground`.} \
+  -arg_help {
+    port_name {The name of the new port.}
+    direction {Port direction: `input`, `output`, `bidirect`, `tristate`, `internal`, `power`, or `ground`.}
+  }
 
 proc make_port { port_name direction } {
   make_port_pin_cmd $port_name $direction
@@ -81,7 +95,13 @@ proc make_port { port_name direction } {
 
 ################################################################
 
-define_cmd_args "connect_pin" {net pin}
+define_cmd_args "connect_pin" {net pin} \
+  -help {The `connect_pin` command connects a port or instance pin to a net.} \
+  -arg_help {
+    net {A net to add connections to.}
+    port {A port to connect to net.}
+    Pin {A pin to connect to net.}
+  }
 
 proc connect_pin { net pin } {
   set insts_port [parse_connect_pin $pin]
@@ -108,7 +128,7 @@ proc parse_connect_pin { arg } {
       set port [$pin port]
     } elseif { $object_type == "Port" } {
       # Explicit port arg - convert to pin.
-      set pin [find_pin [get_name $arg]]
+      set pin [get_port_pin $arg]
       set inst [$pin instance]
       set port [$pin port]
     } else {
@@ -143,7 +163,14 @@ proc parse_connect_pin { arg } {
 
 ################################################################
 
-define_cmd_args "disconnect_pin" {net -all|pin}
+define_cmd_args "disconnect_pin" {net -all|pin} \
+  -help {Disconnects a port or pin from a net. Parasitics connected to the pin are deleted.} \
+  -arg_help {
+    net {The net to disconnect pins from.}
+    port {A port to connect to net.}
+    pin {A pin to connect to net.}
+    -all {Disconnect all pins from the net.}
+  }
 
 proc disconnect_pin { net pin } {
   set net [get_net_arg "net" $net]
@@ -171,7 +198,11 @@ proc disconnect_pin { net pin } {
 
 ################################################################
 
-define_cmd_args "delete_instance" {inst}
+define_cmd_args "delete_instance" {inst} \
+  -help {The network editing command `delete_instance` removes an instance from the design.} \
+  -arg_help {
+    instance {Instance to delete.}
+  }
 
 proc delete_instance { instance } {
   if { [is_object $instance] } {
@@ -191,7 +222,11 @@ proc delete_instance { instance } {
 
 ################################################################
 
-define_cmd_args "delete_net" {net}
+define_cmd_args "delete_net" {net} \
+  -help {The network editing command `delete_net` removes a net from the design.} \
+  -arg_help {
+    net {Net to delete.}
+  }
 
 proc delete_net { net } {
   if { [is_object $net] } {
@@ -209,7 +244,12 @@ proc delete_net { net } {
 
 ################################################################
 
-define_cmd_args "replace_cell" {instance lib_cell}
+define_cmd_args "replace_cell" {instance lib_cell} \
+  -help {The `replace_cell` command changes the cell of an instance. The replacement cell must have the same port list (number, name, and order) as the instance's existing cell for the replacement to be successful.} \
+  -arg_help {
+    instance_list {A list of instances to swap the cell.}
+    replacement_cell {The replacement lib cell.}
+  }
 
 proc replace_cell { instance lib_cell } {
   set cell [get_lib_cell_warn "lib_cell" $lib_cell]

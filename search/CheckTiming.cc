@@ -24,6 +24,8 @@
 
 #include "CheckTiming.hh"
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ClkNetwork.hh"
 #include "ExceptionPath.hh"
 #include "Format.hh"
@@ -115,6 +117,8 @@ CheckTiming::checkNoInputDelay()
       PortDirection *dir = network_->direction(pin);
       if (dir->isAnyInput()
           && !sdc_->hasInputDelay(pin)
+          // OpenROAD fork: analysis_corner support.
+          && !modeHasCornerInputDelay(mode_, pin)
           && !sim_->isConstant(pin))
         no_arrival.insert(pin);
     }
@@ -142,6 +146,8 @@ CheckTiming::checkNoOutputDelay(PinSet &no_departure)
     PortDirection *dir = network_->direction(pin);
     if (dir->isAnyOutput()
         && !sdc_->hasOutputDelay(pin)
+        // OpenROAD fork: analysis_corner support.
+        && !modeHasCornerOutputDelay(mode_, pin)
         && !sim_->isConstant(pin))
       no_departure.insert(pin);
   }
@@ -274,6 +280,15 @@ CheckTiming::hasClkedDepature(Pin *pin)
         return true;
     }
   }
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  for (OutputDelaySet *corner_delays : cornerOutputDelaySets(mode_, pin)) {
+    for (OutputDelay *output_delay : *corner_delays) {
+      if (output_delay->clkEdge() != nullptr
+          || output_delay->refPin() != nullptr)
+        return true;
+    }
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   return false;
 }
 

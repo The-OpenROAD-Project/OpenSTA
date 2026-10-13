@@ -208,18 +208,9 @@ TEST_F(NetworkAdapterTest, AdapterCellId) {
   EXPECT_EQ(adapter_id, direct_id);
 }
 
-// NetworkNameAdapter: getAttribute(Cell) forwarding
-TEST_F(NetworkAdapterTest, AdapterCellGetAttribute) {
-  std::string val = sdc_net_->getAttribute(inv_cell_, "nonexistent");
-  EXPECT_TRUE(val.empty());
-}
-
-// NetworkNameAdapter: attributeMap(Cell) forwarding
-TEST_F(NetworkAdapterTest, AdapterCellAttributeMap) {
-  const AttributeMap &map = sdc_net_->attributeMap(inv_cell_);
-  // No attributes set, so map should be empty
-  EXPECT_TRUE(map.empty());
-}
+// The cell attribute accessors the adapter used to forward were replaced by
+// the Properties user property API (upstream "use properties for verilog
+// attributes"), so there is nothing left to forward.
 
 // NetworkNameAdapter: library(Cell) forwarding
 TEST_F(NetworkAdapterTest, AdapterCellLibrary) {
@@ -362,18 +353,7 @@ TEST_F(NetworkAdapterTest, AdapterInstanceCell) {
   EXPECT_EQ(cell, inv_cell_);
 }
 
-// NetworkNameAdapter: getAttribute(Instance) forwarding
-TEST_F(NetworkAdapterTest, AdapterInstanceGetAttribute) {
-  std::string val = sdc_net_->getAttribute(u1_, "nonexistent");
-  EXPECT_TRUE(val.empty());
-}
-
-// NetworkNameAdapter: attributeMap(Instance) forwarding
-TEST_F(NetworkAdapterTest, AdapterInstanceAttributeMap) {
-  const AttributeMap &map = sdc_net_->attributeMap(u1_);
-  // No attributes set, so map should be empty
-  EXPECT_TRUE(map.empty());
-}
+// Likewise for the instance attribute accessors.
 
 // NetworkNameAdapter: parent(Instance) forwarding
 TEST_F(NetworkAdapterTest, AdapterInstanceParent) {
@@ -1865,14 +1845,8 @@ TEST_F(ConcreteNetworkLinkedTest, DisconnectReconnect) {
   EXPECT_EQ(network_.net(pin2), net_b);
 }
 
-// ConcreteNetwork: instance attribute
-TEST_F(ConcreteNetworkLinkedTest, InstanceAttribute) {
-  network_.setAttribute(u1_, "r7_key", "r7_value");
-  std::string val = network_.getAttribute(u1_, "r7_key");
-  EXPECT_EQ(val, "r7_value");
-  std::string no_val = network_.getAttribute(u1_, "nonexistent_r7");
-  EXPECT_TRUE(no_val.empty());
-}
+// ConcreteNetwork instance attributes were replaced by the Properties user
+// property API (upstream "use properties for verilog attributes").
 
 // ConcreteNetwork: instance net iterator
 TEST_F(ConcreteNetworkLinkedTest, InstanceNetIterator2) {

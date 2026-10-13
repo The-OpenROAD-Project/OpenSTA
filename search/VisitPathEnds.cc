@@ -24,6 +24,8 @@
 
 #include "VisitPathEnds.hh"
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ClkInfo.hh"
 #include "Debug.hh"
 #include "ExceptionPath.hh"
@@ -107,7 +109,9 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
         // Ignore segment startpoint paths.
         && !tag->isSegmentStart()) {
       // set_output_delay to timing check has precedence.
-      if (sdc->hasOutputDelay(pin))
+      if (sdc->hasOutputDelay(pin)
+          // OpenROAD fork: analysis_corner support.
+          || modeHasCornerOutputDelay(mode, pin))
         visitOutputDelayEnd(pin, path, end_rf, filtered, visitor,
                             is_constrained);
       else if (vertex->hasChecks())
@@ -185,19 +189,22 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
                     && (exception == nullptr
                         || exception->isFilter()
                         || exception->isGroupPath()
-                        || exception->isMultiCycle())) {
+                        || exception->isMultiCycle()
+                        || exception->isPathMargin())) {
                   MultiCyclePath *mcp=dynamic_cast<MultiCyclePath*>(exception);
+                  PathMargin *path_margin = pathMarginTo(path, pin, end_rf,
+                                                        tgt_clk_edge, min_max);
                   if (network_->isLatchData(pin)
                       && check_role == TimingRole::setup()) {
                     PathEndLatchCheck path_end(path, check_arc, edge,
-                                               tgt_clk_path, mcp, nullptr,
-                                               this);
+                                               tgt_clk_path, mcp, path_margin,
+                                               nullptr, this);
                     visitor->visit(&path_end);
                     is_constrained = true;
                   }
                   else {
                     PathEndCheck path_end(path, check_arc, edge,
-                                          tgt_clk_path, mcp, this);
+                                          tgt_clk_path, mcp, path_margin, this);
                     visitor->visit(&path_end);
                     is_constrained = true;
                   }
@@ -210,7 +217,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
                   if (network_->isLatchData(pin)
                       && check_role == TimingRole::setup()) {
                     PathEndLatchCheck path_end(path, check_arc, edge,
-                                               tgt_clk_path, nullptr,
+                                               tgt_clk_path, nullptr, nullptr,
                                                path_delay, this);
                     visitor->visit(&path_end);
                   }
@@ -302,6 +309,11 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
   const Sdc *sdc = scene->sdc();
   const MinMax *min_max = path->minMax(this);
   OutputDelaySet *output_delays = sdc->outputDelaysLeafPin(pin);
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  OutputDelaySet *corner_delays = cornerOutputDelaysLeafPin(scene, pin);
+  if (corner_delays)
+    output_delays = corner_delays;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   if (output_delays) {
     for (OutputDelay *output_delay : *output_delays) {
       float margin;
@@ -369,9 +381,13 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
            && (exception == nullptr
                || exception->isFilter()
                || exception->isGroupPath()
-               || exception->isMultiCycle())) {
+               || exception->isMultiCycle()
+               || exception->isPathMargin())) {
     MultiCyclePath *mcp = dynamic_cast<MultiCyclePath*>(exception);
-    PathEndOutputDelay path_end(output_delay, path, ref_path, mcp, this);
+    PathMargin *path_margin = pathMarginTo(path, pin, end_rf,
+                                          tgt_clk_edge, min_max);
+    PathEndOutputDelay path_end(output_delay, path, ref_path, mcp,
+                                path_margin, this);
     visitor->visit(&path_end);
     is_constrained = true;
   }
@@ -442,13 +458,16 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
               && (exception == nullptr
                   || exception->isFilter()
                   || exception->isGroupPath()
-                  || exception->isMultiCycle())
+                  || exception->isMultiCycle()
+                  || exception->isPathMargin())
               && (!filtered
                   || search_->matchesFilter(path, clk_edge))) {
             MultiCyclePath *mcp =
               dynamic_cast<MultiCyclePath *>(exception);
+            PathMargin *path_margin = pathMarginTo(path, pin, end_rf,
+                                                  clk_edge, min_max);
             PathEndGatedClock path_end(path, clk_path, check_role,
-                                       mcp, margin, this);
+                                       mcp, path_margin, margin, this);
             visitor->visit(&path_end);
             is_constrained = true;
           }
@@ -565,11 +584,15 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
           && (exception == nullptr
               || exception->isFilter()
               || exception->isGroupPath()
-              || exception->isMultiCycle())
+              || exception->isMultiCycle()
+              || exception->isPathMargin())
           && (!filtered
               || search_->matchesFilter(path, tgt_clk_edge))) {
         MultiCyclePath *mcp=dynamic_cast<MultiCyclePath*>(exception);
-        PathEndDataCheck path_end(check, path, tgt_clk_path, mcp, this);
+        PathMargin *path_margin = pathMarginTo(path, pin, end_rf,
+                                              tgt_clk_edge, min_max);
+        PathEndDataCheck path_end(check, path, tgt_clk_path, mcp,
+                                  path_margin, this);
         visitor->visit(&path_end);
         is_constrained = true;
       }
@@ -637,6 +660,19 @@ VisitPathEnds::pathDelayTo(Path *path,
                                                   network_->isRegClkPin(pin),
                                                   path->sdc(this));
   return dynamic_cast<PathDelay*>(exception);
+}
+
+PathMargin *
+VisitPathEnds::pathMarginTo(const Path *path,
+                            const Pin *pin,
+                            const RiseFall *rf,
+                            const ClockEdge *clk_edge,
+                            const MinMax *min_max) const
+{
+  ExceptionPath *exception =
+    search_->exceptionTo(ExceptionPathType::path_margin, path, pin, rf,
+                         clk_edge, min_max, false, false, path->sdc(this));
+  return dynamic_cast<PathMargin*>(exception);
 }
 
 ExceptionPath *

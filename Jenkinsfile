@@ -1,4 +1,5 @@
 @Library('utils@main') _
-node() {
-    pipelineOpenSTA()
+
+k8sPodTemplate(coordinator: true, cloud: utilPickCloud()) {
+    pipelineOpenSTA(k8s: true)
 }

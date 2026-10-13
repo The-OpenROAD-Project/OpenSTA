@@ -227,6 +227,7 @@ DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArg &gate,
                                                           gate.edge(),
                                                           scene, min_max);
     gate.setInSlew(in_slew);
+    gate.setSceneArc(scene, min_max);
   }
 }
 

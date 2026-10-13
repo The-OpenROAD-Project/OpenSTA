@@ -131,6 +131,11 @@ protected:
                          const Pin *pin,
                          const RiseFall *rf,
                          const MinMax *min_max);
+  PathMargin *pathMarginTo(const Path *path,
+                           const Pin *pin,
+                           const RiseFall *rf,
+                           const ClockEdge *clk_edge,
+                           const MinMax *min_max) const;
   ExceptionPath *exceptionTo(const Path *path,
                              const Pin *pin,
                              const RiseFall *rf,

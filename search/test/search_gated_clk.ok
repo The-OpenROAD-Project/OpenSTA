@@ -623,6 +623,7 @@ Check: sequential_clock_pulse_width
 
 
 --- Gated clk with inferred clock gating ---
+Warning 528: search_gated_clk.tcl line 1, set_disable_inferred_clock_gating is deprecated. Use set_disable_clock_gating_check.
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk
@@ -650,6 +651,7 @@ Path Type: max
            7.90   slack (MET)
 
 
+Warning 529: search_gated_clk.tcl line 1, unset_disable_inferred_clock_gating is deprecated. Use unset_disable_clock_gating_check.
 --- report_checks format full_clock with gated clk ---
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)

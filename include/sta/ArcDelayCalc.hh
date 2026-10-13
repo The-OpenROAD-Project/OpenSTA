@@ -76,11 +76,13 @@ public:
   const Pin *drvrPin() const { return drvr_pin_; }
   Vertex *drvrVertex(const Graph *graph) const;
   LibertyCell *drvrCell() const;
-  const LibertyLibrary *drvrLibrary() const;
+  LibertyLibrary *drvrLibrary() const;
   const RiseFall *drvrEdge() const;
   const Net *drvrNet(const Network *network) const;
   Edge *edge() const { return edge_; }
   const TimingArc *arc() const { return arc_; }
+  void setSceneArc(const Scene *scene,
+                   const MinMax *min_max);
   const Slew &inSlew() const { return in_slew_; }
   float inSlewFlt() const;
   void setInSlew(Slew in_slew);

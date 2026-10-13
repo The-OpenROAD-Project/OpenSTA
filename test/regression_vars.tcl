@@ -141,36 +141,70 @@ record_example_tests {
 }
 
 record_public_tests {
+  disable_clock_gating_check_cell
+  disable_clock_gating_check_deprecated
+  disable_clock_gating_check_inst
+  disable_clock_gating_check_pin
+  disable_clock_gating_check_port
+  disable_clock_gating_check_sdc
   disconnect_mcp_pin
+  dmp_two_pole_reduce
+  equiv_cells_ff_latch
   get_filter
   get_is_buffer
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
+  get_scenes
   get_objrefs
+  input_delay_ref_pin_rebuild
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  liberty_retain
   make_concrete_parasitics_leak
+  max_power_area
+  non_seq_timing
   package_require
   path_group_names
+  port_delay_delete_inst
+  power_network_changed
   power_json
   prima3
+  prima_singular
   read_saif_null_instance
   report_checks_sorted
   report_checks_src_attr
   report_json1
   report_json2
+  set_path_margin1
+  set_path_margin2
+  set_path_margin3
+  set_path_margin4
+  set_path_margin5
+  set_path_margin6
+  slash_port_test
   suppress_msg
+  swig_seq_double_free
+  swig_seq_leak
+  user_properties
+  vcd_begin_end_time
+  verilog_assign_alias_loop
   verilog_attribute
+  verilog_bus_port_connect
+  verilog_port_bundle_find_pin
+  verilog_port_bundle_ordered
+  verilog_port_concat
+  verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
   verilog_write_escape
   verilog_write_gzip
   verilog_unconnected_hpin
+  write_path_spice_arc_sense
 }
 
 define_test_group fast [group_tests all]

@@ -33,6 +33,8 @@
 
 namespace sta {
 
+// OpenROAD fork: analysis_corner support.
+class AnalysisCorner;
 class Mode;
 class Sdc;
 class MinMax;
@@ -71,6 +73,13 @@ public:
   size_t pathIndex(const MinMax *min_max) const;
 
   DcalcAPIndex dcalcAnalysisPtIndex(const MinMax *min_max) const;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Inverse of the index encoding above: the scene index an analysis
+  // point index belongs to. Kept beside the encoding so a change to one
+  // meets the other.
+  static size_t indexFromDcalcAP(DcalcAPIndex dcalc_ap)
+  { return dcalc_ap / MinMax::index_count; }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   const MinMax *checkClkSlewMinMax(const MinMax *min_max) const;
   // Slew index of timing check clock.
   DcalcAPIndex checkClkSlewIndex(const MinMax *min_max) const;
@@ -85,12 +94,23 @@ public:
   static ModeSet modeSet(const SceneSeq &scenes);
   static ModeSeq modesSorted(const SceneSeq &scenes);
 
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  AnalysisCorner *analysisCorner() const { return analysis_corner_; }
+  void setAnalysisCorner(AnalysisCorner *corner) { analysis_corner_ = corner; }
+  // This scene's corner overlay Sdc when it defines timing derates,
+  // else nullptr. Defined in search/AnalysisCorner.cc.
+  const Sdc *sdcOverlayForDerate() const;
+  // ---- OpenROAD fork: analysis_corner support (end) ----
+
 protected:
   std::string name_;
   size_t index_;
   Mode *mode_;
   std::array<LibertySeq, MinMax::index_count> liberty_;
   std::array<Parasitics*, MinMax::index_count> parasitics_;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  AnalysisCorner *analysis_corner_{nullptr};
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   friend class Scenes;
 };

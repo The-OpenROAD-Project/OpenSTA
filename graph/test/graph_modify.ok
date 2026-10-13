@@ -2415,7 +2415,7 @@ Corner: slow
    0.14    1.14 v buf1/Z (BUF_X1)
    0.09    1.23 v and1/ZN (AND2_X1)
    0.09    1.32 ^ nand1/ZN (NAND2_X1)
-   0.07    1.38 ^ buf4/Z (BUF_X4)
+   0.06    1.38 ^ buf4/Z (BUF_X4)
    0.00    1.38 ^ q3 (out)
            1.38   data arrival time
 

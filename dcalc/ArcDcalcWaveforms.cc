@@ -45,8 +45,9 @@ ArcDcalcWaveforms::inputWaveform(ArcDcalcArg &dcalc_arg,
   Graph *graph = sta->graph();
   Report *report = sta->report();
   const Pin *in_pin = dcalc_arg.inPin();
-  LibertyPort *port = network->libertyPort(in_pin);
-  if (port) {
+  LibertyPort *link_port = network->libertyPort(in_pin);
+  if (link_port) {
+    LibertyPort *port = link_port->scenePort(scene, min_max);
     const RiseFall *in_rf = dcalc_arg.inEdge();
     DriverWaveform *driver_waveform = port->driverWaveform(in_rf);
     if (driver_waveform) {

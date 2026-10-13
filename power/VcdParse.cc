@@ -42,8 +42,13 @@ namespace sta {
 
 void
 VcdParse::read(const char *filename,
-               VcdReader *reader)
+               VcdReader *reader,
+               VcdTime begin_time,
+               VcdTime end_time)
 {
+  begin_time_ = begin_time;
+  end_time_ = end_time;
+
   stream_ = gzopen(filename, "r");
   if (stream_) {
     Stats stats(debug_, report_);
@@ -51,6 +56,11 @@ VcdParse::read(const char *filename,
     reader_ = reader;
     file_line_ = 0;
     stmt_line_ = 0;
+
+    // If user specified a start time, set it now.
+    if (begin_time != vcd_null_time) {
+      reader_->setTimeMin(begin_time);
+    }
     std::string token = getToken();
     while (!token.empty()) {
       if (token == "$date")
@@ -87,7 +97,10 @@ VcdParse::read(const char *filename,
           report_->fileError(806, filename_, file_line_, "time out of range {}",
                              token.substr(1));
         }
-        reader_->setTimeMin(time_);
+        // Set time min to start time if it is not set at beginning
+        if (begin_time == vcd_null_time) {
+          reader_->setTimeMin(time_);
+        }
         prev_time_ = time_;
       }
       else if (token[0] == '$')
@@ -238,7 +251,13 @@ VcdParse::parseVarValues()
     }
     token = getToken();
   }
-  reader_->setTimeMax(time_);
+
+  // Set time_max to end_time if specified, otherwise use actual parsed time
+  if (end_time_ != vcd_null_time) {
+    reader_->setTimeMax(end_time_);
+  } else {
+    reader_->setTimeMax(time_);
+  }
 }
 
 std::string

@@ -126,19 +126,6 @@ NetworkNameAdapter::id(const Cell *cell) const
   return network_->id(cell);
 }
 
-std::string
-NetworkNameAdapter::getAttribute(const Cell *cell,
-                                 std::string_view key) const
-{
-  return network_->getAttribute(cell, key);
-}
-
-const AttributeMap &
-NetworkNameAdapter::attributeMap(const Cell *cell) const
-{
-  return network_->attributeMap(cell);
-}
-
 Library *
 NetworkNameAdapter::library(const Cell *cell) const
 {
@@ -349,19 +336,6 @@ Cell *
 NetworkNameAdapter::cell(const Instance *instance) const
 {
   return network_->cell(instance);
-}
-
-std::string
-NetworkNameAdapter::getAttribute(const Instance *inst,
-                                 std::string_view key) const
-{
-  return network_->getAttribute(inst, key);
-}
-
-const AttributeMap &
-NetworkNameAdapter::attributeMap(const Instance *inst) const
-{
-  return network_->attributeMap(inst);
 }
 
 Instance *

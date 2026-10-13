@@ -14,7 +14,7 @@ report_checks > /dev/null
 
 puts "--- Corner commands ---"
 set corner [sta::cmd_scene]
-puts "Corner name: $corner"
+puts "Corner name: [get_name $corner]"
 puts "Multi corner: [sta::multi_scene]"
 
 puts "--- ClkSkew report with propagated clock ---"

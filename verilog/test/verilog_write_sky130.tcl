@@ -3,7 +3,7 @@
 source ../../test/helpers.tcl
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../test/verilog_attribute.v
+read_verilog verilog_attribute_sky130.v
 link_design counter
 
 set out1 [make_result_file verilog_write_sky130_attr.v]

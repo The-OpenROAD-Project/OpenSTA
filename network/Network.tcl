@@ -27,7 +27,13 @@
 namespace eval sta {
 
 define_cmd_args "report_instance" \
-  {[-connections] [-verbose] instance_path [> filename] [>> filename]}
+  {[-connections] [-verbose] instance_path [> filename] [>> filename]} \
+  -help {Report information about an instance.} \
+  -arg_help {
+    -connections {Deprecated; connections are always reported.}
+    -verbose {Deprecated; verbose output is always used.}
+    instance_path {Hierarchical path to an instance.}
+  }
 
 proc_redirect report_instance {
   parse_key_args "report_instance" args keys {} flags {-connections -verbose}
@@ -141,7 +147,11 @@ proc instance_sorted_children { instance } {
 ################################################################
 
 define_cmd_args "report_net" {[-scene scene] [-digits digits]\
-                                net_path [> filename] [>> filename]}
+                                net_path [> filename] [>> filename]} \
+  -help {Report the connections and capacitance of a net.} \
+  -arg_help {
+    net_path {Hierarchical path to a net.}
+  }
 
 # -hpins to show hierarchical pins
 proc_redirect report_net {

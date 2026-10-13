@@ -238,6 +238,28 @@ PathEnum::reportDiversionPath(Diversion *div)
 using VisitedFanins = std::set<std::pair<const Vertex *, const TimingArc *>>;
 using VertexEdge = std::pair<const Vertex *, const RiseFall *>;
 
+class EnumPred : public EvalPred
+{
+public:
+  EnumPred(const StaState *sta);
+  bool searchThru(Edge *edge,
+                  const Mode *mode) const override;
+};
+
+EnumPred::EnumPred(const StaState *sta) :
+  EvalPred(sta)
+{
+}
+
+bool
+EnumPred::searchThru(Edge *edge,
+                     const Mode *mode) const
+{
+  // Do not enum paths across disabled loop edges.
+  return EvalPred::searchThru(edge, mode)
+    && !edge->isDisabledLoop();
+}
+
 class PathEnumFaninVisitor : public PathVisitor
 {
 public:
@@ -247,6 +269,7 @@ public:
                        bool unique_edges,
                        PathEnum *path_enum);
   PathEnumFaninVisitor(const PathEnumFaninVisitor &visitor);
+  virtual ~PathEnumFaninVisitor();
   VertexVisitor *copy() const override;
   void visitFaninPathsThru(Path *before_div,
                            Vertex *prev_vertex,
@@ -311,7 +334,7 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
                                            bool unique_pins,
                                            bool unique_edges,
                                            PathEnum *path_enum) :
-  PathVisitor(path_enum),
+  PathVisitor(new EnumPred(path_enum), false, path_enum),
   path_end_(path_end),
   before_div_(before_div),
   unique_pins_(unique_pins),
@@ -332,6 +355,11 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(const PathEnumFaninVisitor &visitor) 
   PathEnumFaninVisitor(visitor.path_end_, visitor.before_div_, visitor.unique_pins_,
                        visitor.unique_edges_, visitor.path_enum_)
 {
+}
+
+PathEnumFaninVisitor::~PathEnumFaninVisitor()
+{
+  delete pred_;
 }
 
 VertexVisitor *
@@ -356,7 +384,7 @@ PathEnumFaninVisitor::visitFaninPathsThru(Path *before_div,
   prev_vertex_ = prev_vertex;
   visited_fanins_.clear();
   unique_edge_divs_.clear();
-  visitFaninPaths(before_div_->vertex(this));
+  visitFaninPaths(before_div_->vertex(this), true);
 
   if (unique_edges_) {
     for (auto [vertex_edge, div] : unique_edge_divs_)
@@ -381,7 +409,8 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
       Path *from_path = from_iter.next();
       const Mode *mode = from_path->mode(this);
       const Sdc *sdc = mode->sdc();
-      if (pred_->searchFrom(from_vertex, mode) && pred_->searchThru(edge, mode)
+      if (pred_->searchFrom(from_vertex, mode)
+          && pred_->searchThru(edge, mode)
           && pred_->searchTo(to_vertex, mode)
           // Fanin paths are broken by path delay internal pin startpoints.
           && !sdc->isPathDelayInternalFromBreak(to_pin)) {
@@ -421,6 +450,14 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
                                       Arrival & /* to_arrival */,
                                       const MinMax *)
 {
+    debugPrint(debug_, "path_enum", 3, "visit fanin {} -> {} {} {}",
+               from_path->to_string(this),
+               to_vertex->to_string(this), to_rf->shortName(),
+               delayAsString(
+                   search_->deratedDelay(
+                       from_vertex, arc, edge, false, from_path->minMax(this),
+                       from_path->dcalcAnalysisPtIndex(this), from_path->sdc(this)),
+                   this));
   // These paths fanin to before_div_ so we know to_vertex matches.
   if ((!unique_pins_ || from_vertex != prev_vertex_)
       && (!unique_edges_ || from_vertex != prev_vertex_
@@ -646,10 +683,10 @@ PathEnum::makeDivertedPath(Path *path,
   Path *prev_copy = nullptr;
   while (p) {
     // prev_path made in next pass.
-    Path *copy =
-        new Path(p->vertex(this), p->tag(this), p->arrival(),
-                 // Replaced on next pass.
-                 p->prevPath(), p->prevEdge(this), p->prevArc(this), true, this);
+    Path *copy = new Path(p->vertex(this), p->tag(this), p->arrival(),
+                          // Replaced on next pass.
+                          p->prevPath(), p->prevEdge(this), p->prevArc(this),
+                          true, this);
     search_->saveEnumPath(copy);
     if (prev_copy)
       prev_copy->setPrevPath(copy);

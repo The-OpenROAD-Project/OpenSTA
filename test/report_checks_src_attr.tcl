@@ -1,5 +1,5 @@
 # report_checks all fields enabled
-read_liberty ../examples/sky130hd_tt.lib.gz
+read_liberty ../examples/asap7_small_ss.lib.gz
 read_verilog verilog_attribute.v
 link_design counter
 create_clock -name clk -period 10 clk

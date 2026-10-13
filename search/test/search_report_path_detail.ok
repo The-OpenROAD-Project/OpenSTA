@@ -201,37 +201,37 @@ Endpoint count: 3
 Path group names: clk out_group reg_group asynchronous {path delay} {gated clock} unconstrained
 --- find_requireds ---
 --- report internal debug ---
-Group    0 hash = 2697898004198490802 (  79)
+Group    0 hash = <hash> (<bucket>)
   0 0 default ^min clk ^ clk_src clk crpr_pin null input in2
   1 2 default ^max clk ^ clk_src clk crpr_pin null input in2
   2 1 default vmin clk ^ clk_src clk crpr_pin null input in2
   3 3 default vmax clk ^ clk_src clk crpr_pin null input in2
 
-Group    1 hash = 1860950969858666218 ( 107)
+Group    1 hash = <hash> (<bucket>)
   0 4 default ^min clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
   1 6 default ^max clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
   2 5 default vmin clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
   3 7 default vmax clk ^ clk_src clk crpr_pin null input in1 Group -from {in1}
 
-Group    2 hash = 17966741373156438452 (  88)
+Group    2 hash = <hash> (<bucket>)
   0 8 default ^min clk ^ (clock ideal) clk_src clk crpr_pin null
   1 12 default ^max clk ^ (clock ideal) clk_src clk crpr_pin null
   2 11 default vmin clk v (clock ideal) clk_src clk crpr_pin null
   3 15 default vmax clk v (clock ideal) clk_src clk crpr_pin null
 
-Group    3 hash = 17944144282683767210 ( 132)
+Group    3 hash = <hash> (<bucket>)
   0 16 default ^min clk ^ clk_src clk crpr_pin null Group -from {in1}
   1 18 default ^max clk ^ clk_src clk crpr_pin null Group -from {in1}
   2 17 default vmin clk ^ clk_src clk crpr_pin null Group -from {in1}
   3 19 default vmax clk ^ clk_src clk crpr_pin null Group -from {in1}
 
-Group    4 hash = 17969506314027398258 ( 127)
+Group    4 hash = <hash> (<bucket>)
   0 20 default ^min clk ^ clk_src clk crpr_pin null
   1 22 default ^max clk ^ clk_src clk crpr_pin null
   2 21 default vmin clk ^ clk_src clk crpr_pin null
   3 23 default vmax clk ^ clk_src clk crpr_pin null
 
-Group    5 hash = 17466906523001613852 (  62)
+Group    5 hash = <hash> (<bucket>)
   0 20 default ^min clk ^ clk_src clk crpr_pin null
   1 16 default ^min clk ^ clk_src clk crpr_pin null Group -from {in1}
   2 22 default ^max clk ^ clk_src clk crpr_pin null
@@ -241,7 +241,6 @@ Group    5 hash = 17466906523001613852 (  62)
   6 23 default vmax clk ^ clk_src clk crpr_pin null
   7 19 default vmax clk ^ clk_src clk crpr_pin null Group -from {in1}
 
-Longest hash bucket length 1 hash=62
 0 default ^min clk ^ clk_src clk crpr_pin null input in2
 1 default vmin clk ^ clk_src clk crpr_pin null input in2
 2 default ^max clk ^ clk_src clk crpr_pin null input in2
@@ -266,7 +265,6 @@ Longest hash bucket length 1 hash=62
 21 default vmin clk ^ clk_src clk crpr_pin null
 22 default ^max clk ^ clk_src clk crpr_pin null
 23 default vmax clk ^ clk_src clk crpr_pin null
-Longest hash bucket length 1 hash=6
 default/min clk ^ clk_src clk uncertain 
 default/max clk ^ clk_src clk uncertain 
 default/min clk v clk_src clk uncertain 

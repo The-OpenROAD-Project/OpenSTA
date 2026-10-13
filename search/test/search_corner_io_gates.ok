@@ -1,0 +1,45 @@
+=== corner-only output delay endpoint ===
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out1 (output)                           8.00    0.29    7.71 (MET)
+
+=== corner-only internal input delay segment start ===
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/D (DFF_X1)                         9.84    1.50    8.34 (MET)
+
+=== after redefine with data ===
+No paths found.
+
+No paths found.
+
+=== corner delay on in2 wrt vclk ===
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/D (DFF_X1)                         9.84    2.17    7.67 (MET)
+
+=== after delete_clock vclk: falls back to mode delay ===
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/D (DFF_X1)                         9.84    1.17    8.67 (MET)
+
+=== after clk3 replaced clk2 on the same pin ===
+max_delay/setup group clk3
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+reg1/D (DFF_X1)                         9.84    1.16    8.68 (MET)
+

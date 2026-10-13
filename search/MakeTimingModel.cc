@@ -150,20 +150,25 @@ void
 MakeTimingModel::makeLibrary()
 {
   library_ = network_->makeLibertyLibrary(lib_name_, filename_);
-  LibertyLibrary *default_lib = network_->defaultLibertyLibrary();
-  *library_->units() = *default_lib->units();
+  const LibertySeq &scene_libs = scene_->libertyLibraries(MinMax::max());
+  if (!scene_libs.empty()) {
+    const LibertyLibrary *scene_lib = scene_libs[0];
+    *library_->units() = *scene_lib->units();
 
-  for (const RiseFall *rf : RiseFall::range()) {
-    library_->setInputThreshold(rf, default_lib->inputThreshold(rf));
-    library_->setOutputThreshold(rf, default_lib->outputThreshold(rf));
-    library_->setSlewLowerThreshold(rf, default_lib->slewLowerThreshold(rf));
-    library_->setSlewUpperThreshold(rf, default_lib->slewUpperThreshold(rf));
+    for (const RiseFall *rf : RiseFall::range()) {
+      library_->setInputThreshold(rf, scene_lib->inputThreshold(rf));
+      library_->setOutputThreshold(rf, scene_lib->outputThreshold(rf));
+      library_->setSlewLowerThreshold(rf, scene_lib->slewLowerThreshold(rf));
+      library_->setSlewUpperThreshold(rf, scene_lib->slewUpperThreshold(rf));
+    }
+
+    library_->setDelayModelType(scene_lib->delayModelType());
+    library_->setNominalProcess(scene_lib->nominalProcess());
+    library_->setNominalVoltage(scene_lib->nominalVoltage());
+    library_->setNominalTemperature(scene_lib->nominalTemperature());
   }
-
-  library_->setDelayModelType(default_lib->delayModelType());
-  library_->setNominalProcess(default_lib->nominalProcess());
-  library_->setNominalVoltage(default_lib->nominalVoltage());
-  library_->setNominalTemperature(default_lib->nominalTemperature());
+  else
+    report_->error(1381, "scene {} has no liberty libraries.", scene_->name());
 }
 
 void
@@ -342,8 +347,8 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
 
       PinSet *from_pins = new PinSet(network_);
       from_pins->insert(input_pin);
-      ExceptionFrom *from =
-          sta_->makeExceptionFrom(from_pins, nullptr, nullptr, input_rf1, sdc_);
+      ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr,
+                                                    nullptr, input_rf1, sdc_);
       search_->findFilteredArrivals(from, nullptr, nullptr, false, false);
 
       end_visitor.setInputRf(input_rf);

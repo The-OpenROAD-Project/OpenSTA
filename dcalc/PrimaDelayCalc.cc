@@ -48,6 +48,13 @@ namespace sta {
 // Lawrence Pillage - “Electronic Circuit & System Simulation Methods” 1998
 // McGraw-Hill, Inc. New York, NY.
 
+// "PRIMA: Passive Reduced-order Interconnect Macromodeling Algorithm",
+// Altan Odabasioglu, Mustafa Celik, and Lawrence T. Pileggi
+// IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems,
+// vol. 17, no. 8, August 1998
+
+using ParasiticSet = std::set<const Parasitic*>;
+
 ArcDelayCalc *
 makePrimaDelayCalc(StaState *sta)
 {
@@ -65,7 +72,6 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   DelayCalcBase(dcalc),
   pin_node_map_(network_),
-  node_index_map_(dcalc.node_index_map_),
   prima_order_(dcalc.prima_order_),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
@@ -177,6 +183,7 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap,
                           parasitic);
+  dcalc_args[0].setSceneArc(scene, min_max);
   ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map,
                                                scene, min_max);
   return dcalc_results[0];
@@ -250,9 +257,10 @@ PrimaDelayCalc::checkArgs(ArcDcalcArgSeq &dcalc_args,
           if (output_waveforms->slewAxis()->inBounds(in_slew)) {
             if (output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
               output_waveforms_[drvr_idx] = output_waveforms;
-              debugPrint(debug_, "prima", 1, "{} {}",
+              debugPrint(debug_, "prima", 1, "{} {} {}",
                          dcalc_arg.drvrCell()->name(),
-                         dcalc_arg.drvrEdge()->to_string().c_str());
+                         dcalc_arg.drvrEdge()->to_string().c_str(),
+                         scene->name());
               LibertyCell *drvr_cell = dcalc_arg.drvrCell();
               drvr_cell->ensureVoltageWaveforms(scenes_);
             }
@@ -356,7 +364,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   v_ = v_prev_ = x_to_v * x_init;
 
   time_step_ = time_step_prev_ = timeStep();
-  debugPrint(debug_, "ccs_dcalc", 1, "time step {}",
+  debugPrint(debug_, "prima", 1, "time step {}",
              delayAsString(time_step_, this));
 
   MatrixSd A(order, order);
@@ -396,7 +404,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
     v_ = x_to_v * x;
 
     const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[0];
-    debugPrint(debug_, "ccs_dcalc", 3, "{} ceff {} VDrvr {:.4f} Idrvr {}",
+    debugPrint(debug_, "prima", 3, "{} ceff {} VDrvr {:.4f} Idrvr {}",
                delayAsString(time, this),
                units_->capacitanceUnit()->asString(ceff_[0]),
                voltage(dcalc_arg.drvrPin()),
@@ -421,7 +429,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
 double
 PrimaDelayCalc::timeStep()
 {
-  // Needs to use LTE for time step dynamic control.
+  // Should use LTE for dynamic time step control.
   return driverResistance() * load_cap_ * .02;
 }
 
@@ -437,7 +445,16 @@ PrimaDelayCalc::driverResistance()
 {
   const Pin *drvr_pin = (*dcalc_args_)[0].drvrPin();
   LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
-  return drvr_port->driveResistance(drvr_rf_, min_max_);
+  LibertyPort *scene_port = drvr_port->scenePort(scene_, min_max_);
+  if (scene_port == nullptr) {
+    report_->warn(1754, "Port {}/{}/{} has no equivalent in scene {}.",
+                  drvr_port->libertyLibrary()->name(),
+                  drvr_port->libertyCell()->name(),
+                  drvr_port->name(),
+                  scene_->name());
+    scene_port = drvr_port;
+  }
+  return scene_port->driveResistance(drvr_rf_, min_max_);
 }
 
 void
@@ -461,61 +478,68 @@ PrimaDelayCalc::initSim()
 void
 PrimaDelayCalc::findNodeCount()
 {
-  includes_pin_caps_ = parasitics_->includesPinCaps(parasitic_network_);
   coupling_cap_multiplier_ = 1.0;
 
-  node_capacitances_.clear();
   pin_node_map_.clear();
   node_index_map_.clear();
+  node_count_ = 0;
 
-  for (ParasiticNode *node : parasitics_->nodes(parasitic_network_)) {
-    if (!parasitics_->isExternal(node)) {
-      size_t node_idx = node_index_map_.size();
-      node_index_map_[node] = node_idx;
-      const Pin *pin = parasitics_->pin(node);
-      if (pin) {
-        pin_node_map_[pin] = node_idx;
-        debugPrint(debug_, "ccs_dcalc", 1, "pin {} node {}",
-                   network_->pathName(pin), node_idx);
+  // Collect the nodes that enter G by walking out from the drivers through
+  // resistors. G is conductance-only, so a node with no resistive path to a
+  // driver has an all-zero row which is dropped to prevent singularity.
+  ParasiticSet visited_parasitics;
+  for (const ArcDcalcArg &dcalc_arg : *dcalc_args_) {
+    const Parasitic *parasitic = dcalc_arg.parasitic();
+    if (!visited_parasitics.contains(parasitic)) {
+      ParasiticNodeResistorMap resistor_map =
+        parasitics_->parasiticNodeResistorMap(parasitic);
+      std::vector<ParasiticNode *> queue;
+      for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+        const Pin *drvr_pin = (*dcalc_args_)[drvr_idx].drvrPin();
+        ParasiticNode *drvr_node =
+          parasitics_->findParasiticNode(parasitic, drvr_pin);
+        if (drvr_node && !parasitics_->isExternal(drvr_node)
+            && !node_index_map_.contains(drvr_node)) {
+          placeNode(drvr_node, node_count_++);
+          queue.push_back(drvr_node);
+        }
       }
-      double cap = parasitics_->nodeGndCap(node) + pinCapacitance(node);
-      node_capacitances_.push_back(cap);
+      while (!queue.empty()) {
+        ParasiticNode *node = queue.back();
+        queue.pop_back();
+        size_t node_index = node_index_map_[node];
+        auto resistor_itr = resistor_map.find(node);
+        if (resistor_itr != resistor_map.end()) {
+          for (ParasiticResistor *resistor : resistor_itr->second) {
+            ParasiticNode *next_node = parasitics_->otherNode(resistor, node);
+            if (next_node
+                && !parasitics_->isExternal(next_node)
+                && !node_index_map_.contains(next_node)) {
+              bool shorted = parasitics_->value(resistor) == 0;
+              placeNode(next_node, shorted ? node_index : node_count_++);
+              queue.push_back(next_node);
+            }
+          }
+        }
+      }
+      visited_parasitics.insert(parasitic);
     }
   }
-
-  for (ParasiticCapacitor *capacitor : parasitics_->capacitors(parasitic_network_)) {
-    float cap = parasitics_->value(capacitor) * coupling_cap_multiplier_;
-    ParasiticNode *node1 = parasitics_->node1(capacitor);
-    if (node1 && !parasitics_->isExternal(node1)) {
-      size_t node_idx = node_index_map_[node1];
-      node_capacitances_[node_idx] += cap;
-    }
-    ParasiticNode *node2 = parasitics_->node2(capacitor);
-    if (node2 && !parasitics_->isExternal(node2)) {
-      size_t node_idx = node_index_map_[node2];
-      node_capacitances_[node_idx] += cap;
-    }
-  }
-  node_count_ = node_index_map_.size();
 }
 
-float
-PrimaDelayCalc::pinCapacitance(ParasiticNode *node)
+// Add node to network at index (shared by drivers and by the
+// resistor walk). A merged short reuses the near node's index.
+void
+PrimaDelayCalc::placeNode(ParasiticNode *node,
+                          size_t index)
 {
+  node_index_map_[node] = index;
   const Pin *pin = parasitics_->pin(node);
-  float pin_cap = 0.0;
-  const Sdc *sdc = scene_->sdc();
   if (pin) {
-    Port *port = network_->port(pin);
-    LibertyPort *lib_port = network_->libertyPort(port);
-    if (lib_port) {
-      if (!includes_pin_caps_)
-        pin_cap = sdc->pinCapacitance(pin, drvr_rf_, scene_, min_max_);
-    }
-    else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc->portExtCap(port, drvr_rf_, min_max_);
+    pin_node_map_[pin] = index;
+    debugPrint(debug_, "prima", 1, "pin {} node {}",
+               network_->pathName(pin), index);
   }
-  return pin_cap;
 }
 
 void
@@ -557,6 +581,16 @@ PrimaDelayCalc::setXinit()
     x_init_[node_count_ + p] = drvr_init_volt;
 }
 
+std::pair<size_t, bool>
+PrimaDelayCalc::nodeIndex(const ParasiticNode *node)
+{
+  auto node_index = node_index_map_.find(node);
+  if (node_index != node_index_map_.end())
+    return {node_index->second, true};
+  else
+    return {0, false};
+}
+
 void
 PrimaDelayCalc::stampEqns()
 {
@@ -564,38 +598,132 @@ PrimaDelayCalc::stampEqns()
   C_.setZero();
   B_.setZero();
 
-  for (size_t node_idx = 0; node_idx < node_count_; node_idx++)
-    stampCapacitance(node_idx, node_capacitances_[node_idx]);
+  // The stamps below do not visit the nodes in index order. Reserve room in
+  // each column so an out of order coeffRef() insert does not shift the packed
+  // array to make room, which makes stamping quadratic in the node count.
+  constexpr int non_zero_entry_count = 8;
+  G_.reserve(Eigen::VectorXi::Constant(order_, non_zero_entry_count));
+  C_.reserve(Eigen::VectorXi::Constant(order_, non_zero_entry_count));
+
+  NetSet drvr_nets(network_);
+  for (ArcDcalcArg &dcalc_arg : *dcalc_args_) {
+    const Net *net = dcalc_arg.drvrNet(network_);
+    drvr_nets.insert(net);
+  }
 
   resistance_sum_ = 0.0;
-  for (ParasiticResistor *resistor : parasitics_->resistors(parasitic_network_)) {
-    ParasiticNode *node1 = parasitics_->node1(resistor);
-    ParasiticNode *node2 = parasitics_->node2(resistor);
-    // One commercial extractor creates resistors with identical from/to nodes.
-    if (node1 != node2) {
-      size_t node_idx1 = node_index_map_[node1];
-      size_t node_idx2 = node_index_map_[node2];
-      float resistance = parasitics_->value(resistor);
-      stampConductance(node_idx1, node_idx2, 1.0 / resistance);
-      resistance_sum_ += resistance;
+  ParasiticSet visited_parasitics;
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+    const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
+    stampDriver(dcalc_arg, drvr_idx);
+    const Parasitic *parasitic = dcalc_arg.parasitic();
+    if (!visited_parasitics.contains(parasitic)) {
+      stampResistors(parasitic);
+      stampCapacitors(parasitic, dcalc_arg, drvr_nets);
+      visited_parasitics.insert(parasitic);
     }
   }
 
-  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
-    const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
+  if (debug_->check("prima", 3)) {
+    reportMatrix("G", G_);
+    reportMatrix("C", C_);
+    reportMatrix("B", B_);
+  }
+}
+
+void
+PrimaDelayCalc::stampDriver(const ArcDcalcArg &dcalc_arg,
+                            size_t drvr_idx)
+{
     size_t drvr_node = pin_node_map_[dcalc_arg.drvrPin()];
     G_.coeffRef(node_count_ + drvr_idx, drvr_node) = 1.0;
     G_.coeffRef(node_count_ + drvr_idx, node_count_ + drvr_idx) = -1.0;
     // special sauce
     G_.coeffRef(drvr_node, drvr_node) += 1e-6;
     B_.coeffRef(drvr_node, drvr_idx) = 1.0;
+}
+
+void
+PrimaDelayCalc::stampResistors(const Parasitic *parasitic)
+{
+  for (ParasiticResistor *resistor : parasitics_->resistors(parasitic)) {
+    auto [node_idx1, exsits1] = nodeIndex(parasitics_->node1(resistor));
+    auto [node_idx2, exsits2] = nodeIndex(parasitics_->node2(resistor));
+    // Skip a resistor with a node left out of the network.
+    if (exsits1 && exsits2) {
+      float resistance = parasitics_->value(resistor);
+      // Skip a self loop / merged short (same index) or a non-positive (short)
+      // resistance; stamping 1/resistance would be infinite.
+      if (node_idx1 != node_idx2 && resistance > 0.0) {
+        stampConductance(node_idx1, node_idx2, 1.0 / resistance);
+        resistance_sum_ += resistance;
+      }
+    }
+  }
+}
+
+void
+PrimaDelayCalc::stampCapacitors(const Parasitic *parasitic,
+                                const ArcDcalcArg &dcalc_arg,
+                                NetSet &drvr_nets)
+{
+  const RiseFall *drvr_rf = dcalc_arg.drvrEdge();
+  bool includes_pin_caps = parasitics_->includesPinCaps(parasitic);
+  // Grounded capacitors.
+  for (ParasiticNode *node : parasitics_->nodes(parasitic)) {
+    if (!parasitics_->isExternal(node)) {
+      auto [node_idx, exists] = nodeIndex(node);
+      if (exists) {
+        double cap = parasitics_->nodeGndCap(node);
+        const Pin *pin = parasitics_->pin(node);
+        if (pin)
+          cap += pinCapacitance(pin, drvr_rf, includes_pin_caps);
+        stampCapacitance(node_idx, cap);
+      }
+    }
   }
 
-  if (debug_->check("ccs_dcalc", 3)) {
-    reportMatrix("G", G_);
-    reportMatrix("C", C_);
-    reportMatrix("B", B_);
+  // Coupling capcacitors.
+  const Net *drvr_net = dcalc_arg.drvrNet(network_);
+  for (ParasiticCapacitor *capacitor : parasitics_->capacitors(parasitic)) {
+    ParasiticNode *node1 = parasitics_->node1(capacitor);
+    ParasiticNode *node2 = parasitics_->node2(capacitor);
+    float cap = parasitics_->value(capacitor);
+    const Net *net1 = node1 ? parasitics_->net(node1, network_) : nullptr;
+    const Net *net2 = node2 ? parasitics_->net(node2, network_) : nullptr;
+    if (net2 == drvr_net) {
+      std::swap(net1, net2);
+      std::swap(node1, node2);
+    }
+    auto [node_idx1, exists1] = nodeIndex(node1);
+    if (exists1) {
+      if (net2 && drvr_nets.contains(net2)) {
+        auto [node_idx2, exists2] = nodeIndex(node2);
+        if (exists2)
+          // Stamp half the capacitance because the coupled net will do the same.
+          stampCapacitance(node_idx1, node_idx2, cap * .5);
+      }
+      else
+        stampCapacitance(node_idx1, cap);
+    }
   }
+}
+
+float
+PrimaDelayCalc::pinCapacitance(const Pin *pin,
+                               const RiseFall *rf,
+                               bool includes_pin_caps)
+{
+  Port *port = network_->port(pin);
+  LibertyPort *lib_port = network_->libertyPort(port);
+  const Sdc *sdc = scene_->sdc();
+  if (lib_port) {
+    if (!includes_pin_caps)
+      return sdc->pinCapacitance(pin, rf, scene_, min_max_);
+  }
+  else if (network_->isTopLevelPort(pin))
+    return sdc->portExtCap(port, rf, min_max_);
+  return 0.0;
 }
 
 // Grounded resistor.
@@ -724,7 +852,8 @@ PrimaDelayCalc::measureThresholds(double time)
       if ((v_prev < th && th <= v) || (v_prev > th && th >= v)) {
         double t_cross =
             time - time_step_ + (th - v_prev) * time_step_ / (v - v_prev);
-        debugPrint(debug_, "ccs_measure", 1, "node {} cross {:.2f} {}", node_idx, th,
+        debugPrint(debug_, "prima_measure", 1, "node {} cross {:.2f} {}",
+                   node_idx, th,
                    delayAsString(t_cross, this));
         threshold_times_[node_idx][m] = t_cross;
       }
@@ -772,7 +901,7 @@ PrimaDelayCalc::dcalcResults()
     dcalc_result.setGateDelay(gate_delay2);
     dcalc_result.setDrvrSlew(drvr_slew2);
 
-    debugPrint(debug_, "ccs_dcalc", 2, "{} gate delay {} slew {}",
+    debugPrint(debug_, "prima", 2, "{} gate delay {} slew {}",
                network_->pathName(drvr_pin), delayAsString(gate_delay, this),
                delayAsString(drvr_slew, this));
 
@@ -785,7 +914,7 @@ PrimaDelayCalc::dcalcResults()
       ThresholdTimes &drvr_times = threshold_times_[drvr_node];
       double wire_delay = wire_times[threshold_vth] - drvr_times[threshold_vth];
       double load_slew = std::abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
-      debugPrint(debug_, "ccs_dcalc", 2, "load {} {} delay {} slew {}",
+      debugPrint(debug_, "prima", 2, "load {} {} delay {} slew {}",
                  network_->pathName(load_pin),
                  drvr_rf_->shortName(),
                  delayAsString(wire_delay, this),
@@ -877,7 +1006,7 @@ PrimaDelayCalc::primaReduce()
   // solve x_init = Vq * x~_init for x~_init
   xq_init_ = Vq_.colPivHouseholderQr().solve(x_init_);
 
-  if (debug_->check("ccs_dcalc", 3)) {
+  if (debug_->check("prima", 3)) {
     reportMatrix("Vq", Vq_);
     reportMatrix("G~", Gq_);
     reportMatrix("C~", Cq_);
@@ -940,7 +1069,7 @@ PrimaDelayCalc::primaReduce2()
   // solve x_init = Vq * x~_init for x~_init
   xq_init_ = Vq_.colPivHouseholderQr().solve(x_init_);
 
-  if (debug_->check("ccs_dcalc", 3)) {
+  if (debug_->check("prima", 3)) {
     reportMatrix("Vq", Vq_);
     reportMatrix("G~", Gq_);
     reportMatrix("C~", Cq_);

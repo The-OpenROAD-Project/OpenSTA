@@ -240,7 +240,9 @@ TEST_F(VerilogTest, EscapedNoTrailingSpace) {
 // staToVerilog: names beginning with digit need escaping
 TEST_F(VerilogTest, CellStartsWithDigit) {
   std::string result = cellVerilogName("123abc");
-  EXPECT_EQ(result, "123abc");  // Only alphanumeric, no escape needed
+  // A verilog identifier cannot begin with a digit, so this is written as
+  // an escaped identifier: backslash, the name, then a terminating space.
+  EXPECT_EQ(result, "\\123abc ");
 }
 
 // staToVerilog: name with space should be escaped
@@ -488,8 +490,8 @@ TEST_F(VerilogTest, NetEscapedBracketSlash) {
 // portVerilogName: name that is just digits
 TEST_F(VerilogTest, PortJustDigits) {
   std::string result = portVerilogName("12345");
-  // All digits - alphanumeric, no escaping needed
-  EXPECT_EQ(result, "12345");
+  // All digits cannot be a bare identifier; written escaped.
+  EXPECT_EQ(result, "\\12345 ");
 }
 
 // cellVerilogName: name with hyphen
@@ -1393,7 +1395,7 @@ TEST_F(VerilogTest, CellNameWithBackslashEscape) {
 
 TEST_F(VerilogTest, InstanceNameAllDigits) {
   std::string result = instanceVerilogName("0123456789");
-  EXPECT_EQ(result, "0123456789");
+  EXPECT_EQ(result, "\\0123456789 ");
 }
 
 TEST_F(VerilogTest, NetNameSingleUnderscore) {

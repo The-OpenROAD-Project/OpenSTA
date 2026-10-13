@@ -27,6 +27,7 @@
 #include <string_view>
 
 #include "CircuitSim.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
@@ -41,8 +42,8 @@ writePathSpice(const Path *path,
                std::string_view spice_filename,
                // Subckts used by path included in spice file.
                std::string_view subckt_filename,
-               // File of all cell spice subckt definitions.
-               std::string_view lib_subckt_filename,
+               // Files of cell spice subckt definitions.
+               StringSeq lib_subckt_filenames,
                // Device model file included in spice file.
                std::string_view model_filename,
                std::string_view power_name,

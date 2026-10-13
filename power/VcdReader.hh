@@ -26,14 +26,18 @@
 
 #include <string>
 
+#include "VcdParse.hh"
+
 namespace sta {
 
-class Sta;
+class StaState;
 
 void
 readVcdActivities(std::string_view filename,
                   std::string_view scope,
-                  std::string_view mode_name,
-                  Sta *sta);
+                  const Mode *mode,
+                  VcdTime begin_time,
+                  VcdTime end_time,
+                  StaState *sta);
 
 } // namespace sta

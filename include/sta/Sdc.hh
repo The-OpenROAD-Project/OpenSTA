@@ -377,6 +377,10 @@ public:
                       float fanout);
   void setMaxArea(float area);
   float maxArea() const;
+  void setMaxDynamicPower(float power);
+  float maxDynamicPower() const;
+  void setMaxLeakagePower(float power);
+  float maxLeakagePower() const;
   Clock *makeClock(std::string_view name,
                    const PinSet &pins,
                    bool add_to_pins,
@@ -577,6 +581,7 @@ public:
                         const RiseFall *clk_rf,
                         const MinMaxAll *min_max);
   void ensureInputDelayRefPinEdges();
+  void inputDelayRefPinEdgesInvalid();
   void setOutputDelay(const Pin *pin,
                       const RiseFallBoth *rf,
                       const Clock *clk,
@@ -703,10 +708,16 @@ public:
 
   void disableClockGatingCheck(Instance *inst);
   void disableClockGatingCheck(Pin *pin);
+  void disableClockGatingCheck(LibertyCell *cell);
   void removeDisableClockGatingCheck(Instance *inst);
   void removeDisableClockGatingCheck(Pin *pin);
+  void removeDisableClockGatingCheck(LibertyCell *cell);
   bool isDisableClockGatingCheck(const Pin *pin) const;
   bool isDisableClockGatingCheck(const Instance *inst) const;
+  bool isDisableClockGatingCheck(const LibertyCell *cell) const;
+  const InstanceSet &disabledClockGatingChecksInst() const;
+  const PinSet &disabledClockGatingChecksPin() const;
+  const LibertyCellSet &disabledClockGatingChecksLibCell() const;
   // set_LogicValue::zero, set_LogicValue::one, set_logic_dc
   void setLogicValue(const Pin *pin,
                      LogicValue value);
@@ -752,6 +763,12 @@ public:
                      bool break_path,
                      float delay,
                      std::string_view comment);
+  void makePathMargin(ExceptionFrom *from,
+                      ExceptionThruSeq *thrus,
+                      ExceptionTo *to,
+                      const MinMaxAll *min_max,
+                      float margin,
+                      std::string_view comment);
   bool pathDelaysWithoutTo() const { return path_delays_without_to_; }
   // Delete matching false/multicycle/path_delay exceptions.
   // Caller owns from, thrus, to exception points (and must delete them).
@@ -919,6 +936,9 @@ public:
   // Output delays on leaf_pin.
   OutputDelaySet *outputDelaysLeafPin(const Pin *leaf_pin) const;
   [[nodiscard]] bool hasOutputDelay(const Pin *leaf_pin) const;
+
+  // set_input_delay or set_output_delay defined on pin.
+  bool hasPortDelays(const Pin *pin);
 
   const PortExtCap *portExtCap(const Port *port) const;
   bool hasPortExtCap(const Port *port) const;
@@ -1221,6 +1241,7 @@ protected:
                          InputDelay *except);
   void deleteInputDelaysReferencing(const Clock *clk);
   void deleteInputDelay(InputDelay *input_delay);
+  void deletePortDelayReferences(const Pin *pin);
 
   OutputDelay *findOutputDelay(const Pin *pin,
                                const ClockEdge *clk_edge);
@@ -1337,6 +1358,7 @@ protected:
   InputDelaySet input_delays_;
   InputDelaysPinMap input_delay_pin_map_;
   bool have_input_delay_ref_pins_{false};
+  bool have_output_delay_ref_pins_{false};
   // Input delays on hierarchical pins are indexed by the load pins.
   InputDelaysPinMap input_delay_leaf_pin_map_;
   InputDelaysPinMap input_delay_internal_pin_map_;
@@ -1372,6 +1394,7 @@ protected:
   DisabledInstancePortsMap disabled_inst_ports_;
   InstanceSet disabled_clk_gating_checks_inst_;
   PinSet disabled_clk_gating_checks_pin_;
+  LibertyCellSet disabled_clk_gating_checks_lib_cell_;
   ExceptionPathSet exceptions_;
   size_t exception_id_{0}; // Unique ID for exceptions.
 
@@ -1423,9 +1446,36 @@ protected:
   InstMinPulseWidthMap inst_min_pulse_width_map_;
   ClockMinPulseWidthMap clk_min_pulse_width_map_;
   float max_area_;
+  float max_dynamic_power_;
+  float max_leakage_power_;
   Wireload *wireload_[MinMax::index_count];
   WireloadMode wireload_mode_;
   const WireloadSelection *wireload_selection_[MinMax::index_count];
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+public:
+  // True when any timing derates are set. Used to decide whether an
+  // analysis corner overlay Sdc overrides the mode Sdc for derate queries.
+  bool hasDeratingFactors() const
+  {
+    return derating_factors_ != nullptr
+      || !net_derating_factors_.empty()
+      || !inst_derating_factors_.empty()
+      || !cell_derating_factors_.empty();
+  }
+  // Reference-only cleanup when a mode clock dies: corner overlay Sdcs
+  // reference the mode's Clock objects but never own them. Constraint
+  // classes not listed here cannot exist in an overlay (corner-scope
+  // guard).
+  void removeClockReferences(Clock *clk)
+  {
+    deleteInputDelaysReferencing(clk);
+    deleteOutputDelaysReferencing(clk);
+    deleteClockLatenciesReferencing(clk);
+    deleteClockInsertionsReferencing(clk);
+    deleteInterClockUncertaintiesReferencing(clk);
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
 private:
   friend class WriteSdc;

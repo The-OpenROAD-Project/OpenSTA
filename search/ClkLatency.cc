@@ -295,7 +295,9 @@ ClkDelays::insertionDelay(Path *clk_path,
   const Pin *src_pin = clk_info->clkSrc();
   const MinMax *min_max = clk_path->minMax(sta);
   const Mode *mode = clk_path->mode(sta);
-  return sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max, min_max, mode);
+  return sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max, min_max, mode,
+                                       // OpenROAD fork: analysis_corner support.
+                                       clk_path->scene(sta));
 }
 
 float

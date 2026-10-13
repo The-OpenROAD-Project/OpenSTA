@@ -27,7 +27,26 @@ namespace eval sta {
 define_cmd_args "read_sdf" \
   {[-path path] [-scene scene]\
      [-cond_use min|max|min_max]\
-     [-unescaped_dividers] filename}
+     [-unescaped_dividers] filename} \
+  -help {Read SDF delays from a file. The min and max values in the SDF tuples are used to annotate delays. Typical values in the SDF tuples are ignored. If multiple scenes are defined `-scene` must be specified. SDC annotation for MCMM analysis must follow the scene definitions.
+
+Files compressed with gzip are automatically uncompressed.
+
+INCREMENT is supported as an alias for INCREMENTAL.
+
+The following SDF statements are not supported.
+
+```
+PORT
+INSTANCE wildcards
+```} \
+  -arg_help {
+    -scene {Scene delays to annotate.}
+    -path {Hierarchical instance path prefix for SDF annotation.}
+    -cond_use {`min`: Use SDF COND delays for min analysis. `max`: Use COND delays for max analysis. `min_max`: Use COND delays for min and max analysis.}
+    -unescaped_dividers {With this option path names in the SDF do not have to escape hierarchy dividers when the path name is escaped. For example, the escaped Verilog name "\inst1/inst2 " can be referenced as "inst1/inst2". The correct SDF name is "inst1\/inst2", since the divider does not represent a change in hierarchy in this case.}
+    filename {The name of the SDF file to read.}
+  }
 
 proc_redirect read_sdf {
   parse_key_args "read_sdf" args \
@@ -66,7 +85,18 @@ proc_redirect read_sdf {
 define_cmd_args "report_annotated_delay" \
   {[-cell] [-net] [-from_in_ports] [-to_out_ports]\
      [-scene scene] [-max_lines lines]\
-     [-report_annotated] [-report_unannotated] [-constant_arcs]}
+     [-report_annotated] [-report_unannotated] [-constant_arcs]} \
+  -help {The `report_annotated_delay` command reports a summary of SDF delay annotation. Without the `-from_in_ports` and `-to_out_ports` options arcs to and from top level ports are not reported. The `-report_annotated` and `-report_unannotated` options can be used to list arcs that are annotated or not annotated.} \
+  -arg_help {
+    -cell {Report annotated cell delays.}
+    -net {Report annotated internal net delays.}
+    -from_in_ports {Report annotated delays from input ports.}
+    -to_out_ports {Report annotated delays to output ports.}
+    -max_lines {`lines`: Maximum number of lines listed by the `-report_annotated` and `-report_unannotated` options.}
+    -report_annotated {Report annotated timing arcs.}
+    -report_unannotated {Report unannotated timing arcs.}
+    -constant_arcs {Report separate annotation counts for arcs disabled by logic constants (`set_logic_one`, `set_logic_zero`).}
+  }
 
 proc_redirect report_annotated_delay {
   parse_key_args "report_annotated_delay" args keys {-scene -corner -max_lines} \
@@ -117,7 +147,20 @@ define_cmd_args "report_annotated_check" \
   {[-setup] [-hold] [-recovery] [-removal] [-nochange]\
      [-width] [-period] [-max_skew]\
      [-scene scene] [-max_lines lines]\
-     [-report_annotated] [-report_unannotated] [-constant_arcs]}
+     [-report_annotated] [-report_unannotated] [-constant_arcs]} \
+  -help {The `report_annotated_check` command reports a summary of SDF timing check annotation. The `-report_annotated` and `-report_annotated` options can be used to list arcs that are annotated or not annotated.} \
+  -arg_help {
+    -recovery {Report annotated recovery checks.}
+    -removal {Report annotated removal checks.}
+    -nochange {Report annotated nochange checks.}
+    -width {Report annotated width checks.}
+    -period {Report annotated period checks.}
+    -max_skew {Report annotated max skew checks.}
+    -max_lines {`lines`: Maximum number of lines listed by the `-report_annotated` and `-report_unannotated` options.}
+    -report_annotated {Report annotated timing arcs.}
+    -report_unannotated {Report unannotated timing arcs.}
+    -constant_arcs {Report separate annotation counts for arcs disabled by logic constants (`set_logic_one`, `set_logic_zero`).}
+  }
 
 proc_redirect report_annotated_check {
   parse_key_args "report_annotated_check" args keys {-scene -max_lines} \
@@ -176,7 +219,17 @@ proc_redirect report_annotated_check {
 
 define_cmd_args "write_sdf" \
   {[-scene scene] [-divider /|.] [-include_typ]\
-     [-digits digits] [-gzip] [-no_timestamp] [-no_version] filename}
+     [-digits digits] [-gzip] [-no_timestamp] [-no_version] filename} \
+  -help {Write the delay calculation delays for the design in SDF format to `filename`. If `-scene` is not specified the min/max delays are across all scenes. With `-scene` the min/max delays for that scene are written. The SDF TIMESCALE is the same as the time_unit in the first Liberty file read.} \
+  -arg_help {
+    -scene {Write delays for scene.}
+    -divider {Divider to use between hierarchy levels in pin and instance names.}
+    -include_typ {Include a 'typ' value in the SDF triple that is the average of min and max delays to satisfy some Verilog simulators that require three values in the delay triples.}
+    -gzip {Compress the SDF using gzip.}
+    -no_timestamp {Do not write a DATE statement.}
+    -no_version {Do not write a VERSION statement.}
+    filename {The SDF filename to write.}
+  }
 
 proc_redirect write_sdf {
   parse_key_args "write_sdf" args \

@@ -44,7 +44,6 @@ write_verilog_cmd(const char *filename,
   // to see the sta internal names.
   Network *network = Sta::sta()->network();
   writeVerilog(filename, include_pwr_gnd, remove_cells, network);
-  delete remove_cells;
 }
 
 %} // inline

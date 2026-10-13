@@ -1,7 +1,7 @@
 # Test reading more complex verilog with sky130 library
 # Using verilog_attribute.v which has Yosys-style attributes and sky130 cells
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../test/verilog_attribute.v
+read_verilog verilog_attribute_sky130.v
 link_design counter
 
 puts "--- query cells ---"

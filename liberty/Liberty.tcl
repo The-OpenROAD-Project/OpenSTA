@@ -27,7 +27,50 @@
 namespace eval sta {
 
 define_cmd_args "read_liberty" \
-  {[-corner corner] [-min] [-max] [-infer_latches] filename}
+  {[-corner corner] [-min] [-max] [-infer_latches] filename} \
+  -help {The `read_liberty` command reads a Liberty format library file. The first library that is read sets the units used by SDC/Tcl commands and reporting. The include_file attribute is supported.
+
+Some Liberty libraries do not include latch groups for cells that describe transparent latches. In that situation the `-infer_latches` command flag can be used to infer the latches. The timing arcs required for a latch to be inferred should look like the following:
+
+```
+cell (inferred_latch) {
+  pin(D) {
+    direction : input ;
+    timing () {
+      related_pin : "E" ;
+      timing_type : setup_falling ;
+    }
+    timing () {
+      related_pin : "E" ;
+      timing_type : hold_falling ;
+    }
+  }
+  pin(E) {
+    direction : input;
+  }
+  pin(Q) {
+    direction : output ;
+    timing () {
+      related_pin : "D" ;
+    }
+    timing () {
+      related_pin : "E" ;
+      timing_type : rising_edge ;
+    }
+  }
+}
+```
+
+In this example a positive level-sensitive latch is inferred.
+
+Files compressed with gzip are automatically uncompressed.} \
+  -arg_help {
+    -corner {Deprecated. Use `define_scene` to assign Liberty libraries to a scene.}
+    -min {Use the library for min-delay (hold) analysis.}
+    -max {Use the library for max-delay (setup) analysis.}
+    filename {The Liberty file name to read.}
+    -infer_latches {Infer latches from timing arcs when the Liberty file has no latch groups.}
+  }
 
 proc_redirect read_liberty {
   parse_key_args "read_liberty" args keys {-corner} \
@@ -52,7 +95,11 @@ proc write_liberty { args } {
 
 ################################################################
 
-define_cmd_args "report_lib_cell" {cell_name [> filename] [>> filename]}
+define_cmd_args "report_lib_cell" {cell_name [> filename] [>> filename]} \
+  -help {Describe the liberty library cell cell_name.} \
+  -arg_help {
+    cell_name {The name of a library cell.}
+  }
 
 proc_redirect report_lib_cell {
   check_argc_eq1 "report_lib_cell" $args

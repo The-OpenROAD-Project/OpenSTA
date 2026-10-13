@@ -1,8 +1,18 @@
-module multi_sink (clk);
+module multi_sink (clk,
+    \3out );
  input clk;
+ output \3out ;
 
+ wire \54y ;
  wire \alu_adder_result_ex[0] ;
+ wire [0:0] \7bus ;
 
+ BUFx2_ASAP7_75t_R \1inst  (.Y(\54y ),
+    .A(clk));
+ BUFx2_ASAP7_75t_R b2 (.Y(\7bus [0]),
+    .A(\54y ));
+ BUFx2_ASAP7_75t_R b3 (.Y(\3out ),
+    .A(\7bus [0]));
  hier_block \h1\x  (.childclk(clk),
     .\Y[2:1] ({\alu_adder_result_ex[0] ,
     \alu_adder_result_ex[0] }));

@@ -66,6 +66,7 @@ public:
   virtual bool isLoop() const { return false; }
   virtual bool isMultiCycle() const { return false; }
   virtual bool isPathDelay() const { return false; }
+  virtual bool isPathMargin() const { return false; }
   virtual bool isGroupPath() const { return false; }
   virtual bool isFilter() const { return false; }
   virtual ExceptionPathType type() const = 0;
@@ -101,6 +102,7 @@ public:
   static int pathDelayPriority() { return 3000; }
   static int multiCyclePathPriority() { return 2000; }
   static int filterPathPriority() { return 1000; }
+  static int pathMarginPriority() { return 500; }
   static int groupPathPriority() { return 0; }
   // Compare the value (path delay or cycle count) to another exception
   // of the same priority.  Because the exception "values" are floats,
@@ -130,6 +132,7 @@ public:
   virtual bool useEndClk() const { return false; }
   virtual int pathMultiplier() const { return 0; }
   virtual float delay() const { return 0.0; }
+  virtual float margin() const { return 0.0; }
   virtual std::string_view name() const { return {}; }
   virtual bool isDefault() const { return false; }
   virtual bool ignoreClkLatency() const { return false; }
@@ -225,6 +228,35 @@ protected:
   bool ignore_clk_latency_;
   bool break_path_;
   float delay_;
+};
+
+// set_path_margin
+class PathMargin : public ExceptionPath
+{
+public:
+  PathMargin(ExceptionFrom *from,
+             ExceptionThruSeq *thrus,
+             ExceptionTo *to,
+             const MinMaxAll *min_max,
+             float margin,
+             bool own_pts,
+             std::string_view comment);
+  ExceptionPath *clone(ExceptionFrom *from,
+                       ExceptionThruSeq *thrus,
+                       ExceptionTo *to,
+                       bool own_pts) override;
+  bool isPathMargin() const override { return true; }
+  ExceptionPathType type() const override
+  { return ExceptionPathType::path_margin; }
+  std::string_view typeString() const override;
+  bool mergeable(ExceptionPath *exception) const override;
+  bool overrides(ExceptionPath *exception) const override;
+  float margin() const override { return margin_; }
+  int typePriority() const override;
+  bool tighterThan(ExceptionPath *exception) const override;
+
+protected:
+  float margin_;
 };
 
 // set_multicycle_path

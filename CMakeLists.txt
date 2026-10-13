@@ -201,6 +201,8 @@ set(STA_SOURCE
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc
+  # OpenROAD fork: analysis_corner support.
+  search/AnalysisCorner.cc
   search/Scene.cc
   search/Sim.cc
   search/Sta.cc
@@ -271,6 +273,8 @@ set(STA_TCL_FILES
   search/Search.tcl
   spice/WriteSpice.tcl
   verilog/Verilog.tcl
+  # OpenROAD fork: analysis_corner support (must follow tcl/Sta.tcl).
+  tcl/AnalysisCorner.tcl
   )
 
 ################################################################
@@ -491,6 +495,8 @@ set(SWIG_FILES
   ${STA_HOME}/tcl/StaTclTypes.i
   ${STA_HOME}/util/Util.i
   ${STA_HOME}/verilog/Verilog.i
+  # OpenROAD fork: analysis_corner support.
+  ${STA_HOME}/search/AnalysisCorner.i
   )
 
 set_property(SOURCE ${STA_SWIG_FILE}
@@ -685,7 +691,14 @@ add_custom_target(sta_tags
 add_custom_command(
   TARGET OpenSTA
   POST_BUILD
-  COMMAND ${STA_HOME}/etc/FindMessages.tcl > ${STA_HOME}/doc/messages.txt || true
+  COMMAND ${STA_HOME}/etc/FindMessages.tcl ${STA_HOME}/doc/Messages.md
+  WORKING_DIRECTORY ${STA_HOME}
+)
+
+add_custom_command(
+  TARGET sta
+  POST_BUILD
+  COMMAND $<TARGET_FILE:sta> -no_splash -no_init -exit ${STA_HOME}/etc/WriteCmdDocs.tcl
   WORKING_DIRECTORY ${STA_HOME}
 )
 

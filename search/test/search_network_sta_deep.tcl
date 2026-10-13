@@ -74,13 +74,15 @@ report_checks -path_delay max
 # Tag, group, info reporting
 ############################################################
 puts "--- report_tags ---"
-sta::report_tags
+report_masked_hashes [make_result_file search_network_sta_deep_tags.txt] \
+  sta::report_tags
 
 puts "--- report_clk_infos ---"
 sta::report_clk_infos
 
 puts "--- report_tag_groups ---"
-sta::report_tag_groups
+report_masked_hashes [make_result_file search_network_sta_deep_tag_groups.txt] \
+  sta::report_tag_groups
 
 puts "--- report_path_count_histogram ---"
 sta::report_path_count_histogram

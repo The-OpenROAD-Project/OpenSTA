@@ -24,7 +24,8 @@
 
 #include "ClkNetwork.hh"
 
-#include "Bfs.hh"
+#include <queue>
+
 #include "Debug.hh"
 #include "Graph.hh"
 #include "Mode.hh"
@@ -127,7 +128,6 @@ ClkNetwork::findClkPins(bool ideal_only,
 {
   const Sdc *sdc = mode_->sdc();
   ClkSearchPred srch_pred(this);
-  BfsFwdIterator bfs(BfsIndex::other, &srch_pred, this);
   for (Clock *clk : sdc->clocks()) {
     if (!ideal_only
         || !clk->isPropagated()) {
@@ -136,25 +136,39 @@ ClkNetwork::findClkPins(bool ideal_only,
         clk_pins = new PinSet(network_);
         clk_pins_map_[clk] = clk_pins;
       }
+      std::queue<Vertex *> queue;
+      VertexSet visited = makeVertexSet(this);
+      auto enqueue = [&queue, &visited] (Vertex *vertex) {
+        if (vertex && !visited.contains(vertex)) {
+          visited.insert(vertex);
+          queue.push(vertex);
+        }
+      };
       for (const Pin *pin : clk->leafPins()) {
         if (!ideal_only
             || !sdc->isPropagatedClock(pin)) {
           Vertex *vertex, *bidirect_drvr_vertex;
           graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-          bfs.enqueue(vertex);
-          if (bidirect_drvr_vertex)
-            bfs.enqueue(bidirect_drvr_vertex);
+          enqueue(vertex);
+          enqueue(bidirect_drvr_vertex);
         }
       }
-      while (bfs.hasNext()) {
-        Vertex *vertex = bfs.next();
+      while (!queue.empty()) {
+        Vertex *vertex = queue.front();
+        queue.pop();
         const Pin *pin = vertex->pin();
         if (!ideal_only
             || !sdc->isPropagatedClock(pin)) {
           clk_pins->insert(pin);
           ClockSet &pin_clks = pin_clks_map[pin];
           pin_clks.insert(clk);
-          bfs.enqueueAdjacentVertices(vertex);
+          graph_->visitFanouts(vertex, &srch_pred,
+                               [&queue, &visited] (Vertex *fanout) {
+                                 if (!visited.contains(fanout)) {
+                                   visited.insert(fanout);
+                                   queue.push(fanout);
+                                 }
+                               });
         }
       }
     }

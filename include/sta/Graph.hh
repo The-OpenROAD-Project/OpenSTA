@@ -87,6 +87,19 @@ public:
   bool hasFaninOne(Vertex *vertex) const;
   VertexId vertexCount() { return vertices_->size(); }
 
+  void visitFanouts(Vertex *vertex,
+                    SearchPred *pred,
+                    const VertexFn &fn);
+  void visitFanins(Vertex *vertex,
+                   SearchPred *pred,
+                   const VertexFn &fn);
+  void visitFanoutEdges(Vertex *vertex,
+                        SearchPred *pred,
+                        const EdgeFn &fn);
+  void visitFaninEdges(Vertex *vertex,
+                       SearchPred *pred,
+                       const EdgeFn &fn);
+
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
   // Measured slews are between slew_lower_threshold and slew_upper_threshold.
@@ -179,7 +192,7 @@ public:
   VertexSet &regClkVertices() { return reg_clk_vertices_; }
 
   static constexpr int vertex_level_bits = 24;
-  static constexpr int vertex_level_max = (1<<vertex_level_bits)-1;
+  static constexpr int vertex_level_max = (1<<vertex_level_bits) - 1;
 
 protected:
   void makeVerticesAndEdges();
@@ -216,11 +229,11 @@ protected:
   //  driver/source (top level input, instance pin output) vertex
   //  in pin_bidirect_drvr_vertex_map
   PinVertexMap pin_bidirect_drvr_vertex_map_;
-  DcalcAPIndex ap_count_;
   // Sdf period check annotations.
   PeriodCheckAnnotations period_check_annotations_;
   // Register/latch clock vertices to search from.
   VertexSet reg_clk_vertices_;
+  DcalcAPIndex ap_count_;
 
   friend class Vertex;
   friend class VertexIterator;
@@ -242,6 +255,7 @@ public:
   std::string name(const Network *network) const;
   [[nodiscard]] bool isBidirectDriver() const { return is_bidirect_drvr_; }
   [[nodiscard]] bool isDriver(const Network *network) const;
+  [[nodiscard]] bool isLoad(const Network *network) const;
   Level level() const { return level_; }
   void setLevel(Level level);
   [[nodiscard]] bool visited() const { return visited1_; }
@@ -273,13 +287,16 @@ public:
   void setIsCheckClk(bool is_check_clk);
   [[nodiscard]] bool hasDownstreamClkPin() const { return has_downstream_clk_pin_; }
   void setHasDownstreamClkPin(bool has_clk_pin);
-  [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
-  void setBfsInQueue(BfsIndex index, bool value);
   [[nodiscard]] bool isRegClk() const { return is_reg_clk_; }
   // Has sim value in some mode.
   [[nodiscard]] bool hasSimValue() const { return has_sim_value_; }
   void setHasSimValue(bool has_sim);
   
+  [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
+  void setBfsInQueue(BfsIndex index, bool value);
+  [[nodiscard]] bool bfsPredecessorChanged() const { return bfs_predecessor_changed_; }
+  void setBfsPredecessorChanged(bool changed);
+
   // ObjectTable interface.
   [[nodiscard]] ObjectIdx objectIdx() const { return object_idx_; }
   void setObjectIdx(ObjectIdx idx);
@@ -311,21 +328,21 @@ protected:
   // Each bit corresponds to a different BFS queue.
   std::atomic<uint8_t> bfs_in_queue_; // 8
 
-  int level_:Graph::vertex_level_bits; // 24
-  unsigned int slew_annotated_:slew_annotated_bits;  // 4
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
-  bool is_bidirect_drvr_:1;
-
-  bool is_reg_clk_:1;
+  unsigned int is_bidirect_drvr_:1;
+  unsigned int is_reg_clk_:1;
   // Constrained by timing check edge.
-  bool has_checks_:1;
+  unsigned int has_checks_:1;
   // Is the clock for a timing check.
-  bool is_check_clk_:1;
-  bool has_downstream_clk_pin_:1;
-  bool visited1_:1;
-  bool visited2_:1;
-  bool has_sim_value_:1;
+  unsigned int is_check_clk_:1;
+  unsigned int has_downstream_clk_pin_:1;
+  unsigned int visited1_:1;
+  unsigned int visited2_:1;
+  unsigned int bfs_predecessor_changed_:1;
+  unsigned int has_sim_value_:1;
+  int level_:Graph::vertex_level_bits; // 24
+  unsigned int slew_annotated_:slew_annotated_bits;  // 4
 
 private:
   friend class Graph;
@@ -392,16 +409,16 @@ protected:
   static uintptr_t arcDelayAnnotateBit(size_t index);
 
   TimingArcSet *arc_set_;
-  VertexId from_;
-  VertexId to_;
-  EdgeId vertex_in_link_;               // Vertex in edges list.
-  EdgeId vertex_out_next_;              // Vertex out edges doubly linked list.
-  EdgeId vertex_out_prev_;
   float *arc_delays_;
   union {
     uintptr_t bits_;
     std::vector<bool> *seq_;
   } arc_delay_annotated_;
+  VertexId from_;
+  VertexId to_;
+  EdgeId vertex_in_next_;               // Vertex in edges list.
+  EdgeId vertex_out_next_;              // Vertex out edges doubly linked list.
+  EdgeId vertex_out_prev_;
   bool arc_delay_annotated_is_bits_:1;
   bool delay_annotation_is_incremental_:1;
   bool is_bidirect_inst_path_:1;

@@ -67,6 +67,30 @@ proc diff_files_sorted { file1 file2 } {
   }
 }
 
+# Run cmd with its report output captured to file, then echo the output
+# with hash values masked and hash bucket reports dropped.
+# std::unordered_set bucket counts and std::hash<float> results are
+# implementation defined, so report_tags/report_tag_groups hashes differ
+# between libstdc++ (linux) and libc++ (macos).
+proc report_masked_hashes { file cmd } {
+  sta::redirect_file_begin $file
+  set code [catch { uplevel 1 $cmd } result]
+  sta::redirect_file_end
+  if { $code } {
+    return -code $code $result
+  }
+  set stream [open $file r]
+  gets $stream line
+  while { ![eof $stream] } {
+    if { ![regexp {^Longest hash bucket} $line] } {
+      regsub {hash = \d+ \(\s*\d+\)} $line {hash = <hash> (<bucket>)} line
+      puts $line
+    }
+    gets $stream line
+  }
+  close $stream
+}
+
 proc assert_file_nonempty { path } {
   if { ![file exists $path] || [file size $path] <= 0 } {
     error "expected non-empty file: $path"

@@ -62,6 +62,7 @@ public:
   void writeDisabledInstances() const;
   void writeDisabledPins() const;
   void writeDisabledEdges() const;
+  void writeDisabledClockGatingChecks() const;
   void writeDisabledEdge(Edge *edge) const;
   void findMatchingEdges(Edge *edge,
                          EdgeSet &matches) const;
@@ -169,6 +170,8 @@ public:
   void writeCapLimits(const MinMax *min_max,
                       std::string_view cmd) const;
   void writeMaxArea() const;
+  void writeMaxDynamicPower() const;
+  void writeMaxLeakagePower() const;
   void writeFanoutLimits() const;
   void writeFanoutLimits(const MinMax *min_max,
                          std::string_view cmd) const;

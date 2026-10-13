@@ -30,11 +30,18 @@ namespace eval sta {
 #
 ################################################################
 
-define_cmd_args "help" {[pattern]}
+define_cmd_args "help" {[-verbose] [pattern]} \
+  -help {Print command usage. With a single match, print the description and options. Use `-verbose` to print full `help` for every match.} \
+  -arg_help {
+    -verbose {Print full descriptions even when multiple commands match.}
+  }
 
 proc_redirect help {
   variable cmd_args
+  variable var_help
 
+  parse_key_args "help" args keys {} flags {-verbose}
+  set verbose [info exists flags(-verbose)]
   set arg_count [llength $args]
   if { $arg_count == 0 } {
     set pattern "*"
@@ -43,13 +50,28 @@ proc_redirect help {
   } else {
     cmd_usage_error "help"
   }
-  set matches [array names cmd_args $pattern]
-  if { $matches != {} } {
-    foreach cmd [lsort $matches] {
+
+  set cmd_matches [lsort [array names cmd_args $pattern]]
+  set var_matches {}
+  if { $pattern != "*" } {
+    set var_matches [lsort [array names var_help $pattern]]
+  }
+  set match_count [expr { [llength $cmd_matches] + [llength $var_matches] }]
+  if { $match_count == 0 } {
+    sta_warn 160 "no commands match '$pattern'."
+    return
+  }
+
+  set full [expr { $verbose || $match_count == 1 }]
+  foreach cmd $cmd_matches {
+    if { $full } {
+      show_cmd_help $cmd
+    } else {
       show_cmd_args $cmd
     }
-  } else {
-    sta_warn 160 "no commands match '$pattern'."
+  }
+  foreach var $var_matches {
+    show_var_help $var $full
   }
 }
 
@@ -83,6 +105,104 @@ proc show_cmd_args { cmd } {
   }
 }
 
+proc show_cmd_help { cmd } {
+  variable cmd_args
+
+  show_cmd_args $cmd
+  set desc [md_help_to_text [cmd_help_text $cmd]]
+  if { $desc != "" } {
+    report_wrapped $desc 80 2
+  }
+  foreach opt [cmd_synopsis_options $cmd_args($cmd)] {
+    set opt_desc [md_help_to_text [cmd_arg_help_text $cmd $opt]]
+    if { $opt_desc != "" } {
+      report_opt_help $opt $opt_desc
+    }
+  }
+}
+
+proc show_var_help { var full } {
+  set values [var_help_values $var]
+  if { $values != "" } {
+    report_line "$var $values"
+  } else {
+    report_line $var
+  }
+  if { $full } {
+    set desc [md_help_to_text [var_help_text $var]]
+    if { $desc != "" } {
+      report_wrapped $desc 80 2
+    }
+  }
+}
+
+proc report_opt_help { opt desc } {
+  set indent 2
+  set hang 4
+  set width 80
+  set prefix "[string repeat " " $indent]$opt  "
+  set col [string length $prefix]
+  set line $prefix
+  foreach word [split $desc] {
+    if { $word == "" } {
+      continue
+    }
+    set word_len [string length $word]
+    if { $col + $word_len + 1 > $width && $col > $hang } {
+      report_line [string trimright $line]
+      set line "[string repeat " " $hang]$word "
+      set col [expr { $hang + $word_len + 1 }]
+    } else {
+      append line "$word "
+      set col [expr { $col + $word_len + 1 }]
+    }
+  }
+  report_line [string trimright $line]
+}
+
+proc report_wrapped { text width indent } {
+  set prefix [string repeat " " $indent]
+  foreach para [split $text "\n"] {
+    if { [string trim $para] == "" } {
+      report_line ""
+      continue
+    }
+    set line $prefix
+    set col $indent
+    foreach word [split $para] {
+      if { $word == "" } {
+        continue
+      }
+      set word_len [string length $word]
+      if { $col + $word_len + 1 > $width && $col > $indent } {
+        report_line [string trimright $line]
+        set line "$prefix$word "
+        set col [expr { $indent + $word_len + 1 }]
+      } else {
+        append line "$word "
+        set col [expr { $col + $word_len + 1 }]
+      }
+    }
+    report_line [string trimright $line]
+  }
+}
+
+# Approximate Markdown as wrap-friendly plain text for the help command.
+proc md_help_to_text { md } {
+  if { $md == "" } {
+    return ""
+  }
+  set text $md
+  # Fenced code blocks become indented lines.
+  set text [regsub -all {```[a-zA-Z0-9_]*\n} $text ""]
+  set text [string map {``` ""} $text]
+  # Inline code, bold, italics.
+  set text [regsub -all {`([^`]+)`} $text {\1}]
+  set text [regsub -all {\*\*([^*]+)\*\*} $text {\1}]
+  set text [regsub -all {\*([^*]+)\*} $text {\1}]
+  return [string trim $text]
+}
+
 # This is used in lieu of command completion to make sdc commands
 # like get_ports be abbreviated get_port.
 proc define_cmd_alias { alias cmd } {
@@ -102,7 +222,12 @@ proc cmd_usage_error { cmd } {
 
 ################################################################
 
-define_cmd_args "with_output_to_variable" { var { cmds }}
+define_cmd_args "with_output_to_variable" { var { cmds }} \
+  -help {The `with_output_to_variable` command redirects the output of Tcl commands to a variable.} \
+  -arg_help {
+    var {The name of a variable to save the output of commands to.}
+    commands {Tcl commands that the output will be redirected from.}
+  }
 
 # with_output_to_variable variable { command args... }
 proc with_output_to_variable { var_name args } {
@@ -117,7 +242,19 @@ proc with_output_to_variable { var_name args } {
 
 ################################################################
 
-define_cmd_args "report_units" {}
+define_cmd_args "report_units" {} \
+  -help {Report the units used for command arguments and reporting.
+
+```
+report_units
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1A
+ power 1pW
+ distance 1um
+```}
 
 proc report_units { args } {
   check_argc_eq0 "report_units" $args
@@ -142,7 +279,36 @@ proc write_units_json { jsonfile } {
 define_cmd_args "set_cmd_units" \
   {[-capacitance cap_unit] [-resistance res_unit] [-time time_unit]\
      [-voltage voltage_unit] [-current current_unit] [-power power_unit]\
-     [-distance distance_unit]}
+     [-distance distance_unit]} \
+  -help {The `set_cmd_units` command is used to change the units used by the STA command interpreter when parsing commands and reporting results. The default units are the units specified in the first Liberty library file that is read.
+
+Units are specified as a scale factor followed by a unit name. The scale factors are as follows.
+
+```
+M 1E+6
+k 1E+3
+m 1E-3
+u 1E-6
+n 1E-9
+p 1E-12
+f 1E-15
+```
+
+An example of the `set_units` command is shown below.
+
+```
+set_cmd_units -time ns -capacitance pF -current mA -voltage V
+              -resistance kOhm -distance um
+```} \
+  -arg_help {
+    -capacitance {`cap_unit`: The capacitance scale factor followed by 'f'.}
+    -resistance {`res_unit`: The resistance scale factor followed by 'ohm'.}
+    -time {`time_unit`: The time scale factor followed by 's'.}
+    -voltage {`voltage_unit`: The voltage scale factor followed by 'v'.}
+    -current {`current_unit`: The current scale factor followed by 'A'.}
+    -power {`power_unit`: The power scale factor followed by 'w'.}
+    -distance {`distance_unit`: The distance scale factor followed by 'm'.}
+  }
 
 proc set_cmd_units { args } {
   parse_key_args "set_cmd_units" args \
@@ -191,7 +357,12 @@ proc set_unit_values { unit key suffix key_var } {
 
 ################################################################
 
-define_cmd_args "delete_from_list" {list delete}
+define_cmd_args "delete_from_list" {list delete} \
+  -help {Remove objects from a list.} \
+  -arg_help {
+    list {A list of objects.}
+    objects {A list of objects to delete from list.}
+  }
 
 proc delete_from_list { list delete } {
   delete_objects_from_list_cmd $list $delete
@@ -250,7 +421,11 @@ proc set_cmd_namespace { namespc } {
   
 ################################################################
 
-define_cmd_args "report_object_full_names" {objects}
+define_cmd_args "report_object_full_names" {objects} \
+  -help {The `report_object_full_names` command prints the hierarchical name of each object, sorted by full name.} \
+  -arg_help {
+    objects {A list of objects returned by a `get_*` command.}
+  }
 
 proc report_object_full_names { objects } {
   foreach obj [sort_by_full_name $objects] {
@@ -258,7 +433,11 @@ proc report_object_full_names { objects } {
   }
 }
 
-define_cmd_args "report_object_names" {objects}
+define_cmd_args "report_object_names" {objects} \
+  -help {The `report_object_names` command prints the name of each object, sorted by name.} \
+  -arg_help {
+    objects {A list of objects returned by a `get_*` command.}
+  }
 
 proc report_object_names { objects } {
   foreach obj [sort_by_name $objects] {
@@ -268,8 +447,16 @@ proc report_object_names { objects } {
 
 ################################################################
 
-define_cmd_args "get_name" {object}
-define_cmd_args "get_full_name" {object}
+define_cmd_args "get_name" {object} \
+  -help {Return the name of object. Equivalent to [`get_property` object name].} \
+  -arg_help {
+    object {A library, cell, port, instance, pin or timing arc object.}
+  }
+define_cmd_args "get_full_name" {object} \
+  -help {Return the name of object. Equivalent to [`get_property` object full_name].} \
+  -arg_help {
+    object {A library, cell, port, instance, pin or timing arc object.}
+  }
 
 ################################################################
 

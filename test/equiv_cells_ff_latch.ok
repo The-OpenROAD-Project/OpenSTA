@@ -1,0 +1,4 @@
+equiv_cell_ports ff latch: 1
+equiv_cells ff latch: 0
+find_equiv_cells ff: 0
+find_equiv_cells DFFHQNx1: 3

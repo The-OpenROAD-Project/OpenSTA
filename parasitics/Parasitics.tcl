@@ -34,7 +34,45 @@ define_cmd_args "read_spef" \
      [-keep_capacitive_coupling]\
      [-coupling_reduction_factor factor]\
      [-reduce]\
-     filename}
+     filename} \
+  -help {The `read_spef` command reads a file of net parasitics in SPEF format. Use the `-report_parasitic_annotation` command to check for nets that are not annotated.
+
+Files compressed with gzip are automatically uncompressed.
+
+Separate min/max parasitics can be annotated for each scene.
+
+```
+read_spef -name min spef1
+read_spef -name max spef2
+define_scene scene1 -mode mode1 -spef_min min -spef_max max
+```
+
+Coupling capacitors are multiplied by the `-coupling_reduction_factor` when a parasitic network is reduced.
+
+The following SPEF constructs are ignored.
+
+```
+*DESIGN_FLOW (all values are ignored)
+*S slews
+*D driving cell
+*I pin capacitances (library cell capacitances are used instead)
+*Q r_net load poles
+*K r_net load residues
+```
+
+If the SPEF file contains triplet values the first value is used.
+
+Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.} \
+  -arg_help {
+    -name {The name of the SPEF parasitics to use for defining scenes. The default is the base name of filename.}
+    -corner {Process corner to annotate. Deprecated; use `-name` and `define_scene`.}
+    -pin_cap_included {SPEF pin capacitances are included (library pin capacitances are not added).}
+    -reduce {Reduce parasitic networks to the form used by the current delay calculator.}
+    -path {Hierarchical block instance path to annotate with  parasitics.}
+    -keep_capacitive_coupling {Keep coupling capacitors in parasitic networks rather than converting them to grounded capacitors.}
+    -coupling_reduction_factor {`factor`: Factor to multiply coupling capacitance by when reducing parasitic networks. The default value is 1.0.}
+    filename {The name of the parasitics file to read.}
+  }
 
 # -scene/-min/-max are for compatibilty, Deprecated 11/21/2025
 proc_redirect read_spef {
@@ -73,7 +111,12 @@ proc_redirect read_spef {
 }
 
 define_cmd_args "report_parasitic_annotation" {[-name spef_name]\
-                                               [-report_unannotated]}
+                                               [-report_unannotated]} \
+  -help {Report SPEF parasitic annotation completeness.} \
+  -arg_help {
+    -report_unannotated {Report unannotated and partially annotated nets.}
+    -name {SPEF annotation name from `read_spef -name`.}
+  }
 
 proc_redirect report_parasitic_annotation {
   parse_key_args "report_parasitic_annotation" args \

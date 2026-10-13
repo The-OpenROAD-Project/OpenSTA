@@ -25,7 +25,13 @@
 namespace eval sta {
 
 define_cmd_args "report_dcalc" \
-  {[-from from_pin] [-to to_pin] [-scene scene] [-min] [-max] [-digits digits]}
+  {[-from from_pin] [-to to_pin] [-scene scene] [-min] [-max] [-digits digits]} \
+  -help {The `report_dcalc` command shows how the delays between instance pins are calculated. It is useful for debugging problems with delay calculation.} \
+  -arg_help {
+    -from {Report delay calculations for timing arcs from instance input pin from_pin.}
+    -to {Report delay calculations for timing arcs to instance output pin to_pin.}
+    -scene {Report delay calculations for this scene. Required if more than one scene is defined.}
+  }
 
 proc_redirect report_dcalc {
   report_dcalc_cmd "report_dcalc" $args "-digits"
@@ -139,7 +145,16 @@ proc set_delay_calculator { alg } {
 
 define_cmd_args "set_assigned_delay" \
   {-cell|-net [-rise] [-fall] [-scene scene] [-min] [-max]\
-     [-from from_pins] [-to to_pins] delay}
+     [-from from_pins] [-to to_pins] delay} \
+  -help {The `set_assigned_delay` command is used to annotate the delays between two pins on an instance or net. The annotated delay overrides the calculated delay. This command is an interactive way to back-annotate delays like an SDF file.} \
+  -arg_help {
+    -cell {Annotate the delays between two pins on an instance.}
+    -net {Annotate the delays between two pins on a net.}
+    -scene {The name of a scene. The `-scene` keyword is required if more than one scene is defined.}
+    -from {A list of pins.}
+    -to {A list of pins.}
+    delay {The delay between from_pins and to_pins.}
+  }
 
 # Change the delay for timing arcs between from_pins and to_pins matching
 # on cell (instance) or net.
@@ -239,7 +254,18 @@ define_cmd_args "set_assigned_check" \
   {-setup|-hold|-recovery|-removal [-rise] [-fall]\
      [-scene scene] [-min] [-max]\
      [-from from_pins] [-to to_pins] [-clock rise|fall]\
-     [-cond sdf_cond] check_value}
+     [-cond sdf_cond] check_value} \
+  -help {The `set_assigned_check` command is used to annotate the timing checks between two pins on an instance. The annotated delay overrides the calculated delay. This command is an interactive way to back-annotate delays like an SDF file.} \
+  -arg_help {
+    -recovery {Annotate recovery timing checks.}
+    -removal {Annotate removal timing checks.}
+    -scene {The name of a scene. The `-scene` keyword is required if more than one scene  is defined.}
+    -from {A list of pins for the clock.}
+    -to {A list of pins for the data.}
+    -clock {`rise|fall`: The timing check clock pin transition.}
+    -cond {SDF condition string for the annotated check.}
+    margin {The timing check margin.}
+  }
 
 proc set_assigned_check { args } {
   parse_key_args "set_assigned_check" args \
@@ -348,7 +374,13 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
 ################################################################a
 
 define_cmd_args "set_assigned_transition" \
-  {[-rise] [-fall] [-scene scene] [-min] [-max] slew pins}
+  {[-rise] [-fall] [-scene scene] [-min] [-max] slew pins} \
+  -help {The `set_assigned_transition` command is used to annotate the transition time (slew) of a pin. The annotated transition time overrides the calculated transition time.} \
+  -arg_help {
+    -scene {Annotate delays for scene.}
+    slew {The pin transition time.}
+    pin_list {A list of pins.}
+  }
 
 # Change the slew on a list of ports.
 proc set_assigned_transition { args } {
@@ -381,7 +413,13 @@ proc set_assigned_transition { args } {
 ################################################################
 
 define_cmd_args "report_slews" {[-scenes scenes] [-digits digits]\
-                                  [-report_variance] pin}
+                                  [-report_variance] pin} \
+  -help {Report the slews at a pin.} \
+  -arg_help {
+    -scenes {Report slews for these scenes. The default is all scenes.}
+    -report_variance {Report SSTA distribution parameters.}
+    pin {A pin or port.}
+  }
 
 proc report_slews { args } {
   global sta_report_default_digits

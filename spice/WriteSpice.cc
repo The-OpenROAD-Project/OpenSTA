@@ -29,6 +29,7 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "Bdd.hh"
 #include "Clock.hh"
@@ -58,7 +59,7 @@ pinNet(const Pin *pin,
 
 WriteSpice::WriteSpice(std::string_view spice_filename,
                        std::string_view subckt_filename,
-                       std::string_view lib_subckt_filename,
+                       StringSeq lib_subckt_filenames,
                        std::string_view model_filename,
                        std::string_view power_name,
                        std::string_view gnd_name,
@@ -69,24 +70,25 @@ WriteSpice::WriteSpice(std::string_view spice_filename,
   StaState(sta),
   spice_filename_(spice_filename),
   subckt_filename_(subckt_filename),
-  lib_subckt_filename_(lib_subckt_filename),
+  lib_subckt_filenames_(std::move(lib_subckt_filenames)),
   model_filename_(model_filename),
   power_name_(power_name),
   gnd_name_(gnd_name),
   ckt_sim_(ckt_sim),
   scene_(scene),
   min_max_(min_max),
-  default_library_(network_->defaultLibertyLibrary()),
+  threshold_library_(nullptr),
   bdd_(sta),
   parasitics_(scene->parasitics(min_max))
 {
 }
 
 void
-WriteSpice::initPowerGnd()
+WriteSpice::initPowerGnd(LibertyLibrary *threshold_library)
 {
+  threshold_library_ = threshold_library;
   bool exists = false;
-  default_library_->supplyVoltage(power_name_, power_voltage_, exists);
+  threshold_library_->supplyVoltage(power_name_, power_voltage_, exists);
   if (!exists) {
     const OperatingConditions *op_cond =
         scene_->sdc()->operatingConditions(min_max_);
@@ -94,7 +96,7 @@ WriteSpice::initPowerGnd()
       op_cond = network_->defaultLibertyLibrary()->defaultOperatingConditions();
     power_voltage_ = op_cond->voltage();
   }
-  default_library_->supplyVoltage(gnd_name_, gnd_voltage_, exists);
+  threshold_library_->supplyVoltage(gnd_name_, gnd_voltage_, exists);
   if (!exists)
     gnd_voltage_ = 0.0;
 }
@@ -105,7 +107,8 @@ WriteSpice::writeHeader(std::string &title,
                         float time_step)
 {
   sta::print(spice_stream_, "* {}\n", title);
-  sta::print(spice_stream_, ".include \"{}\"\n", model_filename_);
+  if (!model_filename_.empty())
+    sta::print(spice_stream_, ".include \"{}\"\n", model_filename_);
   std::filesystem::path subckt_filename =
       std::filesystem::path(subckt_filename_).filename();
   sta::print(spice_stream_, ".include \"{}\"\n", subckt_filename.string());
@@ -168,58 +171,61 @@ void
 WriteSpice::writeSubckts(StringSet &cell_names)
 {
   findCellSubckts(cell_names);
-  std::ifstream lib_subckts_stream{std::string(lib_subckt_filename_)};
-  if (lib_subckts_stream.is_open()) {
-    std::ofstream subckts_stream{std::string(subckt_filename_)};
-    if (subckts_stream.is_open()) {
-      std::string line;
-      int line_num = 0;
-      while (std::getline(lib_subckts_stream, line)) {
-        line_num++;
-        // .subckt <cell_name> [args..]
-        StringSeq tokens = parseTokens(line);
-        if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
-          const std::string &cell_name = tokens[1];
-          if (cell_names.contains(cell_name)) {
-            subckts_stream << line << "\n";
-            bool found_ends = false;
-            while (std::getline(lib_subckts_stream, line)) {
-              subckts_stream << line << "\n";
-              if (stringBeginEqual(line, ".ends")) {
-                subckts_stream << "\n";
-                found_ends = true;
-                break;
-              }
-            }
-            if (!found_ends)
-              report_->fileError(1606, lib_subckt_filename_, line_num,
-                                 "spice subckt for cell {} missing .ends.",
-                                 cell_name);
-            cell_names.erase(cell_name);
-          }
-          recordSpicePortNames(cell_name, tokens);
-        }
-      }
-      subckts_stream.close();
-      lib_subckts_stream.close();
+  std::ofstream subckts_stream{std::string(subckt_filename_)};
+  if (!subckts_stream.is_open())
+    throw FileNotWritable(subckt_filename_);
 
-      if (!cell_names.empty()) {
-        std::string missing_cells;
-        for (const std::string &cell_name : cell_names) {
-          missing_cells += "\n";
-          missing_cells += cell_name;
+  for (const std::string &lib_subckt_filename : lib_subckt_filenames_) {
+    std::ifstream lib_subckt_stream{lib_subckt_filename};
+    if (!lib_subckt_stream.is_open())
+      throw FileNotReadable(lib_subckt_filename);
+
+    std::string line;
+    int line_num = 0;
+    while (std::getline(lib_subckt_stream, line)) {
+      line_num++;
+      // .subckt <cell_name> [args..]
+      StringSeq tokens = parseTokens(line);
+      if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
+        const std::string &cell_name = tokens[1];
+        if (cell_names.contains(cell_name)) {
+          subckts_stream << line << "\n";
+          bool found_ends = false;
+          while (std::getline(lib_subckt_stream, line)) {
+            subckts_stream << line << "\n";
+            if (stringBeginEqual(line, ".ends")) {
+              subckts_stream << "\n";
+              found_ends = true;
+              break;
+            }
+          }
+          if (!found_ends)
+            report_->fileError(1606, lib_subckt_filename, line_num,
+                               "spice subckt for cell {} missing .ends.",
+                               cell_name);
+          cell_names.erase(cell_name);
         }
-        report_->error(1605, "The subkct file {} is missing definitions for {}",
-                       lib_subckt_filename_, missing_cells);
+        recordSpicePortNames(cell_name, tokens);
       }
-    }
-    else {
-      lib_subckts_stream.close();
-      throw FileNotWritable(subckt_filename_);
     }
   }
-  else
-    throw FileNotReadable(lib_subckt_filename_);
+
+  if (!cell_names.empty()) {
+    std::string missing_cells;
+    for (const std::string &cell_name : cell_names) {
+      missing_cells += "\n";
+      missing_cells += cell_name;
+    }
+    std::string lib_files;
+    const char *separator = "";
+    for (const std::string &filename : lib_subckt_filenames_) {
+      lib_files += separator;
+      lib_files += filename;
+      separator = ", ";
+    }
+    report_->error(1605, "The subckt file {} is missing definitions for {}",
+                   lib_files, missing_cells);
+  }
 }
 
 void
@@ -248,38 +254,43 @@ WriteSpice::recordSpicePortNames(std::string_view cell_name,
 void
 WriteSpice::findCellSubckts(StringSet &cell_names)
 {
-  std::ifstream lib_subckts_stream{std::string(lib_subckt_filename_)};
-  if (lib_subckts_stream.is_open()) {
-    std::string line;
-    while (std::getline(lib_subckts_stream, line)) {
-      // .subckt <cell_name> [args..]
-      StringSeq tokens = parseTokens(line);
-      if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
-        const std::string &cell_name = tokens[1];
-        if (cell_names.contains(cell_name)) {
-          // Scan the subckt definition for subckt calls.
-          std::string stmt;
-          while (std::getline(lib_subckts_stream, line)) {
-            if (line[0] == '+')
-              stmt += line.substr(1);
-            else {
-              // Process previous statement.
-              if (tolower(stmt[0]) == 'x') {
-                StringSeq tokens = parseTokens(line);
-                std::string &subckt_cell = tokens[tokens.size() - 1];
-                cell_names.insert(subckt_cell);
+  size_t cell_count = 0;
+  while (cell_names.size() > cell_count) {
+    cell_count = cell_names.size();
+    for (const std::string &lib_subckt_filename : lib_subckt_filenames_) {
+      std::ifstream lib_subckt_stream{lib_subckt_filename};
+      if (!lib_subckt_stream.is_open())
+        throw FileNotReadable(lib_subckt_filename);
+
+      std::string line;
+      while (std::getline(lib_subckt_stream, line)) {
+        // .subckt <cell_name> [args..]
+        StringSeq tokens = parseTokens(line);
+        if (tokens.size() >= 2 && stringEqual(tokens[0], ".subckt")) {
+          const std::string &cell_name = tokens[1];
+          if (cell_names.contains(cell_name)) {
+            // Scan the subckt definition for subckt calls.
+            std::string stmt;
+            while (std::getline(lib_subckt_stream, line)) {
+              if (line[0] == '+')
+                stmt += line.substr(1);
+              else {
+                // Process previous statement.
+                if (tolower(stmt[0]) == 'x') {
+                  StringSeq tokens = parseTokens(stmt);
+                  std::string &subckt_cell = tokens[tokens.size() - 1];
+                  cell_names.insert(subckt_cell);
+                }
+                stmt = line;
               }
-              stmt = line;
+              if (stringBeginEqual(line, ".ends"))
+                break;
             }
-            if (stringBeginEqual(line, ".ends"))
-              break;
           }
         }
       }
     }
   }
-  else
-    throw FileNotReadable(lib_subckt_filename_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -309,10 +320,11 @@ WriteSpice::writeSubcktInst(const Instance *inst)
 // Power/ground and input voltage sources.
 void
 WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
-                                    LibertyPortLogicValues &port_values,
+                                    PortLogicValues &port_values,
                                     const PinSet &excluded_input_pins)
 {
-  LibertyCell *cell = network_->libertyCell(inst);
+  LibertyCell *link_cell = network_->libertyCell(inst);
+  LibertyCell *cell = link_cell->sceneCell(scene_, min_max_);
   const std::string &cell_name = cell->name();
   StringSeq &spice_port_names = cell_spice_port_names_[cell_name];
   std::string inst_name = network_->pathName(inst);
@@ -339,7 +351,7 @@ WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
       if (port_value == LogicValue::unknown) {
         bool has_value;
         LogicValue value;
-        findKeyValue(port_values, port, value, has_value);
+        findKeyValue(port_values, port->name(), value, has_value);
         if (has_value)
           port_value = value;
       }
@@ -732,7 +744,7 @@ WriteSpice::writeWaveformEdge(const RiseFall *rf,
     volt0 = power_voltage_;
     volt1 = gnd_voltage_;
   }
-  float threshold = default_library_->inputThreshold(rf);
+  float threshold = threshold_library_->inputThreshold(rf);
   float dt = railToRailSlew(slew, rf);
   float time0 = time - dt * threshold;
   float time1 = time0 + dt;
@@ -745,8 +757,8 @@ float
 WriteSpice::railToRailSlew(float slew,
                            const RiseFall *rf)
 {
-  float lower = default_library_->slewLowerThreshold(rf);
-  float upper = default_library_->slewUpperThreshold(rf);
+  float lower = threshold_library_->slewLowerThreshold(rf);
+  float upper = threshold_library_->slewUpperThreshold(rf);
   return slew / (upper - lower);
 }
 
@@ -756,14 +768,14 @@ WriteSpice::railToRailSlew(float slew,
 void
 WriteSpice::gatePortValues(const Pin *input_pin,
                            const Pin *drvr_pin,
+                           const RiseFall *input_rf,
                            const RiseFall *drvr_rf,
                            const Edge *gate_edge,
                            // Return values.
-                           LibertyPortLogicValues &port_values,
+                           PortLogicValues &port_values,
                            bool &is_clked)
 {
   is_clked = false;
-  const Instance *inst = network_->instance(input_pin);
   const LibertyPort *input_port = network_->libertyPort(input_pin);
   const LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
   const FuncExpr *drvr_func = drvr_port->function();
@@ -771,49 +783,68 @@ WriteSpice::gatePortValues(const Pin *input_pin,
     if (gate_edge && gate_edge->role()->genericRole() == TimingRole::regClkToQ())
       regPortValues(input_pin, drvr_rf, drvr_port, drvr_func, port_values, is_clked);
     else
-      gatePortValues(inst, drvr_func, input_port, port_values);
+      gatePortValues(drvr_func, input_port, input_rf, drvr_rf, port_values);
   }
 }
 
 void
-WriteSpice::gatePortValues(const Instance *,
-                           const FuncExpr *expr,
+WriteSpice::gatePortValues(const FuncExpr *expr,
                            const LibertyPort *input_port,
+                           const RiseFall *input_rf,
+                           const RiseFall *drvr_rf,
                            // Return values.
-                           LibertyPortLogicValues &port_values)
+                           PortLogicValues &port_values)
 {
+  DdManager *cudd_mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(expr);
   DdNode *input_node = bdd_.findNode(input_port);
-  unsigned input_node_index = Cudd_NodeReadIndex(input_node);
-  DdManager *cudd_mgr = bdd_.cuddMgr();
-  DdNode *diff = Cudd_bddBooleanDiff(cudd_mgr, bdd, input_node_index);
+  // Cofactors of the driver function wrt the switching (path) input.
+  DdNode *f1 = Cudd_Cofactor(cudd_mgr, bdd, input_node);
+  Cudd_Ref(f1);
+  DdNode *f0 = Cudd_Cofactor(cudd_mgr, bdd, Cudd_Not(input_node));
+  Cudd_Ref(f0);
+  // The side inputs must sensitize the path with the polarity of this
+  // arc, not just any sensitization: for non-unate gates (xor/xnor, mux
+  // select arcs) the side values decide whether the gate inverts, so a
+  // cube of the plain Boolean difference (f1 XOR f0) can put the gate on
+  // the arc opposite to the one the path used.
+  //   input and driver edges agree  (non-inverting): f1 & ~f0
+  //   input and driver edges differ (inverting):     f0 & ~f1
+  DdNode *care = (input_rf == drvr_rf)
+    ? Cudd_bddAnd(cudd_mgr, f1, Cudd_Not(f0))
+    : Cudd_bddAnd(cudd_mgr, f0, Cudd_Not(f1));
+  Cudd_Ref(care);
+
   int *cube;
   CUDD_VALUE_TYPE value;
-  DdGen *cube_gen = Cudd_FirstCube(cudd_mgr, diff, &cube, &value);
-
-  LibertyPortSet ports = expr->ports();
-  for (const LibertyPort *port : ports) {
-    if (port != input_port) {
-      DdNode *port_node = bdd_.findNode(port);
-      int var_index = Cudd_NodeReadIndex(port_node);
-      LogicValue value;
-      switch (cube[var_index]) {
-        case 0:
-          value = LogicValue::zero;
-          break;
-        case 1:
-          value = LogicValue::one;
-          break;
-        case 2:
-        default:
-          value = LogicValue::unknown;
-          break;
+  DdGen *cube_gen = Cudd_FirstCube(cudd_mgr, care, &cube, &value);
+  if (!Cudd_IsGenEmpty(cube_gen)) {
+    LibertyPortSet ports = expr->ports();
+    for (const LibertyPort *port : ports) {
+      if (port != input_port) {
+        DdNode *port_node = bdd_.findNode(port);
+        int var_index = Cudd_NodeReadIndex(port_node);
+        LogicValue port_value;
+        switch (cube[var_index]) {
+          case 0:
+            port_value = LogicValue::zero;
+            break;
+          case 1:
+            port_value = LogicValue::one;
+            break;
+          case 2:
+          default:
+            port_value = LogicValue::unknown;
+            break;
+        }
+        port_values[port->name()] = port_value;
       }
-      port_values[port] = value;
     }
   }
   Cudd_GenFree(cube_gen);
-  Cudd_Ref(diff);
+  Cudd_RecursiveDeref(cudd_mgr, care);
+  Cudd_RecursiveDeref(cudd_mgr, f0);
+  Cudd_RecursiveDeref(cudd_mgr, f1);
   bdd_.clearVarMap();
 }
 
@@ -823,7 +854,7 @@ WriteSpice::regPortValues(const Pin *input_pin,
                           const LibertyPort *drvr_port,
                           const FuncExpr *drvr_func,
                           // Return values.
-                          LibertyPortLogicValues &port_values,
+                          PortLogicValues &port_values,
                           bool &is_clked)
 {
   is_clked = false;
@@ -849,7 +880,7 @@ void
 WriteSpice::seqPortValues(Sequential *seq,
                           const RiseFall *rf,
                           // Return values.
-                          LibertyPortLogicValues &port_values)
+                          PortLogicValues &port_values)
 {
   FuncExpr *data = seq->data();
   // SHOULD choose values for all ports of data to make output rise/fall
@@ -857,18 +888,19 @@ WriteSpice::seqPortValues(Sequential *seq,
   LibertyPort *port = onePort(data);
   if (port) {
     TimingSense sense = data->portTimingSense(port);
+    const std::string &port_name = port->name();
     switch (sense) {
       case TimingSense::positive_unate:
         if (rf == RiseFall::rise())
-          port_values[port] = LogicValue::one;
+          port_values[port_name] = LogicValue::one;
         else
-          port_values[port] = LogicValue::zero;
+          port_values[port_name] = LogicValue::zero;
         break;
       case TimingSense::negative_unate:
         if (rf == RiseFall::rise())
-          port_values[port] = LogicValue::zero;
+          port_values[port_name] = LogicValue::zero;
         else
-          port_values[port] = LogicValue::one;
+          port_values[port_name] = LogicValue::one;
         break;
       case TimingSense::non_unate:
       case TimingSense::none:
@@ -933,7 +965,7 @@ WriteSpice::writeSubcktInstLoads(const Pin *drvr_pin,
   sta::print(spice_stream_, "* Load pins\n");
   PinSeq drvr_loads = drvrLoads(drvr_pin);
   // Do not sensitize side load gates.
-  LibertyPortLogicValues port_values;
+  PortLogicValues port_values;
   for (const Pin *load_pin : drvr_loads) {
     const Instance *load_inst = network_->instance(load_pin);
     if (load_pin != path_load && network_->direction(load_pin)->isAnyInput()
@@ -957,9 +989,9 @@ WriteSpice::writeMeasureDelayStmt(const Pin *from_pin,
                                   std::string_view prefix)
 {
   std::string from_pin_name = network_->pathName(from_pin);
-  float from_threshold = power_voltage_ * default_library_->inputThreshold(from_rf);
+  float from_threshold = power_voltage_ * threshold_library_->inputThreshold(from_rf);
   std::string to_pin_name = network_->pathName(to_pin);
-  float to_threshold = power_voltage_ * default_library_->inputThreshold(to_rf);
+  float to_threshold = power_voltage_ * threshold_library_->inputThreshold(to_rf);
   sta::print(spice_stream_, ".measure tran {}_{}_delay_{}\n", prefix,
              from_pin_name, to_pin_name);
   sta::print(spice_stream_, "+trig v({}) val={:.3f} {}=last\n", from_pin_name,
@@ -975,8 +1007,8 @@ WriteSpice::writeMeasureSlewStmt(const Pin *pin,
 {
   std::string pin_name = network_->pathName(pin);
   std::string_view spice_rf = spiceTrans(rf);
-  float lower = power_voltage_ * default_library_->slewLowerThreshold(rf);
-  float upper = power_voltage_ * default_library_->slewUpperThreshold(rf);
+  float lower = power_voltage_ * threshold_library_->slewLowerThreshold(rf);
+  float upper = power_voltage_ * threshold_library_->slewUpperThreshold(rf);
   float threshold1, threshold2;
   if (rf == RiseFall::rise()) {
     threshold1 = lower;

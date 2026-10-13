@@ -42,8 +42,8 @@ ConcreteLibrary::ConcreteLibrary(std::string_view name,
                                  std::string_view filename,
                                  bool is_liberty) :
   name_(name),
-  id_(ConcreteNetwork::nextObjectId()),
   filename_(filename),
+  id_(ConcreteNetwork::nextObjectId()),
   is_liberty_(is_liberty)
 {
 }
@@ -259,22 +259,6 @@ void
 ConcreteCell::setIsLeaf(bool is_leaf)
 {
   is_leaf_ = is_leaf;
-}
-
-void
-ConcreteCell::setAttribute(std::string_view key,
-                           std::string_view value)
-{
-  attribute_map_[std::string(key)] = value;
-}
-
-std::string
-ConcreteCell::getAttribute(std::string_view key) const
-{
-  const auto &itr = attribute_map_.find(key);
-  if (itr != attribute_map_.end())
-    return itr->second;
-  return "";
 }
 
 ConcretePort *

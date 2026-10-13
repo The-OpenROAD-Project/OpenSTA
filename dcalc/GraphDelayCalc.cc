@@ -47,6 +47,7 @@
 #include "Sdc.hh"
 #include "Scene.hh"
 #include "SearchPred.hh"
+#include "search/Sim.hh"
 #include "Stats.hh"
 #include "TimingArc.hh"
 #include "TimingRole.hh"
@@ -88,8 +89,10 @@ DcalcPred::searchFrom(const Vertex *from_vertex,
   const Pin *from_pin = from_vertex->pin();
   const Sdc *sdc = mode->sdc();
   const Network *network = sta_->network();
+  const Sim *sim = mode->sim();
   Net *net = network->net(from_pin);
   return !(sdc->isDisabledConstraint(from_pin)
+           || sim->isConstant(from_vertex)
 	   || (net && (network->isPower(net)
                        || network->isGround(net))));
 }
@@ -213,7 +216,6 @@ GraphDelayCalc::delaysInvalid()
   debugPrint(debug_, "delay_calc", 1, "delays invalid");
   delays_exist_ = false;
   delays_seeded_ = false;
-  incremental_ = false;
   iter_->clear();
   // No need to keep track of incremental updates any more.
   invalid_delays_.clear();
@@ -224,7 +226,7 @@ GraphDelayCalc::delaysInvalid()
 void
 GraphDelayCalc::delayInvalid(const Pin *pin)
 {
-  if (graph_ && incremental_) {
+  if (graph_ && delays_exist_) {
     if (network_->isHierarchical(pin)) {
       EdgesThruHierPinIterator edge_iter(pin, network_, graph_);
       while (edge_iter.hasNext()) {
@@ -248,7 +250,7 @@ GraphDelayCalc::delayInvalid(Vertex *vertex)
 {
   debugPrint(debug_, "delay_calc", 2, "delay invalid {}",
              vertex->to_string(this));
-  if (graph_ && incremental_) {
+  if (delays_exist_) {
     invalid_delays_.insert(vertex);
     // Invalidate driver that triggers dcalc for multi-driver nets.
     MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
@@ -274,7 +276,7 @@ void
 GraphDelayCalc::deleteVertexBefore(Vertex *vertex)
 {
   iter_->deleteVertexBefore(vertex);
-  if (incremental_)
+  if (delays_exist_)
     invalid_delays_.erase(vertex);
   MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
   if (multi_drvr) {
@@ -329,7 +331,7 @@ FindVertexDelays::copy() const
 void
 FindVertexDelays::visit(Vertex *vertex)
 {
-  graph_delay_calc_->findVertexDelay(vertex, arc_delay_calc_, true);
+  graph_delay_calc_->findVertexDelay(vertex, arc_delay_calc_);
 }
 
 // The logical structure of incremental delay calculation closely
@@ -338,47 +340,44 @@ FindVertexDelays::visit(Vertex *vertex)
 void
 GraphDelayCalc::findDelays(Level level)
 {
-  if (arc_delay_calc_) {
-    Stats stats(debug_, report_);
-    int dcalc_count = 0;
-    debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
-    if (!delays_seeded_) {
-      iter_->clear();
-      seedRootSlews();
-      delays_seeded_ = true;
-    }
-    else
-      iter_->ensureSize();
-    if (incremental_)
-      seedInvalidDelays();
-
-    if (!iter_->empty()) {
-      FindVertexDelays visitor(this);
-      dcalc_count += iter_->visitParallel(level, &visitor);
-    }
-
-    // Timing checks require slews at both ends of the arc,
-    // so find their delays after all slews are known.
-    for (Edge *check_edge : invalid_check_edges_)
-      findCheckEdgeDelays(check_edge, arc_delay_calc_);
-    invalid_check_edges_.clear();
-
-    for (Edge *latch_edge : invalid_latch_edges_)
-      findLatchEdgeDelays(latch_edge);
-    invalid_latch_edges_.clear();
-
-    delays_exist_ = true;
-    incremental_ = true;
-    debugPrint(debug_, "delay_calc", 1, "found {} delays", dcalc_count);
-    stats.report("Delay calc");
+  Stats stats(debug_, report_);
+  int dcalc_count = 0;
+  debugPrint(debug_, "delay_calc", 1, "find delays to level {}", level);
+  if (!delays_seeded_) {
+    iter_->clear();
+    seedRootSlews();
+    delays_seeded_ = true;
   }
+  else
+    iter_->ensureSize();
+  if (delays_exist_)
+    seedInvalidDelays();
+
+  if (!iter_->empty()) {
+    FindVertexDelays visitor(this);
+    dcalc_count += iter_->visitParallel(level, &visitor);
+  }
+
+  // Timing checks require slews at both ends of the arc,
+  // so find their delays after all slews are known.
+  for (Edge *check_edge : invalid_check_edges_)
+    findCheckEdgeDelays(check_edge, arc_delay_calc_);
+  invalid_check_edges_.clear();
+
+  for (Edge *latch_edge : invalid_latch_edges_)
+    findLatchEdgeDelays(latch_edge);
+  invalid_latch_edges_.clear();
+
+  delays_exist_ = true;
+  debugPrint(debug_, "delay_calc", 1, "found {} delays", dcalc_count);
+  stats.report("Delay calc");
 }
 
 void
 GraphDelayCalc::seedInvalidDelays()
 {
   for (Vertex *vertex : invalid_delays_)
-	iter_->enqueue(vertex);
+    iter_->enqueue(vertex);
   invalid_delays_.clear();
 }
 
@@ -397,7 +396,7 @@ GraphDelayCalc::seedRootSlew(Vertex *vertex,
     seedDrvrSlew(vertex, arc_delay_calc);
   else
     seedLoadSlew(vertex);
-  iter_->enqueueAdjacentVertices(vertex);
+  iter_->enqueueFanout(vertex);
 }
 
 void
@@ -676,51 +675,53 @@ GraphDelayCalc::findInputArcDelay(const Pin *drvr_pin,
 void
 GraphDelayCalc::findDelays(Vertex *drvr_vertex)
 {
-  findVertexDelay(drvr_vertex, arc_delay_calc_, true);
+  findVertexDelay(drvr_vertex, arc_delay_calc_);
 }
 
 void
 GraphDelayCalc::findVertexDelay(Vertex *vertex,
-                                ArcDelayCalc *arc_delay_calc,
-                                bool propagate)
+                                ArcDelayCalc *arc_delay_calc)
 {
   const Pin *pin = vertex->pin();
   debugPrint(debug_, "delay_calc", 2, "find delays {} ({})",
              vertex->to_string(this),
              network_->cellName(network_->instance(pin)));
-  if (vertex->isRoot())
+  if (vertex->isRoot()
+      // Bidirect port drivers are enqueued by their load vertex in
+      // annotateLoadDelays.
+      || (vertex->isBidirectDriver()
+          && network_->isTopLevelPort(pin)))
     seedRootSlew(vertex, arc_delay_calc);
-  else {
-    if (network_->isLeaf(pin)) {
-      if (vertex->isDriver(network_)) {
-        LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(vertex);
-        DrvrLoadSlews load_slews_prev;
-        if (incremental_)
-          load_slews_prev = loadSlews(load_pin_index_map);
-        findDriverDelays(vertex, arc_delay_calc, load_pin_index_map);
-	if (propagate) {
-	  if (network_->direction(pin)->isInternal())
-	    enqueueTimingChecksEdges(vertex);
-          // Enqueue adjacent vertices even if the load slews did not
-	  // change when non-incremental to stride past annotations.
-	  if (!incremental_
-              || loadSlewsChanged(load_slews_prev, load_pin_index_map))
-	    iter_->enqueueAdjacentVertices(vertex);
-	}
-      }
-      else {
-	// Load vertex.
-	enqueueTimingChecksEdges(vertex);
-	// Enqueue driver vertices from this input load.
-	if (propagate)
-	  iter_->enqueueAdjacentVertices(vertex);
-      }
-    }
-    // Bidirect port drivers are enqueued by their load vertex in
-    // annotateLoadDelays.
-    else if (vertex->isBidirectDriver()
-	     && network_->isTopLevelPort(pin))
-      seedRootSlew(vertex, arc_delay_calc);
+  else if (network_->isLeaf(pin)
+           && vertex->isDriver(network_)) {
+    LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(vertex);
+    DrvrLoadSlews load_slews_prev;
+    if (delays_exist_)
+      load_slews_prev = loadSlews(load_pin_index_map);
+    findDriverDelays(vertex, arc_delay_calc, load_pin_index_map);
+    if (network_->direction(pin)->isInternal())
+      enqueueCheckEdges(vertex);
+    graph_->visitFanouts(vertex, search_non_latch_pred_,
+                         [this, &load_slews_prev, &load_pin_index_map]
+                         (Vertex *fanout) {
+                           // Enqueue adjacent vertices even if the load slew
+                           // did not change when non-incremental to stride
+                           // past annotations.
+                           if (!delays_exist_
+                               || loadSlewChanged(fanout, load_slews_prev,
+                                                  load_pin_index_map)) {
+                             iter_->enqueue(fanout);
+                           }
+                         });
+  }
+  else if (vertex->isLoad(network_)) {
+    // Load vertex.
+    // Includes top level bidirect load vertex with wire edge to bidirect driver.
+    enqueueCheckEdges(vertex);
+    graph_->visitFanouts(vertex, search_non_latch_pred_,
+                         [this] (Vertex *fanout) {
+                           iter_->enqueue(fanout);
+                         });
   }
 }
 
@@ -740,24 +741,25 @@ GraphDelayCalc::loadSlews(LoadPinIndexMap &load_pin_index_map)
 }
 
 bool
-GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
-                                 LoadPinIndexMap &load_pin_index_map)
+GraphDelayCalc::loadSlewChanged(Vertex *load_vertex,
+                                DrvrLoadSlews &load_slews_prev,
+                                LoadPinIndexMap &load_pin_index_map)
 {
+  if (load_slews_prev.empty())
+    return true;
+  size_t index = load_pin_index_map[load_vertex->pin()];
+  SlewSeq &slews_prev = load_slews_prev[index];;
   size_t slew_count = graph_->slewCount();
-  for (auto const [pin, index] : load_pin_index_map) {
-    Vertex *load_vertex = graph_->pinLoadVertex(pin);
-    SlewSeq &slews_prev = load_slews_prev[index];;
-    for (size_t i = 0; i < slew_count; i++) {
-      const Slew slew = graph_->slew(load_vertex, i);
-      if (!delayEqual(slew, slews_prev[i], this))
-        return true;
-    }
+  for (size_t i = 0; i < slew_count; i++) {
+    const Slew slew = graph_->slew(load_vertex, i);
+    if (!delayEqual(slew, slews_prev[i], this))
+      return true;
   }
   return false;
 }
 
 void
-GraphDelayCalc::enqueueTimingChecksEdges(Vertex *vertex)
+GraphDelayCalc::enqueueCheckEdges(Vertex *vertex)
 {
   if (vertex->hasChecks()) {
     VertexInEdgeIterator edge_iter(vertex, graph_);
@@ -1183,10 +1185,10 @@ GraphDelayCalc::annotateDelaysSlews(Edge *edge,
                                          dcalc_result.drvrSlew(), scene, min_max);
   if (!edge->role()->isLatchDtoQ()) {
     Vertex *drvr_vertex = edge->to(graph_);
-    delay_changed |= annotateLoadDelays(drvr_vertex, arc->toEdge()->asRiseFall(),
-                                        dcalc_result,
-                                        load_pin_index_map, delay_zero, true,
-                                        scene, min_max);
+    annotateLoadDelays(drvr_vertex, arc->toEdge()->asRiseFall(),
+                       dcalc_result,
+                       load_pin_index_map, delay_zero, true,
+                       scene, min_max);
   }
   return delay_changed;
 }
@@ -1241,7 +1243,7 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
 // Annotate wire arc delays and load pin slews.
 // extra_delay is additional wire delay to add to delay returned
 // by the delay calculator.
-bool
+void
 GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
                                    const RiseFall *drvr_rf,
                                    ArcDcalcResult &dcalc_result,
@@ -1252,7 +1254,6 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
                                    const MinMax *min_max)
 {
   DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-  bool changed = false;
   VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *wire_edge = edge_iter.next();
@@ -1267,20 +1268,17 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
                  load_vertex->to_string(this),
                  delayAsString(wire_delay, this),
                  delayAsString(load_slew, this));
-      bool load_changed = false;
       if (!load_vertex->slewAnnotated(drvr_rf, min_max)) {
         if (drvr_vertex->slewAnnotated(drvr_rf, min_max)) {
           // Copy the driver slew to the load if it is annotated.
           const Slew drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
           graph_->setSlew(load_vertex, drvr_rf, ap_index, drvr_slew);
-          load_changed = true;
         }
         else {
           const Slew slew = graph_->slew(load_vertex, drvr_rf, ap_index);
           if (!merge
               || delayGreater(load_slew, slew, min_max, this)) {
             graph_->setSlew(load_vertex, drvr_rf, ap_index, load_slew);
-            load_changed = true;
           }
         }
       }
@@ -1293,18 +1291,12 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
 	if (!merge
             || delayGreater(wire_delay_extra, delay, min_max, this)) {
 	  graph_->setWireArcDelay(wire_edge, drvr_rf, ap_index, wire_delay_extra);
-          load_changed = true;
+          if (observer_)
+            observer_->delayChangedTo(load_vertex);
 	}
       }
-      if (load_changed && observer_)
-        observer_->delayChangedTo(load_vertex);
-      // Enqueue bidirect driver from load vertex.
-      if (bidirectDrvrSlewFromLoad(load_pin))
-	iter_->enqueue(graph_->pinDrvrVertex(load_pin));
-      changed |= load_changed;
     }
   }
-  return changed;
 }
 
 LoadPinIndexMap

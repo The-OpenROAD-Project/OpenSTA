@@ -39,13 +39,15 @@ puts "min violations: [sta::endpoint_violation_count min]"
 # report internal structures
 ############################################################
 puts "--- report_tags ---"
-sta::report_tags
+report_masked_hashes [make_result_file search_search_arrival_required_tags.txt] \
+  sta::report_tags
 
 puts "--- report_clk_infos ---"
 sta::report_clk_infos
 
 puts "--- report_tag_groups ---"
-sta::report_tag_groups
+report_masked_hashes [make_result_file search_search_arrival_required_tag_groups.txt] \
+  sta::report_tag_groups
 
 puts "--- report_path_count_histogram ---"
 sta::report_path_count_histogram

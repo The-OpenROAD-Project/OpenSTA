@@ -206,10 +206,12 @@ seqPtrTclList(SEQ_TYPE *seq,
               Tcl_Interp *interp)
 {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  for (const OBJECT_TYPE *obj : *seq) {
-    Tcl_Obj *tcl_obj = SWIG_NewInstanceObj(const_cast<OBJECT_TYPE*>(obj),
-                                           swig_type, false);
-    Tcl_ListObjAppendElement(interp, list, tcl_obj);
+  if (seq) {
+    for (const OBJECT_TYPE *obj : *seq) {
+      Tcl_Obj *tcl_obj = SWIG_NewInstanceObj(const_cast<OBJECT_TYPE*>(obj),
+                                             swig_type, false);
+      Tcl_ListObjAppendElement(interp, list, tcl_obj);
+    }
   }
   Tcl_SetObjResult(interp, list);
 }
@@ -325,12 +327,20 @@ using namespace sta;
   $1 = tclListSeqPtr<Cell*>($input, SWIGTYPE_p_Cell, interp);
 }
 
+%typemap(freearg) CellSeq* {
+  delete $1;
+}
+
 %typemap(out) CellSeq {
   seqTclList<CellSeq, Cell>($1, SWIGTYPE_p_Cell, interp);
 }
 
 %typemap(in) LibertyCellSeq* {
   $1 = tclListSeqPtr<LibertyCell*>($input, SWIGTYPE_p_LibertyCell, interp);
+}
+
+%typemap(freearg) LibertyCellSeq* {
+  delete $1;
 }
 
 %typemap(out) LibertyCellSeq * {
@@ -343,6 +353,10 @@ using namespace sta;
 
 %typemap(in) LibertyPortSeq* {
   $1 = tclListSeqPtr<LibertyPort*>($input, SWIGTYPE_p_LibertyPort, interp);
+}
+
+%typemap(freearg) LibertyPortSeq* {
+  delete $1;
 }
 
 %typemap(out) LibertyPortSeq {
@@ -366,6 +380,10 @@ using namespace sta;
 
 %typemap(in) PortSeq* {
   $1 = tclListSeqPtr<const Port*>($input, SWIGTYPE_p_Port, interp);
+}
+
+%typemap(freearg) PortSeq* {
+  delete $1;
 }
 
 %typemap(out) PortSeq {
@@ -541,6 +559,10 @@ using namespace sta;
   $1 = tclListSeqPtr<const Instance*>($input, SWIGTYPE_p_Instance, interp);
 }
 
+%typemap(freearg) InstanceSeq* {
+  delete $1;
+}
+
 %typemap(in) InstanceSeq {
   $1 = tclListSeq<const Instance*>($input, SWIGTYPE_p_Instance, interp);
  }
@@ -573,6 +595,10 @@ using namespace sta;
   $1 = tclListSeqPtr<LibertyLibrary*>($input, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
+%typemap(freearg) LibertyLibrarySeq* {
+  delete $1;
+}
+
 %typemap(out) LibertyLibrarySeq {
   seqTclList<LibertyLibrarySeq, LibertyLibrary>($1, SWIGTYPE_p_LibertyLibrary, interp);
 }
@@ -597,6 +623,10 @@ using namespace sta;
 
 %typemap(in) NetSeq* {
   $1 = tclListSeqPtr<const Net*>($input, SWIGTYPE_p_Net, interp);
+}
+
+%typemap(freearg) NetSeq* {
+  delete $1;
 }
 
 %typemap(out) NetSeq* {
@@ -644,6 +674,10 @@ using namespace sta;
   $1 = tclListSeqPtr<Clock*>($input, SWIGTYPE_p_Clock, interp);
 }
 
+%typemap(freearg) ClockSeq* {
+  delete $1;
+}
+
 %typemap(out) ClockSeq* {
   seqPtrTclList<ClockSeq, Clock>($1, SWIGTYPE_p_Clock, interp);
 }
@@ -659,6 +693,10 @@ using namespace sta;
 
 %typemap(in) PinSeq* {
   $1 = tclListSeqPtr<const Pin*>($input, SWIGTYPE_p_Pin, interp);
+}
+
+%typemap(freearg) PinSeq* {
+  delete $1;
 }
 
 %typemap(in) PinSet {
@@ -1078,6 +1116,10 @@ using namespace sta;
   $1 = tclListSeqPtr<Edge*>($input, SWIGTYPE_p_Edge, interp);
 }
 
+%typemap(freearg) EdgeSeq* {
+  delete $1;
+}
+
 %typemap(out) EdgeSeq {
   seqTclList<EdgeSeq, Edge>($1, SWIGTYPE_p_Edge, interp);
 }
@@ -1119,6 +1161,10 @@ using namespace sta;
 
 %typemap(in) PathEndSeq* {
   $1 = tclListSeqPtr<PathEnd*>($input, SWIGTYPE_p_PathEnd, interp);
+}
+
+%typemap(freearg) PathEndSeq* {
+  delete $1;
 }
 
 %typemap(out) PathEndSeq* {
@@ -1189,106 +1235,86 @@ using namespace sta;
   $1 = tclListSetConstChar($input, interp);
 }
 
+%typemap(in) Mode* {
+  Tcl_Size length;
+  const char *arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "NULL"))
+    $1 = nullptr;
+  else {
+    void *obj;
+    if (SWIG_ConvertPtr($input, &obj, SWIGTYPE_p_Mode, false) != TCL_OK) {
+      tclArgError(interp, 2174, "{} is not a mode object.", arg);
+      return TCL_ERROR;
+    }
+    $1 = reinterpret_cast<Mode*>(obj);
+  }
+}
+
 %typemap(out) Mode* {
-  const Mode *mode = $1;
-  if (mode)
-    Tcl_SetResult(interp, const_cast<char*>($1->name().c_str()), TCL_VOLATILE);
+  Mode *mode = $1;
+  if (mode) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(mode, SWIGTYPE_p_Mode, false);
+    Tcl_SetObjResult(interp, obj);
+  }
   else
     Tcl_SetResult(interp, const_cast<char*>("NULL"), TCL_STATIC);
 }
 
 %typemap(in) ModeSeq {
-  Tcl_Size argc;
-  Tcl_Obj **argv;
+  $1 = tclListSeq<Mode*>($input, SWIGTYPE_p_Mode, interp);
+}
 
-  Sta *sta = Sta::sta();
-  std::vector<Mode*> seq;
-  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK
-      && argc > 0) {
-    for (int i = 0; i < argc; i++) {
-      Tcl_Size length;
-      const char *mode_name = Tcl_GetStringFromObj(argv[i], &length);
-      Mode *mode = sta->findMode(mode_name);
-      if (mode)
-        seq.push_back(mode);
-      else {
-        tclArgError(interp, 2174, "mode {} not found.", mode_name);
-        return TCL_ERROR;
-      }
-    }
-  }
-  $1 = seq;
+%typemap(in) ModeSeq* {
+  $1 = tclListSeqPtr<Mode*>($input, SWIGTYPE_p_Mode, interp);
+}
+
+%typemap(freearg) ModeSeq* {
+  delete $1;
 }
 
 %typemap(out) ModeSeq {
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  ModeSeq &modes = $1;
-  for (Mode *mode : modes) {
-    const std::string &mode_name = mode->name();
-    Tcl_Obj *obj = Tcl_NewStringObj(mode_name.c_str(), mode_name.size());
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
+  seqTclList<ModeSeq, Mode>($1, SWIGTYPE_p_Mode, interp);
 }
 
 %typemap(in) Scene* {
-  sta::Sta *sta = Sta::sta();
   Tcl_Size length;
-  std::string scene_name = Tcl_GetStringFromObj($input, &length);
-  // parse_scene_or_all support depreated 11/21/2025
-  if (scene_name == "NULL")
+  const char *arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEqual(arg, "NULL"))
     $1 = nullptr;
   else {
-    Scene *scene = sta->findScene(scene_name);
-    if (scene)
-      $1 = scene;
-    else {
-      tclArgError(interp, 2173, "scene {} not found.", scene_name.c_str());
+    void *obj;
+    if (SWIG_ConvertPtr($input, &obj, SWIGTYPE_p_Scene, false) != TCL_OK) {
+      tclArgError(interp, 2173, "{} is not a scene object.", arg);
       return TCL_ERROR;
     }
+    $1 = reinterpret_cast<Scene*>(obj);
   }
 }
 
 %typemap(out) Scene* {
-  const Scene *scene = $1;
-  if (scene)
-    Tcl_SetResult(interp, const_cast<char*>($1->name().c_str()), TCL_VOLATILE);
+  Scene *scene = $1;
+  if (scene) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(scene, SWIGTYPE_p_Scene, false);
+    Tcl_SetObjResult(interp, obj);
+  }
   else
     Tcl_SetResult(interp, const_cast<char*>("NULL"), TCL_STATIC);
 }
 
 %typemap(in) SceneSeq {
-  Tcl_Size argc;
-  Tcl_Obj **argv;
+  $1 = tclListSeq<Scene*>($input, SWIGTYPE_p_Scene, interp);
+}
 
-  Sta *sta = Sta::sta();
-  std::vector<Scene*> seq;
-  if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK
-      && argc > 0) {
-    for (int i = 0; i < argc; i++) {
-      Tcl_Size length;
-      const char *scene_name = Tcl_GetStringFromObj(argv[i], &length);
-      Scene *scene = sta->findScene(scene_name);
-      if (scene)
-        seq.push_back(scene);
-      else {
-        tclArgError(interp, 2172, "scene {} not found.", scene_name);
-        return TCL_ERROR;
-      }
-    }
-  }
-  $1 = seq;
+%typemap(in) SceneSeq* {
+  $1 = tclListSeqPtr<Scene*>($input, SWIGTYPE_p_Scene, interp);
+}
+
+%typemap(freearg) SceneSeq* {
+  delete $1;
 }
 
 %typemap(out) SceneSeq {
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  SceneSeq &scenes = $1;
-  for (Scene *scene : scenes) {
-    const std::string &scene_name = scene->name();
-    Tcl_Obj *obj = Tcl_NewStringObj(scene_name.c_str(), scene_name.size());
-    Tcl_ListObjAppendElement(interp, list, obj);
-  }
-  Tcl_SetObjResult(interp, list);
+  seqTclList<SceneSeq, Scene>($1, SWIGTYPE_p_Scene, interp);
 }
 
 %typemap(in) PropertyValue {

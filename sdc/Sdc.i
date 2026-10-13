@@ -394,7 +394,7 @@ set_clock_latency_cmd(Clock *clk,
                       MinMaxAll *min_max, float delay)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setClockLatency(clk, pin, rf, min_max, delay, sdc);
 }
 
@@ -407,7 +407,7 @@ set_clock_insertion_cmd(Clock *clk,
                         float delay)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setClockInsertion(clk, pin, rf, min_max, early_late, delay, sdc);
 }
 
@@ -416,7 +416,7 @@ unset_clock_latency_cmd(Clock *clk,
                         Pin *pin)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->removeClockLatency(clk, pin, sdc);
 }
 
@@ -425,7 +425,7 @@ unset_clock_insertion_cmd(Clock *clk,
                           Pin *pin)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->removeClockInsertion(clk, pin, sdc);
 }
 
@@ -435,6 +435,15 @@ set_clock_uncertainty_clk(Clock *clk,
                           float uncertainty)
 {
   Sta *sta = Sta::sta();
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Upstream stores clock uncertainty on the (corner-shared) Clock
+  // object; in a corner scope it goes to the corner instead.
+  if (sta->cmdAnalysisCorner()) {
+    sta->setAnalysisCornerClockUncertainty(sta->cmdAnalysisCorner(), clk,
+                                           setup_hold, uncertainty);
+    return;
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   sta->setClockUncertainty(clk, setup_hold, uncertainty);
 }
 
@@ -443,6 +452,13 @@ unset_clock_uncertainty_clk(Clock *clk,
                             const SetupHoldAll *setup_hold)
 {
   Sta *sta = Sta::sta();
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  if (sta->cmdAnalysisCorner()) {
+    sta->removeAnalysisCornerClockUncertainty(sta->cmdAnalysisCorner(), clk,
+                                              setup_hold);
+    return;
+  }
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   sta->removeClockUncertainty(clk, setup_hold);
 }
 
@@ -452,7 +468,7 @@ set_clock_uncertainty_pin(Pin *pin,
                           float uncertainty)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setClockUncertainty(pin, min_max, uncertainty, sdc);
 }
 
@@ -461,7 +477,7 @@ unset_clock_uncertainty_pin(Pin *pin,
                             const MinMaxAll *min_max)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->removeClockUncertainty(pin, min_max, sdc);
 }
 
@@ -474,7 +490,7 @@ set_inter_clock_uncertainty(Clock *from_clk,
                             float uncertainty)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setClockUncertainty(from_clk, from_tr, to_clk, to_tr, min_max,
                            uncertainty, sdc);
 }
@@ -487,7 +503,7 @@ unset_inter_clock_uncertainty(Clock *from_clk,
                               const MinMaxAll *min_max)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->removeClockUncertainty(from_clk, from_tr, to_clk, to_tr, min_max, sdc);
 }
 
@@ -576,7 +592,7 @@ set_input_delay_cmd(Pin *pin,
                     float delay)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setInputDelay(pin, rf, clk, clk_rf, ref_pin,
                      source_latency_included, network_latency_included,
                      min_max, add, delay, sdc);
@@ -590,7 +606,7 @@ unset_input_delay_cmd(Pin *pin,
                       MinMaxAll *min_max)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->removeInputDelay(pin, rf, clk, clk_rf, min_max, sdc);
 }
 
@@ -607,7 +623,7 @@ set_output_delay_cmd(Pin *pin,
                      float delay)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setOutputDelay(pin, rf, clk, clk_rf, ref_pin,
                       source_latency_included, network_latency_included,
                       min_max, add, delay, sdc);
@@ -621,7 +637,7 @@ unset_output_delay_cmd(Pin *pin,
                        MinMaxAll *min_max)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->removeOutputDelay(pin, rf, clk, clk_rf, min_max, sdc);
 }
 
@@ -762,6 +778,14 @@ disable_clock_gating_check_pin(Pin *pin)
 }
 
 void
+disable_clock_gating_check_lib_cell(LibertyCell *cell)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->disableClockGatingCheck(cell, sdc);
+}
+
+void
 unset_disable_clock_gating_check_inst(Instance *inst)
 {
   Sta *sta = Sta::sta();
@@ -775,6 +799,14 @@ unset_disable_clock_gating_check_pin(Pin *pin)
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->cmdSdc();
   sta->removeDisableClockGatingCheck(pin, sdc);
+}
+
+void
+unset_disable_clock_gating_check_lib_cell(LibertyCell *cell)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->removeDisableClockGatingCheck(cell, sdc);
 }
 
 EdgeSeq
@@ -836,6 +868,19 @@ make_path_delay(ExceptionFrom *from,
   sta->makePathDelay(from, thrus, to, min_max, 
                      ignore_clk_latency, break_path,
                      delay, std::move(comment), sdc);
+}
+
+void
+make_path_margin(ExceptionFrom *from,
+                 ExceptionThruSeq *thrus,
+                 ExceptionTo *to,
+                 const MinMaxAll *min_max,
+                 float margin,
+                 std::string_view comment)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->makePathMargin(from, thrus, to, min_max, margin, comment, sdc);
 }
 
 void
@@ -1229,6 +1274,43 @@ set_max_area_cmd(float area)
   sta->setMaxArea(area, sdc);
 }
 
+float
+max_area()
+{
+  Sta *sta = Sta::sta();
+  return sta->maxArea(sta->cmdSdc());
+}
+
+void
+set_max_dynamic_power_cmd(float power)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->setMaxDynamicPower(power, sdc);
+}
+
+float
+max_dynamic_power()
+{
+  Sta *sta = Sta::sta();
+  return sta->maxDynamicPower(sta->cmdSdc());
+}
+
+void
+set_max_leakage_power_cmd(float power)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->cmdSdc();
+  sta->setMaxLeakagePower(power, sdc);
+}
+
+float
+max_leakage_power()
+{
+  Sta *sta = Sta::sta();
+  return sta->maxLeakagePower(sta->cmdSdc());
+}
+
 void
 set_port_fanout_limit(Port *port,
                       const MinMax *min_max,
@@ -1283,7 +1365,7 @@ set_timing_derate_cmd(TimingDerateType type,
                       float derate)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setTimingDerate(type, clk_data, rf, early_late, derate, sdc);
 }
 
@@ -1295,7 +1377,7 @@ set_timing_derate_net_cmd(const Net *net,
                           float derate)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setTimingDerate(net, clk_data, rf, early_late, derate, sdc);
 }
 
@@ -1308,7 +1390,7 @@ set_timing_derate_inst_cmd(const Instance *inst,
                            float derate)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setTimingDerate(inst, type, clk_data, rf, early_late, derate, sdc);
 }
 
@@ -1321,7 +1403,7 @@ set_timing_derate_cell_cmd(const LibertyCell *cell,
                            float derate)
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->setTimingDerate(cell, type, clk_data, rf, early_late, derate, sdc);
 }
 
@@ -1329,7 +1411,7 @@ void
 unset_timing_derate_cmd()
 {
   Sta *sta = Sta::sta();
-  Sdc *sdc = sta->cmdSdc();
+  Sdc *sdc = sta->cmdCornerSdc();  // OpenROAD fork: analysis_corner write scope.
   sta->unsetTimingDerate(sdc);
 }
 
@@ -1529,6 +1611,22 @@ filter_clocks(const char *filter_expression,
 {
   sta::Sta *sta = Sta::sta(); 
   return filterClocks(filter_expression, clocks, sta);
+}
+
+SceneSeq
+filter_scenes(const char *filter_expression,
+              SceneSeq *scenes)
+{
+  sta::Sta *sta = Sta::sta();
+  return filterScenes(filter_expression, scenes, sta);
+}
+
+ModeSeq
+filter_modes(const char *filter_expression,
+             ModeSeq *modes)
+{
+  sta::Sta *sta = Sta::sta();
+  return filterModes(filter_expression, modes, sta);
 }
 
 LibertyCellSeq

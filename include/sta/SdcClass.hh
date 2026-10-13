@@ -44,6 +44,7 @@ class InputDelay;
 class OutputDelay;
 class FalsePath;
 class PathDelay;
+class PathMargin;
 class MultiCyclePath;
 class FilterPath;
 class GroupPath;
@@ -69,6 +70,7 @@ class PortDelay;
 enum class AnalysisType { single, bc_wc, ocv };
 
 enum class ExceptionPathType { false_path, loop, multi_cycle, path_delay,
+                               path_margin,
                                group_path, filter, any};
 
 enum class ClockSense { positive, negative, stop };

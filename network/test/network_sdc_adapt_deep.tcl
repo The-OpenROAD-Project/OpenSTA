@@ -216,10 +216,10 @@ set sdc_ports [get_ports *]
 puts "sdc bus design ports: [llength $sdc_ports]"
 
 set sdc_bus_in [get_ports {data_in[*]}]
-puts "sdc data_in[*]: [llength $sdc_bus_in]"
+puts "sdc data_in\[*\]: [llength $sdc_bus_in]"
 
 set sdc_bus_out [get_ports {data_out[*]}]
-puts "sdc data_out[*]: [llength $sdc_bus_out]"
+puts "sdc data_out\[*\]: [llength $sdc_bus_out]"
 
 # Individual bus bits
 foreach i {0 1 2 3} {

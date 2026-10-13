@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "Clock.hh"
@@ -33,6 +34,7 @@
 #include "Graph.hh"
 #include "Liberty.hh"
 #include "MinMax.hh"
+#include "Mode.hh"
 #include "Network.hh"
 #include "Path.hh"
 #include "PathEnd.hh"
@@ -46,6 +48,8 @@
 #include "Transition.hh"
 #include "Units.hh"
 #include "power/Power.hh"
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 
 namespace sta {
 
@@ -641,6 +645,8 @@ Properties::getProperty(const Library *lib,
                                                         "library", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("library", property))
+      return value;
     else
       throw PropertyUnknown("library", property);
   }
@@ -662,6 +668,8 @@ Properties::getProperty(const LibertyLibrary *lib,
                                                                 "liberty_library",
                                                                 sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("liberty_library", property))
       return value;
     else
       throw PropertyUnknown("liberty library", property);
@@ -693,6 +701,8 @@ Properties::getProperty(const Cell *cell,
     PropertyValue value = registry_cell_.getProperty(cell, property,
                                                      "cell", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("cell", property))
       return value;
     else
       throw PropertyUnknown("cell", property);
@@ -734,6 +744,8 @@ Properties::getProperty(const LibertyCell *cell,
     PropertyValue value = registry_liberty_cell_.getProperty(cell, property,
                                                              "liberty_cell", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("liberty_cell", property))
       return value;
     else
       throw PropertyUnknown("liberty cell", property);
@@ -794,6 +806,8 @@ Properties::getProperty(const Port *port,
     PropertyValue value = registry_port_.getProperty(port, property,
                                                      "port", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("port", property))
       return value;
     else
       throw PropertyUnknown("port", property);
@@ -896,6 +910,8 @@ Properties::getProperty(const LibertyPort *port,
                                                              "liberty_port", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("liberty_port", property))
+      return value;
     else
       throw PropertyUnknown("liberty port", property);
   }
@@ -935,6 +951,8 @@ Properties::getProperty(const Instance *inst,
     PropertyValue value = registry_instance_.getProperty(inst, property,
                                                          "instance", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("instance", property))
       return value;
     else
       throw PropertyUnknown("instance", property);
@@ -1023,6 +1041,8 @@ Properties::getProperty(const Pin *pin,
     PropertyValue value = registry_pin_.getProperty(pin, property, "pin", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("pin", property))
+      return value;
     else
       throw PropertyUnknown("pin", property);
   }
@@ -1083,6 +1103,8 @@ Properties::getProperty(const Net *net,
   else {
     PropertyValue value = registry_net_.getProperty(net, property, "net", sta_);
     if (value.type() != PropertyValue::Type::none)
+      return value;
+    else if (isUserProperty("net", property))
       return value;
     else
       throw PropertyUnknown("net", property);
@@ -1189,9 +1211,58 @@ Properties::getProperty(const Clock *clk,
                                                       "clock", sta_);
     if (value.type() != PropertyValue::Type::none)
       return value;
+    else if (isUserProperty("clock", property))
+      return value;
     else
       throw PropertyUnknown("clock", property);
   }
+}
+
+////////////////////////////////////////////////////////////////
+
+PropertyValue
+Properties::getProperty(const Scene *scene,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(scene->name());
+  else
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this scene returns a none value.
+    return registry_scene_.getProperty(scene, property, "scene", sta_);
+}
+
+////////////////////////////////////////////////////////////////
+
+PropertyValue
+Properties::getProperty(const Mode *mode,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(mode->name());
+  else
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this mode returns a none value.
+    return registry_mode_.getProperty(mode, property, "mode", sta_);
+}
+
+////////////////////////////////////////////////////////////////
+
+// OpenROAD fork: analysis_corner support.
+PropertyValue
+Properties::getProperty(const AnalysisCorner *corner,
+                        std::string_view property)
+{
+  if (property == "name"
+      || property == "full_name")
+    return PropertyValue(corner->name());
+  else
+    // Unknown properties throw PropertyUnknown; a user-defined property
+    // never set on this corner returns a none value.
+    return registry_analysis_corner_.getProperty(corner, property,
+                                                 "analysis_corner", sta_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1333,6 +1404,212 @@ Properties::defineProperty(std::string_view property,
   registry_clock_.defineProperty(property, handler);
 }
 
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const Scene *>::PropertyHandler &handler)
+{
+  registry_scene_.defineProperty(property, handler);
+}
+
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const Mode *>::PropertyHandler &handler)
+{
+  registry_mode_.defineProperty(property, handler);
+}
+
+// OpenROAD fork: analysis_corner support.
+void
+Properties::defineProperty(std::string_view property,
+                           const PropertyRegistry<const AnalysisCorner *>::PropertyHandler &handler)
+{
+  registry_analysis_corner_.defineProperty(property, handler);
+}
+
+////////////////////////////////////////////////////////////////
+
+// Value type from the define_property -type argument.
+PropertyValue::Type
+Properties::propertyType(std::string_view type)
+{
+  if (type == "bool" || type == "boolean")
+    return PropertyValue::Type::bool_;
+  else if (type == "float" || type == "double" || type == "number")
+    return PropertyValue::Type::float_;
+  else if (type == "string")
+    return PropertyValue::Type::string;
+  else
+    sta_->report()->error(2210, "unknown property type '{}' (use bool, float or string).",
+                          type);
+  return PropertyValue::Type::none;
+}
+
+PropertyValue
+Properties::coercePropertyValue(PropertyValue::Type type,
+                                std::string_view value)
+{
+  switch (type) {
+  case PropertyValue::Type::bool_:
+    if (stringEqual(value, "true") || value == "1")
+      return PropertyValue(true);
+    if (stringEqual(value, "false") || value == "0")
+      return PropertyValue(false);
+    sta_->report()->error(2212, "'{}' is not a bool property value.", value);
+    return PropertyValue();
+  case PropertyValue::Type::float_: {
+    auto [number, valid] = stringFloat(std::string(value));
+    if (!valid)
+      sta_->report()->error(2215, "'{}' is not a float property value.", value);
+    return PropertyValue(number, sta_->units()->scalarUnit());
+  }
+  default:
+    return PropertyValue(std::string(value));
+  }
+}
+
+bool
+Properties::isUserProperty(std::string_view object_type,
+                           std::string_view property) const
+{
+  return prop_types_.contains({std::string(object_type), std::string(property)});
+}
+
+PropertyKey::PropertyKey(const void *object,
+                         std::string_view property) :
+  object_(object),
+  property_(property)
+{
+}
+
+bool
+PropertyKey::operator<(const PropertyKey &key) const
+{
+  return std::tie(object_, property_)
+    < std::tie(key.object_, key.property_);
+}
+
+template<class TYPE>
+void
+Properties::defineProperty(std::string_view object_type,
+                           std::string_view property,
+                           std::string_view value_type)
+{
+  prop_types_[{std::string(object_type), std::string(property)}] =
+    propertyType(value_type);
+  std::string name(property);
+  typename PropertyRegistry<const TYPE *>::PropertyHandler handler =
+    [this, name] (const TYPE *object,
+                  Sta *) -> PropertyValue {
+      auto value_iter = prop_values_.find(PropertyKey(object, name));
+      if (value_iter != prop_values_.end())
+        return value_iter->second;
+      // Never set on this object.
+      return PropertyValue();
+    };
+  defineProperty(property, handler);
+}
+
+// Object types the tcl interface exposes user properties on.
+template void Properties::defineProperty<Scene>(std::string_view,
+                                                std::string_view,
+                                                std::string_view);
+template void Properties::defineProperty<Mode>(std::string_view,
+                                               std::string_view,
+                                               std::string_view);
+template void Properties::defineProperty<Library>(std::string_view,
+                                                  std::string_view,
+                                                  std::string_view);
+template void Properties::defineProperty<LibertyLibrary>(std::string_view,
+                                                         std::string_view,
+                                                         std::string_view);
+template void Properties::defineProperty<Cell>(std::string_view,
+                                               std::string_view,
+                                               std::string_view);
+template void Properties::defineProperty<LibertyCell>(std::string_view,
+                                                      std::string_view,
+                                                      std::string_view);
+template void Properties::defineProperty<Port>(std::string_view,
+                                               std::string_view,
+                                               std::string_view);
+template void Properties::defineProperty<LibertyPort>(std::string_view,
+                                                      std::string_view,
+                                                      std::string_view);
+template void Properties::defineProperty<Instance>(std::string_view,
+                                                   std::string_view,
+                                                   std::string_view);
+template void Properties::defineProperty<Pin>(std::string_view,
+                                              std::string_view,
+                                              std::string_view);
+template void Properties::defineProperty<Net>(std::string_view,
+                                              std::string_view,
+                                              std::string_view);
+template void Properties::defineProperty<Clock>(std::string_view,
+                                                std::string_view,
+                                                std::string_view);
+// OpenROAD fork: analysis_corner support.
+template void Properties::defineProperty<AnalysisCorner>(std::string_view,
+                                                          std::string_view,
+                                                          std::string_view);
+
+void
+Properties::setProperty(const void *object,
+                        std::string_view object_type,
+                        std::string_view property,
+                        std::string_view value)
+{
+  auto type_iter = prop_types_.find({std::string(object_type),
+                                     std::string(property)});
+  if (type_iter == prop_types_.end())
+    sta_->report()->error(2211, "{} property '{}' is not defined.",
+                          object_type, property);
+  prop_values_[PropertyKey(object, property)] =
+    coercePropertyValue(type_iter->second, value);
+}
+
+std::string
+Properties::stringProperty(const Cell *cell,
+                           std::string_view property) const
+{
+  if (isUserProperty("cell", property)) {
+    PropertyValue value = registry_cell_.getProperty(cell, property,
+                                                     "cell", sta_);
+    if (value.type() == PropertyValue::Type::string)
+      return value.stringValue();
+  }
+  return {};
+}
+
+std::string
+Properties::stringProperty(const Instance *inst,
+                           std::string_view property) const
+{
+  if (isUserProperty("instance", property)) {
+    PropertyValue value = registry_instance_.getProperty(inst, property,
+                                                         "instance", sta_);
+    if (value.type() == PropertyValue::Type::string)
+      return value.stringValue();
+  }
+  return {};
+}
+
+std::string
+Properties::stringProperty(const Pin *pin,
+                           std::string_view property) const
+{
+  if (isUserProperty("pin", property)) {
+    PropertyValue value = registry_pin_.getProperty(pin, property, "pin", sta_);
+    if (value.type() == PropertyValue::Type::string)
+      return value.stringValue();
+  }
+  return {};
+}
+
+void
+Properties::clearUserPropertyValues()
+{
+  prop_values_.clear();
+}
+
 ////////////////////////////////////////////////////////////////
 
 template<class TYPE>
@@ -1340,7 +1617,7 @@ PropertyValue
 PropertyRegistry<TYPE>::getProperty(TYPE object,
                                     std::string_view property,
                                     std::string_view type_name,
-                                    Sta *sta)
+                                    Sta *sta) const
 
 {
   auto itr = registry_.find(property);

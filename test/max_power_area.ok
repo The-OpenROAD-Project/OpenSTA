@@ -1,0 +1,6 @@
+max_area 123.5
+max_dynamic_power 1.25
+max_leakage_power 0.75
+set_max_area 123.5000
+set_max_dynamic_power 1.2500
+set_max_leakage_power 0.7500

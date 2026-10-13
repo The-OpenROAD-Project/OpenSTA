@@ -1,0 +1,154 @@
+Startpoint: in1 (input port clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+     Slew     Delay      Time   Description
+----------------------------------------------------------------------
+   0.0000    0.0000    0.0000   clock clk (rise edge)
+             0.0000    0.0000   clock network delay (ideal)
+             0.0000    0.0000 v input external delay
+   0.0000    0.0000    0.0000 v in1 (in)
+   0.5000    5.0000    5.0000 v u1/Y (buf_retain)
+   0.5000    0.0000    5.0000 v out1 (out)
+                       5.0000   data arrival time
+
+   0.0000   10.0000   10.0000   clock clk (rise edge)
+             0.0000   10.0000   clock network delay (ideal)
+             0.0000   10.0000   clock reconvergence pessimism
+             0.0000   10.0000   output external delay
+                      10.0000   data required time
+----------------------------------------------------------------------
+                      10.0000   data required time
+                      -5.0000   data arrival time
+----------------------------------------------------------------------
+                       5.0000   slack (MET)
+
+
+Startpoint: in1 (input port clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: min
+
+     Slew     Delay      Time   Description
+----------------------------------------------------------------------
+   0.0000    0.0000    0.0000   clock clk (rise edge)
+             0.0000    0.0000   clock network delay (ideal)
+             0.0000    0.0000 ^ input external delay
+   0.0000    0.0000    0.0000 ^ in1 (in)
+   0.1000    1.0000    1.0000 ^ u1/Y (buf_retain)
+   0.1000    0.0000    1.0000 ^ out1 (out)
+                       1.0000   data arrival time
+
+   0.0000    0.0000    0.0000   clock clk (rise edge)
+             0.0000    0.0000   clock network delay (ideal)
+             0.0000    0.0000   clock reconvergence pessimism
+             0.0000    0.0000   output external delay
+                       0.0000   data required time
+----------------------------------------------------------------------
+                       0.0000   data required time
+                      -1.0000   data arrival time
+----------------------------------------------------------------------
+                       1.0000   slack (MET)
+
+
+max dcalc retain slew
+Library: liberty_retain
+Cell: buf_retain
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+Table value constant = 4.0000
+Delay = 4.0000
+
+Table value constant = 0.4000
+Slew = 0.4000
+Driver waveform slew = 0.4000
+
+.............................................
+
+A v -> Y v
+Table value constant = 5.0000
+Delay = 5.0000
+
+Table value constant = 0.5000
+Slew = 0.5000
+Driver waveform slew = 0.5000
+
+.............................................
+
+min dcalc retain slew
+Library: liberty_retain
+Cell: buf_retain
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+Table value constant = 1.0000
+Delay = 1.0000
+
+Table value constant = 0.1000
+Slew = 0.1000
+Driver waveform slew = 0.1000
+
+.............................................
+
+A v -> Y v
+Table value constant = 1.2000
+Delay = 1.2000
+
+Table value constant = 0.1500
+Slew = 0.1500
+Driver waveform slew = 0.1500
+
+.............................................
+
+max dcalc parent slew fallback
+Library: liberty_retain
+Cell: buf_retain_no_slew
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+Table value constant = 4.0000
+Delay = 4.0000
+
+Table value constant = 0.4000
+Slew = 0.4000
+Driver waveform slew = 0.4000
+
+.............................................
+
+A v -> Y v
+Table value constant = 5.0000
+Delay = 5.0000
+
+Table value constant = 0.5000
+Slew = 0.5000
+Driver waveform slew = 0.5000
+
+.............................................
+
+min dcalc parent slew fallback
+Library: liberty_retain
+Cell: buf_retain_no_slew
+Arc sense: positive_unate
+Arc type: combinational
+A ^ -> Y ^
+Table value constant = 1.0000
+Delay = 1.0000
+
+Table value constant = 0.4000
+Slew = 0.4000
+Driver waveform slew = 0.4000
+
+.............................................
+
+A v -> Y v
+Table value constant = 1.2000
+Delay = 1.2000
+
+Table value constant = 0.5000
+Slew = 0.5000
+Driver waveform slew = 0.5000
+
+.............................................
+

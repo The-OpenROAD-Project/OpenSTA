@@ -83,7 +83,6 @@ protected:
                   EdgeSeq &path);
   EdgeSeq *loopEdges(EdgeSeq &path,
                      Edge *closing_edge);
-  void ensureLatchLevels();
   void findBackEdges();
   EdgeSet findBackEdges(EdgeSeq &path,
                         FindBackEdgesStack &stack);
@@ -113,7 +112,6 @@ protected:
   GraphLoopSeq loops_;
   EdgeSet loop_edges_;
   EdgeSet disabled_loop_edges_;
-  EdgeSet latch_d_to_q_edges_;
   LevelizeObserver *observer_{nullptr};
 };
 

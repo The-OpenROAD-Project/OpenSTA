@@ -226,7 +226,7 @@ proc parse_clk_inst_port_pin_arg { objects clks_var insts_var pins_var } {
   set ports {}
   get_object_args $objects clks {} {} {} insts ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -238,7 +238,7 @@ proc parse_clk_port_pin_arg { objects clks_var pins_var } {
   set ports {}
   get_object_args $objects clks {} {} {} {} ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -325,7 +325,7 @@ proc parse_inst_port_pin_arg { objects insts_var pins_var } {
   set ports {}
   get_object_args $objects {} {} {} {} insts ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -347,7 +347,7 @@ proc parse_inst_port_pin_net_arg { objects insts_var pins_var nets_var } {
   set nets {}
   get_object_args $objects {} {} {} {} insts ports pins nets {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -368,7 +368,7 @@ proc parse_port_pin_net_arg { objects pins_var nets_var } {
   get_object_args $objects {} {} {} {} {} ports pins nets {} {}
 
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [get_name $port]]
+    lappend pins [get_port_pin $port]
   }
 }
 
@@ -536,17 +536,55 @@ proc parse_scenes_or_all { keys_var } {
   }
 }
 
-proc find_scenes { scene_names } {
+proc find_scenes { scenes_arg } {
   set scenes {}
-  foreach scene_name $scene_names {
-    set scene [find_scene $scene_name]
-    if { $scene == "NULL" } {
-      sta_error 134 "$scene_name is not the name of a scene."
+  foreach scene_arg $scenes_arg {
+    if { [is_object $scene_arg] } {
+      set object_type [object_type $scene_arg]
+      if { $object_type == "Scene" } {
+        lappend scenes $scene_arg
+      } else {
+        sta_error 135 "scene object type '$object_type' is not a scene."
+      }
     } else {
-      lappend scenes $scene
+      set scene [find_scene $scene_arg]
+      if { $scene == "NULL" } {
+        sta_error 134 "$scene_arg is not the name of a scene."
+      } else {
+        lappend scenes $scene
+      }
     }
   }
   return $scenes
+}
+
+################################################################
+
+# -mode keyword is optional.
+# If -mode keyword is missing return cmd mode.
+proc parse_mode { keys_var } {
+  upvar 1 $keys_var keys
+
+  if { [info exists keys(-mode)] } {
+    set mode_arg $keys(-mode)
+    if { [is_object $mode_arg] } {
+      set object_type [object_type $mode_arg]
+      if { $object_type == "Mode" } {
+        return $mode_arg
+      } else {
+        sta_error 145 "mode object type '$object_type' is not a mode."
+      }
+    } else {
+      set mode [find_mode $mode_arg]
+      if { $mode == "NULL" } {
+        sta_error 146 "$mode_arg is not the name of a mode."
+      } else {
+        return $mode
+      }
+    }
+  } else {
+    return [cmd_mode]
+  }
 }
 
 ################################################################
@@ -848,7 +886,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
       set pin $arg
     } elseif { $object_type == "Port" } {
       # Explicit port arg - convert to pin.
-      set pin [find_pin [get_name $arg]]
+      set pin [get_port_pin $arg]
     } else {
       sta_warn_error 129 $warn_error "$arg_name type '$object_type' is not a pin or port."
     }
@@ -859,7 +897,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
     if { $port == "NULL" } {
       set pin [find_pin $arg]
     } else {
-      set pin [$top_instance find_pin [get_name $port]]
+      set pin [get_port_pin $port]
     }
     if { $pin == "NULL" } {
       sta_warn_error 130 $warn_error "pin $arg not found."
@@ -871,7 +909,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
 proc get_port_pins_error { arg_name arglist } {
   set pins {}
   # Copy backslashes that will be removed by foreach.
-  set arglilst [string map {\\ \\\\} $arglist]
+  set arglist [string map {\\ \\\\} $arglist]
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
@@ -882,7 +920,7 @@ proc get_port_pins_error { arg_name arglist } {
         lappend pins $arg
       } elseif { $object_type == "Port" } {
         # Convert port to pin.
-        lappend pins [find_pin [get_name $arg]]
+        lappend pins [get_port_pin $arg]
       } else {
         sta_error 131 "$arg_name type '$object_type' is not a pin or port."
       }

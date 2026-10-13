@@ -44,7 +44,7 @@
 
 namespace sta {
 
-CheckFanouts::CheckFanouts(const Sta *sta) :
+CheckFanouts::CheckFanouts(const StaState *sta) :
   sta_(sta),
   heap_(0, FanoutCheckSlackLess(sta))
 {

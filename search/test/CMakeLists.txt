@@ -1,12 +1,18 @@
 sta_module_tests("search"
   TESTS
     analysis
+    analysis_corner
+    analysis_corner_props
     annotated_write_verilog
     assigned_delays
     check_timing
     check_types_deep
     clk_skew_interclk
     clk_skew_multiclock
+    corner_io_gates
+    corner_scope_audit
+    corner_sdc_bundle
+    corner_sdc_derate
     corner_skew
     crpr
     crpr_data_checks

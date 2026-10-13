@@ -26,13 +26,11 @@
 
 #include <cmath>
 
-#include "Bfs.hh"
 #include "Clock.hh"
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "ExceptionPath.hh"
 #include "Graph.hh"
-#include "Levelize.hh"
 #include "Mode.hh"
 #include "Network.hh"
 #include "Path.hh"
@@ -53,20 +51,17 @@ class GenclkInfo
 {
 public:
   GenclkInfo(Clock *gclk,
-             Level gclk_level,
              FilterPath *src_filter,
              const StaState *sta);
   ~GenclkInfo();
   EdgeSet &fdbkEdges() { return fdbk_edges_; }
   VertexSet &fanins() { return fanins_; }
-  Level gclkLevel() const { return gclk_level_; }
   FilterPath *srcFilter() const { return src_filter_; }
   bool foundLatchFdbkEdges() const { return found_latch_fdbk_edges_; }
   void setFoundLatchFdbkEdges(bool found);
 
 protected:
   Clock *gclk_;
-  Level gclk_level_;
   VertexSet fanins_;
   EdgeSet fdbk_edges_;
   bool found_latch_fdbk_edges_{false};
@@ -74,11 +69,9 @@ protected:
 };
 
 GenclkInfo::GenclkInfo(Clock *gclk,
-                       Level gclk_level,
                        FilterPath *src_filter,
                        const StaState *sta) :
   gclk_(gclk),
-  gclk_level_(gclk_level),
   fanins_(makeVertexSet(sta->graph())),
   src_filter_(src_filter)
 {
@@ -140,40 +133,6 @@ Genclks::srcPath(const Pin *pin) const
     return graph_->pinLoadVertex(pin);
 }
 
-Level
-Genclks::clkPinMaxLevel(const Clock *clk) const
-{
-  Level max_level = 0;
-  for (const Pin *pin : clk->leafPins()) {
-    Vertex *vertex = srcPath(pin);
-    max_level = std::max(max_level, vertex->level());
-  }
-  return max_level;
-}
-
-class ClockPinMaxLevelLess
-{
-public:
-  ClockPinMaxLevelLess(const Genclks *genclks);
-  bool operator()(Clock *clk1,
-                  Clock *clk2) const;
-
-protected:
-  const Genclks *genclks_;
-};
-
-ClockPinMaxLevelLess::ClockPinMaxLevelLess(const Genclks *genclks) :
-  genclks_(genclks)
-{
-}
-
-bool
-ClockPinMaxLevelLess::operator()(Clock *clk1,
-                                 Clock *clk2) const
-{
-  return genclks_->clkPinMaxLevel(clk1) < genclks_->clkPinMaxLevel(clk2);
-}
-
 // Generated clock source paths.
 // The path between the source clock and generated clock is used
 // to find the insertion delay (source latency) when the clock is
@@ -194,10 +153,6 @@ Genclks::ensureInsertionDelays()
         gclks.push_back(clk);
       }
     }
-
-    // Generated clocks derived from a generated clock inherit its
-    // insertion delay, so sort the clocks by source pin level.
-    sort(gclks, ClockPinMaxLevelLess(this));
 
     for (Clock *gclk : gclks) {
       if (gclk->masterClk()) {
@@ -270,11 +225,15 @@ Genclks::ensureMaster(Clock *gclk,
     }
     if (!found_master) {
       // Search backward from generated clock source pin to a clock pin.
-      GenClkMasterSearchPred pred(this);
-      BfsBkwdIterator iter(BfsIndex::other, &pred, this);
-      seedSrcPins(gclk, iter);
-      while (iter.hasNext()) {
-        Vertex *vertex = iter.next();
+      GenClkMasterSearchPred srch_pred(this);
+      VertexQueue master_queue;
+      VertexSet src_vertices = makeVertexSet(this);
+      gclk->srcPinVertices(src_vertices, network_, graph_);
+      for (Vertex *vertex : src_vertices)
+        master_queue.push(vertex);
+      while (!master_queue.empty()) {
+        Vertex *vertex = master_queue.front();
+        master_queue.pop();
         Pin *pin = vertex->pin();
         if (sdc->isLeafPinClock(pin)) {
           ClockSet *master_clks = sdc->findLeafPinClocks(pin);
@@ -293,7 +252,7 @@ Genclks::ensureMaster(Clock *gclk,
             }
           }
         }
-        iter.enqueueAdjacentVertices(vertex, mode_);
+        enqueueFanin(vertex, master_queue, srch_pred);
       }
     }
     if (master_clk_count > 1)
@@ -301,16 +260,6 @@ Genclks::ensureMaster(Clock *gclk,
                     "generated clock {} pin {} is in the fanout of multiple clocks.",
                     gclk->name(), network_->pathName(src_pin));
   }
-}
-
-void
-Genclks::seedSrcPins(Clock *clk,
-                     BfsBkwdIterator &iter)
-{
-  VertexSet src_vertices = makeVertexSet(this);
-  clk->srcPinVertices(src_vertices, network_, graph_);
-  for (Vertex *vertex : src_vertices)
-    iter.enqueue(vertex);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -349,32 +298,34 @@ Genclks::findFanin(Clock *gclk,
 {
   // Search backward from generated clock source pin to a clock pin.
   GenClkFaninSrchPred srch_pred(gclk, this);
-  BfsBkwdIterator iter(BfsIndex::other, &srch_pred, this);
-  seedClkVertices(gclk, iter, fanins);
-  while (iter.hasNext()) {
-    Vertex *vertex = iter.next();
+  VertexQueue fanin_queue;
+  seedClkVertices(gclk, fanin_queue, fanins, srch_pred);
+  while (!fanin_queue.empty()) {
+    Vertex *vertex = fanin_queue.front();
+    fanin_queue.pop();
     if (!fanins.contains(vertex)) {
       fanins.insert(vertex);
       debugPrint(debug_, "genclk", 2, "gen clk {} fanin {}", gclk->name(),
                  vertex->to_string(this));
-      iter.enqueueAdjacentVertices(vertex, mode_);
+      enqueueFanin(vertex, fanin_queue, srch_pred);
     }
   }
 }
 
 void
 Genclks::seedClkVertices(Clock *clk,
-                         BfsBkwdIterator &iter,
-                         VertexSet &fanins)
+                         VertexQueue &fanin_queue,
+                         VertexSet &fanins,
+                         SearchPred &srch_pred)
 {
   for (const Pin *pin : clk->leafPins()) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     fanins.insert(vertex);
-    iter.enqueueAdjacentVertices(vertex, mode_);
+    enqueueFanin(vertex, fanin_queue, srch_pred);
     if (bidirect_drvr_vertex) {
       fanins.insert(bidirect_drvr_vertex);
-      iter.enqueueAdjacentVertices(bidirect_drvr_vertex, mode_);
+      enqueueFanin(bidirect_drvr_vertex, fanin_queue, srch_pred);
     }
   }
 }
@@ -457,11 +408,11 @@ Genclks::findInsertionDelays(Clock *gclk)
   debugPrint(debug_, "genclk", 2, "find gen clk {} insertion", gclk->name());
   GenclkInfo *genclk_info = makeGenclkInfo(gclk);
   FilterPath *src_filter = genclk_info->srcFilter();
+  VertexQueue insert_queue;
   GenClkInsertionSearchPred srch_pred(gclk, genclk_info, this);
-  BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
-  seedSrcPins(gclk, src_filter, insert_iter);
-  // Propagate arrivals to generated clk root pin level.
-  findSrcArrivals(gclk, insert_iter, genclk_info);
+  seedSrcPins(gclk, src_filter, insert_queue, srch_pred);
+  // Propagate arrivals to generated clk root pin.
+  findSrcArrivals(gclk, genclk_info, insert_queue);
   // Unregister the filter so that it is not triggered by other searches.
   // The exception itself has to stick around because the source path
   // tags reference it.
@@ -472,8 +423,7 @@ GenclkInfo *
 Genclks::makeGenclkInfo(Clock *gclk)
 {
   FilterPath *src_filter = makeSrcFilter(gclk, mode_->sdc());
-  Level gclk_level = clkPinMaxLevel(gclk);
-  GenclkInfo *genclk_info = new GenclkInfo(gclk, gclk_level, src_filter, this);
+  GenclkInfo *genclk_info = new GenclkInfo(gclk, src_filter, this);
   findFanin(gclk, genclk_info->fanins());
   genclk_info_map_[gclk] = genclk_info;
   return genclk_info;
@@ -511,8 +461,7 @@ Genclks::findLatchFdbkEdges(const Clock *clk)
 }
 
 // Generated clock insertion delays propagate through latch D->Q.
-// This exposes loops through latches that are not discovered and
-// flagged by levelization.  Find these loops with a depth first
+// This exposes loops through latches.Find these loops with a depth first
 // search from the master clock source pins and record them to prevent
 // the clock insertion search from searching through them.
 //
@@ -523,14 +472,13 @@ void
 Genclks::findLatchFdbkEdges(const Clock *gclk,
                             GenclkInfo *genclk_info)
 {
-  Level gclk_level = genclk_info->gclkLevel();
   EdgeSet &fdbk_edges = genclk_info->fdbkEdges();
   for (const Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
     VertexSet path_vertices = makeVertexSet(this);
     VertexSet visited_vertices = makeVertexSet(this);
     SearchPred1 srch_pred(this);
-    findLatchFdbkEdges(vertex, gclk_level, srch_pred, path_vertices,
+    findLatchFdbkEdges(vertex, srch_pred, path_vertices,
                        visited_vertices, fdbk_edges);
   }
   genclk_info->setFoundLatchFdbkEdges(true);
@@ -538,7 +486,6 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
 
 void
 Genclks::findLatchFdbkEdges(Vertex *from_vertex,
-                            Level gclk_level,
                             SearchPred &srch_pred,
                             VertexSet &path_vertices,
                             VertexSet &visited_vertices,
@@ -557,9 +504,8 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
         fdbk_edges.insert(edge);
       }
       else if (srch_pred.searchThru(edge, mode_)
-               && srch_pred.searchTo(to_vertex, mode_)
-               && to_vertex->level() <= gclk_level)
-        findLatchFdbkEdges(to_vertex, gclk_level, srch_pred, path_vertices,
+               && srch_pred.searchTo(to_vertex, mode_))
+        findLatchFdbkEdges(to_vertex, srch_pred, path_vertices,
                            visited_vertices, fdbk_edges);
     }
     path_vertices.erase(from_vertex);
@@ -591,7 +537,8 @@ Genclks::makeSrcFilter(Clock *gclk,
 void
 Genclks::seedSrcPins(Clock *gclk,
                      FilterPath *src_filter,
-                     BfsFwdIterator &insert_iter)
+                     VertexQueue &insert_queue,
+                     SearchPred &srch_pred)
 {
   Clock *master_clk = gclk->masterClk();
   for (const Pin *master_pin : master_clk->leafPins()) {
@@ -607,17 +554,41 @@ Genclks::seedSrcPins(Clock *gclk,
           const EarlyLate *early_late = min_max;
           for (const RiseFall *rf : RiseFall::range()) {
             Arrival insert = search_->clockInsertion(master_clk, master_pin, rf,
-                                                     min_max, early_late, mode_);
+                                                     min_max, early_late, mode_,
+                                                     // OpenROAD fork: analysis_corner support.
+                                                     scene);
             Tag *tag = makeTag(gclk, master_clk, master_pin, rf, src_filter, insert,
                                scene, min_max);
             tag_bldr.setArrival(tag, insert);
           }
         }
-        search_->setVertexArrivals(vertex, &tag_bldr);
-        insert_iter.enqueueAdjacentVertices(vertex, mode_);
       }
+      search_->setVertexArrivals(vertex, &tag_bldr);
+      enqueueFanout(vertex, insert_queue, srch_pred);
     }
   }
+}
+
+void
+Genclks::enqueueFanin(Vertex *vertex,
+                      VertexQueue &insert_queue,
+                      SearchPred &srch_pred)
+{
+  graph_->visitFanins(vertex, &srch_pred,
+                      [&insert_queue] (Vertex *fanin) {
+                        insert_queue.push(fanin);
+                      });
+}
+
+void
+Genclks::enqueueFanout(Vertex *vertex,
+                       VertexQueue &insert_queue,
+                       SearchPred &srch_pred)
+{
+  graph_->visitFanouts(vertex, &srch_pred,
+                       [&insert_queue] (Vertex *fanout) {
+                         insert_queue.push(fanout);
+                       });
 }
 
 Tag *
@@ -637,11 +608,12 @@ Genclks::makeTag(const Clock *gclk,
     state = state->nextState();
   ExceptionStateSet *states = new ExceptionStateSet();
   states->insert(state);
-  const ClkInfo *clk_info = search_->findClkInfo(
-      scene, master_clk->edge(master_rf), master_pin, true, nullptr, true, nullptr,
-      insert, 0.0, nullptr, min_max, nullptr);
-  return search_->findTag(scene, master_rf, min_max, clk_info, false, nullptr, false,
-                          states, true, nullptr);
+  const ClkInfo *clk_info = search_->findClkInfo(scene, master_clk->edge(master_rf),
+                                                 master_pin, true, nullptr, true,
+                                                 nullptr, insert, 0.0, nullptr,
+                                                 min_max, nullptr);
+  return search_->findTag(scene, master_rf, min_max, clk_info, false, nullptr,
+                          false, states, true, nullptr);
 }
 
 class GenClkArrivalSearchPred : public EvalPred
@@ -690,8 +662,8 @@ class GenclkSrcArrivalVisitor : public ArrivalVisitor
 {
 public:
   GenclkSrcArrivalVisitor(Clock *gclk,
-                          BfsFwdIterator *insert_iter,
                           GenclkInfo *genclk_info,
+                          VertexQueue &insert_queue,
                           const Mode *mode);
   GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor);
   VertexVisitor *copy() const override;
@@ -699,7 +671,7 @@ public:
 
 protected:
   Clock *gclk_;
-  BfsFwdIterator *insert_iter_;
+  VertexQueue &insert_queue_;
   GenclkInfo *genclk_info_;
   GenClkInsertionSearchPred srch_pred_;
   const Mode *mode_;
@@ -708,12 +680,12 @@ protected:
 };
 
 GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
-                                                 BfsFwdIterator *insert_iter,
                                                  GenclkInfo *genclk_info,
+                                                 VertexQueue &insert_queue,
                                                  const Mode *mode) :
   ArrivalVisitor(mode->sta()),
   gclk_(gclk),
-  insert_iter_(insert_iter),
+  insert_queue_(insert_queue),
   genclk_info_(genclk_info),
   srch_pred_(gclk_, genclk_info, mode->sta()),
   mode_(mode),
@@ -725,7 +697,7 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
 GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(const GenclkSrcArrivalVisitor &visitor) :
   ArrivalVisitor(visitor),
   gclk_(visitor.gclk_),
-  insert_iter_(visitor.insert_iter_),
+  insert_queue_(visitor.insert_queue_),
   genclk_info_(visitor.genclk_info_),
   srch_pred_(visitor.gclk_, visitor.genclk_info_, this),
   mode_(visitor.mode_),
@@ -748,24 +720,26 @@ GenclkSrcArrivalVisitor::visit(Vertex *vertex)
   tag_bldr_->init(vertex);
   has_fanin_one_ = graph_->hasFaninOne(vertex);
   genclks_->copyGenClkSrcPaths(vertex, tag_bldr_);
-  visitFaninPaths(vertex);
-  // Propagate beyond the clock tree to reach generated clk roots.
-  insert_iter_->enqueueAdjacentVertices(vertex, &srch_pred_, mode_);
+  visitFaninPaths(vertex, true);
   search_->setVertexArrivals(vertex, tag_bldr_);
+  // Propagate beyond the clock tree to reach generated clk roots.
+  genclks_->enqueueFanout(vertex, insert_queue_, srch_pred_);
 }
 
 void
 Genclks::findSrcArrivals(Clock *gclk,
-                         BfsFwdIterator &insert_iter,
-                         GenclkInfo *genclk_info)
+                         GenclkInfo *genclk_info,
+                         VertexQueue &insert_queue)
 {
   GenClkArrivalSearchPred eval_pred(gclk, this);
-  GenclkSrcArrivalVisitor arrival_visitor(gclk, &insert_iter, genclk_info, mode_);
+  GenclkSrcArrivalVisitor arrival_visitor(gclk, genclk_info, insert_queue, mode_);
   arrival_visitor.init(true, false, &eval_pred);
-  // This cannot restrict the search level because loops in the clock tree
-  // can circle back to the generated clock src pin.
   // Parallel visit is slightly slower (at last check).
-  insert_iter.visit(levelize_->maxLevel(), &arrival_visitor);
+  while (!insert_queue.empty()) {
+    Vertex *vertex = insert_queue.front();
+    insert_queue.pop();
+    arrival_visitor.visit(vertex);
+  }
 }
 
 // Copy generated clock source paths to tag_bldr.
@@ -886,15 +860,15 @@ void
 Genclks::deleteGenclkSrcPaths(Clock *gclk)
 {
   GenclkInfo *genclk_info = genclkInfo(gclk);
-  GenClkInsertionSearchPred srch_pred(gclk, genclk_info, mode_->sta());
-  BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
+  VertexQueue insert_queue;
+  GenClkInsertionSearchPred srch_pred(gclk, genclk_info, this);
   FilterPath *src_filter = genclk_info->srcFilter();
-  seedSrcPins(gclk, src_filter, insert_iter);
-  GenClkArrivalSearchPred eval_pred(gclk, this);
-  while (insert_iter.hasNext()) {
-    Vertex *vertex = insert_iter.next();
+  seedSrcPins(gclk, src_filter, insert_queue, srch_pred);
+  while (!insert_queue.empty()) {
+    Vertex *vertex = insert_queue.front();
+    insert_queue.pop();
     search_->deletePaths(vertex);
-    insert_iter.enqueueAdjacentVertices(vertex, &srch_pred, mode_);
+    enqueueFanout(vertex, insert_queue, srch_pred);
   }
 }
 

@@ -5,12 +5,13 @@ on:
   pull_request:
 
 jobs:
-  build:
+  # Primary native Linux build used for install artifacts.
+  linux-ubuntu:
     if: github.repository_owner != 'The-OpenROAD-Project-private'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           submodules: true
 
@@ -42,6 +43,26 @@ jobs:
           cmake --install .
           tar -zcvf build.tar.gz -Cinstall .
 
+      - name: Upload generated docs
+        uses: actions/upload-artifact@v7
+        with:
+          name: generated-docs
+          path: |
+            doc/Commands.md
+            doc/Variables.md
+            doc/CommandLine.md
+            doc/Messages.md
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Check command help
+        run: |
+          test -s doc/Commands.md
+          test -s doc/Variables.md
+          test -s doc/CommandLine.md
+          test -s doc/Messages.md
+          ./build/sta -no_splash -no_init -exit etc/CheckCmdHelp.tcl
+
       - name: Test
         run: |
           cd test
@@ -51,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: ${{ !cancelled() }}
         with:
-          name: artifact
+          name: artifact-ubuntu
           path: |
             build/install/*
           retention-days: 1
@@ -60,6 +81,79 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: ${{ !cancelled() }}
         with:
-          name: result
+          name: result-ubuntu
           path: |
             test/results/*
+
+  # Native macOS coverage via Brewfile.
+  macos:
+    if: github.repository_owner != 'The-OpenROAD-Project-private'
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: brew bundle
+
+      - name: Build
+        run: |
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+          export PATH="$(brew --prefix flex)/bin:$PATH"
+          export PATH="$(brew --prefix bison)/bin:$PATH"
+          export TCL_LIBRARY="$(brew --prefix tcl-tk@8)/lib/libtcl8.6.dylib"
+          export TCL_INCLUDE_PATH="$(brew --prefix tcl-tk@8)/include/tcl-tk"
+          export FLEX_INCLUDE_DIR="$(brew --prefix flex)/include"
+          cmake -S . -B build \
+            -D TCL_LIBRARY=$TCL_LIBRARY \
+            -D TCL_INCLUDE_PATH=$TCL_INCLUDE_PATH \
+            -D FLEX_INCLUDE_DIR=$FLEX_INCLUDE_DIR \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j "$(sysctl -n hw.ncpu)"
+
+      - name: Test
+        run: |
+          cd test
+          ./regression || (cat results/diffs && exit 1)
+
+      - name: Upload Test Result
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: result-macos
+          path: |
+            test/results/*
+
+  docs:
+    needs: linux-ubuntu
+    if: ${{ !cancelled() && needs.linux-ubuntu.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Download generated docs
+        uses: actions/download-artifact@v8
+        with:
+          name: generated-docs
+          path: doc
+
+      - name: Check generated docs
+        run: |
+          test -s doc/Commands.md
+          test -s doc/Variables.md
+          test -s doc/CommandLine.md
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install MkDocs
+        run: pip install -r doc/requirements.txt
+
+      - name: Build docs
+        run: mkdocs build --strict

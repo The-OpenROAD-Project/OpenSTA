@@ -1,0 +1,51 @@
+get_ports *
+a/b
+level1/Y
+level1/level2/level3
+out
+all_inputs
+a/b
+level1/Y
+level1/level2/level3
+all_outputs
+out
+get_pins *
+a/A
+a/Y
+level1/A
+level1/Y
+u3/A
+u3/B
+u3/Y
+u4/A
+u4/Y
+get_cells *
+a
+level1
+u3
+u4
+get_nets *
+a/b
+and_out
+buf_out
+buf_out2
+level1/Y
+level1/level2/level3
+out
+get_ports * -filter direction==input
+a/b
+level1/Y
+level1/level2/level3
+get_ports * -filter direction==output
+out
+set_input_delay -clock clk 0 [all_inputs]
+set_input_delay -clock clk 0 <Port 'level1/level2/level3'>
+set_input_delay -clock clk 0 <Port 'a/b'>
+set_input_delay -clock clk 0 <Port 'level1/Y'>
+set_false_path -from [all_inputs] -to [all_outputs]
+set_data_check -from <Port 'level1/level2/level3'> -to <Port 'a/b'> 0
+set_case_analysis 0 <Port 'level1/level2/level3'>
+set_case_analysis 0 <Port 'a/b'>
+set_case_analysis 0 <Port 'level1/Y'>
+report_checks
+No paths found.

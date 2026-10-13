@@ -30,6 +30,8 @@
 #include <string_view>
 #include <vector>
 
+// OpenROAD fork: analysis_corner support.
+#include "AnalysisCorner.hh"
 #include "ArcDelayCalc.hh"
 #include "CircuitSim.hh"
 #include "GraphClass.hh"
@@ -37,7 +39,6 @@
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
 #include "PowerClass.hh"
-#include "Property.hh"
 #include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
 #include "SdcClass.hh"
@@ -148,6 +149,41 @@ public:
   Mode *findMode(std::string_view mode_name) const;
   ModeSeq findModes(const std::string &mode_name) const;
   Sdc *cmdSdc() const;
+
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  // Definitions live in search/AnalysisCorner.cc.
+  AnalysisCorner *makeAnalysisCorner(std::string_view name);
+  AnalysisCorner *findAnalysisCorner(std::string_view name) const;
+  // Pattern match name.
+  AnalysisCornerSeq findAnalysisCorners(const std::string &pattern) const;
+  void setSceneAnalysisCorner(Scene *scene,
+                              AnalysisCorner *corner);
+  void deleteAnalysisCorners();
+  // Scope SDC commands to a corner overlay Sdc of the command mode
+  // (nullptr restores mode scope). Mirrors setCmdMode.
+  void setCmdAnalysisCorner(AnalysisCorner *corner) { cmd_analysis_corner_ = corner; }
+  AnalysisCorner *cmdAnalysisCorner() const { return cmd_analysis_corner_; }
+  // Sdc that corner-scoped SDC *write* commands target: the corner overlay
+  // when a corner scope is active, else the command mode Sdc. Read/query
+  // commands keep using cmdSdc() so names (clocks, ...) resolve against
+  // the mode Sdc. Defined in search/AnalysisCorner.cc.
+  Sdc *cmdCornerSdc() const;
+  // Corner-scoped set_clock_uncertainty on a clock (stored on the corner,
+  // not the shared Clock object).
+  void setAnalysisCornerClockUncertainty(AnalysisCorner *corner,
+                                         const Clock *clk,
+                                         const MinMaxAll *setup_hold,
+                                         float uncertainty);
+  void removeAnalysisCornerClockUncertainty(AnalysisCorner *corner,
+                                            const Clock *clk,
+                                            const MinMaxAll *setup_hold);
+  // Purge corner clock uncertainties keyed by dying Clock objects
+  // (nullptr purges all clocks).
+  void purgeCornerClkUncertainties(const Clock *clk);
+  // Empty a corner's overlay Sdcs in every mode and its corner-stored
+  // clock uncertainties (bundle redefine).
+  void clearAnalysisCornerSdc(AnalysisCorner *corner);
+  // ---- OpenROAD fork: analysis_corner support (end) ----
 
   // Read a Liberty file from a file.
   //
@@ -362,6 +398,13 @@ public:
                       Sdc *sdc);
   void setMaxArea(float area,
                   Sdc *sdc);
+  float maxArea(const Sdc *sdc) const;
+  void setMaxDynamicPower(float power,
+                          Sdc *sdc);
+  float maxDynamicPower(const Sdc *sdc) const;
+  void setMaxLeakagePower(float power,
+                          Sdc *sdc);
+  float maxLeakagePower(const Sdc *sdc) const;
 
   void makeClock(std::string_view name,
                  const PinSet &pins,
@@ -594,9 +637,13 @@ public:
                                Sdc *sdc);
   void disableClockGatingCheck(Pin *pin,
                                Sdc *sdc);
+  void disableClockGatingCheck(LibertyCell *cell,
+                               Sdc *sdc);
   void removeDisableClockGatingCheck(Instance *inst,
                                      Sdc *sdc);
   void removeDisableClockGatingCheck(Pin *pin,
+                                     Sdc *sdc);
+  void removeDisableClockGatingCheck(LibertyCell *cell,
                                      Sdc *sdc);
   void setLogicValue(Pin *pin,
                      LogicValue value,
@@ -663,6 +710,13 @@ public:
                      float delay,
                      std::string_view comment,
                      Sdc *sdc);
+  void makePathMargin(ExceptionFrom *from,
+                      ExceptionThruSeq *thrus,
+                      ExceptionTo *to,
+                      const MinMaxAll *min_max,
+                      float margin,
+                      std::string_view comment,
+                      Sdc *sdc);
   void makeGroupPath(std::string_view name,
                      bool is_default,
                      ExceptionFrom *from,
@@ -963,6 +1017,11 @@ public:
   // from/thrus/to are owned and deleted by Search.
   // PathEnds in the returned PathEndSeq are owned by Search PathGroups
   // and deleted on next call.
+  //
+  // IMPORTANT: THIS IS NOT THE DROID YOU ARE LOOKING FOR.
+  // This function is specifically designed to support the many options
+  // and results of timing reports. It is NOT a good option to find paths
+  // for optimization.
   PathEndSeq findPathEnds(ExceptionFrom *from,
                           ExceptionThruSeq *thrus,
                           ExceptionTo *to,
@@ -1019,6 +1078,8 @@ public:
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
   void reportPath(const Path *path);
+  // For debugging.
+  void reportPathVerbose(const Path *path);
 
   // Report clk skews for clks.
   void reportClkSkew(ConstClockSeq &clks,
@@ -1391,6 +1452,7 @@ public:
                                 const LibertyCell *to_cell);
 
   // Power API.
+  using StaState::power;
   void reportPowerDesign(const Scene *scene,
                          int digits);
   void reportPowerInsts(const InstanceSeq &insts,
@@ -1404,8 +1466,6 @@ public:
   void reportPowerInstsJson(const InstanceSeq &insts,
                             const Scene *scene,
                             int digits);
-  Power *power() { return power_; }
-  const Power *power() const { return power_; }
   void power(const Scene *scene,
              // Return values.
              PowerResult &total,
@@ -1433,7 +1493,7 @@ public:
   void writePathSpice(const Path *path,
                       std::string_view spice_filename,
                       std::string_view subckt_filename,
-                      std::string_view lib_subckt_filename,
+                      StringSeq lib_subckt_filenames,
                       std::string_view model_filename,
                       std::string_view power_name,
                       std::string_view gnd_name,
@@ -1496,13 +1556,12 @@ public:
   void setUseDefaultArrivalClock(bool enable);
   ////////////////////////////////////////////////////////////////
 
-  Properties &properties() { return properties_; }
-
 protected:
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.
   virtual void makeVariables();
+  virtual void makeProperties();
   virtual void makeReport();
   virtual void makeDebug();
   virtual void makeUnits();
@@ -1653,6 +1712,11 @@ protected:
   SceneNameMap scene_name_map_;
   ModeNameMap mode_name_map_;
   ParasiticsNameMap parasitics_name_map_;
+  // ---- OpenROAD fork: analysis_corner support (begin) ----
+  AnalysisCornerSeq analysis_corners_;
+  AnalysisCornerNameMap analysis_corner_name_map_;
+  AnalysisCorner *cmd_analysis_corner_{nullptr};
+  // ---- OpenROAD fork: analysis_corner support (end) ----
   VerilogReader *verilog_reader_{nullptr};
   CheckTiming *check_timing_{nullptr};
   CheckSlews *check_slews_{nullptr};
@@ -1663,11 +1727,9 @@ protected:
   CheckMaxSkews *check_max_skews_{nullptr};
   ClkSkews *clk_skews_{nullptr};
   ReportPath *report_path_{nullptr};
-  Power *power_{nullptr};
   Tcl_Interp *tcl_interp_{nullptr};
   bool update_genclks_{false};
   EquivCells *equiv_cells_{nullptr};
-  Properties properties_{this};
 
   // Singleton sta used by tcl command interpreter.
   inline static Sta *sta_{nullptr};

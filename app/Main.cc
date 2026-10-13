@@ -31,7 +31,7 @@
 #include <string_view>
 #include <tcl.h>
 
-#ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_BUILD
   #include "bazel/tcl_library_init.h"
   #include "src/tcl_readline_setup.h"
 #endif
@@ -115,7 +115,7 @@ staTclAppInit(int argc,
               std::string_view init_filename,
               Tcl_Interp *interp)
 {
-#ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_BUILD
     if (in_bazel::SetupTclEnvironment(interp) == TCL_ERROR) {
       return TCL_ERROR;
     }
@@ -126,7 +126,7 @@ staTclAppInit(int argc,
     return TCL_ERROR;
 
   bool has_readline = false;
-#ifdef BAZEL_CURRENT_REPOSITORY
+#ifdef BAZEL_BUILD
   has_readline = (ord::SetupTclReadlineLibrary(interp) == TCL_OK);
 #endif
 #if TCL_READLINE
@@ -202,7 +202,9 @@ static void
 showUsage(std::string_view prog,
           std::string_view init_filename)
 {
-  sta::print(stdout, "Usage: {} [-help] [-version] [-no_init] [-exit] cmd_file\n",
+  sta::print(stdout,
+             "Usage: {} [-help] [-version] [-no_init] [-no_splash] "
+             "[-threads count|max] [-exit] cmd_file\n",
              prog);
   sta::print(stdout, "  -help              show help and exit\n");
   sta::print(stdout, "  -version           show version and exit\n");

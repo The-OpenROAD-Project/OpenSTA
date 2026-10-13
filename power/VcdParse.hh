@@ -36,6 +36,9 @@ namespace sta {
 using VcdTime = int64_t;
 using VcdScope = std::vector<std::string>;
 
+// Sentinel for an unset begin/end time window bound.
+constexpr VcdTime vcd_null_time = -1;
+
 enum class VcdVarType {
   wire,
   reg,
@@ -64,7 +67,9 @@ public:
   VcdParse(Report *report,
            Debug *debug);
   void read(const char *filename,
-            VcdReader *reader);
+            VcdReader *reader,
+            VcdTime begin_time,
+            VcdTime end_time);
 
 private:
   void parseTimescale();
@@ -87,6 +92,11 @@ private:
 
   VcdTime time_ = 0;
   VcdTime prev_time_ = 0;
+
+  // Arguments to VcdParse
+  VcdTime begin_time_ = vcd_null_time;
+  VcdTime end_time_ = vcd_null_time;
+
   VcdScope scope_;
 
   Report *report_;

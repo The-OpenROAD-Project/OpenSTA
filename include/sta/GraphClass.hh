@@ -65,6 +65,8 @@ using Level = int;
 using DcalcAPIndex = int;
 using TagGroupIndex = int;
 using SlewSeq = std::vector<Slew>;
+using VertexFn = std::function<void(Vertex*)>;
+using EdgeFn = std::function<void(Edge *, Vertex*)>;
 
 static constexpr int level_max = std::numeric_limits<Level>::max();
 

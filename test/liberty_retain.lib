@@ -1,0 +1,96 @@
+library (liberty_retain) {
+  delay_model : "table_lookup";
+  capacitive_load_unit (1,pF);
+  leakage_power_unit : "1pW";
+  current_unit : "1A";
+  pulling_resistance_unit : "1kohm";
+  time_unit : "1ns";
+  voltage_unit : "1v";
+  library_features : "report_delay_calculation";
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 30;
+  slew_lower_threshold_pct_fall : 30;
+  slew_upper_threshold_pct_rise : 70;
+  slew_upper_threshold_pct_fall : 70;
+  slew_derate_from_library : 1.0;
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.0;
+
+  cell (buf_retain) {
+    pin (A) {
+      capacitance : 0.001;
+      direction : "input";
+    }
+    pin (Y) {
+      function : "A";
+      direction : "output";
+      max_capacitance : 0.1;
+      timing () {
+        related_pin : "A";
+        timing_sense : "positive_unate";
+        cell_rise (scalar) {
+          values ("4.0");
+        }
+        cell_fall (scalar) {
+          values ("5.0");
+        }
+        rise_transition (scalar) {
+          values ("0.4");
+        }
+        fall_transition (scalar) {
+          values ("0.5");
+        }
+        retaining_rise (scalar) {
+          values ("1.0");
+        }
+        retaining_fall (scalar) {
+          values ("1.2");
+        }
+        retain_rise_slew (scalar) {
+          values ("0.1");
+        }
+        retain_fall_slew (scalar) {
+          values ("0.15");
+        }
+      }
+    }
+  }
+
+  cell (buf_retain_no_slew) {
+    pin (A) {
+      capacitance : 0.001;
+      direction : "input";
+    }
+    pin (Y) {
+      function : "A";
+      direction : "output";
+      max_capacitance : 0.1;
+      timing () {
+        related_pin : "A";
+        timing_sense : "positive_unate";
+        cell_rise (scalar) {
+          values ("4.0");
+        }
+        cell_fall (scalar) {
+          values ("5.0");
+        }
+        rise_transition (scalar) {
+          values ("0.4");
+        }
+        fall_transition (scalar) {
+          values ("0.5");
+        }
+        retaining_rise (scalar) {
+          values ("1.0");
+        }
+        retaining_fall (scalar) {
+          values ("1.2");
+        }
+      }
+    }
+  }
+}

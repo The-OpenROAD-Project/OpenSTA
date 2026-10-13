@@ -32,13 +32,13 @@ puts "complex roundtrip ports: [llength $rt2_ports]"
 
 # Bus port queries after roundtrip
 set rt2_da [get_ports {data_a[*]}]
-puts "roundtrip data_a[*]: [llength $rt2_da]"
+puts "roundtrip data_a\[*\]: [llength $rt2_da]"
 
 set rt2_db [get_ports {data_b[*]}]
-puts "roundtrip data_b[*]: [llength $rt2_db]"
+puts "roundtrip data_b\[*\]: [llength $rt2_db]"
 
 set rt2_res [get_ports {result[*]}]
-puts "roundtrip result[*]: [llength $rt2_res]"
+puts "roundtrip result\[*\]: [llength $rt2_res]"
 
 # Timing after complex roundtrip
 create_clock -name clk -period 10 [get_ports clk]

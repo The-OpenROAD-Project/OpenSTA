@@ -1,0 +1,17 @@
+[get_property u1/Z owner]
+alice
+[get_property u2/ZN owner] (unset)
+<>
+[get_property r1q weight]
+3.500000
+[get_property u1z weight] (unset)
+<>
+[get_property u2 crit]
+1
+[get_property u1 crit] (unset)
+<>
+[get_property clk1 grp]
+main
+[get_pins -filter {owner == alice} *]
+Z
+Error: pin objects do not have a no_such_prop property.

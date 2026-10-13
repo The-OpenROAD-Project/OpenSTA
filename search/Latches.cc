@@ -187,7 +187,8 @@ Latches::latchBorrowInfo(const Path *data_path,
     nom_pulse_width = is_pulse_clk ? 0.0 : enable_clk_edge->pulseWidth();
     open_uncertainty = PathEnd::checkClkUncertainty(data_clk_edge, enable_clk_edge,
                                                     enable_path,
-                                                    TimingRole::latchSetup(), sdc);
+                                                    TimingRole::latchSetup(), sdc,
+                                                    data_path->scene(this));
     if (ignore_clk_latency) {
       open_latency = 0.0;
       latency_diff = 0.0;
@@ -359,16 +360,7 @@ Latches::latchOutArrival(const Path *data_path,
       arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
                                         false, min_max, dcalc_ap, sdc);
       q_arrival = delaySum(data_path->arrival(),  arc_delay, this);
-      // Copy the data tag but remove the drprClkPath.
-      // Levelization does not traverse latch D->Q edges, so in some cases
-      //  level(Q) < level(D)
-      // Note that
-      //  level(crprClkPath(data)) < level(D)
-      // The danger is that
-      //  level(crprClkPath(data)) == level(Q)
-      // or some other downstream vertex.
-      // This can lead to data races when finding arrivals at the same level
-      // use multiple threads.
+      // Copy the data tag but remove the crprClkPath.
       // Kill the crprClklPath to be safe.
       const ClkInfo *data_clk_info = data_path->clkInfo(this);
       const ClkInfo *q_clk_info =

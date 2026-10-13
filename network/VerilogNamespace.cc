@@ -81,11 +81,16 @@ isAlnumUnderscore(char ch)
   return std::isalnum(static_cast<unsigned char>(ch)) != 0 || ch == '_';
 }
 
+// Simple identifiers must begin with a letter or underscore.
+static bool
+isIdentifierStart(char ch)
+{
+  return std::isalpha(static_cast<unsigned char>(ch)) != 0 || ch == '_';
+}
+
 static std::string
 staToVerilog(std::string_view sta_name)
 {
-  // Leave room for leading escape and trailing space if the name
-  // needs to be escaped.
   // Assume the name has to be escaped and start copying while scanning.
   std::string escaped_name =  "\\";
   bool escaped = false;
@@ -110,6 +115,8 @@ staToVerilog(std::string_view sta_name)
       escaped_name += ch;
     }
   }
+  if (!sta_name.empty() && !isIdentifierStart(sta_name[0]))
+    escaped = true;
   if (escaped) {
     // Add a terminating space.
     escaped_name += ' ';
@@ -124,8 +131,6 @@ staToVerilog2(std::string_view sta_name)
 {
   constexpr char bus_brkt_left = '[';
   constexpr char bus_brkt_right = ']';
-  // Leave room for leading escape and trailing space if the name
-  // needs to be escaped.
   std::string escaped_name =  "\\";
   // Assume the name has to be escaped and start copying while scanning.
   bool escaped = false;
@@ -151,6 +156,8 @@ staToVerilog2(std::string_view sta_name)
       escaped_name += ch;
     }
   }
+  if (!sta_name.empty() && !isIdentifierStart(sta_name[0]))
+    escaped = true;
   if (escaped) {
     // Add a terminating space.
     escaped_name += ' ';

@@ -27,6 +27,9 @@
 #include <optional>
 #include <utility>
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
+
 #include "LibertyClass.hh"
 #include "LumpedCapDelayCalc.hh"
 
@@ -59,18 +62,21 @@ public:
                                                   double elmore);
   double ceff() { return ceff_; }
 
-  // Given x_ as a vector of input parameters, fill fvec_ with the
-  // equations evaluated at x_ and fjac_ with the jabobian evaluated at x_.
-  virtual void evalDmpEqns() = 0;
+  virtual void
+  evalDmpEqns(Eigen::Vector3d &x,
+              Eigen::Vector3d &fvec,
+              Eigen::Matrix3d &fjac) = 0;
   // Output response to vs(t) ramp driving pi model load (vo, dvo_dt).
   std::pair<double, double> Vo(double t);
   // Load response to driver waveform (vl, dvl/dt).
   std::pair<double, double> Vl(double t);
 
 protected:
-  void luDecomp();
-  void luSolve();
-  void newtonRaphson();
+  void newtonRaphson(Eigen::Vector3d &x);
+  // Solves J * p = -f using a fast analytical solver with singularity checks.
+  // Can be easily swapped to LU with partial pivoting if needed.
+  Eigen::Vector3d solveNewtonStep(const Eigen::Matrix3d &fjac,
+                                  const Eigen::Vector3d &fvec);
   // Find driver parameters t0, delta_t, Ceff.
   void findDriverParams(double ceff);
   std::pair<double, double> gateCapDelaySlew(double ceff);
@@ -84,9 +90,9 @@ protected:
               double cl);
   double y0dcl(double t,
                double cl);
-  void showX();
-  void showFvec();
-  void showJacobian();
+  void showX(const Eigen::Vector3d &x);
+  void showFvec(const Eigen::Vector3d &fvec);
+  void showJacobian(const Eigen::Matrix3d &fjac);
   std::pair<double, double> findDriverDelaySlew();
   double findVoCrossing(double vth,
                         double t_lower,
@@ -148,12 +154,7 @@ protected:
 
   static constexpr int max_nr_order_ = 3;
 
-  std::array<double, max_nr_order_> x_;
-  std::array<double, max_nr_order_> fvec_;
-  std::array<std::array<double, max_nr_order_>, max_nr_order_> fjac_;
-  std::array<double, max_nr_order_> scale_;
-  std::array<double, max_nr_order_> p_;
-  std::array<int, max_nr_order_> index_;
+
 
   // Driver slew used to check load delay.
   double drvr_slew_;
@@ -194,7 +195,10 @@ public:
   std::pair<double, double> gateDelaySlew() override;
   std::pair<double, double> loadDelaySlew(const Pin *,
                                            double elmore) override;
-  void evalDmpEqns() override;
+  void
+  evalDmpEqns(Eigen::Vector3d &x,
+              Eigen::Vector3d &fvec,
+              Eigen::Matrix3d &fjac) override;
 
 protected:
   double voCrossingUpperBound() override;
@@ -219,7 +223,10 @@ public:
             double rpi,
             double c1) override;
   std::pair<double, double> gateDelaySlew() override;
-  void evalDmpEqns() override;
+  void
+  evalDmpEqns(Eigen::Vector3d &x,
+              Eigen::Vector3d &fvec,
+              Eigen::Matrix3d &fjac) override;
 
 protected:
   double voCrossingUpperBound() override;
@@ -255,7 +262,10 @@ class DmpOnePole : public DmpAlg
 {
 public:
   DmpOnePole(StaState *sta);
-  void evalDmpEqns() override;
+  void
+  evalDmpEqns(Eigen::Vector3d &x,
+              Eigen::Vector3d &fvec,
+              Eigen::Matrix3d &fjac) override;
 
 protected:
   double voCrossingUpperBound() override;
