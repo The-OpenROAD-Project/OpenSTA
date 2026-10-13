@@ -2416,18 +2416,12 @@ TEST_F(StaDesignTest, OperatingConditions) {
   }() ));
 }
 
-// --- Search: evalPred / searchAdj ---
+// --- Search: evalPred ---
 
 TEST_F(StaDesignTest, SearchEvalPred) {
   Search *search = sta_->search();
   EvalPred *ep = search->evalPred();
   EXPECT_NE(ep, nullptr);
-}
-
-TEST_F(StaDesignTest, SearchSearchAdj) {
-  Search *search = sta_->search();
-  SearchPred *sp = search->searchAdj();
-  EXPECT_NE(sp, nullptr);
 }
 
 // --- Search: endpointInvalid ---

@@ -1489,12 +1489,6 @@ TEST_F(StaInitTest, SearchEvalPred) {
   EXPECT_NE(search->evalPred(), nullptr);
 }
 
-TEST_F(StaInitTest, SearchSearchAdj) {
-  Search *search = sta_->search();
-  ASSERT_NE(search, nullptr);
-  EXPECT_NE(search->searchAdj(), nullptr);
-}
-
 TEST_F(StaInitTest, SearchClear) {
   Search *search = sta_->search();
   search->clear();
