@@ -16,3 +16,10 @@ report_checks -to r3/D -fields {slew} -digits 3
 
 # u2/B is the load of the disabled driver u1/Y.
 report_slews [get_pins u2/B]
+# Fail (non-zero exit) if the load slews were left at +/-INF.
+foreach prop {slew_max slew_min} {
+  set slew [get_property [get_pins u2/B] $prop]
+  if { abs($slew) > 1e10 } {
+    error "u2/B $prop is $slew"
+  }
+}
