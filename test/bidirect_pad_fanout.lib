@@ -1,0 +1,25 @@
+library (bidirect_pad_fanout) {
+  delay_model : table_lookup ;
+  time_unit : "1ps" ;
+  voltage_unit : "1V" ;
+  current_unit : "1mA" ;
+  pulling_resistance_unit : "1kohm" ;
+  capacitive_load_unit (1, ff) ;
+  nom_process : 1.0 ;
+  nom_temperature : 25.0 ;
+  nom_voltage : 0.7 ;
+  cell (TIELO) {
+    area : 1.0 ;
+    pin (L) {
+      direction : output ;
+      function : "0" ;
+    }
+  }
+  cell (PAD_INOUT) {
+    area : 100.0 ;
+    pin (PAD) {
+      direction : inout ;
+      capacitance : 1.0 ;
+    }
+  }
+}

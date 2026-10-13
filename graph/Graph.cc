@@ -262,6 +262,29 @@ Graph::makeInstDrvrWireEdges(const Instance *inst,
   delete pin_iter;
 }
 
+// Bidirect pins with no fanin (pads/bumps with no timing arcs) are
+// only loads if the net has another driver. Making wire edges from
+// them is N*M for nets with many pads.
+bool
+Graph::isPassiveBidirectDrvr(const Pin *drvr_pin) const
+{
+  if (!network_->direction(drvr_pin)->isBidirect()
+      || network_->isTopLevelPort(drvr_pin))
+    return false;
+  Vertex *drvr_vertex = pinDrvrVertex(drvr_pin);
+  return drvr_vertex && !drvr_vertex->hasFanin();
+}
+
+bool
+Graph::hasActiveDrvr(const PinSeq &drvrs) const
+{
+  for (const Pin *drvr_pin : drvrs) {
+    if (!isPassiveBidirectDrvr(drvr_pin))
+      return true;
+  }
+  return false;
+}
+
 void
 Graph::makeWireEdgesFromPin(const Pin *drvr_pin)
 {
@@ -270,6 +293,9 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin)
   FindNetDrvrLoads visitor(drvr_pin, visited_drvrs, loads, drvrs, network_);
   network_->visitConnectedPins(drvr_pin, visitor);
 
+  if (isPassiveBidirectDrvr(drvr_pin)
+      && hasActiveDrvr(drvrs))
+    return;
   for (auto load_pin : loads) {
     if (drvr_pin != load_pin)
       makeWireEdge(drvr_pin, load_pin);
@@ -295,7 +321,11 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin,
     return;
   }
 
+  bool has_active_drvr = hasActiveDrvr(drvrs);
   for (auto drvr_pin : drvrs) {
+    if (has_active_drvr
+        && isPassiveBidirectDrvr(drvr_pin))
+      continue;
     for (auto load_pin : loads) {
       if (drvr_pin != load_pin)
         makeWireEdge(drvr_pin, load_pin);
@@ -337,8 +367,16 @@ Graph::makeWireEdgesToPin(const Pin *to_pin)
 {
   PinSet *drvrs = network_->drivers(to_pin);
   if (drvrs) {
+    bool has_active_drvr = false;
     for (auto drvr : *drvrs) {
-      if (drvr != to_pin)
+      if (!isPassiveBidirectDrvr(drvr)) {
+        has_active_drvr = true;
+        break;
+      }
+    }
+    for (auto drvr : *drvrs) {
+      if (drvr != to_pin
+          && !(has_active_drvr && isPassiveBidirectDrvr(drvr)))
         makeWireEdge(drvr, to_pin);
     }
   }

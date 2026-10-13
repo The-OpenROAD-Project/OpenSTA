@@ -205,6 +205,8 @@ protected:
                             PinSet &visited_drvrs);
   bool isIsolatedNet(PinSeq &drvrs,
                      PinSeq &loads) const;
+  bool isPassiveBidirectDrvr(const Pin *drvr_pin) const;
+  bool hasActiveDrvr(const PinSeq &drvrs) const;
   void makeWireEdges();
   void makeInstDrvrWireEdges(const Instance *inst,
                              PinSet &visited_drvrs);
