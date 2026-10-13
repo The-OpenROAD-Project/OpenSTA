@@ -2,17 +2,17 @@
 // Copyright (c) 2025-2026, The OpenROAD Authors
 
 #include "LibertyBinaryReader.hh"
-#include "ContainerHelpers.hh"
-#include "LibertyBinaryCommon.hh"
-#include "LibertyParser.hh"
-#include "Report.hh"
-#include "sta/Error.hh"
 
 #include <cstring>
 #include <istream>
 #include <string_view>
 #include <vector>
 
+#include "ContainerHelpers.hh"
+#include "Error.hh"
+#include "LibertyBinaryCommon.hh"
+#include "LibertyParser.hh"
+#include "Report.hh"
 #include "util/gzstream.hh"
 
 namespace sta {
@@ -30,6 +30,69 @@ static constexpr size_t min_string_entry_size = 8;
 static constexpr size_t min_value_size = 5;
 // Far above normal Liberty nesting; bounds recursion for malformed input.
 static constexpr int max_group_depth = 1000;
+
+BinaryCursor::BinaryCursor(const char *data,
+                           size_t size) :
+  ptr_(data),
+  end_(data + size),
+  start_(data)
+{
+}
+
+uint8_t
+BinaryCursor::readU8()
+{
+  return static_cast<uint8_t>(*ptr_++);
+}
+
+uint32_t
+BinaryCursor::readU32()
+{
+  uint32_t val;
+  std::memcpy(&val, ptr_, sizeof(val));
+  ptr_ += sizeof(val);
+  return val;
+}
+
+uint64_t
+BinaryCursor::readU64()
+{
+  uint64_t val;
+  std::memcpy(&val, ptr_, sizeof(val));
+  ptr_ += sizeof(val);
+  return val;
+}
+
+float
+BinaryCursor::readFloat()
+{
+  float val;
+  std::memcpy(&val, ptr_, sizeof(val));
+  ptr_ += sizeof(val);
+  return val;
+}
+
+void
+BinaryCursor::readBytes(char *dest,
+                        size_t len)
+{
+  std::memcpy(dest, ptr_, len);
+  ptr_ += len;
+}
+
+void
+BinaryCursor::seek(size_t offset)
+{
+  ptr_ = start_ + offset;
+}
+
+void
+BinaryCursor::setPtr(const char *ptr)
+{
+  ptr_ = ptr;
+}
+
+////////////////////////////////////////////////////////////////
 
 LibertyBinaryReader::LibertyBinaryReader(LibertyGroupVisitor *visitor,
                                          std::string_view filename,
@@ -62,12 +125,12 @@ LibertyBinaryReader::corruptError(std::string_view filename,
 void
 LibertyBinaryReader::versionError(std::string_view filename,
                                   Report *report,
-                                  std::uint32_t version)
+                                  uint32_t version)
 {
   report->error(1902,
                 "{} is binary liberty version {}; this build reads version {}. "
                 "Regenerate it with write_liberty_binary.",
-                filename, version, LIBERTY_BINARY_VERSION);
+                filename, version, liberty_binary_version);
 }
 
 void
@@ -91,7 +154,7 @@ LibertyBinaryReader::read(std::istream *stream)
   cursor_ = BinaryCursor(buffer.data(), buffer.size());
 
   LibertyBinaryHeader header;
-  std::uint64_t string_table_offset =
+  uint64_t string_table_offset =
     readHeader(cursor_, header, parser_.filename(), parser_.report());
 
   // Reject offsets outside the file or inside the header rather than reading
@@ -110,17 +173,17 @@ LibertyBinaryReader::read(std::istream *stream)
   // The text grammar, and therefore the writer, emits exactly one root group.
   require(1);
   if (static_cast<LibertyBinaryTag>(cursor_.readU8())
-      != LibertyBinaryTag::GROUP_BEGIN)
+      != LibertyBinaryTag::group_begin)
     corruptError();
   readGroup();
   require(1);
   if (static_cast<LibertyBinaryTag>(cursor_.readU8())
-        != LibertyBinaryTag::EOF_TAG
+        != LibertyBinaryTag::eof
       || cursor_.remaining() != 0)
     corruptError();
 }
 
-std::uint64_t
+uint64_t
 LibertyBinaryReader::readHeader(BinaryCursor &cursor,
                                 LibertyBinaryHeader &header,
                                 std::string_view filename,
@@ -129,17 +192,17 @@ LibertyBinaryReader::readHeader(BinaryCursor &cursor,
   if (cursor.remaining() < min_header_size)
     corruptError(filename, report);
 
-  char magic[LIBERTY_BINARY_MAGIC_SIZE];
-  cursor.readBytes(magic, LIBERTY_BINARY_MAGIC_SIZE);
-  std::string_view magic_view(magic, LIBERTY_BINARY_MAGIC_SIZE);
-  if (magic_view != LIBERTY_BINARY_MAGIC)
+  char magic[liberty_binary_magic_size];
+  cursor.readBytes(magic, liberty_binary_magic_size);
+  std::string_view magic_view(magic, liberty_binary_magic_size);
+  if (magic_view != liberty_binary_magic)
     corruptError(filename, report);
 
   header.version = cursor.readU32();
-  if (header.version != LIBERTY_BINARY_VERSION)
+  if (header.version != liberty_binary_version)
     versionError(filename, report, header.version);
 
-  std::uint32_t path_length = cursor.readU32();
+  uint32_t path_length = cursor.readU32();
   // Subtract rather than add so a huge path_length cannot wrap the sum.
   if (cursor.remaining() < header_tail_size
       || cursor.remaining() - header_tail_size < path_length)
@@ -171,15 +234,15 @@ LibertyBinaryReader::readStatements()
   while (true) {
     require(1);
     LibertyBinaryTag tag = static_cast<LibertyBinaryTag>(cursor_.readU8());
-    if (tag == LibertyBinaryTag::GROUP_END)
+    if (tag == LibertyBinaryTag::group_end)
       return;
-    if (tag == LibertyBinaryTag::GROUP_BEGIN)
+    if (tag == LibertyBinaryTag::group_begin)
       readGroup();
-    else if (tag == LibertyBinaryTag::ATTR_SIMPLE)
+    else if (tag == LibertyBinaryTag::attr_simple)
       readSimpleAttr();
-    else if (tag == LibertyBinaryTag::ATTR_COMPLEX)
+    else if (tag == LibertyBinaryTag::attr_complex)
       readComplexAttr();
-    else if (tag == LibertyBinaryTag::VARIABLE)
+    else if (tag == LibertyBinaryTag::variable)
       readVariable();
     else
       corruptError();
@@ -243,14 +306,14 @@ LibertyBinaryReader::readLine()
   return last_line_;
 }
 
-std::uint32_t
+uint32_t
 LibertyBinaryReader::readVarint()
 {
-  std::uint32_t val = 0;
+  uint32_t val = 0;
   for (int shift = 0; shift < 32; shift += 7) {
     require(1);
-    std::uint8_t byte = cursor_.readU8();
-    val |= static_cast<std::uint32_t>(byte & 0x7f) << shift;
+    uint8_t byte = cursor_.readU8();
+    val |= static_cast<uint32_t>(byte & 0x7f) << shift;
     if ((byte & 0x80) == 0)
       return val;
   }
@@ -261,7 +324,7 @@ LibertyBinaryReader::readVarint()
 LibertyAttrValueSeq *
 LibertyBinaryReader::readValues()
 {
-  std::uint32_t count = readUInt32();
+  uint32_t count = readUInt32();
   if (count == 0)
     return nullptr;
   if (count > cursor_.remaining() / min_value_size)
@@ -270,7 +333,7 @@ LibertyBinaryReader::readValues()
   LibertyAttrValueSeq *values = new LibertyAttrValueSeq;
   values->reserve(count);
   try {
-    for (std::uint32_t i = 0; i < count; i++)
+    for (uint32_t i = 0; i < count; i++)
       values->push_back(readValue());
   }
   catch (...) {
@@ -287,7 +350,7 @@ LibertyBinaryReader::readString()
 {
   require(1);
   if (static_cast<LibertyBinaryValueType>(cursor_.readU8())
-      != LibertyBinaryValueType::STRING)
+      != LibertyBinaryValueType::value_string)
     corruptError();
   return readStringIndex();
 }
@@ -296,7 +359,7 @@ std::string
 LibertyBinaryReader::readStringIndex()
 {
   require(4);
-  std::uint32_t index = cursor_.readU32();
+  uint32_t index = cursor_.readU32();
   if (index >= string_table_.size())
     corruptError();
   return string_table_[index];
@@ -306,15 +369,15 @@ void
 LibertyBinaryReader::readStringTable()
 {
   require(4);
-  std::uint32_t size = cursor_.readU32();
+  uint32_t size = cursor_.readU32();
   // Validate the count before allocating; each entry needs at least 8 bytes.
   if (size > cursor_.remaining() / min_string_entry_size)
     corruptError();
   string_table_.resize(size);
   std::vector<bool> filled(size, false);
-  for (std::uint32_t i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     require(4);
-    std::uint32_t len = cursor_.readU32();
+    uint32_t len = cursor_.readU32();
     // len for the string bytes plus the 4-byte index that follows, compared
     // without adding so a huge len cannot wrap the sum.
     if (cursor_.remaining() < 4 || cursor_.remaining() - 4 < len)
@@ -323,7 +386,7 @@ LibertyBinaryReader::readStringTable()
     cursor_.setPtr(bytes + len);
     // The writer stores each string's dense index; place the string there
     // because the writer iterates an unordered_map in arbitrary order.
-    std::uint32_t index = cursor_.readU32();
+    uint32_t index = cursor_.readU32();
     // Each index appears exactly once. With size entries and no repeats every
     // slot is filled, so a damaged index cannot silently rename strings.
     if (index >= string_table_.size() || filled[index])
@@ -338,7 +401,7 @@ LibertyBinaryReader::readFloat()
 {
   require(1);
   if (static_cast<LibertyBinaryValueType>(cursor_.readU8())
-      != LibertyBinaryValueType::FLOAT)
+      != LibertyBinaryValueType::value_float)
     corruptError();
   return readFloatValue();
 }
@@ -350,7 +413,7 @@ LibertyBinaryReader::readFloatValue()
   return cursor_.readFloat();
 }
 
-std::uint32_t
+uint32_t
 LibertyBinaryReader::readUInt32()
 {
   require(4);
@@ -364,12 +427,12 @@ LibertyBinaryReader::readValue()
   LibertyBinaryValueType val_type =
     static_cast<LibertyBinaryValueType>(cursor_.readU8());
 
-  if (val_type == LibertyBinaryValueType::STRING)
+  if (val_type == LibertyBinaryValueType::value_string)
     return parser_.makeAttrValueString(readStringIndex());
-  else if (val_type == LibertyBinaryValueType::FLOAT)
+  else if (val_type == LibertyBinaryValueType::value_float)
     return parser_.makeAttrValueFloat(readFloatValue());
-  else if (val_type == LibertyBinaryValueType::FLOAT_SEQ) {
-    std::uint32_t count = readUInt32();
+  else if (val_type == LibertyBinaryValueType::value_float_seq) {
+    uint32_t count = readUInt32();
     // Divide rather than multiply so a huge count cannot wrap the size.
     if (count > cursor_.remaining() / sizeof(float))
       corruptError();

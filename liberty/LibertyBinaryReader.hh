@@ -3,63 +3,33 @@
 
 #pragma once
 
+#include <cstdint>
 #include <iosfwd>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <cstdint>
-#include <cstring>
+
 #include "LibertyParser.hh"
 
 namespace sta {
 
 // Unchecked read primitives; LibertyBinaryReader bounds-checks with
 // remaining()/inBounds() before every read so a malformed or foreign-format
-// file is rejected rather than read out of bounds.
+// file is rejected rather than read out of bounds. Multi-byte values are in
+// the host's byte order (LibertyBinaryCommon.hh asserts it is little-endian).
 class BinaryCursor
 {
 public:
   BinaryCursor(const char *data,
-               size_t size) :
-    ptr_(data),
-    end_(data + size),
-    start_(data)
-  {
-  }
-
-  std::uint8_t readU8() { return static_cast<std::uint8_t>(*ptr_++); }
-  // Multi-byte values are in the host's byte order (LibertyBinaryCommon.hh
-  // asserts it is little-endian), so the memcpy is a plain load.
-  std::uint32_t readU32()
-  {
-    std::uint32_t val;
-    std::memcpy(&val, ptr_, sizeof(val));
-    ptr_ += sizeof(val);
-    return val;
-  }
-  std::uint64_t readU64()
-  {
-    std::uint64_t val;
-    std::memcpy(&val, ptr_, sizeof(val));
-    ptr_ += sizeof(val);
-    return val;
-  }
-  float readFloat()
-  {
-    float val;
-    std::memcpy(&val, ptr_, sizeof(val));
-    ptr_ += sizeof(val);
-    return val;
-  }
+               size_t size);
+  uint8_t readU8();
+  uint32_t readU32();
+  uint64_t readU64();
+  float readFloat();
   void readBytes(char *dest,
-                 size_t len)
-  {
-    std::memcpy(dest, ptr_, len);
-    ptr_ += len;
-  }
-
-  void seek(size_t offset) { ptr_ = start_ + offset; }
-  void setPtr(const char *ptr) { ptr_ = ptr; }
+                 size_t len);
+  void seek(size_t offset);
+  void setPtr(const char *ptr);
   const char *current() const { return ptr_; }
   size_t offset() const { return size_t(ptr_ - start_); }
   size_t remaining() const { return ptr_ < end_ ? size_t(end_ - ptr_) : 0; }
@@ -74,9 +44,9 @@ private:
 // Header fields recorded by write_liberty_binary for traceability.
 struct LibertyBinaryHeader
 {
-  std::uint32_t version;
+  uint32_t version;
   std::string source_filename;
-  std::uint64_t source_hash;
+  uint64_t source_hash;
 };
 
 // Reads only the header. Errors like read_liberty on a file that is not
@@ -97,10 +67,10 @@ public:
   void read(std::istream *stream);
   // Parses the header at the cursor and returns the string table offset.
   // Errors on a bad magic, another version or a truncated header.
-  static std::uint64_t readHeader(BinaryCursor &cursor,
-                                  LibertyBinaryHeader &header,
-                                  std::string_view filename,
-                                  Report *report);
+  static uint64_t readHeader(BinaryCursor &cursor,
+                             LibertyBinaryHeader &header,
+                             std::string_view filename,
+                             Report *report);
 
 private:
   // Walk the binary stream, driving the parser's builder methods so the
@@ -112,14 +82,13 @@ private:
   void readVariable();
   // Source line of the statement being read (zigzag varint delta).
   int readLine();
-  std::uint32_t readVarint();
+  uint32_t readVarint();
 
-  // Helpers
   void readStringTable();
   // Type-tagged reads for structural fields.
   std::string readString();
   float readFloat();
-  std::uint32_t readUInt32();
+  uint32_t readUInt32();
   // Payload reads; readValue has already consumed the type tag.
   std::string readStringIndex();
   float readFloatValue();
@@ -134,7 +103,7 @@ private:
                            Report *report);
   static void versionError(std::string_view filename,
                            Report *report,
-                           std::uint32_t version);
+                           uint32_t version);
 
   LibertyParser parser_;
   BinaryCursor cursor_;
@@ -144,4 +113,5 @@ private:
   // Line of the previous statement; statement lines are stored as deltas.
   int last_line_ = 0;
 };
-} // namespace
+
+} // namespace sta

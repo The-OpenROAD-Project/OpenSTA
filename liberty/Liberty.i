@@ -134,7 +134,10 @@ write_liberty_cmd(LibertyLibrary *library,
 }
 
 // ---- OpenROAD fork: binary liberty support (begin) ----
-void write_liberty_binary_cmd(const char *in_filename, const char *out_filename) {
+void
+write_liberty_binary_cmd(const char *in_filename,
+                         const char *out_filename)
+{
   writeLibertyBinary(in_filename, out_filename, Sta::sta()->report());
 }
 
@@ -144,13 +147,10 @@ liberty_binary_header_cmd(const char *filename)
 {
   LibertyBinaryHeader header =
     readLibertyBinaryHeader(filename, Sta::sta()->report());
-  char hash[17];
-  snprintf(hash, sizeof(hash), "%016llx",
-           static_cast<unsigned long long>(header.source_hash));
   StringSeq fields;
   fields.push_back(std::to_string(header.version));
   fields.push_back(header.source_filename);
-  fields.push_back(hash);
+  fields.push_back(sta::format("{:016x}", header.source_hash));
   return fields;
 }
 // ---- OpenROAD fork: binary liberty support (end) ----

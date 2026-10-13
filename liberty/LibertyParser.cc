@@ -53,27 +53,47 @@ class LibertyInputStreambuf : public std::streambuf
 public:
   LibertyInputStreambuf(char *prefix,
                         size_t size,
-                        std::streambuf *source) :
-    source_(source)
-  {
-    setg(prefix, prefix, prefix + size);
-  }
+                        std::streambuf *source);
 
 protected:
-  int_type underflow() override { return source_->sgetc(); }
-  int_type uflow() override { return source_->sbumpc(); }
+  int_type underflow() override;
+  int_type uflow() override;
   std::streamsize xsgetn(char *dest,
-                        std::streamsize count) override
-  {
-    std::streamsize size = std::min<std::streamsize>(egptr() - gptr(), count);
-    std::memcpy(dest, gptr(), size);
-    gbump(static_cast<int>(size));
-    return size + source_->sgetn(dest + size, count - size);
-  }
+                         std::streamsize count) override;
 
 private:
   std::streambuf *source_;
 };
+
+LibertyInputStreambuf::LibertyInputStreambuf(char *prefix,
+                                             size_t size,
+                                             std::streambuf *source) :
+  source_(source)
+{
+  setg(prefix, prefix, prefix + size);
+}
+
+LibertyInputStreambuf::int_type
+LibertyInputStreambuf::underflow()
+{
+  return source_->sgetc();
+}
+
+LibertyInputStreambuf::int_type
+LibertyInputStreambuf::uflow()
+{
+  return source_->sbumpc();
+}
+
+std::streamsize
+LibertyInputStreambuf::xsgetn(char *dest,
+                              std::streamsize count)
+{
+  std::streamsize size = std::min<std::streamsize>(egptr() - gptr(), count);
+  std::memcpy(dest, gptr(), size);
+  gbump(static_cast<int>(size));
+  return size + source_->sgetn(dest + size, count - size);
+}
 
 // Binary liberty files are recognized by their magic number, so every caller
 // of parseLibertyFile reads both formats.
@@ -83,12 +103,12 @@ parseLibertyStream(std::istream *stream,
                    LibertyGroupVisitor *library_visitor,
                    Report *report)
 {
-  char magic[LIBERTY_BINARY_MAGIC_SIZE];
+  char magic[liberty_binary_magic_size];
   stream->read(magic, sizeof(magic));
   size_t prefix_size = stream->gcount();
   LibertyInputStreambuf buffer(magic, prefix_size, stream->rdbuf());
   std::istream input(&buffer);
-  if (std::string_view(magic, prefix_size) == LIBERTY_BINARY_MAGIC) {
+  if (std::string_view(magic, prefix_size) == liberty_binary_magic) {
     LibertyBinaryReader bin_reader(library_visitor, filename, report);
     // Errors on a malformed file.
     bin_reader.read(&input);

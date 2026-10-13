@@ -2,28 +2,28 @@
 // Copyright (c) 2025-2026, The OpenROAD Authors
 
 #include "LibertyBinaryWriter.hh"
-#include "LibertyBinaryCommon.hh"
-#include "LibertyParser.hh"
-#include "Report.hh"
-#include "StringUtil.hh"
-#include "sta/Error.hh"
 
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#include "Error.hh"
+#include "LibertyBinaryCommon.hh"
+#include "LibertyParser.hh"
+#include "Report.hh"
+#include "StringUtil.hh"
 #include "util/gzstream.hh"
 
-namespace {
+namespace sta {
 
 // Write a scalar's raw little-endian bytes. Centralizes the cast/sizeof
 // pairing so a mismatched address/size cannot creep into one call site.
 template <typename T>
-void
+static void
 writeRaw(std::ostream *stream,
          const T &val)
 {
@@ -33,12 +33,13 @@ writeRaw(std::ostream *stream,
 // Liberty stores numeric index/value sequences as quoted, comma separated
 // strings. Match the text reader's tokenization and validation, leaving the
 // original string intact when a token is invalid so its diagnostics survive.
-bool
-parseOptimisticFloatSeq(const std::string &str, std::vector<float> &floats)
+static bool
+parseOptimisticFloatSeq(const std::string &str,
+                        std::vector<float> &floats)
 {
   floats.clear();
-  for (const std::string &token : sta::parseTokens(str, " ,{}")) {
-    auto [value, valid] = sta::stringFloat(token);
+  for (const std::string &token : parseTokens(str, " ,{}")) {
+    auto [value, valid] = stringFloat(token);
     if (!valid)
       return false; // Not a float list.
     floats.push_back(value);
@@ -49,7 +50,7 @@ parseOptimisticFloatSeq(const std::string &str, std::vector<float> &floats)
 // Only table-style attributes are converted to native floats. Converting any
 // numeric-looking string would change the type of values whose consumers
 // need a string (e.g. a mode named "1" or a bundle member named "INF").
-bool
+static bool
 isFloatSeqAttr(const std::string &name)
 {
   return name == "values"
@@ -57,36 +58,32 @@ isFloatSeqAttr(const std::string &name)
 }
 
 // Hash of the source file's bytes as stored on disk; false if it cannot be read.
-bool
+static bool
 hashFile(const char *filename,
          uint64_t &hash)
 {
   std::ifstream stream(filename, std::ios::binary);
   if (!stream)
     return false;
-  hash = sta::LIBERTY_BINARY_HASH_OFFSET;
+  hash = liberty_binary_hash_offset;
   char buffer[64 * 1024];
   while (stream.read(buffer, sizeof(buffer)) || stream.gcount() > 0)
-    hash = sta::libertyBinaryHash(hash, buffer, stream.gcount());
+    hash = libertyBinaryHash(hash, buffer, stream.gcount());
   return true;
 }
 
 // True if the file, after any gzip decompression, starts with the binary
 // liberty magic number.
-bool
+static bool
 isLibertyBinaryFile(const char *filename)
 {
   gzstream::igzstream stream(filename);
   if (!stream.is_open())
     return false;
-  char magic[sta::LIBERTY_BINARY_MAGIC_SIZE];
+  char magic[liberty_binary_magic_size];
   stream.read(magic, sizeof(magic));
-  return std::string_view(magic, stream.gcount()) == sta::LIBERTY_BINARY_MAGIC;
+  return std::string_view(magic, stream.gcount()) == liberty_binary_magic;
 }
-
-} // namespace
-
-namespace sta {
 
 void
 writeLibertyBinary(const char *in_filename,
@@ -119,9 +116,9 @@ writeLibertyBinary(const char *in_filename,
 
   try {
     LibertyBinaryWriter writer(&out_stream);
-    // Write Magic and Version.
-    out_stream.write(LIBERTY_BINARY_MAGIC, LIBERTY_BINARY_MAGIC_SIZE);
-    uint32_t version = LIBERTY_BINARY_VERSION;
+    // Write the magic number and version.
+    out_stream.write(liberty_binary_magic, liberty_binary_magic_size);
+    uint32_t version = liberty_binary_version;
     writeRaw(&out_stream, version);
     // Source file and its hash, for traceability.
     uint32_t source_filename_length = source_filename.size();
@@ -135,7 +132,7 @@ writeLibertyBinary(const char *in_filename,
     parseLibertyFile(in_filename, &writer, report);
 
     // Write EOF tag.
-    writeRaw(&out_stream, static_cast<uint8_t>(LibertyBinaryTag::EOF_TAG));
+    writeRaw(&out_stream, static_cast<uint8_t>(LibertyBinaryTag::eof));
 
     // Backpatch the string table offset.
     string_table_offset = out_stream.tellp();
@@ -144,9 +141,9 @@ writeLibertyBinary(const char *in_filename,
 
     // Write the string table at the end of the file.
     out_stream.seekp(0, out_stream.end);
-    uint32_t string_table_size = writer.string_table().size();
+    uint32_t string_table_size = writer.stringTable().size();
     writeRaw(&out_stream, string_table_size);
-    for (const auto &entry : writer.string_table()) {
+    for (const auto &entry : writer.stringTable()) {
       uint32_t string_length = entry.first.size();
       writeRaw(&out_stream, string_length);
       out_stream.write(entry.first.c_str(), entry.first.size());
@@ -180,7 +177,7 @@ LibertyBinaryWriter::begin(const LibertyGroup *group,
                            LibertyGroup *)
 {
   depth_++;
-  writeTag(LibertyBinaryTag::GROUP_BEGIN);
+  writeTag(LibertyBinaryTag::group_begin);
   writeLine(group->line());
   writeString(group->type());
 
@@ -195,7 +192,7 @@ void
 LibertyBinaryWriter::end(const LibertyGroup *group,
                          LibertyGroup *parent_group)
 {
-  writeTag(LibertyBinaryTag::GROUP_END);
+  writeTag(LibertyBinaryTag::group_end);
   depth_--;
   // LibertyParser retains the whole group tree as it parses. Once a top-level
   // group (a cell, table template, etc. directly under the library) has been
@@ -214,7 +211,7 @@ LibertyBinaryWriter::end(const LibertyGroup *group,
 void
 LibertyBinaryWriter::visitAttr(const LibertySimpleAttr *attr)
 {
-  writeTag(LibertyBinaryTag::ATTR_SIMPLE);
+  writeTag(LibertyBinaryTag::attr_simple);
   writeLine(attr->line());
   writeString(attr->name());
   uint32_t count = 1;
@@ -225,7 +222,7 @@ LibertyBinaryWriter::visitAttr(const LibertySimpleAttr *attr)
 void
 LibertyBinaryWriter::visitAttr(const LibertyComplexAttr *attr)
 {
-  writeTag(LibertyBinaryTag::ATTR_COMPLEX);
+  writeTag(LibertyBinaryTag::attr_complex);
   writeLine(attr->line());
   writeString(attr->name());
 
@@ -251,7 +248,7 @@ LibertyBinaryWriter::visitAttr(const LibertyComplexAttr *attr)
 void
 LibertyBinaryWriter::visitVariable(LibertyVariable *variable)
 {
-  writeTag(LibertyBinaryTag::VARIABLE);
+  writeTag(LibertyBinaryTag::variable);
   writeLine(variable->line());
   writeString(variable->variable());
   writeFloat(variable->value());
@@ -278,7 +275,7 @@ LibertyBinaryWriter::writeLine(int line)
 
 // Little-endian base 128; the high bit of each byte marks another byte.
 void
-LibertyBinaryWriter::writeVarint(std::uint32_t val)
+LibertyBinaryWriter::writeVarint(uint32_t val)
 {
   while (val >= 0x80) {
     writeRaw(stream_, static_cast<uint8_t>(val | 0x80));
@@ -290,7 +287,7 @@ LibertyBinaryWriter::writeVarint(std::uint32_t val)
 void
 LibertyBinaryWriter::writeString(std::string_view str)
 {
-  writeType(LibertyBinaryValueType::STRING);
+  writeType(LibertyBinaryValueType::value_string);
 
   // Heterogeneous find so table hits (the common case) don't allocate a key.
   auto it = string_table_.find(str);
@@ -307,7 +304,7 @@ LibertyBinaryWriter::writeString(std::string_view str)
 void
 LibertyBinaryWriter::writeFloat(float val)
 {
-  writeType(LibertyBinaryValueType::FLOAT);
+  writeType(LibertyBinaryValueType::value_float);
   writeRaw(stream_, val);
 }
 
@@ -325,7 +322,7 @@ LibertyBinaryWriter::writeValue(const LibertyAttrValue *value)
 void
 LibertyBinaryWriter::writeFloatSeq(const std::vector<float> &floats)
 {
-  writeType(LibertyBinaryValueType::FLOAT_SEQ);
+  writeType(LibertyBinaryValueType::value_float_seq);
   uint32_t count = floats.size();
   writeRaw(stream_, count);
   if (count > 0)

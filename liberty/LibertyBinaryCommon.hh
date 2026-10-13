@@ -13,9 +13,9 @@ namespace sta {
 static_assert(std::endian::native == std::endian::little,
               "binary liberty format assumes a little-endian host");
 
-// Magic number for binary liberty files: "STALIB01"
-inline constexpr char LIBERTY_BINARY_MAGIC[] = "STALIB01";
-inline constexpr size_t LIBERTY_BINARY_MAGIC_SIZE = sizeof(LIBERTY_BINARY_MAGIC) - 1;
+// Magic number for binary liberty files.
+constexpr char liberty_binary_magic[] = "STALIB01";
+constexpr size_t liberty_binary_magic_size = sizeof(liberty_binary_magic) - 1;
 // File layout: magic, version, source filename (u32 length + bytes), source hash
 // (u64), string table offset (u64), records, string table.
 // Bumped when the layout changes; the reader rejects other versions.
@@ -26,12 +26,12 @@ inline constexpr size_t LIBERTY_BINARY_MAGIC_SIZE = sizeof(LIBERTY_BINARY_MAGIC)
 // 3: the header records the source filename and the FNV-1a 64-bit hash of its
 //    bytes, for traceability. Older writers stored an absolute path; new writers
 //    store only the basename. The field encoding is unchanged.
-inline constexpr uint32_t LIBERTY_BINARY_VERSION = 3;
+constexpr uint32_t liberty_binary_version = 3;
 
 // FNV-1a 64-bit hash of the source file's bytes as stored on disk (compressed
 // when it is gzipped), so a .blib can be traced to the exact file it came from.
-inline constexpr uint64_t LIBERTY_BINARY_HASH_OFFSET = 14695981039346656037ull;
-inline constexpr uint64_t LIBERTY_BINARY_HASH_PRIME = 1099511628211ull;
+constexpr uint64_t liberty_binary_hash_offset = 14695981039346656037ull;
+constexpr uint64_t liberty_binary_hash_prime = 1099511628211ull;
 
 inline uint64_t
 libertyBinaryHash(uint64_t hash,
@@ -40,40 +40,40 @@ libertyBinaryHash(uint64_t hash,
 {
   for (size_t i = 0; i < size; i++) {
     hash ^= static_cast<unsigned char>(bytes[i]);
-    hash *= LIBERTY_BINARY_HASH_PRIME;
+    hash *= liberty_binary_hash_prime;
   }
   return hash;
 }
 
 // Zigzag mapping so the (rare) negative line delta also encodes compactly.
-inline constexpr uint32_t
+constexpr uint32_t
 zigzagEncode(int32_t val)
 {
   return (static_cast<uint32_t>(val) << 1) ^ static_cast<uint32_t>(val >> 31);
 }
 
-inline constexpr int32_t
+constexpr int32_t
 zigzagDecode(uint32_t val)
 {
   return static_cast<int32_t>(val >> 1) ^ -static_cast<int32_t>(val & 1);
 }
 
 enum class LibertyBinaryTag : uint8_t {
-  GROUP_BEGIN = 1,
-  GROUP_END = 2,
-  ATTR_SIMPLE = 3,
-  ATTR_COMPLEX = 4,
-  DEFINE = 5, // Unlikely to be used if writing from semantic model, but good to have
-  VARIABLE = 6,
-  EOF_TAG = 0
+  group_begin = 1,
+  group_end = 2,
+  attr_simple = 3,
+  attr_complex = 4,
+  define = 5, // Reserved; no writer emits it.
+  variable = 6,
+  eof = 0
 };
 
 enum class LibertyBinaryValueType : uint8_t {
-  STRING = 1,
-  FLOAT = 2,
-  INT = 3,     // Reserved; no writer emits it.
-  BOOLEAN = 4, // Reserved; no writer emits it.
-  FLOAT_SEQ = 5
+  value_string = 1,
+  value_float = 2,
+  value_int = 3,     // Reserved; no writer emits it.
+  value_boolean = 4, // Reserved; no writer emits it.
+  value_float_seq = 5
 };
 
 } // namespace sta
