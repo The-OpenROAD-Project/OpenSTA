@@ -293,12 +293,12 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin)
   FindNetDrvrLoads visitor(drvr_pin, visited_drvrs, loads, drvrs, network_);
   network_->visitConnectedPins(drvr_pin, visitor);
 
-  if (isPassiveBidirectDrvr(drvr_pin)
-      && hasActiveDrvr(drvrs))
-    return;
-  for (auto load_pin : loads) {
-    if (drvr_pin != load_pin)
-      makeWireEdge(drvr_pin, load_pin);
+  if (!(isPassiveBidirectDrvr(drvr_pin)
+        && hasActiveDrvr(drvrs))) {
+    for (auto load_pin : loads) {
+      if (drvr_pin != load_pin)
+        makeWireEdge(drvr_pin, load_pin);
+    }
   }
 }
 
@@ -318,17 +318,17 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin,
       debugPrint(debug_, "graph", 1, "ignoring isolated driver {}",
                  network_->pathName(drvr_pin));
     }
-    return;
   }
-
-  bool has_active_drvr = hasActiveDrvr(drvrs);
-  for (auto drvr_pin : drvrs) {
-    if (has_active_drvr
-        && isPassiveBidirectDrvr(drvr_pin))
-      continue;
-    for (auto load_pin : loads) {
-      if (drvr_pin != load_pin)
-        makeWireEdge(drvr_pin, load_pin);
+  else {
+    bool has_active_drvr = hasActiveDrvr(drvrs);
+    for (auto drvr_pin : drvrs) {
+      if (!(has_active_drvr
+            && isPassiveBidirectDrvr(drvr_pin))) {
+        for (auto load_pin : loads) {
+          if (drvr_pin != load_pin)
+            makeWireEdge(drvr_pin, load_pin);
+        }
+      }
     }
   }
 }
