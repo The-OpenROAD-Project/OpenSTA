@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -217,6 +218,7 @@ MakeTimingModel::makePorts()
         LibertyPort *lib_bit_port = modelPort(pin);
         float load_cap = graph_delay_calc_->loadCap(pin, scene_, min_max_);
         lib_bit_port->setCapacitance(load_cap);
+        setPortLimits(pin, lib_bit_port);
       }
       delete member_iter;
     }
@@ -226,9 +228,54 @@ MakeTimingModel::makePorts()
       Pin *pin = network_->findPin(top_inst, port);
       float load_cap = graph_delay_calc_->loadCap(pin, scene_, min_max_);
       lib_port->setCapacitance(load_cap);
+      setPortLimits(pin, lib_port);
     }
   }
   delete port_iter;
+}
+
+// Find port max_cap/max_slew limits.
+void
+MakeTimingModel::setPortLimits(const Pin *pin,
+                               LibertyPort *lib_port)
+{
+  const PortDirection *dir = network_->direction(pin);
+  float slew_limit = std::numeric_limits<float>::max();
+  float cap_limit = std::numeric_limits<float>::max();
+  bool slew_exists = false;
+  bool cap_exists = false;
+  PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(pin);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port) {
+      const LibertyLibrary *lib = port->libertyCell()->libertyLibrary();
+      float limit;
+      bool exists;
+      port->slewLimit(min_max_, limit, exists);
+      if (!exists)
+        lib->defaultMaxSlew(limit, exists);
+      if (exists && limit < slew_limit) {
+        slew_limit = limit;
+        slew_exists = true;
+      }
+
+      if (dir->isAnyOutput()) {
+        port->capacitanceLimit(min_max_, limit, exists);
+        if (!exists)
+          lib->defaultMaxCapacitance(limit, exists);
+        if (exists && limit < cap_limit) {
+          cap_limit = limit;
+          cap_exists = true;
+        }
+      }
+    }
+  }
+  delete pin_iter;
+  if (slew_exists)
+    lib_port->setSlewLimit(slew_limit, min_max_);
+  if (cap_exists)
+    lib_port->setCapacitanceLimit(cap_limit, min_max_);
 }
 
 void
