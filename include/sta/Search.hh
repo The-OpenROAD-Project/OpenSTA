@@ -120,6 +120,7 @@ public:
   // Invalidate vertex arrival time.
   void arrivalInvalid(Vertex *vertex);
   void arrivalInvalid(const Pin *pin);
+  void arrivalInvalid(const Instance *inst);
   // Invalidate all required times.
   void requiredsInvalid();
   // Invalidate vertex required time.
@@ -202,7 +203,6 @@ public:
   // Find arrivals for the clock tree.
   void findClkArrivals();
   EvalPred *evalPred() const { return eval_pred_; }
-  SearchPred *searchAdj() const { return search_thru_; }
   Tag *tag(TagIndex index) const;
   TagIndex tagCount() const;
   TagGroupIndex tagGroupCount() const;
@@ -589,7 +589,6 @@ protected:
   bool crpr_approx_missing_requireds_{true};
 
   // Search predicates.
-  SearchPred *search_thru_;
   SearchPred *search_adj_;
   EvalPred *eval_pred_;
 

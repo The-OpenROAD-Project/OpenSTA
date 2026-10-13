@@ -80,8 +80,8 @@ pathend slack: 7.899714
 --- Path properties ---
 path pin: out1
 path arrival: 0.100286
-path required: 0.000000
-path slack: -0.100286
+path required: INF
+path slack: INF
 --- Edge additional properties ---
 edge to_pin: and1/ZN
 --- get_property with -object_type ---

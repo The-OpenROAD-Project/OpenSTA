@@ -852,7 +852,6 @@ TEST_F(VerilogTest, ModuleInstModuleName) {
 
 // VerilogDcl: constructor with args seq
 TEST_F(VerilogTest, DclConstructSeq) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("wire1"));
   args->push_back(new VerilogDclArg("wire2"));
@@ -865,7 +864,6 @@ TEST_F(VerilogTest, DclConstructSeq) {
 
 // VerilogDcl: portName
 TEST_F(VerilogTest, DclPortName) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("my_wire"));
   VerilogDcl dcl(PortDirection::output(), args, new VerilogAttrStmtSeq, 1);
@@ -875,7 +873,6 @@ TEST_F(VerilogTest, DclPortName) {
 
 // VerilogDcl: appendArg
 TEST_F(VerilogTest, DclAppendArg) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
   VerilogDcl dcl(PortDirection::input(), args, new VerilogAttrStmtSeq, 1);
@@ -885,7 +882,6 @@ TEST_F(VerilogTest, DclAppendArg) {
 
 // VerilogDclBus: constructor with args seq
 TEST_F(VerilogTest, DclBusConstructSeq) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_wire"));
   VerilogDclBus dcl(PortDirection::input(), 7, 0, args,
@@ -899,7 +895,6 @@ TEST_F(VerilogTest, DclBusConstructSeq) {
 
 // VerilogDclBus: constructor with single arg
 TEST_F(VerilogTest, DclBusConstructSingle) {
-  PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_bus");
   VerilogDclBus dcl(PortDirection::output(), 3, 0, arg,
                     new VerilogAttrStmtSeq, 1);
@@ -909,7 +904,6 @@ TEST_F(VerilogTest, DclBusConstructSingle) {
 
 // VerilogDclBus: ascending range
 TEST_F(VerilogTest, DclBusAscending) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("asc_bus"));
   VerilogDclBus dcl(PortDirection::input(), 0, 7, args,
@@ -975,7 +969,6 @@ TEST_F(VerilogTest, PortRefPartAsc) {
 
 // VerilogDcl: single arg constructor
 TEST_F(VerilogTest, DclSingleArg) {
-  PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_wire");
   VerilogDcl dcl(PortDirection::input(), arg, new VerilogAttrStmtSeq, 1);
   EXPECT_TRUE(dcl.isDeclaration());
@@ -1200,7 +1193,6 @@ TEST_F(VerilogTest, ModuleInstSetName) {
 
 // VerilogDcl: constructor with single arg
 TEST_F(VerilogTest, DclSingleArg2) {
-  PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_wire");
   VerilogDcl dcl(PortDirection::input(), arg, new VerilogAttrStmtSeq, 5);
   EXPECT_TRUE(dcl.isDeclaration());
@@ -1211,7 +1203,6 @@ TEST_F(VerilogTest, DclSingleArg2) {
 
 // VerilogDcl: output direction
 TEST_F(VerilogTest, DclOutputDirection) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("out_wire"));
   VerilogDcl dcl(PortDirection::output(), args, new VerilogAttrStmtSeq, 1);
@@ -1220,7 +1211,6 @@ TEST_F(VerilogTest, DclOutputDirection) {
 
 // VerilogDcl: size
 TEST_F(VerilogTest, DclSize) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
   VerilogDcl dcl(PortDirection::input(), args, new VerilogAttrStmtSeq, 1);
@@ -1229,7 +1219,6 @@ TEST_F(VerilogTest, DclSize) {
 
 // VerilogDclBus: size calculation
 TEST_F(VerilogTest, DclBusSize) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_w"));
   VerilogDclBus dcl(PortDirection::input(), 31, 0, args,
@@ -1240,7 +1229,6 @@ TEST_F(VerilogTest, DclBusSize) {
 
 // VerilogDclBus: ascending index
 TEST_F(VerilogTest, DclBusAscending2) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_asc"));
   VerilogDclBus dcl(PortDirection::input(), 0, 7, args,
@@ -1252,7 +1240,6 @@ TEST_F(VerilogTest, DclBusAscending2) {
 
 // VerilogDclBus: single-arg constructor
 TEST_F(VerilogTest, DclBusSingleArg) {
-  PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("single_bus");
   VerilogDclBus dcl(PortDirection::output(), 3, 0, arg,
                     new VerilogAttrStmtSeq, 1);
@@ -1453,7 +1440,6 @@ TEST_F(VerilogTest, PortToStaEscapedBracket) {
 
 // VerilogDcl: appendArg
 TEST_F(VerilogTest, DclAppendMultiple) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
   VerilogDcl dcl(PortDirection::input(), args, new VerilogAttrStmtSeq, 1);
@@ -1613,7 +1599,6 @@ TEST_F(VerilogTest, ModuleInstMixedPins) {
 
 // VerilogDcl: various directions
 TEST_F(VerilogTest, DclBidirectional) {
-  PortDirection::init();
   VerilogDclArg *arg = new VerilogDclArg("bidir_port");
   VerilogDcl dcl(PortDirection::bidirect(), arg, new VerilogAttrStmtSeq, 1);
   EXPECT_TRUE(dcl.isDeclaration());
@@ -1622,7 +1607,6 @@ TEST_F(VerilogTest, DclBidirectional) {
 
 // VerilogDcl: appendArg to seq
 TEST_F(VerilogTest, DclAppendArgMultiple) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("w1"));
   VerilogDcl dcl(PortDirection::input(), args, new VerilogAttrStmtSeq, 1);
@@ -1634,7 +1618,6 @@ TEST_F(VerilogTest, DclAppendArgMultiple) {
 
 // VerilogDclBus: large bus
 TEST_F(VerilogTest, DclBusLarge) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("wide_bus"));
   VerilogDclBus dcl(PortDirection::input(), 127, 0, args,
@@ -1645,7 +1628,6 @@ TEST_F(VerilogTest, DclBusLarge) {
 
 // VerilogDclBus: descending range
 TEST_F(VerilogTest, DclBusDescending) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("desc_bus"));
   VerilogDclBus dcl(PortDirection::output(), 15, 8, args,
@@ -1786,7 +1768,6 @@ TEST_F(VerilogTest, DclArgLongName) {
 
 // VerilogDcl: portName with bus arg
 TEST_F(VerilogTest, DclBusPortName) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("bus_port"));
   VerilogDclBus dcl(PortDirection::input(), 7, 0, args,
@@ -1910,7 +1891,6 @@ TEST_F(VerilogTest, DclArgBasic) {
 // Test VerilogDcl portName
 // Covers: VerilogDcl::portName
 TEST_F(VerilogTest, DclPortName2) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("my_port"));
   VerilogDcl dcl(PortDirection::output(), args, new VerilogAttrStmtSeq, 1);
@@ -1920,7 +1900,6 @@ TEST_F(VerilogTest, DclPortName2) {
 // Test VerilogDclBus with different ranges
 // Covers: VerilogDclBus constructor, portName with different bit ranges
 TEST_F(VerilogTest, DclBusDifferentRange) {
-  PortDirection::init();
   VerilogDclArgSeq *args = new VerilogDclArgSeq;
   args->push_back(new VerilogDclArg("wide_bus"));
   VerilogDclBus dcl(PortDirection::bidirect(), 31, 0, args,
