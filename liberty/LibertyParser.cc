@@ -691,6 +691,9 @@ LibertyAttrValue::isFloatSeq() const
 std::pair<float, bool>
 LibertyAttrValue::floatValue() const
 {
+  // OpenROAD fork: binary liberty support.
+  if (isFloatSeq())
+    return {0.0F, false};
   if (string_value_.empty())
     return {float_value_, true};
   else
