@@ -403,7 +403,7 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       VisitPathEnds visit_ends(sta_);
       for (Vertex *end : endpoints)
         visit_ends.visitPathEnds(end, scenes_, MinMaxAll::all(), true, &end_visitor);
-      findOutputDelays(input_rf, output_delays);
+      findOutputDelays(input_rf, endpoints, output_delays);
       search_->deleteFilteredArrivals();
 
       sta_->removeInputDelay(input_pin, input_rf1, sdc_->defaultArrivalClock(),
@@ -417,14 +417,16 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
 
 void
 MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
+                                  const VertexSeq &endpoints,
                                   OutputPinDelays &output_pin_delays)
 {
-  InstancePinIterator *output_iter = network_->pinIterator(network_->topInstance());
-  while (output_iter->hasNext()) {
-    Pin *output_pin = output_iter->next();
-    if (network_->direction(output_pin)->isOutput()) {
-      Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
-      VertexPathIterator path_iter(output_vertex, this);
+  // Output ports are endpoints, so the filtered endpoints hold every
+  // output reached from the input.
+  for (Vertex *end : endpoints) {
+    const Pin *output_pin = end->pin();
+    if (network_->isTopLevelPort(output_pin)
+        && network_->direction(output_pin)->isOutput()) {
+      VertexPathIterator path_iter(end, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
         if (search_->matchesFilter(path, nullptr)) {
@@ -439,7 +441,6 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
       }
     }
   }
-  delete output_iter;
 }
 
 void
