@@ -395,6 +395,9 @@ cc_library(
         "dcalc/PrimaDelayCalc.hh",
         # Needed by src/dbSta to synthesize LibertyCells programmatically.
         "liberty/LibertyBuilder.hh",
+        # Needed by src/dbSta's DmpCeff-based delay calculator and its
+        # training data generator.
+        "dcalc/DmpCeff.hh",
     ],
     copts = [
         "-Wno-error",
