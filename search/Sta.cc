@@ -3649,7 +3649,7 @@ Sta::findRequired(Vertex *vertex)
   search_->findAllArrivals();
   if (search_->isEndpoint(vertex)
       // Need to include downstream required times if there is fanout.
-      && !hasFanout(vertex, search_->searchAdj(), graph_, cmd_mode_))
+      && !hasFanout(vertex, search_->evalPred(), graph_, cmd_mode_))
     search_->seedRequired(vertex);
   else
     search_->findRequireds(vertex->level());
