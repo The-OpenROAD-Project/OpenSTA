@@ -311,6 +311,7 @@ LibertyBinaryReader::readStringTable()
   if (size > cursor_.remaining() / min_string_entry_size)
     corruptError();
   string_table_.resize(size);
+  std::vector<bool> filled(size, false);
   for (std::uint32_t i = 0; i < size; i++) {
     require(4);
     std::uint32_t len = cursor_.readU32();
@@ -323,8 +324,11 @@ LibertyBinaryReader::readStringTable()
     // The writer stores each string's dense index; place the string there
     // because the writer iterates an unordered_map in arbitrary order.
     std::uint32_t index = cursor_.readU32();
-    if (index >= string_table_.size())
+    // Each index appears exactly once. With size entries and no repeats every
+    // slot is filled, so a damaged index cannot silently rename strings.
+    if (index >= string_table_.size() || filled[index])
       corruptError();
+    filled[index] = true;
     string_table_[index].assign(bytes, len);
   }
 }

@@ -2,6 +2,7 @@ Error: 1900 liberty_binary_errors.blib is not a valid binary liberty file.
 libraries loaded: 0
 Error: 1902 liberty_binary_errors_v1.blib is binary liberty version 1; this build reads version 3. Regenerate it with write_liberty_binary.
 Error: 1900 liberty_binary_errors_body.blib is not a valid binary liberty file.
+Error: 1900 liberty_binary_errors_dup_index.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_early_eof.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_trailing.blib is not a valid binary liberty file.
 Error: 1900 liberty_binary_errors_missing_eof.blib is not a valid binary liberty file.

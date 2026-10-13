@@ -45,6 +45,31 @@ close $stream
 catch { read_liberty $body_blib } result
 puts_error $result
 
+# A string-table index used twice is rejected. Otherwise one string would
+# silently replace another throughout the library.
+set dup_blib [make_result_file liberty_binary_errors_dup_index.blib]
+write_liberty_binary liberty_float_as_str.lib $dup_blib
+set stream [open $dup_blib rb]
+set bytes [read $stream]
+close $stream
+binary scan [string range $bytes 12 15] iu path_length
+binary scan [string range $bytes [expr { 24 + $path_length }] end] wu table_offset
+# The table is an entry count, then per entry the string length, its bytes
+# and its index. Give the second entry the first entry's index.
+set first_entry [expr { $table_offset + 4 }]
+binary scan [string range $bytes $first_entry end] iu length
+set first_index [expr { $first_entry + 4 + $length }]
+set second_entry [expr { $first_index + 4 }]
+binary scan [string range $bytes $second_entry end] iu length
+set second_index [expr { $second_entry + 4 + $length }]
+set bytes [string replace $bytes $second_index [expr { $second_index + 3 }] \
+             [string range $bytes $first_index [expr { $first_index + 3 }]]]
+set stream [open $dup_blib wb]
+puts -nonewline $stream $bytes
+close $stream
+catch { read_liberty $dup_blib } result
+puts_error $result
+
 # The body must contain one complete group and EOF exactly at its boundary.
 set stream [open liberty_float_as_str.lib rb]
 set source_text [read $stream]
