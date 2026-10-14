@@ -13,3 +13,5 @@ u_inv2/ZN 2.00000e+07 0.500 propagated
  7.5000e-08 0.0000e+00 0.0000e+00 7.5000e-08 u_when
 u_and/ZN 0.00000e+00 0.000 constant
 u_xor/Z 5.00000e+07 0.500 propagated
+u_inv2/A 3.00000e+08 0.500 propagated
+u_inv2/ZN 1.00000e+08 0.500 propagated

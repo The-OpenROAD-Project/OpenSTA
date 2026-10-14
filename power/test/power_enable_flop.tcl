@@ -37,3 +37,10 @@ foreach d_duty {0.5 0.2 0.8} {
 puts "DE constant 0"
 set_case_analysis 0 [get_ports de]
 show r/Q
+
+# Enable always on: a plain register, so Q follows the rate of D.
+puts "DE constant 1, D 0.012/cycle"
+set_case_analysis 1 [get_ports de]
+set_power_activity -input_ports [get_ports d] -density 0.002 -duty 0.5
+show r/Q
+show rb/Q_N

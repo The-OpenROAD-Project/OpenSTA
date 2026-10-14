@@ -45,3 +45,8 @@ report_power -instances u_when -digits 4
 set_case_analysis 0 [get_ports b]
 show u_and/ZN
 show u_xor/Z
+# Annotated driver above one transition per cycle: its load keeps the
+# annotated rate, the inverter output it drives is limited.
+set_power_activity -pins u_bb2/Z -density 0.3 -duty 0.5
+show u_inv2/A
+show u_inv2/ZN

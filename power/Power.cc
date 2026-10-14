@@ -753,8 +753,10 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
   // ---- OpenROAD fork: power activity (begin) ----
   // The slew limit still allows hundreds of transitions per clock period.
   // Propagated activity is limited to one transition per launching clock
-  // period (two for clock nets). Annotated activities are not limited.
-  if (activity.origin() == PwrActivityOrigin::propagated) {
+  // period (two for clock nets). Annotated activities are not limited, and
+  // neither are loads, which copy their driver's (already limited) activity.
+  if (activity.origin() == PwrActivityOrigin::propagated
+      && network_->isDriver(pin)) {
     float max_prop_density = power_->maxPropagatedDensity(pin);
     if (activity.density() > max_prop_density) {
       debugPrint(debug_, "power_activity", 2, "limit {} {:.2e} -> {:.2e}",
@@ -1216,7 +1218,10 @@ Power::seedRegOutputActivities(const Instance *reg,
 // clock edge sets the state with probability u = P(next_state | IQ=0) and
 // clears it with probability v = P(!next_state | IQ=1). As a two-state
 // process the duty is u / (u + v) and the state changes 2uv / (u + v) times
-// per active edge. Returns false if next_state does not refer to the state.
+// per active edge. That assumes inputs that are random every cycle, which
+// is too high for slow inputs (an enable that is always on makes the cell
+// a plain register), so density is only lowered from its value on entry.
+// Returns false if next_state does not refer to the state.
 bool
 Power::evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
@@ -1260,7 +1265,7 @@ Power::evalRegHoldActivity(const Instance *reg,
   if (set + clear > 0.0) {
     duty = set / (set + clear);
     // There are clk_density / 2 active edges.
-    density = set * clear / (set + clear) * clk_density;
+    density = std::min(density, set * clear / (set + clear) * clk_density);
   }
   else {
     // The state never changes; its value is unknown.
