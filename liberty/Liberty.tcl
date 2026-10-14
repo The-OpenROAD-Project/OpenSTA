@@ -93,6 +93,44 @@ proc write_liberty { args } {
   write_liberty_cmd $library $filename
 }
 
+# ---- OpenROAD fork: binary liberty support (begin) ----
+define_cmd_args "write_liberty_binary" {in_filename out_filename} \
+  -help {Translate a Liberty format library file into a binary liberty (.blib) file.
+
+The input file is parsed but not loaded as a library. The `read_liberty` command loads a .blib file faster than the text format.
+
+Files compressed with gzip are automatically uncompressed.} \
+  -arg_help {
+    in_filename {The Liberty file name to read.}
+    out_filename {The binary liberty file name to write. `read_liberty` recognizes binary liberty files by their contents.}
+  }
+
+proc write_liberty_binary { args } {
+  check_argc_eq2 "write_liberty_binary" $args
+  set in_filename [file nativename [lindex $args 0]]
+  set out_filename [file nativename [lindex $args 1]]
+  write_liberty_binary_cmd $in_filename $out_filename
+}
+
+define_cmd_args "liberty_binary_info" {filename} \
+  -help {Report where a binary liberty (.blib) file came from.
+
+Returns a dict with the format `version`, the recorded source filename (`source_file`) and the FNV-1a 64-bit hash of that file's bytes as stored on disk, as 16 hex digits (`source_hash`).
+
+New files store only the source basename, without directory components, for reproducible output across checkouts. Older files may contain an absolute source path.} \
+  -arg_help {
+    filename {The binary liberty file name.}
+  }
+
+proc liberty_binary_info { args } {
+  check_argc_eq1 "liberty_binary_info" $args
+  set filename [file nativename [lindex $args 0]]
+  lassign [liberty_binary_header_cmd $filename] version source_file source_hash
+  return [dict create version $version source_file $source_file \
+    source_hash $source_hash]
+}
+# ---- OpenROAD fork: binary liberty support (end) ----
+
 ################################################################
 
 define_cmd_args "report_lib_cell" {cell_name [> filename] [>> filename]} \

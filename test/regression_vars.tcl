@@ -164,6 +164,14 @@ record_public_tests {
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol
+  liberty_binary
+  liberty_binary_detect
+  liberty_binary_equiv
+  liberty_binary_errors
+  liberty_binary_lines
+  liberty_binary_scenes
+  liberty_binary_source
+  liberty_binary_timing
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3

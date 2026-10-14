@@ -1144,6 +1144,17 @@ The `include` command stops and reports any errors encountered while reading a f
 `-verbose` {: #opt-include-verbose }
 : Print each command before evaluating it as well as the result it returns.
 
+## liberty_binary_info
+
+<pre><code>liberty_binary_info
+    filename</code></pre>
+
+Report where a binary liberty (.blib) file came from.
+
+Returns a dict with the format `version`, the recorded source filename (`source_file`) and the FNV-1a 64-bit hash of that file's bytes as stored on disk, as 16 hex digits (`source_hash`).
+
+New files store only the source basename, without directory components, for reproducible output across checkouts. Older files may contain an absolute source path.
+
 ## link_design
 
 <pre><code>link_design
@@ -4440,6 +4451,18 @@ Returns the total user cpu run time in seconds as a float.
     { cmds }</code></pre>
 
 The `with_output_to_variable` command redirects the output of Tcl commands to a variable.
+
+## write_liberty_binary
+
+<pre><code>write_liberty_binary
+    in_filename
+    out_filename</code></pre>
+
+Translate a Liberty format library file into a binary liberty (.blib) file.
+
+The input file is parsed but not loaded as a library. The `read_liberty` command loads a .blib file faster than the text format.
+
+Files compressed with gzip are automatically uncompressed.
 
 ## write_path_spice
 
