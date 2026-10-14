@@ -1,6 +1,6 @@
-# Vectorless activity of enable flops whose next_state holds the state
-# ("(D&DE) | (IQ&!DE)"). Q holds D from the last cycle with DE = 1, so its
-# duty is P(D). Clock period 6ns.
+# Vectorless activity of enable flops whose next_state holds the state.
+# For next_state "(D&DE) | (IQ&!DE)", Q holds D from the last cycle with
+# DE = 1, so its duty is P(D). Clock period 6ns.
 source ../../test/helpers.tcl
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
 

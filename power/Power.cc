@@ -1031,6 +1031,7 @@ Power::ensureActivities(const Scene *scene)
     activities_valid_ = false;
     instance_powers_.clear();
     instance_powers_valid_ = false;
+    launch_period_cache_.clear();  // OpenROAD fork: power activity
   }
 
   if (!activities_valid_) {
@@ -1258,7 +1259,7 @@ Power::evalRegHoldActivity(const Instance *reg,
   float clear = 1.0 - state_duty[1];
   if (set + clear > 0.0) {
     duty = set / (set + clear);
-    // clk_density / 2 active edges.
+    // There are clk_density / 2 active edges.
     density = set * clear / (set + clear) * clk_density;
   }
   else {
@@ -1930,7 +1931,11 @@ Power::findClk(const Pin *to_pin)
   const Clock *clk = nullptr;
   Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
   if (to_vertex) {
-    VertexPathIterator path_iter(to_vertex, this);
+    // ---- OpenROAD fork: power activity (begin) ----
+    // Only paths of the scene being analyzed; other modes can have faster
+    // clocks. No min/max or rise/fall filter.
+    VertexPathIterator path_iter(to_vertex, scene_, nullptr, nullptr, this);
+    // ---- OpenROAD fork: power activity (end) ----
     while (path_iter.hasNext()) {
       Path *path = path_iter.next();
       const Clock *path_clk = path->clock(this);
