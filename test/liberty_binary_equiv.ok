@@ -1,0 +1,12 @@
+Warning 1140: results/liberty_latch3.blib line 34, library asap7sc7p5t_lvt_ff already exists.
+asap7sc7p5t_lvt_ff: liberty_latch3.lib vs results/liberty_latch3.blib
+No differences found.
+Warning 1140: results/liberty_retain.blib line 1, library liberty_retain already exists.
+liberty_retain: liberty_retain.lib vs results/liberty_retain.blib
+No differences found.
+Warning 1140: results/non_seq_timing.blib line 1, library non_seq_timing already exists.
+non_seq_timing: non_seq_timing.lib vs results/non_seq_timing.blib
+No differences found.
+Warning 1140: results/asap7_small.blib line 34, library asap7_small already exists.
+asap7_small: asap7_small.lib.gz vs results/asap7_small.blib
+No differences found.

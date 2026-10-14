@@ -1,0 +1,59 @@
+Startpoint: r1 (rising edge-triggered flip-flop clocked by m1_clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by m1_clk)
+Path Group: m1_clk
+Path Type: min
+Corner: ff
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock m1_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  43.597   43.597 v r1/Q (DFFHQx4_ASAP7_75t_R)
+  15.187   58.785 v u2/Y (AND2x2_ASAP7_75t_R)
+   0.000   58.785 v r3/D (DFFHQx4_ASAP7_75t_R)
+           58.785   data arrival time
+
+   0.000    0.000   clock m1_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000   clock reconvergence pessimism
+            0.000 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+   7.015    7.015   library hold time
+            7.015   data required time
+-----------------------------------------------------------
+            7.015   data required time
+          -58.785   data arrival time
+-----------------------------------------------------------
+           51.770   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by m1_clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by m1_clk)
+Path Group: m1_clk
+Path Type: max
+Corner: ss
+
+   Delay     Time   Description
+-----------------------------------------------------------
+   0.000    0.000   clock m1_clk (rise edge)
+   0.000    0.000   clock network delay (ideal)
+   0.000    0.000 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  99.263   99.263 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  24.584  123.847 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  26.154  150.001 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.000  150.001 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+          150.001   data arrival time
+
+1000.000 1000.000   clock m1_clk (rise edge)
+   0.000 1000.000   clock network delay (ideal)
+   0.000 1000.000   clock reconvergence pessimism
+         1000.000 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -18.821  981.179   library setup time
+          981.179   data required time
+-----------------------------------------------------------
+          981.179   data required time
+         -150.001   data arrival time
+-----------------------------------------------------------
+          831.178   slack (MET)
+
+

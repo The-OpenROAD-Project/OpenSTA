@@ -28,6 +28,8 @@
 #include "Liberty.hh"
 #include "EquivCells.hh"
 #include "LibertyWriter.hh"
+#include "liberty/LibertyBinaryReader.hh"
+#include "liberty/LibertyBinaryWriter.hh"
 #include "Sta.hh"
 
 using namespace sta;
@@ -130,6 +132,28 @@ write_liberty_cmd(LibertyLibrary *library,
 {
   writeLiberty(library, filename, Sta::sta());
 }
+
+// ---- OpenROAD fork: binary liberty support (begin) ----
+void
+write_liberty_binary_cmd(const char *in_filename,
+                         const char *out_filename)
+{
+  writeLibertyBinary(in_filename, out_filename, Sta::sta()->report());
+}
+
+// Format version, source file and source hash (16 hex digits) of a .blib.
+StringSeq
+liberty_binary_header_cmd(const char *filename)
+{
+  LibertyBinaryHeader header =
+    readLibertyBinaryHeader(filename, Sta::sta()->report());
+  StringSeq fields;
+  fields.push_back(std::to_string(header.version));
+  fields.push_back(header.source_filename);
+  fields.push_back(sta::format("{:016x}", header.source_hash));
+  return fields;
+}
+// ---- OpenROAD fork: binary liberty support (end) ----
 
 void
 make_equiv_cells(LibertyLibrary *lib)

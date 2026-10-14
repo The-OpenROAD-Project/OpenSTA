@@ -66,9 +66,11 @@ extern int LibertyParse_debug;
 
 namespace sta {
 
+// OpenROAD fork: binary liberty support.
 static void
 scaleFloats(FloatSeq &floats,
-            float scale);
+            float scale,
+            size_t first = 0);
 
 LibertyLibrary *
 readLibertyFile(std::string_view filename,
@@ -616,12 +618,14 @@ LibertyReader::makeTableTemplateAxis(const LibertyGroup *template_group,
   return nullptr;
 }
 
+// OpenROAD fork: binary liberty support.
 static void
 scaleFloats(FloatSeq &floats,
-            float scale)
+            float scale,
+            size_t first)
 {
   size_t count = floats.size();
-  for (size_t i = 0; i < count; i++)
+  for (size_t i = first; i < count; i++)
     floats[i] *= scale;
 }
 
@@ -3238,7 +3242,13 @@ LibertyReader::makeFloatTable(const LibertyComplexAttr *values_attr,
   for (const LibertyAttrValue *value : values_attr->values()) {
     FloatSeq row;
     row.reserve(cols);
-    if (value->isString())
+    // ---- OpenROAD fork: binary liberty support (begin) ----
+    if (value->isFloatSeq()) {
+      row = value->floatSeq();
+      scaleFloats(row, scale);
+    }
+    // ---- OpenROAD fork: binary liberty support (end) ----
+    else if (value->isString())
       row = parseFloatList(value->stringValue(), scale, values_attr->line());
     else if (value->isFloat()) {
       auto [entry, valid] = value->floatValue();
@@ -3356,7 +3366,13 @@ LibertyReader::readFloatSeq(const LibertyComplexAttr *attr,
   const LibertyAttrValueSeq &attr_values = attr->values();
   if (attr_values.size() == 1) {
     LibertyAttrValue *value = attr_values[0];
-    if (value->isString())
+    // ---- OpenROAD fork: binary liberty support (begin) ----
+    if (value->isFloatSeq()) {
+      values = value->floatSeq();
+      scaleFloats(values, scale);
+    }
+    // ---- OpenROAD fork: binary liberty support (end) ----
+    else if (value->isString())
       values = parseFloatList(value->stringValue(), scale, attr->line());
     else {
       auto [entry, valid] = value->floatValue();
@@ -3366,7 +3382,15 @@ LibertyReader::readFloatSeq(const LibertyComplexAttr *attr,
   }
   else if (attr_values.size() > 1) {
     for (LibertyAttrValue *value : attr_values) {
-      if (value->isString()) {
+      // ---- OpenROAD fork: binary liberty support (begin) ----
+      if (value->isFloatSeq()) {
+        size_t first = values.size();
+        const FloatSeq &seq = value->floatSeq();
+        values.insert(values.end(), seq.begin(), seq.end());
+        scaleFloats(values, scale, first);
+      }
+      // ---- OpenROAD fork: binary liberty support (end) ----
+      else if (value->isString()) {
         FloatSeq parsed = parseFloatList(value->stringValue(), scale, attr->line());
         values.insert(values.end(), parsed.begin(), parsed.end());
       }

@@ -20,6 +20,7 @@
 #include "PortDirection.hh"
 #include "StringUtil.hh"
 #include "liberty/LibertyParser.hh"
+#include "liberty/LibertyBinaryWriter.hh"
 #include "liberty/LibertyBuilder.hh"
 #include "ReportStd.hh"
 #include "liberty/LibertyReaderPvt.hh"
@@ -4100,6 +4101,54 @@ library(test_r11_save) {
   EXPECT_TRUE(exists);
   EXPECT_FLOAT_EQ(area, 1.0f);
   EXPECT_EQ(remove(tmp_path.c_str()), 0);
+}
+
+// parseLibertyFile recognizes binary liberty by its contents, so a visitor
+// other than LibertyReader sees the same groups and attributes as from text.
+TEST_F(StaLibertyTest, ParserReadsBinaryLiberty) {
+  const char *content = R"(
+library(test_parse_binary) {
+  delay_model : table_lookup ;
+  time_unit : "1ns" ;
+  voltage_unit : "1V" ;
+  current_unit : "1mA" ;
+  capacitive_load_unit(1, ff) ;
+  my_variable = 42.0 ;
+  cell(PB1) {
+    area : 2.0 ;
+    pin(A) { direction : input ; capacitance : 0.01 ; }
+    pin(Z) { direction : output ; function : "A" ; }
+  }
+}
+)";
+  std::string lib_path = makeUniqueTmpPath();
+  writeLibContent(content, lib_path);
+  std::string blib_path = lib_path + ".blib";
+  writeLibertyBinary(lib_path.c_str(), blib_path.c_str(), sta_->report());
+
+  RecordingLibertyVisitor text;
+  parseLibertyFile(lib_path.c_str(), &text, sta_->report());
+  RecordingLibertyVisitor binary;
+  parseLibertyFile(blib_path.c_str(), &binary, sta_->report());
+
+  EXPECT_EQ(binary.begin_count, text.begin_count);
+  EXPECT_EQ(binary.end_count, text.end_count);
+  EXPECT_EQ(binary.simple_attrs.size(), text.simple_attrs.size());
+  EXPECT_EQ(binary.complex_attrs.size(), text.complex_attrs.size());
+  EXPECT_EQ(binary.variables.size(), 1u);
+  ASSERT_EQ(binary.root_groups.size(), 1u);
+  const LibertyGroup *library = binary.root_groups.front();
+  EXPECT_EQ(library->firstParam(), "test_parse_binary");
+  const LibertyGroup *cell = library->findSubgroup("cell");
+  ASSERT_NE(cell, nullptr);
+  EXPECT_EQ(cell->firstParam(), "PB1");
+  float area = 0.0f;
+  bool exists = false;
+  cell->findAttrFloat("area", area, exists);
+  EXPECT_TRUE(exists);
+  EXPECT_FLOAT_EQ(area, 2.0f);
+  EXPECT_EQ(remove(lib_path.c_str()), 0);
+  EXPECT_EQ(remove(blib_path.c_str()), 0);
 }
 
 // R11_16: Exercises clearAxisValues and setEnergyScale through internal_power
