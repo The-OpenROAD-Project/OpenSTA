@@ -7,6 +7,7 @@ load("//bazel:bison.bzl", "genyacc")
 load("//bazel:flex.bzl", "genlex")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
 load("//bazel:tcl_wrap_cc.bzl", "swig_defs", "tcl_wrap_cc")
+load("//test:regression.bzl", "regression_rule_test")
 
 package(
     default_visibility = ["//:__subpackages__"],
@@ -443,3 +444,86 @@ filegroup(
     ],
     visibility = ["//visibility:public"],
 )
+
+# The Tcl regressions CMake registers, run on opensta with the same
+# pass rule: test/ by its .ok files, exit code only except for
+# liberty_binary*, which also diffs its .ok; <module>/test by a diff
+# against its .ok; examples/ by exit code. Tests reach across these
+# directories (../../test/helpers.tcl), so they share one data set.
+filegroup(
+    name = "regression_data",
+    srcs = glob(
+        [
+            "examples/**",
+            "test/**",
+            "*/test/**",
+        ],
+        exclude = [
+            "*/test/cpp/**",
+            "**/CMakeLists.txt",
+        ],
+    ),
+)
+
+# These copy a .lib into results/ with Tcl's `file copy` and then write
+# to the copy. In the runfiles tree the .lib is a symlink, which `file
+# copy` copies as a symlink, so the write goes through it to the source
+# file: read-only in the sandbox, the checkout's own file without one.
+STA_TESTS_NOT_IN_BAZEL = [
+    "liberty_binary_errors",
+    "liberty_binary_source",
+]
+
+STA_TEST_MODULES = [
+    "dcalc",
+    "graph",
+    "liberty",
+    "network",
+    "parasitics",
+    "power",
+    "sdc",
+    "sdf",
+    "search",
+    "spice",
+    "util",
+    "verilog",
+]
+
+[
+    regression_rule_test(
+        name = test_dir + "/" + test_name,
+        bazel_test_sh = "//test:bazel_test.sh",
+        check_log = check_log,
+        data = [":regression_data"],
+        openroad = ":opensta",
+        regression_test = "//test:regression_test.sh",
+        tags = ["tcl"],
+        test_file = test_dir + "/" + test_name + ".tcl",
+        test_name = test_name,
+    )
+    for test_dir, test_name, check_log in [
+        (
+            "test",
+            ok[len("test/"):-len(".ok")],
+            ok.startswith("test/liberty_binary"),
+        )
+        for ok in glob(["test/*.ok"])
+        if ok[:-len(".ok")] + ".tcl" in glob(["test/*.tcl"]) and
+           ok[len("test/"):-len(".ok")] not in STA_TESTS_NOT_IN_BAZEL
+    ] + [
+        (
+            module + "/test",
+            ok[len(module + "/test/"):-len(".ok")],
+            True,
+        )
+        for module in STA_TEST_MODULES
+        for ok in glob([module + "/test/" + module + "_*.ok"])
+    ] + [
+        (
+            "examples",
+            tcl[len("examples/"):-len(".tcl")],
+            False,
+        )
+        for tcl in glob(["examples/*.tcl"])
+    ]
+]
