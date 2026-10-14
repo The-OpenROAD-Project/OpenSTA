@@ -1182,9 +1182,13 @@ Power::seedRegOutputActivities(const Instance *reg,
     // A register output changes at most once per active clock edge
     // (clk_density / 2), with probability at most 2 * min(duty, 1 - duty),
     // so the output is continuous in the input density.
-    if (seq.isRegister())
+    if (seq.isRegister()) {
       out_density = std::min(in_density,
                              std::min(in_duty, 1 - in_duty) * clk_density);
+      // The state has no activity yet when next_state refers to it (e.g.
+      // "(D&DE) | (IQ&!DE)"), so solve the hold loop instead.
+      evalRegHoldActivity(reg, seq, clk_density, out_density, out_duty);
+    }
     else if (in_density > clk_density / 2) {
       if (seq.isLatch()) {
     // ---- OpenROAD fork: power activity (end) ----
@@ -1205,6 +1209,66 @@ Power::seedRegOutputActivities(const Instance *reg,
     setSeqActivity(reg, output, out_activity);
   }
 }
+
+// ---- OpenROAD fork: power activity (begin) ----
+// For a next_state that refers to the register's own state, each active
+// clock edge sets the state with probability u = P(next_state | IQ=0) and
+// clears it with probability v = P(!next_state | IQ=1). As a two-state
+// process the duty is u / (u + v) and the state changes 2uv / (u + v) times
+// per active edge. Returns false if next_state does not refer to the state.
+bool
+Power::evalRegHoldActivity(const Instance *reg,
+                           const Sequential &seq,
+                           float clk_density,
+                           // Return values.
+                           float &density,
+                           float &duty)
+{
+  FuncExpr *data = seq.data();
+  LibertyPort *iq = seq.output();
+  LibertyPort *iqn = seq.outputInv();
+  if (data == nullptr
+      || !((iq && data->hasPort(iq)) || (iqn && data->hasPort(iqn))))
+    return false;
+  DdManager *mgr = bdd_.cuddMgr();
+  DdNode *bdd = bdd_.funcBdd(data);
+  float state_duty[2];
+  for (int value : {0, 1}) {
+    DdNode *node = bdd;
+    Cudd_Ref(node);
+    for (const auto &[port, port_value] : {std::pair(iq, value),
+                                           std::pair(iqn, 1 - value)}) {
+      DdNode *var = port ? bdd_.findNode(port) : nullptr;
+      if (var) {
+        DdNode *cofactor = Cudd_bddCompose(mgr, node,
+                                           port_value ? Cudd_ReadOne(mgr)
+                                                      : Cudd_ReadLogicZero(mgr),
+                                           Cudd_NodeReadIndex(var));
+        Cudd_Ref(cofactor);
+        Cudd_RecursiveDeref(mgr, node);
+        node = cofactor;
+      }
+    }
+    state_duty[value] = evalBddDuty(node, reg);
+    Cudd_RecursiveDeref(mgr, node);
+  }
+  Cudd_RecursiveDeref(mgr, bdd);
+  bdd_.clearVarMap();
+  float set = state_duty[0];
+  float clear = 1.0 - state_duty[1];
+  if (set + clear > 0.0) {
+    duty = set / (set + clear);
+    // clk_density / 2 active edges.
+    density = set * clear / (set + clear) * clk_density;
+  }
+  else {
+    // The state never changes; its value is unknown.
+    duty = 0.5;
+    density = 0.0;
+  }
+  return true;
+}
+// ---- OpenROAD fork: power activity (end) ----
 
 void
 Power::seedClkGateOutputActivities(const Instance *inst,

@@ -249,6 +249,12 @@ protected:
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
+  bool evalRegHoldActivity(const Instance *reg,
+                           const Sequential &seq,
+                           float clk_density,
+                           // Return values.
+                           float &density,
+                           float &duty);
   // ---- OpenROAD fork: power activity (end) ----
   LibertyPort *findLinkPort(const LibertyCell *cell,
                             const LibertyPort *scene_port);

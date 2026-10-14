@@ -10,6 +10,7 @@ sta_module_tests("power"
     activity_cases
     mult16_correlation
     when_scenes
+    enable_flop
 )
 
 add_subdirectory(cpp)
