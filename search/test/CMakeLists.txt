@@ -24,6 +24,7 @@ sta_module_tests("search"
     genclk
     genclk_latch_deep
     genclk_property_report
+    icg_tied_enable
     json_unconstrained
     latch
     latch_timing
