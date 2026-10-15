@@ -50,7 +50,6 @@ public:
   VerilogWriter(const char *filename,
                 bool include_pwr_gnd,
                 CellSeq *remove_cells,
-                gzFile stream,
                 Network *network);
   void writeModules();
 
@@ -99,36 +98,21 @@ writeVerilog(const char *filename,
              Network *network)
 {
   if (network->topInstance()) {
-    bool gzip = std::string_view(filename).ends_with(".gz");
-    gzFile stream = gzopen(filename, gzip ? "wb" : "wT");
-    if (stream) {
-      // ---- OpenROAD fork: close output on alias validation errors (begin) ----
-      try {
-        VerilogWriter writer(filename, include_pwr_gnd,
-                             remove_cells, stream, network);
-        writer.writeModules();
-      }
-      catch (...) {
-        gzclose(stream);
-        throw;
-      }
-      // ---- OpenROAD fork: close output on alias validation errors (end) ----
-      gzclose(stream);
-    }
-    else
-      throw FileNotWritable(filename);
+    // ---- OpenROAD fork: validate aliases before opening output (begin) ----
+    VerilogWriter writer(filename, include_pwr_gnd, remove_cells, network);
+    writer.writeModules();
+    // ---- OpenROAD fork: validate aliases before opening output (end) ----
   }
 }
 
 VerilogWriter::VerilogWriter(const char *filename,
                              bool include_pwr_gnd,
                              CellSeq *remove_cells,
-                             gzFile stream,
                              Network *network) :
   filename_(filename),
   include_pwr_gnd_(include_pwr_gnd),
   remove_cells_(network),
-  stream_(stream),
+  stream_(nullptr),
   network_(network)
 {
   if (remove_cells) {
@@ -146,10 +130,17 @@ VerilogWriter::writeModules()
   for (const Instance *child : hier_childrenn)
     checkInputAliases(child);
   // ---- OpenROAD fork: reject multiple signal input aliases (end) ----
+  // ---- OpenROAD fork: preserve existing output on alias errors (begin) ----
+  bool gzip = std::string_view(filename_).ends_with(".gz");
+  stream_ = gzopen(filename_, gzip ? "wb" : "wT");
+  if (!stream_)
+    throw FileNotWritable(filename_);
+  // ---- OpenROAD fork: preserve existing output on alias errors (end) ----
   // Write the top level module first.
   writeModule(network_->topInstance());
   for (const Instance *child : hier_childrenn)
     writeModule(child);
+  gzclose(stream_);
 }
 
 InstanceSeq

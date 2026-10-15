@@ -2860,7 +2860,7 @@ protected:
   }
 
   std::string written() {
-    std::ifstream stream(filename_);
+    std::ifstream stream(filename_, std::ios::binary);
     std::ostringstream text;
     text << stream.rdbuf();
     return text.str();
@@ -2942,6 +2942,26 @@ TEST_F(VerilogInputAliasTest, TwoInputsOnOneSignalNetAreRejected) {
     EXPECT_NE(message.find(name), std::string::npos);
     EXPECT_TRUE(written().empty());
   }
+}
+
+TEST_F(VerilogInputAliasTest, RejectedWritePreservesOutputFiles) {
+  const std::string base_filename = filename_;
+  for (const char *suffix : {"", ".gz"}) {
+    filename_ = base_filename + suffix;
+    writeVerilog(filename_.c_str(), false, nullptr, network_);
+    const std::string previous = written();
+    ASSERT_FALSE(previous.empty());
+
+    network_->connect(top_, other_input_, input_net_);
+    EXPECT_THROW(writeVerilog(filename_.c_str(), false, nullptr, network_), Exception);
+    EXPECT_EQ(written(), previous);
+    EXPECT_TRUE(std::filesystem::remove(filename_));
+    EXPECT_THROW(writeVerilog(filename_.c_str(), false, nullptr, network_), Exception);
+    EXPECT_FALSE(std::filesystem::exists(filename_));
+    std::filesystem::remove(filename_);
+    network_->disconnectPin(network_->findPin(top_, other_input_));
+  }
+  filename_ = base_filename;
 }
 
 TEST_F(VerilogInputAliasTest, SignalInputsNeverDriveSupplyNets) {
