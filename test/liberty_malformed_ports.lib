@@ -1,0 +1,22 @@
+library (malformed_ports) {
+  delay_model : table_lookup;
+
+  /* "function" references an undeclared pin, so parseFunc() returns null. */
+  cell (BAD_FUNC) {
+    pin (A) { direction : input; }
+    pin (Z) { direction : output; function : "A & NOPIN"; }
+  }
+
+  /* "three_state" references an undeclared pin, so parseFunc() returns null. */
+  cell (BAD_TRI) {
+    pin (A) { direction : input; }
+    pin (EN) { direction : input; }
+    pin (Z) { direction : output; three_state : "BADPIN"; function : "A"; }
+  }
+
+  /* "bundle" group with no "members" attribute. */
+  cell (BAD_BUNDLE) {
+    pin (A) { direction : input; }
+    bundle (B) { direction : output; }
+  }
+}
