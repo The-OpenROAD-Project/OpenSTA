@@ -24,15 +24,19 @@
 
 #include "LibertyParser.hh"
 
+#include <algorithm>
 #include <cstring>
 #include <istream>
 #include <regex>
+#include <streambuf>
 #include <string>
 #include <string_view>
 #include <utility>
 
 #include "ContainerHelpers.hh"
 #include "Error.hh"
+#include "LibertyBinaryCommon.hh"
+#include "LibertyBinaryReader.hh"
 #include "LibertyParse.hh"
 #include "LibertyScanner.hh"
 #include "Report.hh"
@@ -40,6 +44,83 @@
 #include "util/gzstream.hh"
 
 namespace sta {
+
+// ---- OpenROAD fork: binary liberty support (begin) ----
+// Replay the format probe before reading the rest of the same stream. Neither
+// gzip streams nor FIFOs support rewinding, and reopening a FIFO loses data.
+class LibertyInputStreambuf : public std::streambuf
+{
+public:
+  LibertyInputStreambuf(char *prefix,
+                        size_t size,
+                        std::streambuf *source);
+
+protected:
+  int_type underflow() override;
+  int_type uflow() override;
+  std::streamsize xsgetn(char *dest,
+                         std::streamsize count) override;
+
+private:
+  std::streambuf *source_;
+};
+
+LibertyInputStreambuf::LibertyInputStreambuf(char *prefix,
+                                             size_t size,
+                                             std::streambuf *source) :
+  source_(source)
+{
+  setg(prefix, prefix, prefix + size);
+}
+
+LibertyInputStreambuf::int_type
+LibertyInputStreambuf::underflow()
+{
+  return source_->sgetc();
+}
+
+LibertyInputStreambuf::int_type
+LibertyInputStreambuf::uflow()
+{
+  return source_->sbumpc();
+}
+
+std::streamsize
+LibertyInputStreambuf::xsgetn(char *dest,
+                              std::streamsize count)
+{
+  std::streamsize size = std::min<std::streamsize>(egptr() - gptr(), count);
+  std::memcpy(dest, gptr(), size);
+  gbump(static_cast<int>(size));
+  return size + source_->sgetn(dest + size, count - size);
+}
+
+// Binary liberty files are recognized by their magic number, so every caller
+// of parseLibertyFile reads both formats.
+static void
+parseLibertyStream(std::istream *stream,
+                   std::string_view filename,
+                   LibertyGroupVisitor *library_visitor,
+                   Report *report)
+{
+  char magic[liberty_binary_magic_size];
+  stream->read(magic, sizeof(magic));
+  size_t prefix_size = stream->gcount();
+  LibertyInputStreambuf buffer(magic, prefix_size, stream->rdbuf());
+  std::istream input(&buffer);
+  if (std::string_view(magic, prefix_size) == liberty_binary_magic) {
+    LibertyBinaryReader bin_reader(library_visitor, filename, report);
+    // Errors on a malformed file.
+    bin_reader.read(&input);
+  }
+  else {
+    LibertyParser reader(filename, library_visitor, report);
+    LibertyScanner scanner(&input, filename, &reader, report);
+    LibertyParse parser(&scanner, &reader);
+    parser.parse();
+  }
+}
+// ---- OpenROAD fork: binary liberty support (end) ----
 
 void
 parseLibertyFile(std::string_view filename,
@@ -49,10 +130,8 @@ parseLibertyFile(std::string_view filename,
   std::string fn(filename);
   gzstream::igzstream stream(fn.c_str());
   if (stream.is_open()) {
-    LibertyParser reader(filename, library_visitor, report);
-    LibertyScanner scanner(&stream, filename, &reader, report);
-    LibertyParse parser(&scanner, &reader);
-    parser.parse();
+    // OpenROAD fork: binary liberty support.
+    parseLibertyStream(&stream, filename, library_visitor, report);
   }
   else
     throw FileNotReadable(filename);
@@ -170,12 +249,14 @@ LibertyParser::deleteGroups()
   deleteContents(group_stack_);
 }
 
+// OpenROAD fork: binary liberty support.
 LibertySimpleAttr *
 LibertyParser::makeSimpleAttr(std::string &&name,
-                              const LibertyAttrValue *value,
+                              LibertyAttrValue *value,
                               int line)
 {
-  LibertySimpleAttr *attr = new LibertySimpleAttr(std::move(name), *value, line);
+  LibertySimpleAttr *attr = new LibertySimpleAttr(std::move(name),
+                                                  std::move(*value), line);
   delete value;
   LibertyGroup *group = this->group();
   group->addAttr(attr);
@@ -183,9 +264,10 @@ LibertyParser::makeSimpleAttr(std::string &&name,
   return attr;
 }
 
+// OpenROAD fork: binary liberty support.
 LibertyComplexAttr *
 LibertyParser::makeComplexAttr(std::string &&name,
-                               const LibertyAttrValueSeq *values,
+                               LibertyAttrValueSeq *values,
                                int line)
 {
   // Defines have the same syntax as complex attributes.
@@ -195,7 +277,8 @@ LibertyParser::makeComplexAttr(std::string &&name,
     return nullptr;  // Define is not a complex attr; already added to group
   }
   else {
-    LibertyComplexAttr *attr = new LibertyComplexAttr(std::move(name), *values, line);
+    LibertyComplexAttr *attr = new LibertyComplexAttr(std::move(name),
+                                                      std::move(*values), line);
     delete values;
     LibertyGroup *group = this->group();
     group->addAttr(attr);
@@ -227,6 +310,14 @@ LibertyParser::makeAttrValueFloat(float value)
 {
   return new LibertyAttrValue(value);
 }
+
+// ---- OpenROAD fork: binary liberty support (begin) ----
+LibertyAttrValue *
+LibertyParser::makeAttrValueFloatSeq(std::vector<float> &&values)
+{
+  return new LibertyAttrValue(std::move(values));
+}
+// ---- OpenROAD fork: binary liberty support (end) ----
 
 ////////////////////////////////////////////////////////////////
 
@@ -569,10 +660,18 @@ LibertyAttrValue::LibertyAttrValue(float value) :
 {
 }
 
+// ---- OpenROAD fork: binary liberty support (begin) ----
+LibertyAttrValue::LibertyAttrValue(std::vector<float> &&values) :
+  float_seq_(std::move(values))
+{
+}
+// ---- OpenROAD fork: binary liberty support (end) ----
+
 bool
 LibertyAttrValue::isFloat() const
 {
-  return string_value_.empty();
+  // OpenROAD fork: binary liberty support.
+  return string_value_.empty() && float_seq_.empty();
 }
 
 bool
@@ -581,9 +680,20 @@ LibertyAttrValue::isString() const
   return !string_value_.empty();
 }
 
+// ---- OpenROAD fork: binary liberty support (begin) ----
+bool
+LibertyAttrValue::isFloatSeq() const
+{
+  return !float_seq_.empty();
+}
+// ---- OpenROAD fork: binary liberty support (end) ----
+
 std::pair<float, bool>
 LibertyAttrValue::floatValue() const
 {
+  // OpenROAD fork: binary liberty support.
+  if (isFloatSeq())
+    return {0.0F, false};
   if (string_value_.empty())
     return {float_value_, true};
   else

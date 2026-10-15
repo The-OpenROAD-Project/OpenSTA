@@ -59,6 +59,11 @@ public:
   // Clear all state.
   virtual void clear() = 0;
 
+  // Ensure there is an empty parasitic for every driver in the network.
+  // This allows parasitic lookup without using thread locks.
+  virtual void ensureParasitics();
+  virtual void ensureParasitics(const Pin *drvr_pin) = 0;
+
   // Delete all parasitics.
   virtual void deleteParasitics() = 0;
   // Delete all parasitics on net at analysis point.
@@ -263,6 +268,7 @@ public:
   // Network edit before/after methods.
   virtual void disconnectPinBefore(const Pin *pin) = 0;
   virtual void deletePinBefore(const Pin *pin) = 0;
+  virtual void deleteNetBefore(const Net *net) = 0;
   virtual void loadPinCapacitanceChanged(const Pin *pin) = 0;
   float couplingCapFactor() const { return coupling_cap_factor_; }
   void setCouplingCapFactor(float factor);

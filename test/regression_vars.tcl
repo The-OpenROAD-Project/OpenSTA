@@ -141,12 +141,14 @@ record_example_tests {
 }
 
 record_public_tests {
+  bidirect_pad_fanout
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst
   disable_clock_gating_check_pin
   disable_clock_gating_check_port
   disable_clock_gating_check_sdc
+  disable_timing_load_slew
   disconnect_mcp_pin
   dmp_two_pole_reduce
   equiv_cells_ff_latch
@@ -157,10 +159,19 @@ record_public_tests {
   get_noargs
   get_scenes
   get_objrefs
+  include_error_line
   input_delay_ref_pin_rebuild
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol
+  liberty_binary
+  liberty_binary_detect
+  liberty_binary_equiv
+  liberty_binary_errors
+  liberty_binary_lines
+  liberty_binary_scenes
+  liberty_binary_source
+  liberty_binary_timing
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
@@ -169,6 +180,7 @@ record_public_tests {
   max_power_area
   non_seq_timing
   package_require
+  parasitic_network_new_net
   path_group_names
   port_delay_delete_inst
   power_network_changed
@@ -180,6 +192,7 @@ record_public_tests {
   report_checks_src_attr
   report_json1
   report_json2
+  set_max_time_borrow_pg_pin
   set_path_margin1
   set_path_margin2
   set_path_margin3
@@ -187,6 +200,7 @@ record_public_tests {
   set_path_margin5
   set_path_margin6
   slash_port_test
+  spef_hier_reduce
   suppress_msg
   swig_seq_double_free
   swig_seq_leak
@@ -204,6 +218,7 @@ record_public_tests {
   verilog_write_escape
   verilog_write_gzip
   verilog_unconnected_hpin
+  wireload_before_link
   write_path_spice_arc_sense
 }
 

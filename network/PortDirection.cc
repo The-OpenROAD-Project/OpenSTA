@@ -28,79 +28,35 @@
 
 namespace sta {
 
-PortDirection *PortDirection::input_;
-PortDirection *PortDirection::output_;
-PortDirection *PortDirection::tristate_;
-PortDirection *PortDirection::bidirect_;
-PortDirection *PortDirection::internal_;
-PortDirection *PortDirection::ground_;
-PortDirection *PortDirection::power_;
-PortDirection *PortDirection::well_;
-PortDirection *PortDirection::unknown_;
-
-void
-PortDirection::init()
-{
-  input_ = new PortDirection("input", 0);
-  output_ = new PortDirection("output", 1);
-  tristate_ = new PortDirection("tristate", 2);
-  bidirect_ = new PortDirection("bidirect", 3);
-  internal_ = new PortDirection("internal", 4);
-  ground_ = new PortDirection("ground", 5);
-  power_ = new PortDirection("power", 6);
-  well_ = new PortDirection("well", 7);
-  unknown_ = new PortDirection("unknown", 8);
-}
-
-void
-PortDirection::destroy()
-{
-  delete input_;
-  input_ = nullptr;
-  delete output_;
-  output_ = nullptr;
-  delete tristate_;
-  tristate_ = nullptr;
-  delete bidirect_;
-  bidirect_ = nullptr;
-  delete internal_;
-  internal_ = nullptr;
-  delete ground_;
-  ground_ = nullptr;
-  delete power_;
-  power_ = nullptr;
-  delete well_;
-  well_ = nullptr;
-  delete unknown_;
-  unknown_ = nullptr;
-}
-
-PortDirection::PortDirection(const char *name,
-                             size_t index) :
-  name_(name),
-  index_(index)
-{
-}
+PortDirection PortDirection::input_("input", 0);
+PortDirection PortDirection::output_("output", 1);
+PortDirection PortDirection::tristate_("tristate", 2);
+PortDirection PortDirection::bidirect_("bidirect", 3);
+PortDirection PortDirection::internal_("internal", 4);
+PortDirection PortDirection::ground_("ground", 5);
+PortDirection PortDirection::power_("power", 6);
+PortDirection PortDirection::well_("well", 7);
+PortDirection PortDirection::unknown_("unknown", 8);
 
 PortDirection *
 PortDirection::find(const char *dir_name)
 {
   if (stringEqual(dir_name, "input"))
-    return input_;
+    return &input_;
   else if (stringEqual(dir_name, "output"))
-    return output_;
+    return &output_;
   else if (stringEqual(dir_name, "tristate"))
-    return tristate_;
+    return &tristate_;
   else if (stringEqual(dir_name, "bidirect"))
-    return bidirect_;
+    return &bidirect_;
   else if (stringEqual(dir_name, "internal"))
-    return internal_;
+    return &internal_;
   else if (stringEqual(dir_name, "ground"))
-    return ground_;
+    return &ground_;
   else if (stringEqual(dir_name, "power"))
-    return power_;
+    return &power_;
   else if (stringEqual(dir_name, "well"))
-    return well_;
+    return &well_;
   else
     return nullptr;
 }
@@ -108,31 +64,31 @@ PortDirection::find(const char *dir_name)
 bool
 PortDirection::isAnyInput() const
 {
-  return this == input_
-    || this == bidirect_;
+  return this == &input_
+    || this == &bidirect_;
 }
 
 bool
 PortDirection::isAnyOutput() const
 {
-  return this == output_
-    || this == tristate_
-    || this == bidirect_;
+  return this == &output_
+    || this == &tristate_
+    || this == &bidirect_;
 }
 
 bool
 PortDirection::isAnyTristate() const
 {
-  return this == tristate_
-    || this == bidirect_;
+  return this == &tristate_
+    || this == &bidirect_;
 }
 
 bool
 PortDirection::isPowerGround() const
 {
-  return this == ground_
-    || this == power_
-    || this == well_;
+  return this == &ground_
+    || this == &power_
+    || this == &well_;
 }
 
 } // namespace sta

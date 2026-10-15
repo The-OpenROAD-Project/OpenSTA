@@ -2630,7 +2630,6 @@ TEST(LibertyLibraryTest, MakeScaledCell) {
 }
 
 TEST(LibertyLibraryTest, DefaultPinResistanceWithDirection) {
-  PortDirection::init();
   LibertyLibrary lib("test_lib", "test.lib");
   float res;
   bool exists;

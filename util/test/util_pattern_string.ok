@@ -24,7 +24,7 @@ DFF_X? lib_cells: 2
 * lib_cells: 134
 --- set_debug with level > 0 ---
 delay_calc: delays invalid
-delay_calc: find delays to level 50
+delay_calc: find delays to level 16777215
 delay_calc: found 9 delays
 search: find arrivals pass 1
 search: find arrivals to level 50

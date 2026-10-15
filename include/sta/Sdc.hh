@@ -814,6 +814,7 @@ public:
   FilterPath *filter() const { return filter_; }
   void deleteFilter();
 
+  bool wireloadModelsEnabled() const;
   Wireload *wireload(const MinMax *min_max) const;
   void setWireload(Wireload *wireload,
                    const MinMaxAll *min_max);

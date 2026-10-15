@@ -22,6 +22,16 @@
 # 
 # This notice may not be removed or altered from any source distribution.
 
+# Trim tclreadline::Loop's eval frames from the end of $errorInfo.
+proc ::sta::trim_tclreadline_error_info { args } {
+  global errorInfo
+  set marker "\n    (\"eval\" body line "
+  set idx [string last $marker $errorInfo]
+  if { $idx != -1 } {
+    set errorInfo [string range $errorInfo 0 [expr { $idx - 1 }]]
+  }
+}
+
 proc init_sta_cmds {} {
   global auto_index
 
@@ -36,5 +46,13 @@ proc init_sta_cmds {} {
     ::tclreadline::readline customcompleter ::tclreadline::ScriptCompleter
     proc ::tclreadline::prompt1 {} { return {% } }
     proc ::tclreadline::prompt2 {} { return {> } }
+    # tclreadline::Setup does catch {rename ::tclreadline::Exit ""}.
+    # If Exit does not exist that catch fails and overwrites $errorInfo,
+    # hiding any traceback from errors in the .sta init file.
+    proc ::tclreadline::Exit { args } {}
+    # Drop the interactive Loop's "eval $::tclreadline::LINE" frames
+    # that otherwise trail every command's $errorInfo.
+    trace add variable ::tclreadline::errorMsg write \
+      ::sta::trim_tclreadline_error_info
   }
 }

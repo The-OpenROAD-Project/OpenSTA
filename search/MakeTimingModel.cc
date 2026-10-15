@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -217,6 +218,7 @@ MakeTimingModel::makePorts()
         LibertyPort *lib_bit_port = modelPort(pin);
         float load_cap = graph_delay_calc_->loadCap(pin, scene_, min_max_);
         lib_bit_port->setCapacitance(load_cap);
+        setPortLimits(pin, lib_bit_port);
       }
       delete member_iter;
     }
@@ -226,9 +228,54 @@ MakeTimingModel::makePorts()
       Pin *pin = network_->findPin(top_inst, port);
       float load_cap = graph_delay_calc_->loadCap(pin, scene_, min_max_);
       lib_port->setCapacitance(load_cap);
+      setPortLimits(pin, lib_port);
     }
   }
   delete port_iter;
+}
+
+// Find port max_cap/max_slew limits.
+void
+MakeTimingModel::setPortLimits(const Pin *pin,
+                               LibertyPort *lib_port)
+{
+  const PortDirection *dir = network_->direction(pin);
+  float slew_limit = std::numeric_limits<float>::max();
+  float cap_limit = std::numeric_limits<float>::max();
+  bool slew_exists = false;
+  bool cap_exists = false;
+  PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(pin);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port) {
+      const LibertyLibrary *lib = port->libertyCell()->libertyLibrary();
+      float limit;
+      bool exists;
+      port->slewLimit(min_max_, limit, exists);
+      if (!exists)
+        lib->defaultMaxSlew(limit, exists);
+      if (exists && limit < slew_limit) {
+        slew_limit = limit;
+        slew_exists = true;
+      }
+
+      if (dir->isAnyOutput()) {
+        port->capacitanceLimit(min_max_, limit, exists);
+        if (!exists)
+          lib->defaultMaxCapacitance(limit, exists);
+        if (exists && limit < cap_limit) {
+          cap_limit = limit;
+          cap_exists = true;
+        }
+      }
+    }
+  }
+  delete pin_iter;
+  if (slew_exists)
+    lib_port->setSlewLimit(slew_limit, min_max_);
+  if (cap_exists)
+    lib_port->setCapacitanceLimit(cap_limit, min_max_);
 }
 
 void
@@ -356,7 +403,8 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       VisitPathEnds visit_ends(sta_);
       for (Vertex *end : endpoints)
         visit_ends.visitPathEnds(end, scenes_, MinMaxAll::all(), true, &end_visitor);
-      findOutputDelays(input_rf, output_delays);
+      // OpenROAD fork: write_timing_model O(cone) output delays.
+      findOutputDelays(input_rf, endpoints, output_delays);
       search_->deleteFilteredArrivals();
 
       sta_->removeInputDelay(input_pin, input_rf1, sdc_->defaultArrivalClock(),
@@ -370,14 +418,17 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
 
 void
 MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
+                                  const VertexSeq &endpoints,
                                   OutputPinDelays &output_pin_delays)
 {
-  InstancePinIterator *output_iter = network_->pinIterator(network_->topInstance());
-  while (output_iter->hasNext()) {
-    Pin *output_pin = output_iter->next();
-    if (network_->direction(output_pin)->isOutput()) {
-      Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
-      VertexPathIterator path_iter(output_vertex, this);
+  // ---- OpenROAD fork: write_timing_model O(cone) output delays (begin) ----
+  // Top-level output ports have no fanout, so they are endpoints and
+  // the filtered endpoints hold every output reached from the input.
+  for (Vertex *end : endpoints) {
+    const Pin *output_pin = end->pin();
+    if (network_->isTopLevelPort(output_pin)
+        && network_->direction(output_pin)->isOutput()) {
+      VertexPathIterator path_iter(end, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
         if (search_->matchesFilter(path, nullptr)) {
@@ -392,7 +443,7 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
       }
     }
   }
-  delete output_iter;
+  // ---- OpenROAD fork: write_timing_model O(cone) output delays (end) ----
 }
 
 void

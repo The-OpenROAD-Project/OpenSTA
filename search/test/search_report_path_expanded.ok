@@ -1562,70 +1562,70 @@ Path 0:
   pin: out1
   slack: 7.842025695481425e-9
   arrival: 1.5797398111860872e-10
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 10
   start_path pin: reg2/Q
 Path 1:
   pin: out1
   slack: 7.844318083982671e-9
   arrival: 1.5568145383948462e-10
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 10
   start_path pin: reg2/Q
 Path 2:
   pin: reg1/D
   slack: 8.941200668743932e-9
   arrival: 1.0481947532170466e-9
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 6
   start_path pin: in2
 Path 3:
   pin: reg1/D
   slack: 8.943422002971602e-9
   arrival: 1.0459734189893766e-9
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 6
   start_path pin: in1
 Path 4:
   pin: reg1/D
   slack: 8.950316932043734e-9
   arrival: 1.0453631293927401e-9
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 6
   start_path pin: in2
 Path 5:
   pin: reg1/D
   slack: 8.951607455287558e-9
   arrival: 1.0440722730820085e-9
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 6
   start_path pin: in1
 Path 6:
   pin: reg2/D
   slack: 9.885211760263246e-9
   arrival: 1.2980823360653204e-10
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 8
   start_path pin: reg1/Q
 Path 7:
   pin: reg2/D
   slack: 9.889370211624282e-9
   arrival: 1.3226435224833466e-10
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 8
   start_path pin: reg1/Q
 Path 8:
   pin: out2
   slack: 5.8740736719187225e-9
   arrival: 1.2592588083393252e-10
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 8
   start_path pin: reg3/Q
 Path 9:
   pin: out2
   slack: 5.875777642216917e-9
   arrival: 1.2422182726901099e-10
-  required: 0.0
+  required: 1.0000000150474662e+30
   path_pins: 8
   start_path pin: reg3/Q
 --- report_path_end with prev_end chaining ---

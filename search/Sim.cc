@@ -796,6 +796,21 @@ Sim::setIsDisabledCond(Edge *edge,
   }
 }
 
+// ---- OpenROAD fork: partial cond arc sets (begin) ----
+// cond_set has an arc to every edge arc_set has an arc to.
+static bool
+coversArcs(const TimingArcSet *cond_set,
+           const TimingArcSet *arc_set)
+{
+  for (const TimingArc *arc : arc_set->arcs()) {
+    const RiseFall *to_rf = arc->toEdge()->asRiseFall();
+    if (to_rf == nullptr || cond_set->arcTo(to_rf) == nullptr)
+      return false;
+  }
+  return true;
+}
+// ---- OpenROAD fork: partial cond arc sets (end) ----
+
 bool
 Sim::isDisabledCond(Edge *edge,
                     const Instance *inst,
@@ -828,13 +843,20 @@ Sim::isDisabledCond(Edge *edge,
     // Unconditional "default" arc set is disabled if another
     // conditional arc from/to the same pins is enabled (condition
     // evals to logic one).
+    // OpenROAD fork: partial cond arc sets.
+    // The default set stays enabled unless the enabled conditional
+    // set has arcs to all of its output edges (e.g. an ICG whose
+    // conditional CLK->GCLK set only has the fall arc). Edges both
+    // sets cover are then timed through both, which is pessimistic.
     LibertyCell *cell = network_->libertyCell(inst);
     LibertyPort *from_port = network_->libertyPort(from_pin);
     LibertyPort *to_port = network_->libertyPort(to_pin);
     is_disabled = false;
     for (TimingArcSet *cond_set : cell->timingArcSets(from_port, to_port)) {
       FuncExpr *cond = cond_set->cond();
-      if (cond && evalExpr(cond, inst) == LogicValue::one) {
+      if (cond && evalExpr(cond, inst) == LogicValue::one
+          // OpenROAD fork: partial cond arc sets.
+          && coversArcs(cond_set, arc_set)) {
         disable_cond = cond;
         is_disabled = true;
         break;

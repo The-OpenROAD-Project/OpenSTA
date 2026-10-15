@@ -480,17 +480,17 @@ Network::pathNameCmp(const Net *net1,
     return inst_cmp;
 }
 
-Net *
-Network::highestNetAbove(Net *net) const
+const Net *
+Network::highestNetAbove(const Net *net) const
 {
-  Net *highest_net = net;
+  const Net *highest_net = net;
   // Search up from net terminals.
   NetTermIterator *term_iter = termIterator(net);
   while (term_iter->hasNext()) {
     Term *term = term_iter->next();
     Pin *above_pin = pin(term);
     if (above_pin) {
-      Net *above_net = this->net(above_pin);
+      const Net *above_net = this->net(above_pin);
       if (above_net) {
         highest_net = highestNetAbove(above_net);
         break;
@@ -502,7 +502,7 @@ Network::highestNetAbove(Net *net) const
 }
 
 const Net *
-Network::highestConnectedNet(Net *net) const
+Network::highestConnectedNet(const Net *net) const
 {
   NetSet nets(this);
   connectedNets(net, &nets);
@@ -521,7 +521,7 @@ Network::highestConnectedNet(Net *net) const
 }
 
 void
-Network::connectedNets(Net *net,
+Network::connectedNets(const Net *net,
                        NetSet *nets) const
 {
   if (!nets->contains(net)) {

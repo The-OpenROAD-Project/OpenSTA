@@ -3002,9 +3002,9 @@ ReportPath::descriptionNet(const Pin *pin) const
   if (network_->isTopLevelPort(pin))
     return sta::format("{} (net)", cmd_network_->pathName(pin));
   else {
-    Net *net = network_->net(pin);
+    const Net *net = network_->net(pin);
     if (net) {
-      Net *highest_net = network_->highestNetAbove(net);
+      const Net *highest_net = network_->highestNetAbove(net);
       std::string net_name = cmd_network_->pathName(highest_net);
       return sta::format("{} (net)", net_name);
     }
