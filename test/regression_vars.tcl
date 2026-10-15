@@ -202,6 +202,7 @@ record_public_tests {
   verilog_port_bundle_find_pin
   verilog_port_bundle_ordered
   verilog_port_concat
+  verilog_wired_nets
   verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
