@@ -1,4 +1,7 @@
 #include <gtest/gtest.h>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include "VerilogNamespace.hh"
 #include "PortDirection.hh"
@@ -1917,6 +1920,7 @@ TEST_F(VerilogTest, DclBusDifferentRange) {
 #include "Scene.hh"
 #include "Error.hh"
 #include "VerilogWriter.hh"
+#include "ConcreteNetwork.hh"
 
 namespace sta {
 
@@ -2794,6 +2798,208 @@ TEST_F(VerilogDesignTest, ReadVerilogEscapedNames) {
   bool linked = sta_->linkDesign("esc_top", true);
   EXPECT_TRUE(linked);
   remove(vpath);
+}
+
+// Build the edited network directly: reading an assign first would merge the
+// alias into the input port's net and would not exercise writeAssigns.
+class VerilogInputAliasTest : public ::testing::Test {
+protected:
+  void SetUp() override {
+    interp_ = Tcl_CreateInterp();
+    initSta();
+    sta_ = new Sta;
+    Sta::setSta(sta_);
+    sta_->makeComponents();
+    dynamic_cast<ReportTcl*>(sta_->report())->setTclInterp(interp_);
+    network_ = dynamic_cast<ConcreteNetwork*>(sta_->network());
+    ASSERT_NE(network_, nullptr);
+
+    Library *library = network_->makeLibrary("alias_test", "alias_test.lib");
+    Cell *top_cell = network_->makeCell(library, "alias_top", false,
+                                        "alias_test.lib");
+    auto port = [&](const char *name, PortDirection *direction) {
+      Port *p = network_->makePort(top_cell, name);
+      network_->setDirection(p, direction);
+      return p;
+    };
+    input_ = port("external_input", PortDirection::input());
+    other_input_ = port("other_input", PortDirection::input());
+    output_ = port("external_output", PortDirection::output());
+    bidirect_ = port("external_io", PortDirection::bidirect());
+    power_ = port("power_port", PortDirection::power());
+    ground_ = port("ground_port", PortDirection::ground());
+    top_ = network_->makeInstance(top_cell, "top", nullptr);
+    network_->setTopInstance(top_);
+    network_->makePins(top_);
+
+    Cell *buffer_cell = network_->makeCell(library, "ALIAS_BUF", true,
+                                           "alias_test.lib");
+    buffer_input_ = network_->makePort(buffer_cell, "A");
+    network_->setDirection(buffer_input_, PortDirection::input());
+    Port *buffer_output = network_->makePort(buffer_cell, "Z");
+    network_->setDirection(buffer_output, PortDirection::output());
+    buffer_ = network_->makeInstance(buffer_cell, "buffer", top_);
+    input_net_ = network_->makeNet("internal_input", top_);
+    Net *output_net = network_->makeNet("internal_output", top_);
+    network_->connect(top_, input_, input_net_);
+    network_->connect(top_, output_, output_net);
+    network_->connect(buffer_, buffer_input_, input_net_);
+    network_->connect(buffer_, buffer_output, output_net);
+    network_->connect(top_, bidirect_, network_->makeNet("internal_io", top_));
+    const auto *test = ::testing::UnitTest::GetInstance()->current_test_info();
+    filename_ = (std::filesystem::temp_directory_path()
+                 / (std::string(test->test_suite_name()) + "." + test->name()
+                    + ".v")).string();
+  }
+
+  void TearDown() override {
+    std::error_code error;
+    std::filesystem::remove(filename_, error);
+    deleteAllMemory();
+    Tcl_DeleteInterp(interp_);
+  }
+
+  std::string written() {
+    std::ifstream stream(filename_, std::ios::binary);
+    std::ostringstream text;
+    text << stream.rdbuf();
+    return text.str();
+  }
+
+  void reconnectInput(Net *net) {
+    network_->disconnectPin(network_->findPin(top_, input_));
+    network_->connect(top_, input_, net);
+    network_->connect(buffer_, buffer_input_, net);
+  }
+
+  Sta *sta_ = nullptr;
+  Tcl_Interp *interp_ = nullptr;
+  ConcreteNetwork *network_ = nullptr;
+  Instance *top_ = nullptr;
+  Instance *buffer_ = nullptr;
+  Port *input_ = nullptr;
+  Port *other_input_ = nullptr;
+  Port *output_ = nullptr;
+  Port *bidirect_ = nullptr;
+  Port *power_ = nullptr;
+  Port *ground_ = nullptr;
+  Port *buffer_input_ = nullptr;
+  Net *input_net_ = nullptr;
+  std::string filename_;
+};
+
+TEST_F(VerilogInputAliasTest, RenamedInputAndOutputRoundTrip) {
+  ASSERT_NE(network_->name(input_), network_->name(input_net_));
+  writeVerilog(filename_.c_str(), false, nullptr, network_);
+  EXPECT_NE(written().find("assign internal_input = external_input;"),
+            std::string::npos);
+  EXPECT_NE(written().find("assign external_output = internal_output;"),
+            std::string::npos);
+
+  ASSERT_TRUE(sta_->readVerilog(filename_.c_str()));
+  ASSERT_TRUE(sta_->linkDesign("alias_top", true));
+  Network *network = sta_->network();
+  Pin *input = network->findPin("external_input");
+  Pin *buffer_input = network->findPin("buffer/A");
+  Pin *output = network->findPin("external_output");
+  Pin *buffer_output = network->findPin("buffer/Z");
+  ASSERT_NE(input, nullptr);
+  ASSERT_NE(buffer_input, nullptr);
+  ASSERT_NE(output, nullptr);
+  ASSERT_NE(buffer_output, nullptr);
+  ASSERT_NE(network->term(input), nullptr);
+  ASSERT_NE(network->term(output), nullptr);
+  EXPECT_EQ(network->net(network->term(input)), network->net(buffer_input));
+  EXPECT_EQ(network->net(network->term(output)), network->net(buffer_output));
+}
+
+TEST_F(VerilogInputAliasTest, BidirectionalAliasKeepsOutputDirection) {
+  writeVerilog(filename_.c_str(), false, nullptr, network_);
+  EXPECT_NE(written().find("assign external_io = internal_io;"),
+            std::string::npos);
+  EXPECT_EQ(written().find("assign internal_io = external_io;"),
+            std::string::npos);
+}
+
+TEST_F(VerilogInputAliasTest, TwoInputsOnOneSignalNetAreRejected) {
+  // Include a net already named after one input: it still has two drivers even
+  // though only the other port would need an explicit alias.
+  for (const char *name : {"internal_input", "external_input"}) {
+    Net *net = name == std::string("internal_input")
+                 ? input_net_ : network_->makeNet(name, top_);
+    reconnectInput(net);
+    network_->disconnectPin(network_->findPin(top_, other_input_));
+    network_->connect(top_, other_input_, net);
+    std::string message;
+    try {
+      writeVerilog(filename_.c_str(), false, nullptr, network_);
+    }
+    catch (const Exception &error) {
+      message = error.what();
+    }
+    EXPECT_NE(message.find("external_input"), std::string::npos);
+    EXPECT_NE(message.find("other_input"), std::string::npos);
+    EXPECT_NE(message.find(name), std::string::npos);
+    EXPECT_TRUE(written().empty());
+  }
+}
+
+TEST_F(VerilogInputAliasTest, RejectedWritePreservesOutputFiles) {
+  const std::string base_filename = filename_;
+  for (const char *suffix : {"", ".gz"}) {
+    filename_ = base_filename + suffix;
+    writeVerilog(filename_.c_str(), false, nullptr, network_);
+    const std::string previous = written();
+    ASSERT_FALSE(previous.empty());
+
+    network_->connect(top_, other_input_, input_net_);
+    EXPECT_THROW(writeVerilog(filename_.c_str(), false, nullptr, network_), Exception);
+    EXPECT_EQ(written(), previous);
+    EXPECT_TRUE(std::filesystem::remove(filename_));
+    EXPECT_THROW(writeVerilog(filename_.c_str(), false, nullptr, network_), Exception);
+    EXPECT_FALSE(std::filesystem::exists(filename_));
+    std::filesystem::remove(filename_);
+    network_->disconnectPin(network_->findPin(top_, other_input_));
+  }
+  filename_ = base_filename;
+}
+
+TEST_F(VerilogInputAliasTest, SignalInputsNeverDriveSupplyNets) {
+  for (const auto value : {LogicValue::zero, LogicValue::one}) {
+    const char *name = value == LogicValue::one ? "power_net" : "ground_net";
+    Net *net = network_->makeNet(name, top_);
+    network_->addConstantNet(net, value);
+    reconnectInput(net);
+    for (const bool include_pwr_gnd : {false, true}) {
+      writeVerilog(filename_.c_str(), include_pwr_gnd, nullptr, network_);
+      EXPECT_EQ(written().find(std::string("assign ") + name
+                               + " = external_input;"), std::string::npos);
+    }
+  }
+}
+
+TEST_F(VerilogInputAliasTest, TwoInputsAfterNetMergeAreRejected) {
+  Net *other_net = network_->makeNet("other_input_net", top_);
+  network_->connect(top_, other_input_, other_net);
+  Pin *other_pin = network_->findPin(top_, other_input_);
+  ASSERT_NE(network_->net(network_->term(other_pin)), input_net_);
+  // Netlist edits that merge nets can also collect distinct input terminals.
+  network_->mergeInto(other_net, input_net_);
+  ASSERT_EQ(network_->net(network_->term(other_pin)), input_net_);
+  EXPECT_THROW(writeVerilog(filename_.c_str(), false, nullptr, network_), Exception);
+  EXPECT_TRUE(written().empty());
+}
+
+TEST_F(VerilogInputAliasTest, SupplyPortAliasesKeepOutputDirection) {
+  Net *power = network_->makeNet("power_net", top_);
+  network_->addConstantNet(power, LogicValue::one);
+  network_->connect(top_, power_, power);
+  Net *ground = network_->makeNet("ground_net", top_);
+  network_->addConstantNet(ground, LogicValue::zero);
+  network_->connect(top_, ground_, ground);
+  writeVerilog(filename_.c_str(), true, nullptr, network_);
+  EXPECT_NE(written().find("assign power_port = power_net;"), std::string::npos);
+  EXPECT_NE(written().find("assign ground_port = ground_net;"), std::string::npos);
 }
 
 } // namespace sta
