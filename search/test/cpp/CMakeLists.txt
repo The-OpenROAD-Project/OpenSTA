@@ -23,6 +23,7 @@ sta_cpp_test(TestSearchStaInitB)
 sta_cpp_test(TestSearchStaDesign)
 sta_cpp_test(TestSearchStaDesignB)
 sta_cpp_test(TestSearchIncremental)
+sta_cpp_test(TestVectorMapHint)  # OpenROAD-fork: tag-match
 
 # Compatibility aggregate target for legacy scripts that still build TestSearch.
 add_custom_target(TestSearch
