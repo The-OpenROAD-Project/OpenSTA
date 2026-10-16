@@ -1163,20 +1163,24 @@ LibertyReader::makeBundlePort(LibertyCell *cell,
     debugPrint(debug_, "liberty", 1, " bundle {}", bundle_name);
     
     const LibertyComplexAttr *member_attr = bundle_group->findComplexAttr("members");
-    ConcretePortSeq *members = new ConcretePortSeq;
-    for (const LibertyAttrValue *member_value : member_attr->values()) {
-      if (member_value->isString()) {
-        const std::string &member_name = member_value->stringValue();
-        LibertyPort *member = cell->findLibertyPort(member_name);
-        if (member == nullptr)
-          member = makePort(cell, member_name);
-        members->push_back(member);
+    if (member_attr) {
+      ConcretePortSeq *members = new ConcretePortSeq;
+      for (const LibertyAttrValue *member_value : member_attr->values()) {
+        if (member_value->isString()) {
+          const std::string &member_name = member_value->stringValue();
+          LibertyPort *member = cell->findLibertyPort(member_name);
+          if (member == nullptr)
+            member = makePort(cell, member_name);
+          members->push_back(member);
+        }
       }
+      LibertyPort *bundle_port = builder_.makeBundlePort(cell, bundle_name, members);
+      port_group_map[bundle_group].push_back(bundle_port);
+      // Make ports for pin groups inside the bundle group.
+      makeBundlePinPorts(cell, bundle_group, port_group_map);
     }
-    LibertyPort *bundle_port = builder_.makeBundlePort(cell, bundle_name, members);
-    port_group_map[bundle_group].push_back(bundle_port);
-    // Make ports for pin groups inside the bundle group.
-    makeBundlePinPorts(cell, bundle_group, port_group_map);
+    else
+      warn(1315, bundle_group, "bundle {} missing members.", bundle_name);
   }
   else
     warn(1313, bundle_group, "bundle missing name.");
@@ -1632,7 +1636,7 @@ LibertyReader::makePortFuncs(LibertyCell *cell,
       FuncExpr *func_expr = parseFunc(func, "function", cell, func_attr->line());
       for (LibertyPort *port : ports) {
         port->setFunction(func_expr);
-        if (func_expr->checkSize(port)) {
+        if (func_expr && func_expr->checkSize(port)) {
           warn(1195, func_attr->line(),
                   "port {} function size does not match port size.",
                   port->name());
@@ -1648,11 +1652,13 @@ LibertyReader::makePortFuncs(LibertyCell *cell,
       FuncExpr *tri_disable_expr = parseFunc(tri_disable,
                                              "three_state", cell,
                                              tri_attr->line());
-      FuncExpr *tri_enable_expr = tri_disable_expr->invert();
-      for (LibertyPort *port : ports) {
-        port->setTristateEnable(tri_enable_expr);
-        if (port->direction() == PortDirection::output())
-          port->setDirection(PortDirection::tristate());
+      if (tri_disable_expr) {
+        FuncExpr *tri_enable_expr = tri_disable_expr->invert();
+        for (LibertyPort *port : ports) {
+          port->setTristateEnable(tri_enable_expr);
+          if (port->direction() == PortDirection::output())
+            port->setDirection(PortDirection::tristate());
+        }
       }
     }
   }

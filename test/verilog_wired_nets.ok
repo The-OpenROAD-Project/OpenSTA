@@ -1,0 +1,6 @@
+wor w;: rejected at declaration
+wor [1:0] w = a;: rejected at declaration
+wand w;: rejected at declaration
+wand [1:0] w = a;: rejected at declaration
+rejected modules: not linkable
+ordinary wire aliases: independent inputs preserved
