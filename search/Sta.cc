@@ -103,6 +103,7 @@
 #include "VerilogReader.hh"
 #include "VisitPathEnds.hh"
 #include "Wireload.hh"
+#include "dcalc/DelayNoise.hh"
 #include "liberty/LibertyReader.hh"
 #include "parasitics/ConcreteParasitics.hh"
 #include "parasitics/ReportParasiticAnnotation.hh"
@@ -111,6 +112,9 @@
 #include "sdc/WriteSdc.hh"
 #include "sdf/SdfReader.hh"
 #include "sdf/SdfWriter.hh"
+#include "spice/WriteGateGnuplot.hh"
+#include "spice/WriteGateSpice.hh"
+#include "spice/WritePathGnuplot.hh"
 #include "spice/WritePathSpice.hh"
 
 namespace sta {
@@ -288,6 +292,7 @@ Sta::makeComponents()
   makeClkSkews();
   makeCheckTiming();
   delay_ops_ = new DelayOpsScalar();
+  makeDelayNoise();
 
   setCmdNamespace1(CmdNamespace::sdc);
   setThreadCount1(defaultThreadCount());
@@ -343,6 +348,7 @@ Sta::updateComponentsState()
   search_->copyState(this);
   latches_->copyState(this);
   graph_delay_calc_->copyState(this);
+  delay_noise_->copyState(this);
   report_path_->copyState(this);
   check_timing_->copyState(this);
   clk_skews_->copyState(this);
@@ -476,6 +482,12 @@ Sta::makeProperties()
 }
 
 void
+Sta::makeDelayNoise()
+{
+  delay_noise_ = new DelayNoise(this);
+}
+
+void
 Sta::setSta(Sta *sta)
 {
   sta_ = sta;
@@ -515,6 +527,7 @@ Sta::~Sta()
   delete units_;
   delete report_;
   delete power_;
+  delete delay_noise_;
   delete equiv_cells_;
   delete dispatch_queue_;
   delete variables_;
@@ -6161,6 +6174,118 @@ Sta::activity(const Pin *pin,
 ////////////////////////////////////////////////////////////////
 
 void
+Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
+                          float min_coupling_ratio,
+                          const Scene *scene,
+                          const MinMaxAll *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
+                                    min_coupling_ratio, scene, min_max);
+}
+
+void
+Sta::reportNoiseDelays(size_t max_count,
+                       float min_coupling_sum_ratio,
+                       float min_coupling_ratio,
+                       const Scene *scene,
+                       const MinMaxAll *min_maxs)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportNoiseDelays(max_count, min_coupling_sum_ratio,
+                                  min_coupling_ratio, scene, min_maxs);
+}
+
+void
+Sta::reportNoiseDelays(const Net *net,
+                       const RiseFallBoth *drvr_rfs,
+                       float min_coupling_ratio,
+                       const Scene *scene,
+                       const MinMaxAll *min_maxs)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene, min_maxs);
+}
+
+void
+Sta::reportNoiseDelays(ArcDcalcArgSeq gates,
+                       const Scene *scene,
+                       const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportNoiseDelays(gates, scene, min_max);
+}
+
+void
+Sta::reportVictimNets(float min_coupling_ratio,
+                      const Scene *scene,
+                      const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
+}
+
+void
+Sta::reportAggressors(const Net *victim,
+                      float min_coupling_ratio,
+                      const Scene *scene,
+                      const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportAggressors(victim, min_coupling_ratio, scene, min_max);
+}
+
+void
+Sta::writeNoiseDelayCase(const Net *net,
+                         const RiseFall *drvr_rf,
+                         std::string_view file_basename,
+                         float min_coupling_sum_ratio,
+                         float min_coupling_ratio,
+                         bool no_timestamp,
+                         const Scene *scene,
+                         const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->writeCaseFiles(net, drvr_rf, file_basename,
+                               min_coupling_sum_ratio,
+                               min_coupling_ratio, no_timestamp,
+                               scene, min_max);
+}
+
+void
+Sta::noiseDelayPreamble()
+{
+  checkLibrarayCcs();
+  // Arrivals required to filter aggressors.
+  searchPreamble();
+  search_->findArrivals();
+}
+
+void
+Sta::checkLibrarayCcs()
+{
+  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
+  while (lib_iter->hasNext()) {
+    LibertyLibrary *lib = lib_iter->next();
+    LibertyCellIterator cell_iter(lib);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      for (const TimingArcSet *arc_set : cell->timingArcSets()) {
+        for (const TimingArc *arc : arc_set->arcs()) {
+          GateTableModel *gate_model = arc->gateTableModel();
+          if (gate_model
+              && gate_model->outputWaveforms() != nullptr)
+            return;
+        }
+      }
+    }
+  }
+  report_->warn(1579, "No liberty CCS models found.");
+}
+
+////////////////////////////////////////////////////////////////
+
+void
 Sta::writePathSpice(const Path *path,
                     std::string_view spice_filename,
                     std::string_view subckt_filename,
@@ -6174,6 +6299,57 @@ Sta::writePathSpice(const Path *path,
   sta::writePathSpice(path, spice_filename, subckt_filename,
                       std::move(lib_subckt_filenames),
                       model_filename, power_name, gnd_name, ckt_sim, this);
+}
+
+void
+Sta::writeGateSpice(ArcDcalcArgSeq &gates,
+                    const char *spice_filename,
+                    const char *subckt_filename,
+                    StringSeq lib_subckt_filenames,
+                    const char *model_filename,
+                    const char *power_name,
+                    const char *gnd_name,
+                    CircuitSim ckt_sim,
+                    const Scene *scene,
+                    const MinMax *min_max)
+{
+  if (!gates.empty()) {
+    ensureGraph();
+    findDelays();
+    sta::writeGateSpice(gates, spice_filename, subckt_filename,
+                        lib_subckt_filenames, model_filename,
+                        power_name, gnd_name, ckt_sim, scene,
+                        min_max, this);
+  }
+}
+
+void
+Sta::writeGateGnuplot(ArcDcalcArgSeq &gates,
+                      const PinSet &plot_pins,
+                      std::string_view spice_waveform_filename,
+                      std::string_view gnuplot_filename,
+                      std::string_view gnuplot_csv_filename,
+                      const Scene *scene,
+                      const MinMax *min_max)
+{
+  ensureGraph();
+  findDelays();
+  sta::writeGateGnuplot(gates, plot_pins, spice_waveform_filename,
+                        gnuplot_filename, gnuplot_csv_filename,
+                        scene, min_max, this);
+}
+
+void
+Sta::writePathGnuplot(const Path *path,
+                      const PinSet &plot_pins,
+                      std::string_view spice_waveform_filename,
+                      std::string_view gnuplot_filename,
+                      std::string_view gnuplot_csv_filename)
+{
+  ensureGraph();
+  findDelays();
+  sta::writePathGnuplot(path, plot_pins, spice_waveform_filename,
+                        gnuplot_filename, gnuplot_csv_filename, this);
 }
 
 ////////////////////////////////////////////////////////////////

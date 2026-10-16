@@ -27,9 +27,11 @@
 #include <cstdlib>
 #include <string>
 
+#include "ContainerHelpers.hh"
 #include "Graph.hh"
 #include "Liberty.hh"
 #include "Network.hh"
+#include "StaState.hh"
 #include "StringUtil.hh"
 #include "TimingArc.hh"
 #include "Units.hh"
@@ -165,8 +167,6 @@ ArcDcalcArg::ArcDcalcArg(const Pin *in_pin,
 {
 }
 
-ArcDcalcArg::ArcDcalcArg(const ArcDcalcArg &arg) = default;
-
 const RiseFall *
 ArcDcalcArg::inEdge() const
 {
@@ -239,6 +239,47 @@ void
 ArcDcalcArg::setInputDelay(float input_delay)
 {
   input_delay_ = input_delay;
+}
+
+void
+ArcDcalcArg::sort(ArcDcalcArgSeq &gates,
+                  const Network *network)
+{
+  // Leave the driver in gates[0].
+  std::sort(gates.begin() + 1, gates.end(),
+            [network] (const ArcDcalcArg &gate1,
+                       const ArcDcalcArg &gate2) {
+    int drvr_cmp = network->pathNameCmp(gate1.drvrPin(), gate2.drvrPin());
+    if (drvr_cmp == 0)
+      return network->pathNameCmp(gate1.inPin(), gate2.inPin()) < 0;
+    else
+      return drvr_cmp < 0;
+  });
+}
+
+std::string
+ArcDcalcArg::to_string(ArcDcalcArgSeq &gates,
+                       const StaState *sta)
+{
+  const Network *network = sta->network();
+  std::string result;
+  size_t drvr_count = gates.size();
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
+    ArcDcalcArg &gate = gates[drvr_idx];
+    const Instance *drvr = network->instance(gate.drvrPin());
+    std::string gate_str = sta::format("{}{{{} {} {} {} {} {}}}{}",
+                                       (drvr_idx == 0) ? "{" : " ",
+                                       network->pathName(drvr),
+                                       gate.arc()->from()->name(),
+                                       gate.arc()->fromEdge()->to_string(),
+                                       gate.arc()->to()->name(),
+                                       gate.arc()->toEdge()->to_string(),
+                                       delayAsString(gate.inputDelay(),
+                                                     MinMax::max(), 3, sta),
+                                       (drvr_idx == drvr_count-1) ? "}" : "");
+    result += gate_str;
+  }
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////

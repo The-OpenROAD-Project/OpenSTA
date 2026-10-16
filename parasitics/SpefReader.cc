@@ -437,7 +437,8 @@ SpefReader::findParasiticNode(std::string_view name,
           Pin *pin = network_->findPin(inst, name2);
           if (pin) {
             if (local_only && !network_->isConnected(net_, pin))
-              warn(1651, "{} not connected to net {}.", name1,
+              warn(1651, "{} not connected to net {}.",
+                   sdc_network_->pathName(pin),
                    sdc_network_->pathName(net_));
             return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
           }

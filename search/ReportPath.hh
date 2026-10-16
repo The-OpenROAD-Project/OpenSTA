@@ -419,6 +419,7 @@ protected:
                   const Path *path,
                   float cap,
                   const Slew &slew,
+                  float noise,
                   float fanout,
                   const Delay &incr,
                   float variation,
@@ -543,6 +544,7 @@ protected:
   ReportField *field_incr_;
   ReportField *field_capacitance_;
   ReportField *field_slew_;
+  ReportField *field_noise_;
   ReportField *field_fanout_;
   ReportField *field_variation_;
   ReportField *field_src_attr_;

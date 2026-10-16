@@ -77,6 +77,38 @@ The `all_registers` command returns a list of  register instances or register pi
 `-edge_triggered` {: #opt-all_registers-edge_triggered }
 : Return edge-triggered registers.
 
+## annotate_noise_delays
+
+<pre><code>annotate_noise_delays
+    [<a href="#opt-annotate_noise_delays-scene">-scene</a> scene]
+    [<a href="#opt-annotate_noise_delays-min">-min</a>]
+    [<a href="#opt-annotate_noise_delays-max">-max</a>]
+    [<a href="#opt-annotate_noise_delays-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
+    [<a href="#opt-annotate_noise_delays-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]</code></pre>
+
+Annotate wire delays on victim nets that have coupling capacitances to aggressor nets that switch simultaneosly. Adjacent aggressor nets that switch in the opposite direction push the waveform down and increase the maximum delay on the wire. Nets that switch in the same direction decrease the minimum delay on the wire. Aggressor nets with min/max timing windows that do not overlap the victim timing window are not annotated.
+
+Noise delays can be reported in timing reports with the -noise field.
+
+Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.
+
+### Options
+
+`-scene` {: #opt-annotate_noise_delays-scene }
+: Annotate delay calculation for a scene. Required for multi-scene analysis.
+
+`-min` {: #opt-annotate_noise_delays-min }
+: Only annotate minimum delays.
+
+`-max` {: #opt-annotate_noise_delays-max }
+:  Only annotate maximum delays.
+
+`-min_coupling_sum_ratio` {: #opt-annotate_noise_delays-min_coupling_sum_ratio }
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+
+`-min_coupling_ratio` {: #opt-annotate_noise_delays-min_coupling_ratio }
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
 ## check_setup
 
 <pre><code>check_setup
@@ -1431,6 +1463,31 @@ Report a summary of pins that are annotated by `read_vcd`, `read_saif` or `set_p
 `-report_annotated` {: #opt-report_activity_annotation-report_annotated }
 : Report annotated pins.
 
+## report_aggressors
+
+<pre><code>report_aggressors
+    net
+    [<a href="#opt-report_aggressors-scene">-scene</a> scene]
+    [<a href="#opt-report_aggressors-min">-min</a>]
+    [<a href="#opt-report_aggressors-max">-max</a>]
+    [<a href="#opt-report_aggressors-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]</code></pre>
+
+Report the aggressort nets for a victim net.
+
+### Options
+
+`-scene` {: #opt-report_aggressors-scene }
+: Report noise delays for scene. Required for multi-scene analysis.
+
+`-min` {: #opt-report_aggressors-min }
+: Only report minimum delays.
+
+`-max` {: #opt-report_aggressors-max }
+: Only report maximum delays.
+
+`-min_coupling_ratio` {: #opt-report_aggressors-min_coupling_ratio }
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
 ## report_annotated_check
 
 <pre><code>report_annotated_check
@@ -1965,6 +2022,49 @@ Report the connections and capacitance of a net.
 `-digits` {: #opt-report_net-digits }
 : Number of digits to print after the decimal point.
 
+## report_noise_delays
+
+<pre><code>report_noise_delays
+    [<a href="#opt-report_noise_delays-net">-net</a> net]
+    [<a href="#opt-report_noise_delays-max_count">-max_count</a> max_count]
+    [<a href="#opt-report_noise_delays-rise">-rise</a>|<a href="#opt-report_noise_delays-fall">-fall</a>]
+    [<a href="#opt-report_noise_delays-scene">-scene</a> sc`ene]
+    [<a href="#opt-report_noise_delays-min">-min</a>]
+    [<a href="#opt-report_noise_delays-max">-max</a>]
+    [<a href="#opt-report_noise_delays-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
+    [<a href="#opt-report_noise_delays-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]</code></pre>
+
+Report noise delays on nets. Use -net to report noise delays on a net. Use -max_coiunt to see the top max_count noise delays in the design.
+
+### Options
+
+`-net` {: #opt-report_noise_delays-net }
+: Report noise delays for net.
+
+`-max_count` {: #opt-report_noise_delays-max_count }
+: Report noise delays for the top max_count nets.
+
+`-rise` {: #opt-report_noise_delays-rise }
+: Only report rise delays.
+
+`-fall` {: #opt-report_noise_delays-fall }
+: Only report fall delays.
+
+`-scene` {: #opt-report_noise_delays-scene }
+: Annotate delay calculation for a scene. Required for multi-scene analysis.
+
+`-min` {: #opt-report_noise_delays-min }
+: nly report minimum delays.
+
+`-max` {: #opt-report_noise_delays-max }
+: Only report maximum delays.
+
+`-min_coupling_sum_ratio` {: #opt-report_noise_delays-min_coupling_sum_ratio }
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+
+`-min_coupling_ratio` {: #opt-report_noise_delays-min_coupling_ratio }
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
 ## report_object_full_names
 
 <pre><code>report_object_full_names
@@ -2140,6 +2240,30 @@ report_units
  power 1pW
  distance 1um
 ```
+
+## report_victim_nets
+
+<pre><code>report_victim_nets
+    [<a href="#opt-report_victim_nets-scene">-scene</a> scene]
+    [<a href="#opt-report_victim_nets-min">-min</a>]
+    [<a href="#opt-report_victim_nets-max">-max</a>]
+    [<a href="#opt-report_victim_nets-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]</code></pre>
+
+Report victim nets that have coupling capacitances to aggressor nets that switch simultaneosly.
+
+### Options
+
+`-scene` {: #opt-report_victim_nets-scene }
+: The delay calculation scene to annotate. Required for multi-scene analysis.
+
+`-min` {: #opt-report_victim_nets-min }
+: Only annotate minimum delays.
+
+`-max` {: #opt-report_victim_nets-max }
+: Only annotate maximum delays.
+
+`-min_coupling_sum_ratio` {: #opt-report_victim_nets-min_coupling_sum_ratio }
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
 
 ## report_wns
 

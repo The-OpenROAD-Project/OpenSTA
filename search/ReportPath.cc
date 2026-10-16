@@ -64,6 +64,7 @@
 #include "Transition.hh"
 #include "Units.hh"
 #include "Variables.hh"
+#include "dcalc/DelayNoise.hh"
 
 namespace sta {
 
@@ -151,6 +152,7 @@ ReportPath::makeFields()
   field_capacitance_ = makeField("capacitance", "cap", "Cap", 6, false,
                                  units_->capacitanceUnit());
   field_slew_ = makeField("slew", "slew", "Slew", 6, false, units_->timeUnit());
+  field_noise_ = makeField("noise", "noise", "Noise", 6, false, units_->timeUnit());
   field_incr_ = makeField("incr", "incr", "Delay", 6, false, units_->timeUnit());
   field_variation_ = makeField("variation", "var", "Variation", 6, false,
                                units_->timeUnit());
@@ -238,6 +240,8 @@ ReportPath::setReportFields(const StringSeq &fields)
   field_total_->setEnabled(true);
   field_description_->setEnabled(true);
   field_edge_->setEnabled(true);
+  // for debug
+  field_case_->setEnabled(false);
   // These are not real fields; they are flags.
   report_input_pin_ = false;
   report_hier_pins_ = false;
@@ -2476,7 +2480,8 @@ ReportPath::reportPathLine(const Path *path,
   // Don't show capacitance field for input pins.
   if (is_driver && field_capacitance_->enabled())
     cap = graph_delay_calc_->loadCap(pin, rf, scene, min_max);
-  reportLine(what, path, cap, slew, field_blank_, incr, field_blank_,
+  reportLine(what, path, cap, slew, field_blank_ /*noise*/,
+             field_blank_ /* fanout */, incr, field_blank_ /*variation*/,
              time, false, early_late, rf, src_attr, line_case);
 }
 
@@ -2850,15 +2855,17 @@ ReportPath::reportPath6(const Path *path,
         if (field_fanout_->enabled())
           fanout = drvrFanout(vertex, scene, min_max);
         const std::string what = descriptionField(vertex);
-        reportLine(what, path1, cap, slew, fanout,
-                   incr, field_blank_, time, false, min_max, rf, src_attr,
-                   line_case);
+        reportLine(what, path1, cap, slew, field_blank_, fanout,
+                   incr, field_blank_, time, false, min_max,
+                   rf, src_attr, line_case);
 
         if (report_net_) {
           const std::string what2 = descriptionNet(pin);
-          reportLine(what2, path1, field_blank_, field_blank_, field_blank_,
-                     field_blank_, field_blank_, field_blank_, false, min_max,
-                     nullptr, src_attr, "");
+          reportLine(what2, nullptr, field_blank_ /* cap */,
+                     field_blank_ /* slew */, field_blank_ /* noise */,
+                     field_blank_ /* fanout */, field_blank_ /* incr */,
+                     field_blank_ /* variation */, field_blank_ /* total */,
+                     false, min_max, nullptr, src_attr, "");
         }
         prev_time = time;
       }
@@ -2869,9 +2876,22 @@ ReportPath::reportPath6(const Path *path,
             || (i == path_last_index)
             || is_clk_start) {
           const std::string what = descriptionField(vertex);
-          reportLine(what, path1, field_blank_, slew, field_blank_,
-                     incr, field_blank_, time, false, min_max, rf, src_attr,
-                     line_case);
+          float noise = field_blank_;
+          // Only show noise for wire arcs.
+          if (prev_arc && prev_arc->role()->isWire()
+              && field_noise_->enabled()) {
+            Edge *prev_edge = path1->prevEdge(this);
+            float noise1;
+            bool exists;
+            delay_noise_->wireDelayIncr(prev_edge, scene, rf, min_max,
+                                        noise1, exists);
+            if (exists)
+              noise = noise1;
+          }
+          reportLine(what, path1, field_blank_ /* cap */, slew, noise,
+                     field_blank_ /* fanout */, incr, field_blank_ /* variation */,
+                     time, false, min_max, rf,
+                     src_attr, line_case);
           prev_time = time;
         }
       }
@@ -2895,28 +2915,28 @@ ReportPath::reportVariation(const Path *path) const
       case PocvMode::normal: {
         float std_dev = arc_delay.stdDev();
         reportLine("sigma", path, field_blank_, field_blank_, field_blank_,
-                   field_blank_, std_dev, field_blank_, true, min_max,
-                   nullptr, "", "");
+                   field_blank_, field_blank_, std_dev, field_blank_,
+                   true, min_max, nullptr, "", "");
         break;
       }
       case PocvMode::skew_normal: {
         float mean = arc_delay.mean();
         reportLine("mean", path, field_blank_, field_blank_, field_blank_,
-                   field_blank_, mean, field_blank_, true, min_max,
-                   nullptr, "", "");
+                   field_blank_, field_blank_, mean, field_blank_,
+                   true, min_max, nullptr, "", "");
         float mean_shift = arc_delay.meanShift();
         reportLine("mean_shift", path, field_blank_, field_blank_, field_blank_,
-                   field_blank_, mean_shift, field_blank_, true, min_max,
-                   nullptr, "", "");
+                   field_blank_, field_blank_, mean_shift, field_blank_,
+                   true, min_max, nullptr, "", "");
         float std_dev = arc_delay.stdDev();
         reportLine("std_dev", path, field_blank_, field_blank_, field_blank_,
-                   field_blank_, std_dev, field_blank_, true, min_max,
-                   nullptr, "", "");
+                   field_blank_, field_blank_, std_dev, field_blank_,
+                   true, min_max, nullptr, "", "");
         // skewness is dimensionless, so scale it to the field's time units.
         float skewness = arc_delay.skewness() * units_->timeUnit()->scale();
         reportLine("skewness", path, field_blank_, field_blank_, field_blank_,
-                   field_blank_, skewness, field_blank_, true, min_max,
-                   nullptr, "", "");
+                   field_blank_, field_blank_, skewness, field_blank_,
+                   true, min_max, nullptr, "", "");
         break;
       }
       default:
@@ -2943,8 +2963,8 @@ ReportPath::reportHierPinsThru(const Path *path) const
       for (const Pin *hpin : hierPinsThruEdge(prev_edge, network_, graph_)) {
         const std::string what = descriptionField(hpin);
         reportLine(what, path, field_blank_, field_blank_, field_blank_,
-                   field_blank_, field_blank_, field_blank_, false,
-                   path->minMax(this), nullptr, "", "");
+                   field_blank_, field_blank_, field_blank_, field_blank_,
+                   false, path->minMax(this), nullptr, "", "");
       }
     }
   }
@@ -3137,7 +3157,7 @@ ReportPath::reportLine(std::string_view what,
                        const EarlyLate *early_late) const
 {
   reportLine(what, nullptr, field_blank_, field_blank_, field_blank_, field_blank_,
-             field_blank_, total, false, early_late, nullptr, "", "");
+             field_blank_, field_blank_, total, false, early_late, nullptr, "", "");
 }
 
 // Report negative total.
@@ -3147,7 +3167,8 @@ ReportPath::reportLineNegative(std::string_view what,
                                const EarlyLate *early_late) const
 {
   reportLine(what, nullptr, field_blank_, field_blank_, field_blank_,
-             field_blank_, field_blank_, total, true /* tota_with_minus */,
+             field_blank_, field_blank_, field_blank_,
+             total, true /* tota_with_minus */,
              early_late, nullptr, "", "");
 }
 
@@ -3159,7 +3180,8 @@ ReportPath::reportLine(std::string_view what,
                        const RiseFall *rf) const
 {
   reportLine(what, nullptr, field_blank_, field_blank_, field_blank_,
-             field_blank_, field_blank_, total, false, early_late, rf, "", "");
+             field_blank_, field_blank_, field_blank_, total,
+             false, early_late, rf, "", "");
 }
 
 // Report increment, and total.
@@ -3170,7 +3192,8 @@ ReportPath::reportLine(std::string_view what,
                        const EarlyLate *early_late) const
 {
   reportLine(what, nullptr, field_blank_, field_blank_, field_blank_,
-             incr, field_blank_, total, false, early_late, nullptr, "", "");
+             field_blank_, incr, field_blank_, total, false, early_late,
+             nullptr, "", "");
 }
 
 // Report increment, total, and transition suffix.
@@ -3182,7 +3205,8 @@ ReportPath::reportLine(std::string_view what,
                        const RiseFall *rf) const
 {
   reportLine(what, nullptr, field_blank_, field_blank_, field_blank_,
-             incr, field_blank_, total, false, early_late, rf, "", "");
+             field_blank_, incr, field_blank_, total, false, early_late,
+             rf, "", "");
 }
 
 // Report slew, increment, and total.
@@ -3193,7 +3217,7 @@ ReportPath::reportLine(std::string_view what,
                        const Delay &total,
                        const EarlyLate *early_late) const
 {
-  reportLine(what, nullptr, field_blank_, slew, field_blank_,
+  reportLine(what, nullptr, field_blank_, slew, field_blank_, field_blank_,
              incr, field_blank_, total, false, early_late, nullptr, "", "");
 }
 
@@ -3202,6 +3226,7 @@ ReportPath::reportLine(std::string_view what,
                        const Path *path,
                        float cap,
                        const Slew &slew,
+                       float noise,
                        float fanout,
                        const Delay &incr,
                        float variation,
@@ -3236,6 +3261,9 @@ ReportPath::reportLine(std::string_view what,
         reportField(cap, field, line);
       else if (field == field_slew_)
         reportFieldDelay(slew, early_late, field, line);
+      else if (field == field_noise_) {
+	reportFieldDelay(noise, early_late, field, line);
+      }
       else if (field == field_incr_)
         reportFieldDelay(incr, early_late, field, line);
       else if (field == field_variation_)

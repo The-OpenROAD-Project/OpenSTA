@@ -22,7 +22,7 @@
 //
 // This notice may not be removed or altered from any source distribution.
 
-#include "spice/WriteSpice.hh"
+#include "WriteSpice.hh"
 
 #include <algorithm>  // swap
 #include <filesystem>
@@ -34,6 +34,7 @@
 #include "Bdd.hh"
 #include "Clock.hh"
 #include "ContainerHelpers.hh"
+#include "StringUtil.hh"
 #include "Debug.hh"
 #include "FuncExpr.hh"
 #include "Graph.hh"
@@ -110,7 +111,7 @@ WriteSpice::writeHeader(std::string &title,
   if (!model_filename_.empty())
     sta::print(spice_stream_, ".include \"{}\"\n", model_filename_);
   std::filesystem::path subckt_filename =
-      std::filesystem::path(subckt_filename_).filename();
+    std::filesystem::path(subckt_filename_).filename();
   sta::print(spice_stream_, ".include \"{}\"\n", subckt_filename.string());
   sta::print(spice_stream_, ".tran {:.3g} {:.3g}\n", time_step, max_time);
   // Suppress printing model parameters.
@@ -1047,14 +1048,8 @@ WriteSpice::writeClkedStepSource(const Pin *pin,
 {
   Vertex *vertex = graph_->pinLoadVertex(pin);
   float slew = findSlew(vertex, rf, nullptr);
-  float time = clkWaveformTimeOffset(clk) + clk->period() / 2.0;
+  float time = clk->period() / 2.0;
   writeRampVoltSource(pin, rf, time, slew);
-}
-
-float
-WriteSpice::clkWaveformTimeOffset(const Clock *clk)
-{
-  return clk->period() / 10;
 }
 
 }  // namespace sta
