@@ -1,0 +1,17 @@
+u_xor/Z 5.00000e+07 0.500 propagated
+u_and/ZN 3.75000e+07 0.250 propagated
+u_icg/GCK 5.00000e+07 0.125 propagated
+r_reg/Q 1.00000e+07 0.250 propagated
+r_glitch/Q 5.00000e+07 0.250 propagated
+r_gen/CK 1.00000e+08 0.250 clock
+r_niq/QN 1.00000e+07 0.750 propagated
+u_inv1/ZN 3.00000e+07 0.500 propagated
+u_inv2/ZN 2.00000e+07 0.500 propagated
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+ 7.5000e-08 0.0000e+00 0.0000e+00 7.5000e-08 u_when
+u_and/ZN 0.00000e+00 0.000 constant
+u_xor/Z 5.00000e+07 0.500 propagated
+u_inv2/A 3.00000e+08 0.500 propagated
+u_inv2/ZN 1.00000e+08 0.500 propagated
