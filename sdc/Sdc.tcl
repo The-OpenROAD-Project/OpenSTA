@@ -4422,24 +4422,52 @@ proc set_level_shifter_threshold { args } {
 
 ################################################################
 
-define_cmd_args "set_max_dynamic_power" {power [unit]} \
-  -help {The `set_max_dynamic_power` command is ignored during timing but is included in SDC files that are written.}
+define_cmd_args "set_max_dynamic_power" {power [unit] [-unit unit]} \
+  -help {The `set_max_dynamic_power` command is ignored during timing but is included in SDC files that are written.} \
+  -arg_help {
+    power {The maximum dynamic power, in the command power unit when no unit is given.}
+    unit {GW, MW, KW, kW, W, mW, uW, nW, pW, fW or aW.}
+    -unit {`unit`: The same unit, in the SDC 2.1 parser's keyword form.}
+  }
 
-proc set_max_dynamic_power { power {unit {}} } {
-  check_positive_float "power" $power
-  # Optional SDC unit argument is accepted but ignored; use set_units.
-  set_max_dynamic_power_cmd $power
+proc set_max_dynamic_power { args } {
+  set_max_dynamic_power_cmd [power_arg_sta "set_max_dynamic_power" $args]
 }
 
 ################################################################
 
-define_cmd_args "set_max_leakage_power" {power [unit]} \
-  -help {The `set_max_leakage_power` command is ignored during timing but is included in SDC files that are written.}
+define_cmd_args "set_max_leakage_power" {power [unit] [-unit unit]} \
+  -help {The `set_max_leakage_power` command is ignored during timing but is included in SDC files that are written.} \
+  -arg_help {
+    power {The maximum leakage power, in the command power unit when no unit is given.}
+    unit {GW, MW, KW, kW, W, mW, uW, nW, pW, fW or aW.}
+    -unit {`unit`: The same unit, in the SDC 2.1 parser's keyword form.}
+  }
 
-proc set_max_leakage_power { power {unit {}} } {
+proc set_max_leakage_power { args } {
+  set_max_leakage_power_cmd [power_arg_sta "set_max_leakage_power" $args]
+}
+
+# Power from "power [unit]" (SDC 2.1) or "power -unit unit" (the SDC 2.1 parser).
+# Without a unit it is in the command power unit (set_cmd_units -power).
+proc power_arg_sta { cmd cmd_args } {
+  parse_key_args $cmd cmd_args keys {-unit} flags {}
+  if { [info exists keys(-unit)] } {
+    check_argc_eq1 $cmd $cmd_args
+    lappend cmd_args $keys(-unit)
+  }
+  check_argc_eq1or2 $cmd $cmd_args
+  lassign $cmd_args power unit
   check_positive_float "power" $power
-  # Optional SDC unit argument is accepted but ignored; use set_units.
-  set_max_leakage_power_cmd $power
+  if { $unit == {} } {
+    return [power_ui_sta $power]
+  }
+  set scales {GW 1e9 MW 1e6 KW 1e3 kW 1e3 W 1.0 mW 1e-3 uW 1e-6 nW 1e-9
+    pW 1e-12 fW 1e-15 aW 1e-18}
+  if { ![dict exists $scales $unit] } {
+    sta_error 487 "$cmd unit '$unit' is not one of [dict keys $scales]."
+  }
+  return [expr {$power * [dict get $scales $unit]}]
 }
 
 ################################################################

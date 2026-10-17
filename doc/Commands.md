@@ -3371,9 +3371,15 @@ When the `-ignore_clock_latency` option is used clock latency at the source and 
 
 <pre><code>set_max_dynamic_power
     power
-    [unit]</code></pre>
+    [unit]
+    [<a href="#opt-set_max_dynamic_power-unit">-unit</a> unit]</code></pre>
 
 The `set_max_dynamic_power` command is ignored during timing but is included in SDC files that are written.
+
+### Options
+
+`-unit` {: #opt-set_max_dynamic_power-unit }
+: `unit`: The same unit, in the SDC 2.1 parser's keyword form.
 
 ## set_max_fanout
 
@@ -3387,9 +3393,15 @@ The `set_max_fanout` command is ignored during timing but is included in SDC fil
 
 <pre><code>set_max_leakage_power
     power
-    [unit]</code></pre>
+    [unit]
+    [<a href="#opt-set_max_leakage_power-unit">-unit</a> unit]</code></pre>
 
 The `set_max_leakage_power` command is ignored during timing but is included in SDC files that are written.
+
+### Options
+
+`-unit` {: #opt-set_max_leakage_power-unit }
+: `unit`: The same unit, in the SDC 2.1 parser's keyword form.
 
 ## set_max_time_borrow
 
