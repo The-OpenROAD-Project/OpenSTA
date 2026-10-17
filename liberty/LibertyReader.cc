@@ -1955,13 +1955,14 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
                          timing_attrs, timing_group->line());
         }
       }
-      else if (!(timing_type == TimingType::min_pulse_width
-                 || timing_type == TimingType::minimum_period
-                 || timing_type == TimingType::min_clock_tree_path
-                 || timing_type == TimingType::max_clock_tree_path))
-        warn(1243, timing_group, "timing group missing related_pin/related_bus_pin.");
-      else
+      // No related_pin/port required.
+      else if (timing_type == TimingType::min_pulse_width
+               || timing_type == TimingType::minimum_period
+               || timing_type == TimingType::min_clock_tree_path
+               || timing_type == TimingType::max_clock_tree_path)
         makeTimingArcs(cell, to_port, related_output_port, timing_attrs);
+      else
+        warn(1243, timing_group, "timing group missing related_pin/related_bus_pin.");
     }
   }
 }
@@ -2646,8 +2647,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   PortNameBitIterator from_port_iter(cell, from_port_name, this, timing_line);
   if (from_port_iter.size() == 1 && !to_port->hasMembers()) {
     // one -> one
-    if (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    if (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1212, timing_line, "timing group from output port.");
       builder_.makeTimingArcs(cell, from_port, to_port, related_out_port,
@@ -2656,8 +2657,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   }
   else if (from_port_iter.size() > 1 && !to_port->hasMembers()) {
     // bus -> one
-    while (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    while (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1213, timing_line, "timing group from output port.");
       builder_.makeTimingArcs(cell, from_port, to_port, related_out_port,
@@ -2666,8 +2667,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   }
   else if (from_port_iter.size() == 1 && to_port->hasMembers()) {
     // one -> bus
-    if (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    if (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1214, timing_line, "timing group from output port.");
       LibertyPortMemberIterator bit_iter(to_port);
@@ -2684,35 +2685,37 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
       int from_size = from_port_iter.size();
       int to_size = to_port->size();
       LibertyPortMemberIterator to_port_iter(to_port);
-      // warn about different sizes
-      if (from_size != to_size)
-        warn(1216, timing_line,
-                "timing port {} and related port {} are different sizes.",
-                from_port_name,
-                to_port->name());
-      // align to/from iterators for one-to-one mapping
-      while (from_size > to_size) {
-        from_size--;
-        from_port_iter.PortNameBitIterator::next();
-      }
-      while (to_size > from_size) {
-        to_size--;
-        to_port_iter.next();
-      }
-      // make timing arcs
-      while (from_port_iter.PortNameBitIterator::hasNext() && to_port_iter.hasNext()) {
-        LibertyPort *from_port_bit = from_port_iter.PortNameBitIterator::next();
-        LibertyPort *to_port_bit = to_port_iter.next();
-        if (from_port_bit->direction()->isOutput())
-          warn(1215, timing_line, "timing group from output port.");
-        builder_.makeTimingArcs(cell, from_port_bit, to_port_bit,
-                                related_out_port, timing_attrs);
+      if (to_port_iter.hasNext()) {
+        // warn about different sizes
+        if (from_size != to_size)
+          warn(1216, timing_line,
+               "timing port {} and related port {} are different sizes.",
+               from_port_name,
+               to_port->name());
+        // align to/from iterators for one-to-one mapping
+        while (from_size > to_size) {
+          from_size--;
+          from_port_iter.next();
+        }
+        while (to_size > from_size) {
+          to_size--;
+          to_port_iter.next();
+        }
+        // make timing arcs
+        while (from_port_iter.hasNext() && to_port_iter.hasNext()) {
+          LibertyPort *from_port_bit = from_port_iter.next();
+          LibertyPort *to_port_bit = to_port_iter.next();
+          if (from_port_bit->direction()->isOutput())
+            warn(1215, timing_line, "timing group from output port.");
+          builder_.makeTimingArcs(cell, from_port_bit, to_port_bit,
+                                  related_out_port, timing_attrs);
+        }
       }
     }
     else {
       // cross product
-      while (from_port_iter.PortNameBitIterator::hasNext()) {
-        LibertyPort *from_port_bit = from_port_iter.PortNameBitIterator::next();
+      while (from_port_iter.hasNext()) {
+        LibertyPort *from_port_bit = from_port_iter.next();
         LibertyPortMemberIterator to_port_iter(to_port);
         while (to_port_iter.hasNext()) {
           LibertyPort *to_port_bit = to_port_iter.next();
