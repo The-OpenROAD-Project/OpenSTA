@@ -424,7 +424,8 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
     Pin *output_pin = output_iter->next();
     if (network_->direction(output_pin)->isOutput()) {
       Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
-      VertexPathIterator path_iter(output_vertex, this);
+      // Only the paths of the model's scene.
+      VertexPathIterator path_iter(output_vertex, scene_, nullptr, nullptr, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
         if (search_->matchesFilter(path, nullptr)) {
@@ -529,7 +530,8 @@ MakeTimingModel::findClkedOutputPaths()
       ClockEdgeDelays clk_delays;
       LibertyPort *output_port = modelPort(output_pin);
       Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
-      VertexPathIterator path_iter(output_vertex, this);
+      // Only the paths of the model's scene.
+      VertexPathIterator path_iter(output_vertex, scene_, nullptr, nullptr, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
         const ClockEdge *clk_edge = path->clkEdge(sta_);
