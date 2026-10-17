@@ -4482,6 +4482,44 @@ Returns the total user cpu run time in seconds as a float.
 
 The `with_output_to_variable` command redirects the output of Tcl commands to a variable.
 
+## write_delay_noise_case
+
+<pre><code>write_delay_noise_case
+    net
+    file_basename
+    <a href="#opt-write_delay_noise_case-rise">-rise</a>|<a href="#opt-write_delay_noise_case-fall">-fall</a>
+    [<a href="#opt-write_delay_noise_case-scene">-scene</a> scene]
+    [<a href="#opt-write_delay_noise_case-min">-min</a>]
+    [<a href="#opt-write_delay_noise_case-max">-max</a>]
+    [<a href="#opt-write_delay_noise_case-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
+    [<a href="#opt-write_delay_noise_case-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]
+    [-no_timestamp]</code></pre>
+
+Write verilog and spef files for noise delays on a net. For debugging noise cases.
+
+### Options
+
+`-rise` {: #opt-write_delay_noise_case-rise }
+: Write files for net rising. 
+
+`-fall` {: #opt-write_delay_noise_case-fall }
+: Write files for net falling. 
+
+`-scene` {: #opt-write_delay_noise_case-scene }
+: Annotate delay calculation for a scene. Required for multi-scene analysis.
+
+`-min` {: #opt-write_delay_noise_case-min }
+: Only annotate minimum delays.
+
+`-max` {: #opt-write_delay_noise_case-max }
+:  Only annotate maximum delays.
+
+`-min_coupling_sum_ratio` {: #opt-write_delay_noise_case-min_coupling_sum_ratio }
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+
+`-min_coupling_ratio` {: #opt-write_delay_noise_case-min_coupling_ratio }
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
 ## write_path_spice
 
 <pre><code>write_path_spice

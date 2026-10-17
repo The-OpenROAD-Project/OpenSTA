@@ -200,7 +200,7 @@ define_cmd_args "write_delay_noise_case" {net file_basename -rise|-fall\
                                             [-min_coupling_sum_ratio coupling_sum_ratio]\
                                             [-min_coupling_ratio coupling_ratio]\
                                             [-no_timestamp]} \
-  -help {Write verilog and spef files for noise delays on a net. For debugging noise cases.}
+  -help {Write verilog and spef files for noise delays on a net. For debugging noise cases.} \
   -arg_help {
     -net {Write noise case for net.}
     file_basename {Base file name for the .v and .spef files.}
@@ -211,6 +211,7 @@ define_cmd_args "write_delay_noise_case" {net file_basename -rise|-fall\
     -max { Only annotate maximum delays.}
     -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
     -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
+  }
 
 proc write_delay_noise_case { args } {
   variable min_coupling_sum_ratio_default
