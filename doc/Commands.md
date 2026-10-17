@@ -4493,7 +4493,7 @@ The `with_output_to_variable` command redirects the output of Tcl commands to a 
     [<a href="#opt-write_delay_noise_case-max">-max</a>]
     [<a href="#opt-write_delay_noise_case-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
     [<a href="#opt-write_delay_noise_case-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]
-    [-no_timestamp]</code></pre>
+    [<a href="#opt-write_delay_noise_case-no_timestamp">-no_timestamp</a>]</code></pre>
 
 Write verilog and spef files for noise delays on a net. For debugging noise cases.
 
@@ -4519,6 +4519,9 @@ Write verilog and spef files for noise delays on a net. For debugging noise case
 
 `-min_coupling_ratio` {: #opt-write_delay_noise_case-min_coupling_ratio }
 : The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
+`-no_timestamp` {: #opt-write_delay_noise_case-no_timestamp }
+: Do not include a time and date in the written files.
 
 ## write_path_spice
 
