@@ -77,6 +77,7 @@ sta_module_tests("search"
     timing
     timing_model
     timing_model_clktree
+    timing_model_constant
     timing_model_deep
     timing_model_io
     timing_model_readback

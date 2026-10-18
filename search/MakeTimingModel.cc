@@ -40,11 +40,13 @@
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Delay.hh"
+#include "FuncExpr.hh"
 #include "Graph.hh"
 #include "GraphClass.hh"
 #include "GraphDelayCalc.hh"
 #include "Liberty.hh"
 #include "LibertyClass.hh"
+#include "Mode.hh"
 #include "Network.hh"
 #include "NetworkClass.hh"
 #include "Path.hh"
@@ -55,6 +57,7 @@
 #include "Sdc.hh"
 #include "SdcClass.hh"
 #include "Search.hh"
+#include "Sim.hh"
 #include "Sta.hh"
 #include "StaState.hh"
 #include "TableModel.hh"
@@ -111,6 +114,7 @@ MakeTimingModel::makeTimingModel()
 
   sta_->searchPreamble();
 
+  setConstantOutputs();
   findTimingFromInputs();
   findClkedOutputPaths();
   findClkTreeDelays();
@@ -232,6 +236,28 @@ MakeTimingModel::makePorts()
     }
   }
   delete port_iter;
+}
+
+// An output a constant drives is that constant in the model, as a tie
+// cell's output is: a parent propagates it, where an output with no
+// arc to it would leave what it feeds unconstrained.
+void
+MakeTimingModel::setConstantOutputs()
+{
+  Sim *sim = scene_->mode()->sim();
+  sim->ensureConstantsPropagated();
+  InstancePinIterator *pin_iter = network_->pinIterator(network_->topInstance());
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (!network_->direction(pin)->isOutput())
+      continue;
+    LogicValue value = sim->simValue(pin);
+    if (value == LogicValue::zero)
+      modelPort(pin)->setFunction(FuncExpr::makeZero());
+    else if (value == LogicValue::one)
+      modelPort(pin)->setFunction(FuncExpr::makeOne());
+  }
+  delete pin_iter;
 }
 
 // Find port max_cap/max_slew limits.

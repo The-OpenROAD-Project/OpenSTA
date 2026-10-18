@@ -1,0 +1,16 @@
+--- constant outputs ---
+u/z0 0
+u/z1 1
+u/zand 0
+r0/D 0
+r1/D 1
+rz/D 0
+--- check_setup -unconstrained_endpoints ---
+--- rq/D ---
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+rq/D (DFFHQNx1_ASAP7_75t_R)           985.06   48.43  936.63 (MET)
+
