@@ -4921,6 +4921,7 @@ Sta::disconnectPinBefore(const Pin *pin)
       // Delete wire edges to pin.
       Vertex *vertex = graph_->pinLoadVertex(pin);
       if (vertex) {
+        search_->disconnectVertexBefore(vertex);
         VertexInEdgeIterator edge_iter(vertex, graph_);
         while (edge_iter.hasNext()) {
           Edge *edge = edge_iter.next();

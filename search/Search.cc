@@ -3744,18 +3744,29 @@ Search::updateInvalidTns()
   size_t path_count = scenePathCount();
   for (Vertex *vertex : invalid_tns_) {
     // Network edits can change endpointedness since tnsInvalid was called.
-    if (isEndpoint(vertex)) {
-      debugPrint(debug_, "tns", 2, "update tns {}", vertex->to_string(this));
-      SlackSeq slacks(path_count);
-      wnsSlacks(vertex, slacks);
+    debugPrint(debug_, "tns", 2, "update tns {}", vertex->to_string(this));
+    SlackSeq slacks(path_count);
+    wnsSlacks(vertex, slacks);
 
-      if (tns_exists_)
-        updateTns(vertex, slacks);
-      if (worst_slacks_)
-        worst_slacks_->updateWorstSlacks(vertex, slacks);
-    }
+    if (tns_exists_)
+      updateTns(vertex, slacks);
+    if (worst_slacks_)
+      worst_slacks_->updateWorstSlacks(vertex, slacks);
   }
   invalid_tns_.clear();
+}
+
+void
+Search::disconnectVertexBefore(Vertex *vertex)
+{
+  if (isEndpoint(vertex)) {
+    debugPrint(debug_, "tns", 2, "remove tns {}", vertex->to_string(this));
+    if (tns_exists_)
+      tnsNotifyBefore(vertex);
+    if (worst_slacks_)
+      worst_slacks_->worstSlackNotifyBefore(vertex);
+    invalid_endpoints_.erase(vertex);
+  }
 }
 
 void
@@ -3793,9 +3804,10 @@ Search::tnsIncr(Vertex *vertex,
                 PathAPIndex path_ap_index)
 {
   if (delayLess(slack, 0.0, this)) {
-    debugPrint(debug_, "tns", 3, "tns+ {} {}",
+    debugPrint(debug_, "tns", 3, "tns+ {} {} {}",
                delayAsString(slack, this),
-               vertex->to_string(this));
+               vertex->to_string(this),
+               path_ap_index);
     delayIncr(tns_[path_ap_index], slack, this);
     if (tns_slacks_[path_ap_index].contains(vertex))
       report_->critical(1513, "tns incr existing vertex");
@@ -3812,9 +3824,10 @@ Search::tnsDecr(Vertex *vertex,
   findKeyValue(tns_slacks_[path_ap_index], vertex, slack, found);
   if (found
       && delayLess(slack, 0.0, this)) {
-    debugPrint(debug_, "tns", 3, "tns- {} {}",
+    debugPrint(debug_, "tns", 3, "tns- {} {} {}",
                delayAsString(slack, this),
-               vertex->to_string(this));
+               vertex->to_string(this),
+               path_ap_index);
     delayDecr(tns_[path_ap_index], slack, this);
     tns_slacks_[path_ap_index].erase(vertex);
   }
@@ -3826,9 +3839,8 @@ Search::tnsNotifyBefore(Vertex *vertex)
 {
   if (tns_exists_ && isEndpoint(vertex)) {
     size_t path_count = scenePathCount();
-    for (size_t i = 0; i < path_count; i++) {
+    for (size_t i = 0; i < path_count; i++)
       tnsDecr(vertex, i);
-    }
   }
 }
 

@@ -130,6 +130,7 @@ public:
   // Vertex will be deleted.
   void deleteVertexBefore(Vertex *vertex);
   void deleteEdgeBefore(Edge *edge);
+  void disconnectVertexBefore(Vertex *vertex);
   // Find all arrival times (propatating thru latches).
   void findAllArrivals();
   // Find all arrivals (without latch propagation).
