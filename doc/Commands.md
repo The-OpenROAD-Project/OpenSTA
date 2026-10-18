@@ -2032,7 +2032,8 @@ Report the connections and capacitance of a net.
     [<a href="#opt-report_noise_delays-min">-min</a>]
     [<a href="#opt-report_noise_delays-max">-max</a>]
     [<a href="#opt-report_noise_delays-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
-    [<a href="#opt-report_noise_delays-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]</code></pre>
+    [<a href="#opt-report_noise_delays-min_coupling_ratio">-min_coupling_ratio</a> coupling_ratio]
+    [<a href="#opt-report_noise_delays-digits">-digits</a> digits]</code></pre>
 
 Report noise delays on nets. Use -net to report noise delays on a net. Use -max_coiunt to see the top max_count noise delays in the design.
 
@@ -2064,6 +2065,9 @@ Report noise delays on nets. Use -net to report noise delays on a net. Use -max_
 
 `-min_coupling_ratio` {: #opt-report_noise_delays-min_coupling_ratio }
 : The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
+`-digits` {: #opt-report_noise_delays-digits }
+: The number of digits after the decimal point to report. The default value is the variable sta_report_default_digits.
 
 ## report_object_full_names
 

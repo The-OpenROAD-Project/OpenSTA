@@ -1472,15 +1472,18 @@ public:
                          float min_coupling_sum_ratio,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs);
+                         const MinMaxAll *min_maxs,
+                         int digits);
   void reportNoiseDelays(const Net *net,
                          const RiseFallBoth *drvr_rfs,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs);
+                         const MinMaxAll *min_maxs,
+                         int digits);
   void reportNoiseDelays(ArcDcalcArgSeq gates,
                          const Scene *scene,
-                         const MinMax *min_max);
+                         const MinMax *min_max,
+                         int digits);
   void reportVictimNets(float min_coupling_ratio,
                         const Scene *scene,
                         const MinMax *min_max);

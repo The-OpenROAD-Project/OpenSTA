@@ -6201,11 +6201,12 @@ Sta::reportNoiseDelays(size_t max_count,
                        float min_coupling_sum_ratio,
                        float min_coupling_ratio,
                        const Scene *scene,
-                       const MinMaxAll *min_maxs)
+                       const MinMaxAll *min_maxs,
+                       int digits)
 {
   noiseDelayPreamble();
   delay_noise_->reportNoiseDelays(max_count, min_coupling_sum_ratio,
-                                  min_coupling_ratio, scene, min_maxs);
+                                  min_coupling_ratio, scene, min_maxs, digits);
 }
 
 void
@@ -6213,19 +6214,22 @@ Sta::reportNoiseDelays(const Net *net,
                        const RiseFallBoth *drvr_rfs,
                        float min_coupling_ratio,
                        const Scene *scene,
-                       const MinMaxAll *min_maxs)
+                       const MinMaxAll *min_maxs,
+                       int digits)
 {
   noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene, min_maxs);
+  delay_noise_->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene,
+                                  min_maxs, digits);
 }
 
 void
 Sta::reportNoiseDelays(ArcDcalcArgSeq gates,
                        const Scene *scene,
-                       const MinMax *min_max)
+                       const MinMax *min_max,
+                       int digits)
 {
   noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(gates, scene, min_max);
+  delay_noise_->reportNoiseDelays(gates, scene, min_max, digits);
 }
 
 void

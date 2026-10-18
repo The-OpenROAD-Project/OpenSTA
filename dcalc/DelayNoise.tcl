@@ -71,7 +71,8 @@ define_cmd_args "report_noise_delays" {[-net net]\
                                          [-rise|-fall]\
                                          [-scene sc`ene] [-min] [-max]\
                                          [-min_coupling_sum_ratio coupling_sum_ratio]\
-                                         [-min_coupling_ratio coupling_ratio]} \
+                                         [-min_coupling_ratio coupling_ratio]\
+                                         [-digits digits]}\
   -help {Report noise delays on nets. Use -net to report noise delays on a net. Use -max_coiunt to see the top max_count noise delays in the design.} \
   -arg_help {
     -net {Report noise delays for net.}
@@ -83,14 +84,17 @@ define_cmd_args "report_noise_delays" {[-net net]\
     -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
     -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
     -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
+    -digits {The number of digits after the decimal point to report. The default value is the variable sta_report_default_digits.}
   }
 
 proc report_noise_delays { args } {
   variable min_coupling_sum_ratio_default
   variable min_coupling_ratio_default
+  global sta_report_default_digits
 
   parse_key_args "report_noise_delays" args \
-    keys {-net -max_count -min_coupling_sum_ratio -min_coupling_ratio -scene} \
+    keys {-net -max_count -min_coupling_sum_ratio -min_coupling_ratio \
+            -scene -digits} \
     flags {-rise -fall -min -max}
 
   check_argc_eq0 "report_noise_delays" $args
@@ -107,11 +111,17 @@ proc report_noise_delays { args } {
   }
   set scene [parse_scene keys]
   set min_maxs [parse_min_max_all_flags flags]
+  set digits $sta_report_default_digits
+  if { [info exists keys(-digits)] } {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  }
 
   if { [info exists keys(-net)] } {
     set net [get_net_arg "net" $keys(-net)]
     set drvr_rfs [parse_rise_fall_flags flags]
-    report_net_noise_delays_cmd $net $drvr_rfs $min_coupling_ratio $scene $min_maxs
+    report_net_noise_delays_cmd $net $drvr_rfs $min_coupling_ratio $scene \
+      $min_maxs $digits
   } else {
     set max_count 1
     if { [info exists keys(-max_count)] } {
@@ -119,7 +129,7 @@ proc report_noise_delays { args } {
       check_positive_integer "-max_count" $max_count
     }
     report_noise_delays_cmd $max_count $min_coupling_sum_ratio $min_coupling_ratio\
-      $scene $min_maxs
+      $scene $min_maxs $digits
   }
 }
 
@@ -251,6 +261,8 @@ proc write_delay_noise_case { args } {
 define_hidden_cmd_args "report_gate_noise_delays" {gates [-scene scene] [-min] [-max]}
 
 proc report_gate_noise_delays { args } {
+  global sta_report_default_digits
+
   parse_key_args "report_gate_noise_delays" args \
     keys {-scene} \
     flags {-min -max}
@@ -258,7 +270,7 @@ proc report_gate_noise_delays { args } {
   set gates [lindex $args 0]
   set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
-  report_gate_noise_delays_cmd $gates $scene $min_max
+  report_gate_noise_delays_cmd $gates $scene $min_max $sta_report_default_digits
 }
 
 # sta namespace end

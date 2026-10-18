@@ -321,7 +321,8 @@ DelayNoise::reportNoiseDelays(size_t max_count,
                               float min_coupling_sum_ratio,
                               float min_coupling_ratio,
                               const Scene *scene,
-                              const MinMaxAll *min_maxs)
+                              const MinMaxAll *min_maxs,
+                              int digits)
 {
   DcalcResults noise_delays = ensureNoiseDelays(min_coupling_sum_ratio,
                                                 min_coupling_ratio,
@@ -340,7 +341,7 @@ DelayNoise::reportNoiseDelays(size_t max_count,
         Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
         if (drvr_vertex) {
           reportNoiseDelays(drvr_vertex, RiseFallBoth::riseFall(), scene,
-                            MinMaxAll::minMax(), noise_delays);
+                            MinMaxAll::minMax(), noise_delays, digits);
           i++;
         }
       }
@@ -355,7 +356,8 @@ DelayNoise::reportNoiseDelays(const Net *net,
                               const RiseFallBoth *drvr_rfs,
                               float min_coupling_ratio,
                               const Scene *scene,
-                              const MinMaxAll *min_maxs)
+                              const MinMaxAll *min_maxs,
+                              int digits)
 {
   found_coupling_caps_ = false;
   report_->report("  delay             slew");
@@ -363,7 +365,7 @@ DelayNoise::reportNoiseDelays(const Net *net,
     for (const MinMax *min_max : min_maxs->range()) {
       ArcDcalcArgSeq gates = makeArcDcalcArgs(net, drvr_rf, min_coupling_ratio,
                                               scene, min_max);
-      reportNoiseDelays(gates, scene, min_max);
+      reportNoiseDelays(gates, scene, min_max, digits);
     }
   }
   if (!found_coupling_caps_)
@@ -373,7 +375,8 @@ DelayNoise::reportNoiseDelays(const Net *net,
 void
 DelayNoise::reportNoiseDelays(ArcDcalcArgSeq &gates,
                               const Scene *scene,
-                              const MinMax *min_max)
+                              const MinMax *min_max,
+                              int digits)
 {
   prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
 
@@ -384,7 +387,7 @@ DelayNoise::reportNoiseDelays(ArcDcalcArgSeq &gates,
     graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
   findNoiseDelays(gates, load_pin_index_map, scene, min_max, noise_delays);
   reportNoiseDelays(drvr_vertex, drvr_arg.drvrEdge()->asRiseFallBoth(),
-                    scene, min_max->asMinMaxAll(), noise_delays);
+                    scene, min_max->asMinMaxAll(), noise_delays, digits);
 }
 
 void
@@ -392,9 +395,9 @@ DelayNoise::reportNoiseDelays(Vertex *drvr_vertex,
                               const RiseFallBoth *drvr_rfs,
                               const Scene *scene,
                               const MinMaxAll *min_maxs,
-                              DcalcResults &noise_delays)
+                              DcalcResults &noise_delays,
+                              int digits)
 {
-  int digits = 3;
   VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *wire_edge = edge_iter.next();
@@ -411,7 +414,7 @@ DelayNoise::reportNoiseDelays(Vertex *drvr_vertex,
           report_->report("{:>7} -> {:>7} {:>7} -> {:>7} {} {} {}",
                           delayAsString(delay, min_max, digits, this),
                           delayAsString(delaySum(delay, delay_incr, this),
-                                        min_max, 3, this),
+                                        min_max, digits, this),
                           delayAsString(slew, min_max, digits, this),
                           delayAsString(delaySum(slew, slew_incr, this),
                                         min_max, digits, this),

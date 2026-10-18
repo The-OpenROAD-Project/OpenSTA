@@ -38,6 +38,7 @@ report_noise_delays
   [-scene scene]
   [-min] [-max]
   [-min_coupling_ratio coupling_ratio]
+  [-digits digits]
 ```
 
 -net Report noise delays for net.
@@ -49,6 +50,7 @@ report_noise_delays
 -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
 -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
 -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+-digits The number of digits after the decimal point to report. The default value is the variable sta_report_default_digits.
 
 Report noise delays on nets. Use -net to report noise delays on a net. Use -max_coiunt to see the top max_count noise delays in the design.
 

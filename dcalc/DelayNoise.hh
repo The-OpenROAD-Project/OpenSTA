@@ -122,17 +122,20 @@ public:
                          float min_coupling_sum_ratio,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs);
+                         const MinMaxAll *min_maxs,
+                         int digits);
   // Report noise delays for aggressors with
   // coupling_cap / cap_gnd > min_coupling_ratio
   void reportNoiseDelays(const Net *net,
                          const RiseFallBoth *drvr_rfs,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs);
+                         const MinMaxAll *min_maxs,
+                         int digits);
   void reportNoiseDelays(ArcDcalcArgSeq &gates,
                          const Scene *scene,
-                         const MinMax *min_max);
+                         const MinMax *min_max,
+                         int digits);
   void reportVictimNets(float min_coupling_ratio,
                         const Scene *scene,
                         const MinMax *min_max);
@@ -297,7 +300,8 @@ protected:
                          const RiseFallBoth *drvr_rfs,
                          const Scene *scene,
                          const MinMaxAll *min_maxs,
-                         DcalcResults &noise_delays);
+                         DcalcResults &noise_delays,
+                         int digits);
 
   ////////////////////////////////////////////////////////////////
 

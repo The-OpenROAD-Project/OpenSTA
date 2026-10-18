@@ -42,12 +42,13 @@ report_noise_delays_cmd(size_t max_count,
                         float min_coupling_sum_ratio,
                         float min_coupling_ratio,
                         const Scene *scene,
-                        const MinMaxAll *min_maxs)
+                        const MinMaxAll *min_maxs,
+                        int digits)
 {
   Sta *sta = Sta::sta();
   sta->reportNoiseDelays(max_count, min_coupling_sum_ratio,
                          min_coupling_ratio,
-                         scene, min_maxs);
+                         scene, min_maxs, digits);
 }
 
 void
@@ -55,20 +56,23 @@ report_net_noise_delays_cmd(const Net *net,
                             const RiseFallBoth *drvr_rfs,
                             float min_coupling_ratio,
                             const Scene *scene,
-                            const MinMaxAll *min_maxs)
+                            const MinMaxAll *min_maxs,
+                            int digits)
 {
   Sta *sta = Sta::sta();
-  sta->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene, min_maxs);
+  sta->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene, min_maxs,
+                         digits);
 }
 
 void
 report_gate_noise_delays_cmd(ArcDcalcArgSeq gates,
                              const Scene *scene,
-                             const MinMax *min_max)
+                             const MinMax *min_max,
+                             int digits)
 {
   Sta *sta = Sta::sta();
   if (!gates.empty())
-    sta->reportNoiseDelays(gates, scene, min_max);
+    sta->reportNoiseDelays(gates, scene, min_max, digits);
 }
 
 void
