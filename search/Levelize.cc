@@ -575,6 +575,8 @@ Levelize::deleteEdgeBefore(Edge *edge)
 void
 Levelize::relevelize()
 {
+  for (const Mode *mode : modes_)
+    mode->sdc()->ensureInputDelayRefPinEdges();
   for (Vertex *vertex : relevelize_from_) {
     debugPrint(debug_, "levelize", 2, "relevelize from {}",
                vertex->to_string(this));

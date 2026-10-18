@@ -2023,6 +2023,17 @@ Sta::setInputDelay(const Pin *pin,
                      network_latency_included, min_max, add, delay);
 
   search_->arrivalInvalid(pin);
+  if (ref_pin) {
+    // reference pins make graph edges from the ref pin to the input pin.
+    if (graph_) {
+      Vertex *vertex, *bidirect_vertex;
+      graph_->pinVertices(ref_pin, vertex, bidirect_vertex);
+      if (vertex)
+        levelize_->relevelizeFrom(vertex);
+      if (bidirect_vertex)
+        levelize_->relevelizeFrom(bidirect_vertex);
+    }
+  }
 }
 
 void
