@@ -44,6 +44,7 @@
 #include "SdcClass.hh"
 #include "Sim.hh"
 #include "StaState.hh"
+#include "Tag.hh"
 #include "TimingRole.hh"
 
 namespace sta {
@@ -119,12 +120,13 @@ CheckTiming::checkNoInputDelay()
           && !sdc_->hasInputDelay(pin)
           // OpenROAD fork: analysis_corner support.
           && !modeHasCornerInputDelay(mode_, pin)
-          && !sim_->isConstant(pin))
+          && !sim_->isConstant(pin)
+          && !hasMaxDelayFrom(pin))
         no_arrival.insert(pin);
     }
   }
   delete pin_iter;
-  pushPinErrors("Warning: There {} {} input port{} missing set_input_delay.",no_arrival);
+  pushPinErrors("Warning: There {} {} unconstrained input port{}.",no_arrival);
 }
 
 void
@@ -132,7 +134,7 @@ CheckTiming::checkNoOutputDelay()
 {
   PinSet no_departure(network_);
   checkNoOutputDelay(no_departure);
-  pushPinErrors("Warning: There {} {} output port{} missing set_output_delay.",
+  pushPinErrors("Warning: There {} {} unconstrained output port{}.",
                 no_departure);
 }
 
@@ -148,7 +150,8 @@ CheckTiming::checkNoOutputDelay(PinSet &no_departure)
         && !sdc_->hasOutputDelay(pin)
         // OpenROAD fork: analysis_corner support.
         && !modeHasCornerOutputDelay(mode_, pin)
-        && !sim_->isConstant(pin))
+        && !sim_->isConstant(pin)
+        && !hasMaxDelay(pin))
       no_departure.insert(pin);
   }
   delete pin_iter;
@@ -294,7 +297,7 @@ CheckTiming::hasClkedDepature(Pin *pin)
 
 // Check for max delay exception that ends at pin.
 bool
-CheckTiming::hasMaxDelay(Pin *pin)
+CheckTiming::hasMaxDelay(const Pin *pin)
 {
   for (const ExceptionPath *exception : sdc_->exceptions()) {
     ExceptionTo *to = exception->to();
@@ -303,6 +306,22 @@ CheckTiming::hasMaxDelay(Pin *pin)
         && to
         && to->hasPins()
         && to->pins()->contains(pin))
+      return true;
+  }
+  return false;
+}
+
+// Check for max delay exception that starts at pin.
+bool
+CheckTiming::hasMaxDelayFrom(const Pin *pin)
+{
+  for (const ExceptionPath *exception : sdc_->exceptions()) {
+    ExceptionFrom *from = exception->from();
+    if (exception->isPathDelay()
+        && exception->minMax() == MinMaxAll::max()
+        && from
+        && from->hasPins()
+        && from->pins()->contains(pin))
       return true;
   }
   return false;
@@ -320,7 +339,8 @@ CheckTiming::checkUnconstrainedSetups(PinSet &unconstrained_ends)
         Edge *edge = edge_iter.next();
         if (edge->role() == TimingRole::setup()
             && (!clk_network_->isClock(edge->from(graph_))
-                || !hasClkedArrival(edge->to(graph_)))) {
+                || !(hasClkedArrival(edge->to(graph_))
+                     || hasMaxDelayArrival(edge->to(graph_))))) {
           unconstrained_ends.insert(vertex->pin());
           break;
         }
@@ -337,6 +357,33 @@ CheckTiming::hasClkedArrival(Vertex *vertex)
     Path *path = path_iter.next();
     if (path->clock(this))
       return true;
+  }
+  return false;
+}
+
+// Check for a data arrival a max delay exception ending at vertex
+// constrains, such as one from an input port with no input delay.
+bool
+CheckTiming::hasMaxDelayArrival(Vertex *vertex)
+{
+  const Pin *pin = vertex->pin();
+  VertexPathIterator path_iter(vertex, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    const ExceptionStateSet *states = path->tag(this)->states();
+    if (path->minMax(this) != MinMax::max()
+        || states == nullptr)
+      continue;
+    for (const ExceptionState *state : *states) {
+      const ExceptionPath *exception = state->exception();
+      const ExceptionTo *to = exception->to();
+      if (exception->isPathDelay()
+          && exception->minMax() == MinMaxAll::max()
+          && state->nextThru() == nullptr
+          && (to == nullptr
+              || to->matches(pin, path->transition(this), network_)))
+        return true;
+    }
   }
   return false;
 }
