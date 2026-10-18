@@ -1,18 +1,18 @@
 --- check_setup all flags ---
-Warning: There are 2 unconstrained input ports.
+Warning: There are 2 input ports missing set_input_delay.
   in3
   in_unconst
-Warning: There is 1 unconstrained output port.
+Warning: There is 1 output port missing set_output_delay.
   out_unconst
 Warning: There are 2 unconstrained endpoints.
   out_unconst
   reg3/D
 --- check_setup -no_input_delay ---
-Warning: There are 2 unconstrained input ports.
+Warning: There are 2 input ports missing set_input_delay.
   in3
   in_unconst
 --- check_setup -no_output_delay ---
-Warning: There is 1 unconstrained output port.
+Warning: There is 1 output port missing set_output_delay.
   out_unconst
 --- check_setup -no_clock ---
 --- check_setup -unconstrained_endpoints ---
@@ -22,10 +22,10 @@ Warning: There are 2 unconstrained endpoints.
 --- check_setup -loops ---
 --- check_setup -generated_clocks ---
 --- check_setup multiple flags combined ---
-Warning: There are 2 unconstrained input ports.
+Warning: There are 2 input ports missing set_input_delay.
   in3
   in_unconst
-Warning: There is 1 unconstrained output port.
+Warning: There is 1 output port missing set_output_delay.
   out_unconst
 Warning: There are 2 unconstrained endpoints.
   out_unconst
@@ -348,10 +348,10 @@ Path Type: max
           12.90   slack (MET)
 
 
-Warning: There are 2 unconstrained input ports.
+Warning: There are 2 input ports missing set_input_delay.
   in3
   in_unconst
-Warning: There is 1 unconstrained output port.
+Warning: There is 1 output port missing set_output_delay.
   out_unconst
 Warning: There are 2 unconstrained endpoints.
   out_unconst

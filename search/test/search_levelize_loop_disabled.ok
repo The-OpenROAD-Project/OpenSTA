@@ -441,7 +441,7 @@ Path Type: max
 
 
 --- check_setup ---
-Warning: There is 1 unconstrained output port.
+Warning: There is 1 output port missing set_output_delay.
   out_unconst
 Warning: There is 1 unconstrained endpoint.
   out_unconst

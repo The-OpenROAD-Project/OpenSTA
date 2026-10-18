@@ -126,7 +126,7 @@ CheckTiming::checkNoInputDelay()
     }
   }
   delete pin_iter;
-  pushPinErrors("Warning: There {} {} unconstrained input port{}.",no_arrival);
+  pushPinErrors("Warning: There {} {} input port{} missing set_input_delay.",no_arrival);
 }
 
 void
@@ -134,7 +134,7 @@ CheckTiming::checkNoOutputDelay()
 {
   PinSet no_departure(network_);
   checkNoOutputDelay(no_departure);
-  pushPinErrors("Warning: There {} {} unconstrained output port{}.",
+  pushPinErrors("Warning: There {} {} output port{} missing set_output_delay.",
                 no_departure);
 }
 
