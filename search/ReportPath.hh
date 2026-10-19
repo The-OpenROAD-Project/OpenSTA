@@ -310,7 +310,7 @@ protected:
                               float time_offset,
                               float path_time_offset,
                               bool clk_used_as_data,
-                              const Mode *mode) const;
+                              const Scene *scene) const;
   bool reportGenClkSrcPath1(const Clock *clk,
                             const Pin *clk_pin,
                             const RiseFall *clk_rf,
@@ -318,7 +318,7 @@ protected:
                             float gclk_time,
                             float time_offset,
                             bool clk_used_as_data,
-                            const Mode *mode) const;
+                            const Scene *scene) const;
   void reportClkSrcLatency(Arrival insertion,
                            float clk_time,
                            const EarlyLate *early_late) const;

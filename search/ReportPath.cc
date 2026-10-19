@@ -1636,7 +1636,7 @@ ReportPath::reportSkewClkPath(std::string_view arrival_msg,
     const EarlyLate *early_late = TimingRole::skew()->tgtClkEarlyLate();
     if (reportGenClkSrcPath(clk_path, clk, clk_rf, min_max, early_late, sdc))
       reportGenClkSrcAndPath(clk_path, clk, clk_rf, early_late, 0.0, 0.0,
-                             false, mode);
+                             false, clk_path->scene(this));
     else {
       Arrival insertion, latency;
       PathEnd::checkTgtClkDelay(clk_path, clk_edge, TimingRole::skew(), this,
@@ -2109,7 +2109,8 @@ ReportPath::reportSrcClkAndPath(const Path *path,
           && !(path_from_input && !input_has_ref_path)) {
         reportClkLine(clk, clk_name, clk_end_rf, clk_time, min_max);
         reportGenClkSrcAndPath(path, clk, clk_rf, early_late, time_offset,
-                               time_offset, clk_used_as_data, mode);
+                               time_offset, clk_used_as_data,
+                               path->scene(this));
       }
       else if (clk_used_as_data 
                && pathFromGenPropClk(path, path->minMax(this))) {
@@ -2221,7 +2222,8 @@ ReportPath::reportTgtClk(const PathEnd *end,
       float insertion_offset = 
         clk_path ? tgtClkInsertionOffet(clk_path, early_late) : 0.0;
       reportGenClkSrcAndPath(clk_path, clk, clk_rf, early_late, time_offset,
-                             time_offset + insertion_offset, false, mode);
+                             time_offset + insertion_offset, false,
+                             end->path()->scene(this));
     }
     else {
       Arrival insertion = end->targetClkInsertionDelay(this);
@@ -2270,11 +2272,11 @@ ReportPath::tgtClkInsertionOffet(const Path *clk_path,
   const Clock *clk = clk_edge->clock();
   const RiseFall *clk_rf = clk_edge->transition();
   const MinMax *min_max = clk_path->minMax(this);
-  const Mode *mode = clk_path->mode(this);
+  const Scene *scene = clk_path->scene(this);
   Arrival path_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
-                                                   min_max, min_max, mode);
+                                                   min_max, min_max, scene);
   Arrival tgt_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
-                                                  min_max, early_late, mode);
+                                                  min_max, early_late, scene);
   return delayAsFloat(delayDiff(tgt_insertion, path_insertion, this));
 }
 
@@ -2376,7 +2378,7 @@ ReportPath::reportGenClkSrcAndPath(const Path *path,
                                    float time_offset,
                                    float path_time_offset,
                                    bool clk_used_as_data,
-                                   const Mode *mode) const
+                                   const Scene *scene) const
 {
   const Pin *clk_pin = path
     ? path->clkInfo(search_)->clkSrc()
@@ -2385,7 +2387,7 @@ ReportPath::reportGenClkSrcAndPath(const Path *path,
   bool skip_first_path = reportGenClkSrcPath1(clk, clk_pin, clk_rf,
                                               early_late, gclk_time,
                                               time_offset, clk_used_as_data,
-                                              mode);
+                                              scene);
   if (path) {
     PathExpanded expanded(path, this);
     reportPath2(path, expanded, skip_first_path, clk_used_as_data,
@@ -2401,9 +2403,11 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
                                  float gclk_time,
                                  float time_offset,
                                  bool clk_used_as_data,
-                                 const Mode *mode) const
+                                 const Scene *scene) const
 {
-  const Path *src_path = mode->genclks()->srcPath(clk, clk_pin, clk_rf, early_late);
+  const Mode *mode = scene->mode();
+  const Path *src_path = mode->genclks()->srcPath(clk, clk_pin, clk_rf,
+                                                  early_late, scene);
   if (src_path) {
     const ClkInfo *src_clk_info = src_path->clkInfo(this);
     const ClockEdge *src_clk_edge = src_clk_info->clkEdge();
@@ -2419,14 +2423,12 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
                                                src_clk_rf, early_late,
                                                gclk_time, time_offset,
                                                clk_used_as_data,
-                                               mode);
+                                               scene);
       }
       else {
-        const Mode *mode = src_path->mode(this);
         const Arrival insertion = search_->clockInsertion(src_clk, src_clk_pin,
-                                                          src_clk_rf,
-                                                          min_max,
-                                                          early_late, mode);
+                                                          src_clk_rf, min_max,
+                                                          early_late, scene);
         reportClkSrcLatency(insertion, gclk_time, early_late);
       }
       PathExpanded src_expanded(src_path, this);

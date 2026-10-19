@@ -985,15 +985,16 @@ Search::clockInsertion(const Clock *clk,
                        const RiseFall *rf,
                        const MinMax *min_max,
                        const EarlyLate *early_late,
-                       const Mode *mode) const
+                       const Scene *scene) const
 {
+  const Mode *mode = scene->mode();
   float insert;
   bool exists;
   mode->sdc()->clockInsertion(clk, pin, rf, min_max, early_late, insert, exists);
   if (exists)
     return insert;
   else if (clk->isGeneratedWithPropagatedMaster())
-    return mode->genclks()->insertionDelay(clk, pin, rf, early_late);
+    return mode->genclks()->insertionDelay(clk, pin, rf, early_late, scene);
   else
     return 0.0;
 }
@@ -1511,8 +1512,8 @@ Search::seedClkArrivals(const Pin *pin,
               seedClkDataArrival(pin, rf, clk, clk_edge, min_max, 0.0, scene,
                                  tag_bldr);
             else {
-              Arrival insertion =
-                  clockInsertion(clk, pin, rf, min_max, early_late, mode);
+              Arrival insertion = clockInsertion(clk, pin, rf, min_max,
+                                                 early_late, scene);
               seedClkArrival(pin, rf, clk, clk_edge, min_max, insertion, scene,
                              tag_bldr);
             }
@@ -1787,14 +1788,14 @@ Search::seedInputDelayArrival(const Pin *pin,
     }
   }
   else {
-    for (const MinMax *min_max : MinMax::range()) {
-      float clk_arrival, clk_insertion, clk_latency;
-      inputDelayClkArrival(input_delay, clk_edge, min_max, mode, clk_arrival,
-                           clk_insertion, clk_latency);
-      for (Scene *scene : mode->scenes()) {
-        seedInputDelayArrival(pin, input_delay, clk_edge, clk_arrival, clk_insertion,
-                              clk_latency, is_segment_start, min_max, scene,
-                              tag_bldr);
+    for (Scene *scene : mode->scenes()) {
+      for (const MinMax *min_max : MinMax::range()) {
+        float clk_arrival, clk_insertion, clk_latency;
+        inputDelayClkArrival(input_delay, clk_edge, min_max, scene, mode,
+                             clk_arrival, clk_insertion, clk_latency);
+        seedInputDelayArrival(pin, input_delay, clk_edge, clk_arrival,
+                              clk_insertion, clk_latency, is_segment_start,
+                              min_max, scene, tag_bldr);
       }
     }
   }
@@ -1881,6 +1882,7 @@ void
 Search::inputDelayClkArrival(InputDelay *input_delay,
                              const ClockEdge *clk_edge,
                              const MinMax *min_max,
+                             const Scene *scene,
                              const Mode *mode,
                              // Return values.
                              float &clk_arrival,
@@ -1896,8 +1898,9 @@ Search::inputDelayClkArrival(InputDelay *input_delay,
     const RiseFall *clk_rf = clk_edge->transition();
     if (!input_delay->sourceLatencyIncluded()) {
       const EarlyLate *early_late = min_max;
-      clk_insertion = delayAsFloat(
-          clockInsertion(clk, clk->defaultPin(), clk_rf, min_max, early_late, mode));
+      clk_insertion = delayAsFloat(clockInsertion(clk, clk->defaultPin(),
+                                                  clk_rf, min_max, early_late,
+                                                  scene));
       clk_arrival += clk_insertion;
     }
     if (!clk->isPropagated() && !input_delay->networkLatencyIncluded()) {
@@ -2256,7 +2259,7 @@ Search::clkPathArrival(const Path *clk_path,
     const EarlyLate *early_late = min_max;
     Arrival insertion = clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
                                        clk_edge->transition(), min_max,
-                                       early_late, scene->mode());
+                                       early_late, scene);
     return delaySum(delaySum(insertion, clk_edge->time(), this),
                     clk_info->latency(), this);
   }
