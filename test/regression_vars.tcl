@@ -157,6 +157,7 @@ record_public_tests {
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
+  get_property_arrival_first
   get_scenes
   get_objrefs
   include_error_line
@@ -175,6 +176,7 @@ record_public_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  liberty_malformed_ports
   liberty_retain
   make_concrete_parasitics_leak
   max_power_area
@@ -212,6 +214,7 @@ record_public_tests {
   verilog_port_bundle_find_pin
   verilog_port_bundle_ordered
   verilog_port_concat
+  verilog_wired_nets
   verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
