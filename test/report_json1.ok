@@ -13,9 +13,9 @@
       "cell": "counter",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 8.984e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 8.98e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "_1415_",
@@ -23,8 +23,8 @@
       "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
       "pin": "_1415_/CLK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
   "source_path": [
@@ -34,9 +34,9 @@
       "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
       "pin": "_1415_/Q",
       "net": "mid",
-      "arrival": 9.931e-11,
-      "capacitance": 5.246e-16,
-      "slew": 1.499e-11
+      "arrival": 9.93e-11,
+      "capacitance": 5.25e-16,
+      "slew": 1.50e-11
     },
     {
       "instance": "_1416_[0]",
@@ -44,8 +44,8 @@
       "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
       "pin": "_1416_[0]/D",
       "net": "mid",
-      "arrival": 9.931e-11,
-      "slew": 1.499e-11
+      "arrival": 9.93e-11,
+      "slew": 1.50e-11
     }
   ],
   "target_clock": "clk",
@@ -56,9 +56,9 @@
       "cell": "counter",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 6.471e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 6.47e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "_1416_[0]",
@@ -66,15 +66,15 @@
       "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
       "pin": "_1416_[0]/CLK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
-  "data_arrival_time": 9.931e-11,
-  "crpr": 0.000e+00,
-  "margin": 1.933e-11,
-  "required_time": -9.331e-12,
-  "slack": -1.086e-10
+  "data_arrival_time": 9.93e-11,
+  "crpr": 0.00e+00,
+  "margin": 1.93e-11,
+  "required_time": -9.33e-12,
+  "slack": -1.09e-10
 }
 ]
 }

@@ -1122,8 +1122,8 @@ ReportPath::reportJson(const PathEnd *end,
     reportJson(end->targetClkPath(), "target_clock_path", 2, true, result);
 
   if (end->checkRole(this)) {
-    result += sta::format("  \"data_arrival_time\": {:.3e},\n",
-                 delayAsFloat(end->dataArrivalTimeOffset(this)));
+    result += sta::format("  \"data_arrival_time\": {:.{}e},\n",
+                 delayAsFloat(end->dataArrivalTimeOffset(this)), digits_);
 
     const MultiCyclePath *mcp = end->multiCyclePath();
     if (mcp)
@@ -1132,20 +1132,20 @@ ReportPath::reportJson(const PathEnd *end,
 
     PathDelay *path_delay = end->pathDelay();
     if (path_delay)
-      result += sta::format("  \"path_delay\": {:.3e},\n",
-                   path_delay->delay());
+      result += sta::format("  \"path_delay\": {:.{}e},\n",
+                   path_delay->delay(), digits_);
 
-    result += sta::format("  \"crpr\": {:.3e},\n",
-                 delayAsFloat(end->checkCrpr(this)));
-    result += sta::format("  \"margin\": {:.3e},\n",
-                 delayAsFloat(end->margin(this)));
+    result += sta::format("  \"crpr\": {:.{}e},\n",
+                 delayAsFloat(end->checkCrpr(this)), digits_);
+    result += sta::format("  \"margin\": {:.{}e},\n",
+                 delayAsFloat(end->margin(this)), digits_);
     if (end->hasPathMargin())
-      result += sta::format("  \"path_margin\": {:.3e},\n",
-                   end->targetClkPathMargin(this));
-    result += sta::format("  \"required_time\": {:.3e},\n",
-                 delayAsFloat(end->requiredTimeOffset(this)));
-    result += sta::format("  \"slack\": {:.3e}\n",
-                 delayAsFloat(end->slack(this)));
+      result += sta::format("  \"path_margin\": {:.{}e},\n",
+                   end->targetClkPathMargin(this), digits_);
+    result += sta::format("  \"required_time\": {:.{}e},\n",
+                 delayAsFloat(end->requiredTimeOffset(this)), digits_);
+    result += sta::format("  \"slack\": {:.{}e}\n",
+                 delayAsFloat(end->slack(this)), digits_);
   }
   result += "}";
   if (!last)
@@ -1239,16 +1239,17 @@ ReportPath::reportJson(const PathExpanded &expanded,
       result += sta::format("{:>{}}    \"y\": {:.9f},\n", "", indent, y);
     }
 
-    result += sta::format("{:>{}}    \"arrival\": {:.3e},\n",
+    result += sta::format("{:>{}}    \"arrival\": {:.{}e},\n",
                           "", indent,
-                          delayAsFloat(path->arrival()));
+                          delayAsFloat(path->arrival()), digits_);
     if (is_driver)
-      result += sta::format("{:>{}}    \"capacitance\": {:.3e},\n",
+      result += sta::format("{:>{}}    \"capacitance\": {:.{}e},\n",
                             "", indent,
-                            graph_delay_calc_->loadCap(pin, rf, scene, min_max));
-    result += sta::format("{:>{}}    \"slew\": {:.3e}\n",
+                            graph_delay_calc_->loadCap(pin, rf, scene, min_max),
+                            digits_);
+    result += sta::format("{:>{}}    \"slew\": {:.{}e}\n",
                           "", indent,
-                          delayAsFloat(path->slew(this)));
+                          delayAsFloat(path->slew(this)), digits_);
     result += sta::format("{:>{}}  }}{}\n",
                           "", indent,
                           (i < expanded.size() - 1) ? "," : "");
