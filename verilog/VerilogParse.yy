@@ -333,9 +333,13 @@ dcl_type:
 |	SUPPLY0 { $$ = sta::PortDirection::ground(); }
 |	SUPPLY1 { $$ = sta::PortDirection::power(); }
 |	TRI { $$ = sta::PortDirection::tristate(); }
-|	WAND { $$ = sta::PortDirection::internal(); }
+|	WAND { error(@1, "unsupported net type 'wand'; "
+                    "resolve wired logic before static timing analysis");
+        }
 |	WIRE { $$ = sta::PortDirection::internal(); }
-|	WOR { $$ = sta::PortDirection::internal(); }
+|	WOR { error(@1, "unsupported net type 'wor'; "
+                   "resolve wired logic before static timing analysis");
+       }
 	;
 
 dcl_args:
