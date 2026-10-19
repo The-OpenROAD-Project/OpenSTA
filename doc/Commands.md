@@ -1378,10 +1378,10 @@ Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-p
 : Process corner to annotate. Deprecated; use `-name` and `define_scene`.
 
 `-min` {: #opt-read_spef-min }
-: Apply to minimum (hold) analysis.
+: Annotate minimum parasitics. Deprecated; use `-name` and `define_scene`.
 
 `-max` {: #opt-read_spef-max }
-: Apply to maximum (setup) analysis.
+: Annotate maximum parasitics. Deprecated; use `-name` and `define_scene`.
 
 `-path` {: #opt-read_spef-path }
 : Hierarchical block instance path to annotate with  parasitics.
@@ -1611,7 +1611,7 @@ The `report_arrival` command reports min/max rise/fall arrival times at a pin wi
 : Include delay distribution variance in the report.
 
 `-digits` {: #opt-report_arrival-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_check_types
 
@@ -1711,7 +1711,7 @@ The `report_check_types` command reports the slack for each type of timing and d
 : Maximum number of checks to report.
 
 `-digits` {: #opt-report_check_types-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 `-no_line_splits` {: #opt-report_check_types-no_line_splits }
 : Do not split long lines into multiple lines.
@@ -1825,7 +1825,7 @@ See `set_false_path` for a description of allowed from_list, through_list and to
 : List of capacitance|slew|input_pins|hierarchical_pins|net|fanout|src_attr|variation
 
 `-digits` {: #opt-report_checks-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 `-no_line_splits` {: #opt-report_checks-no_line_splits }
 : Do not split long lines into multiple lines.
@@ -1852,7 +1852,7 @@ Report the clock network latency.
 : Include internal clock latency from liberty min/max_clock_tree_path timing groups.
 
 `-digits` {: #opt-report_clock_latency-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_clock_min_period
 
@@ -1906,7 +1906,7 @@ Report the maximum difference in clock arrival between every source and target r
 : Include internal clock latency from liberty min/max_clock_tree_path timing groups.
 
 `-digits` {: #opt-report_clock_skew-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_dcalc
 
@@ -1938,7 +1938,7 @@ The `report_dcalc` command shows how the delays between instance pins are calcul
 : Apply to maximum (setup) analysis.
 
 `-digits` {: #opt-report_dcalc-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_disabled_edges
 
@@ -1970,7 +1970,7 @@ Report the edges/timing arcs and their delays in the timing graph from/to/betwee
 : Report edges/timing arcs to pin to_pin.
 
 `-digits` {: #opt-report_edges-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 `-report_variance` {: #opt-report_edges-report_variance }
 : Include delay distribution variance in the report.
@@ -2020,7 +2020,7 @@ Report the connections and capacitance of a net.
 : Restrict the command to one scene.
 
 `-digits` {: #opt-report_net-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_noise_delays
 
@@ -2067,7 +2067,7 @@ Report noise delays on nets. Use -net to report noise delays on a net. Use -max_
 : The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
 
 `-digits` {: #opt-report_noise_delays-digits }
-: The number of digits after the decimal point to report. The default value is the variable sta_report_default_digits.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_object_full_names
 
@@ -2139,7 +2139,7 @@ Total                  3.48e-06   6.72e-08   3.12e-07   3.86e-06 100.0%
 : Restrict the command to one scene.
 
 `-digits` {: #opt-report_power-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 `-format` {: #opt-report_power-format }
 : - `text`: Print a text table (the default).
@@ -2164,7 +2164,7 @@ The `report_required` command reports min/max rise/fall required times at a pin 
 : Include delay distribution variance in the report.
 
 `-digits` {: #opt-report_required-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_slack
 
@@ -2185,7 +2185,7 @@ The `report_slack` command reports min/max rise/fall slack at a pin with respect
 : Include delay distribution variance in the report.
 
 `-digits` {: #opt-report_slack-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_slews
 
@@ -2203,7 +2203,7 @@ Report the slews at a pin.
 : Report slews for these scenes. The default is all scenes.
 
 `-digits` {: #opt-report_slews-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 `-report_variance` {: #opt-report_slews-report_variance }
 : Report SSTA distribution parameters.
@@ -2226,7 +2226,7 @@ Report the total negative slack.
 : Apply to maximum (setup) analysis.
 
 `-digits` {: #opt-report_tns-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_units
 
@@ -2287,7 +2287,7 @@ Report the worst negative slack. If the worst slack is positive, zero is reporte
 : Apply to maximum (setup) analysis.
 
 `-digits` {: #opt-report_wns-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## report_worst_slack
 
@@ -2307,7 +2307,7 @@ Report the worst slack in the design.
 : Apply to maximum (setup) analysis.
 
 `-digits` {: #opt-report_worst_slack-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 ## set_assigned_check
 
@@ -3650,10 +3650,10 @@ The `set_operating_conditions` command is used to specify the type of analysis p
 : `lib`: The name of the library that contains condition.
 
 `-min` {: #opt-set_operating_conditions-min }
-: Apply to minimum (hold) analysis.
+: `min_condition`: Operating condition for minimum delay analysis.
 
 `-max` {: #opt-set_operating_conditions-max }
-: Apply to maximum (setup) analysis.
+: `max_condition`: Operating condition for maximum delay analysis.
 
 `-min_library` {: #opt-set_operating_conditions-min_library }
 : `min_lib`: The name of the library that contains min_condition.
@@ -4614,7 +4614,7 @@ Write the constraints for the design in SDC format to filename.
 : Map hierarchical pins to leaf pins in the SDC.
 
 `-digits` {: #opt-write_sdc-digits }
-: Number of digits to print after the decimal point.
+: Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
 
 `-gzip` {: #opt-write_sdc-gzip }
 : Compress the SDC with gzip.
@@ -4648,7 +4648,7 @@ Write the delay calculation delays for the design in SDF format to `filename`. I
 : Include a 'typ' value in the SDF triple that is the average of min and max delays to satisfy some Verilog simulators that require three values in the delay triples.
 
 `-digits` {: #opt-write_sdf-digits }
-: Number of digits to print after the decimal point.
+: The number of digits after the decimal point to write. The default value is 3.
 
 `-gzip` {: #opt-write_sdf-gzip }
 : Compress the SDF using gzip.

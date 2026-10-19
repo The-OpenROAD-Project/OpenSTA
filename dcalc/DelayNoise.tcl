@@ -84,7 +84,7 @@ define_cmd_args "report_noise_delays" {[-net net]\
     -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
     -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
     -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
-    -digits {The number of digits after the decimal point to report. The default value is the variable sta_report_default_digits.}
+    -digits default
   }
 
 proc report_noise_delays { args } {
