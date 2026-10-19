@@ -235,13 +235,27 @@ protected:
 			   const Instance *inst,
 			   const LibertyPort *cofactor_port,
 			   bool cofactor_positive);
-  LibertyPort *findExprOutPort(FuncExpr *expr);
   float findInputDuty(const Instance *inst,
 		      FuncExpr *func,
 		      const InternalPower *pwr);
   float evalDiffDuty(FuncExpr *expr,
                      LibertyPort *from_port,
+                     FuncExpr *when,  // OpenROAD fork: power activity
                      const Instance *inst);
+  // ---- OpenROAD fork: power activity (begin) ----
+  bool evalBddChangeDensity(DdNode *bdd,
+                            const Instance *inst,
+                            float &density);
+  float launchClkPeriod(const Pin *pin);
+  float maxPropagatedDensity(const Pin *pin);
+  void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
+  bool evalRegHoldActivity(const Instance *reg,
+                           const Sequential &seq,
+                           float clk_density,
+                           // Return values.
+                           float &density,
+                           float &duty);
+  // ---- OpenROAD fork: power activity (end) ----
   LibertyPort *findLinkPort(const LibertyCell *cell,
                             const LibertyPort *scene_port);
   Pin *findLinkPin(const Instance *inst,
@@ -280,6 +294,10 @@ private:
   bool instance_powers_valid_{false};
 
   static constexpr int max_activity_passes_ = 50;
+  // ---- OpenROAD fork: power activity (begin) ----
+  std::unordered_map<const Pin*, float> launch_period_cache_;
+  bool convergence_warned_{false};
+  // ---- OpenROAD fork: power activity (end) ----
 
   friend class PropActivityVisitor;
 };
