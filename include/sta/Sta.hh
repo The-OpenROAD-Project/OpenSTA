@@ -76,6 +76,7 @@ class EquivCells;
 class StaSimObserver;
 class LevelizeObserver;
 class GraphLoop;
+class DelayNoise;
 
 using ModeNameMap = std::map<std::string, Mode*, std::less<>>;
 using SceneNameMap = std::map<std::string, Scene*>;
@@ -1482,6 +1483,64 @@ public:
                       std::string_view power_name,
                       std::string_view gnd_name,
                       CircuitSim ckt_sim);
+  void writePathGnuplot(const Path *path,
+                        const PinSet &plot_pins,
+                        std::string_view spice_waveform_filename,
+                        std::string_view gnuplot_filename,
+                        std::string_view gnuplot_csv_filename);
+  void writeGateSpice(ArcDcalcArgSeq &gates,
+                      const char *spice_filename,
+                      const char *subckt_filename,
+                      StringSeq lib_subckt_filenames,
+                      const char *model_filename,
+                      const char *power_name,
+                      const char *gnd_name,
+                      CircuitSim ckt_sim,
+                      const Scene *scene,
+                      const MinMax *min_max);
+  void writeGateGnuplot(ArcDcalcArgSeq &gates,
+                        const PinSet &plot_pins,
+                        std::string_view spice_waveform_filename,
+                        std::string_view gnuplot_filename,
+                        std::string_view gnuplot_csv_filename,
+                        const Scene *scene,
+                        const MinMax *min_max);
+
+  void annotateNoiseDelays(float min_coupling_sum_ratio,
+                           float min_coupling_ratio,
+                           const Scene *scene,
+                           const MinMaxAll *min_max);
+  void reportNoiseDelays(size_t max_count,
+                         float min_coupling_sum_ratio,
+                         float min_coupling_ratio,
+                         const Scene *scene,
+                         const MinMaxAll *min_maxs,
+                         int digits);
+  void reportNoiseDelays(const Net *net,
+                         const RiseFallBoth *drvr_rfs,
+                         float min_coupling_ratio,
+                         const Scene *scene,
+                         const MinMaxAll *min_maxs,
+                         int digits);
+  void reportNoiseDelays(ArcDcalcArgSeq gates,
+                         const Scene *scene,
+                         const MinMax *min_max,
+                         int digits);
+  void reportVictimNets(float min_coupling_ratio,
+                        const Scene *scene,
+                        const MinMax *min_max);
+  void reportAggressors(const Net *victim,
+                        float min_coupling_ratio,
+                        const Scene *scene,
+                        const MinMax *min_max);
+  void writeNoiseDelayCase(const Net *net,
+                           const RiseFall *drvr_rf,
+                           std::string_view file_basename,
+                           float min_coupling_sum_ratio,
+                           float min_coupling_ratio,
+                           bool no_timestamp,
+                           const Scene *scene,
+                           const MinMax *min_max);
 
   ////////////////////////////////////////////////////////////////
   // TCL Variables
@@ -1568,6 +1627,7 @@ protected:
   virtual void makeReportPath();
   virtual void makePower();
   virtual void makeClkSkews();
+  virtual void makeDelayNoise();
   virtual void makeObservers();
   NetworkEdit *networkCmdEdit();
 
@@ -1682,7 +1742,9 @@ protected:
                    Mode *mode,
                    Parasitics *parasitics);
   void deleteScenes();
+  void noiseDelayPreamble();
   void checkLibrarayPocv();
+  void checkLibrarayCcs();
 
   Scene *cmd_scene_{nullptr};
   Mode *cmd_mode_{nullptr};

@@ -245,11 +245,12 @@ CheckCrpr::genClkSrcPaths(const Path *path)
   const ClockEdge *clk_edge = clk_info->clkEdge();
   const Pin *clk_src = clk_info->clkSrc();
   const Mode *mode = path->mode(this);
+  const Scene *scene = path->scene(this);
   const MinMax *min_max = path->minMax(this);
   gclk_paths.push_back(path);
   Genclks *genclks = mode->genclks();
   while (clk_edge->clock()->isGenerated()) {
-    const Path *genclk_path = genclks->srcPath(clk_edge, clk_src, min_max);
+    const Path *genclk_path = genclks->srcPath(clk_edge, clk_src, min_max, scene);
     if (genclk_path == nullptr)
       break;
     clk_info = genclk_path->clkInfo(this);

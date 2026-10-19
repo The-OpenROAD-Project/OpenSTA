@@ -3,6 +3,97 @@
 This file summarizes user visible changes for each release.
 See [API changes](ApiChanges.md) for changes to the STA API.
 
+## 2026/10/15
+
+Delay calculation noise analysis support.
+
+```tcl
+annotate_noise_delays
+  [-scene scene]
+  [-min] [-max]
+  [-min_coupling_sum_ratio coupling_sum_ratio]
+  [-min_coupling_ratio coupling_ratio]
+```
+
+-scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
+-min {Only annotate minimum delays.}
+-max { Only annotate maximum delays.}
+-min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
+-min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
+
+Annotate wire delays on victim nets that have coupling capacitances to aggressor nets that switch simultaneosly. Adjacent aggressor nets that switch in the opposite direction push the waveform down and increase the maximum delay on the wire. Nets that switch in the same direction decrease the minimum delay on the wire. Aggressor nets with min/max timing windows that do not overlap the victim timing window are not annotated.
+
+Noise delays can be reported in timing reports with the -noise field.
+
+Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.
+
+The read_spef -keep_capacitive_coupling option must be used to retain
+coupling capacitors for noise analysis.
+
+```tcl
+report_noise_delays
+  [-net net]
+  [-max_count max_count]
+  [-rise|-fall]
+  [-scene scene]
+  [-min] [-max]
+  [-min_coupling_ratio coupling_ratio]
+  [-digits digits]
+```
+
+-net Report noise delays for net.
+-max_count Report noise delays for the top max_count nets.
+-rise Only report rise delays.
+-fall Only report fall delays.
+-min Only report minimum delays.
+-max Only report maximum delays.
+-scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
+-min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
+-min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+-digits The number of digits after the decimal point to report. The default value is the variable sta_report_default_digits.
+
+Report noise delays on nets. Use -net to report noise delays on a net. Use -max_coiunt to see the top max_count noise delays in the design.
+
+```tcl
+report_victim_nets
+  [-scene scene]
+  [-min] [-max]
+  [-min_coupling_sum_ratio coupling_sum_ratio]
+```
+
+-scene The delay calculation scene to annotate. Required for multi-scene analysis.
+-min Only annotate minimum delays.
+-max Only annotate maximum delays.
+-min_coupling_sum_ratio The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+
+Report victim nets that have coupling capacitances to aggressor nets that switch simultaneosly.
+
+```tcl
+report_aggressors
+  net
+  [-scene scene]
+  [-min] [-max]
+  [-min_coupling_ratio coupling_ratio]
+```
+
+net Report noise delays for net.
+-min Only report minimum delays.
+-max Only report maximum delays.
+-scene Report noise delays for scene. Required for multi-scene analysis.
+-min_coupling_ratio The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+
+Report the aggressort nets for a victim net.
+
+## 2026/09/24
+
+In a future release the TCL command interpreter will not support
+unquoted signal bus names such as foo[2] or command abbreviation.
+Both issue warnings now. Use {} bracketEs around the bus name to
+suppress warnings.
+
+The read_sdc continues to support subscripted bus names.
+Command abbreviation issues a warniing.
+
 ## 2026/09/04
 
 The `write_path_spice` and `write_gate_spice` `-lib_subckt_file` argument

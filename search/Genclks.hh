@@ -79,17 +79,20 @@ public:
   Arrival insertionDelay(const Clock *clk,
                          const Pin *pin,
                          const RiseFall *rf,
-                         const EarlyLate *early_late) const;
+                         const EarlyLate *early_late,
+                         const Scene *scene) const;
   // Generated clock source path for a clock path root.
   const Path *srcPath(const Path *clk_path) const;
   // Generated clock source path.
   const Path *srcPath(const ClockEdge *clk_edge,
                       const Pin *src_pin,
-                      const MinMax *min_max) const;
+                      const MinMax *min_max,
+                      const Scene *scene) const;
   const Path *srcPath(const Clock *clk,
                       const Pin *src_pin,
                       const RiseFall *rf,
-                      const MinMax *min_max) const;
+                      const MinMax *min_max,
+                      const Scene *scene) const;
   Vertex *srcPath(const Pin *pin) const;
   void copyGenClkSrcPaths(Vertex *vertex,
                           TagGroupBldr *tag_bldr);
@@ -105,7 +108,8 @@ private:
                        VertexSet &fanins,
                        SearchPred &srch_pred);
   size_t srcPathIndex(const RiseFall *clk_rf,
-                      const MinMax *min_max) const;
+                      const MinMax *min_max,
+                      const Scene *scene) const;
   bool matchesSrcFilter(Path *path,
                         const Clock *gclk) const;
   void seedSrcPins(Clock *gclk,

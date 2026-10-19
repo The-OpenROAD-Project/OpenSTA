@@ -194,8 +194,8 @@ proc define_hidden_cmd_args { cmd arglist } {
   namespace export $cmd
 }
 
-# Shared option descriptions used when a command has no -arg_help entry
-# for that option. Per-command -arg_help always wins.
+# Shared option descriptions. An -arg_help value of "default" uses the
+# description stored here. A command that needs different text supplies it.
 proc define_common_arg_help { help_dict } {
   variable common_arg_help
 
@@ -275,39 +275,33 @@ proc cmd_arg_help_group_canonical { arglist opt } {
 
 proc cmd_arg_help_text { cmd opt } {
   variable cmd_arg_help
-  variable common_arg_help
   variable cmd_args
+  variable common_arg_help
 
   set cmd_dict {}
   if { [info exists cmd_arg_help($cmd)] } {
     set cmd_dict $cmd_arg_help($cmd)
   }
   set text [cmd_arg_help_lookup $cmd_dict $opt]
-  if { $text != "" } {
-    return $text
-  }
-  if { [info exists cmd_args($cmd)] } {
+  if { $text == "" && [info exists cmd_args($cmd)] } {
     set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
     if { $canon != $opt } {
       set text [cmd_arg_help_lookup $cmd_dict $canon]
-      if { $text != "" } {
-        return $text
+    }
+  }
+  if { $text == "default" } {
+    set text ""
+    if { [info exists common_arg_help] } {
+      set text [cmd_arg_help_lookup $common_arg_help $opt]
+      if { $text == "" && [info exists cmd_args($cmd)] } {
+        set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
+        if { $canon != $opt } {
+          set text [cmd_arg_help_lookup $common_arg_help $canon]
+        }
       }
     }
   }
-  if { [info exists common_arg_help] } {
-    set text [cmd_arg_help_lookup $common_arg_help $opt]
-    if { $text != "" } {
-      return $text
-    }
-    if { [info exists cmd_args($cmd)] } {
-      set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
-      if { $canon != $opt } {
-        return [cmd_arg_help_lookup $common_arg_help $canon]
-      }
-    }
-  }
-  return ""
+  return $text
 }
 
 proc cmd_synopsis_options { arglist } {
@@ -729,7 +723,7 @@ define_common_arg_help {
   -max {Apply to maximum (setup) analysis.}
   -setup {Apply to setup checks.}
   -hold {Apply to hold checks.}
-  -digits {Number of digits to print after the decimal point.}
+  -digits {Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.}
   -nocase {Case-insensitive matching. Only valid with `-regexp`.}
   -quiet {Do not report an error if no objects match.}
   -regexp {Match patterns as regular expressions.}

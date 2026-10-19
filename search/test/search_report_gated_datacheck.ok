@@ -513,9 +513,9 @@ clk                                     7.88
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "rst",
-      "arrival": 5.000e-10,
-      "capacitance": 3.557e-15,
-      "slew": 0.000e+00
+      "arrival": 5.00e-10,
+      "capacitance": 3.56e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -523,8 +523,8 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "reg1/RN",
       "net": "rst",
-      "arrival": 5.000e-10,
-      "slew": 0.000e+00
+      "arrival": 5.00e-10,
+      "slew": 0.00e+00
     }
   ],
   "target_clock": "clk",
@@ -535,9 +535,9 @@ clk                                     7.88
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 1.895e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 1.89e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -545,8 +545,8 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -554,9 +554,9 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "clk_gate/ZN",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "capacitance": 9.766e-16,
-      "slew": 7.004e-12
+      "arrival": 2.45e-11,
+      "capacitance": 9.77e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "reg1",
@@ -564,15 +564,15 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "slew": 7.004e-12
+      "arrival": 2.45e-11,
+      "slew": 7.00e-12
     }
   ],
-  "data_arrival_time": 5.000e-10,
-  "crpr": 0.000e+00,
-  "margin": -5.373e-11,
-  "required_time": 1.005e-08,
-  "slack": 9.554e-09
+  "data_arrival_time": 5.00e-10,
+  "crpr": 0.00e+00,
+  "margin": -5.37e-11,
+  "required_time": 1.01e-08,
+  "slack": 9.55e-09
 },
 {
   "type": "gated_clk",
@@ -588,9 +588,9 @@ clk                                     7.88
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "en",
-      "arrival": 5.000e-10,
-      "capacitance": 9.746e-16,
-      "slew": 0.000e+00
+      "arrival": 5.00e-10,
+      "capacitance": 9.75e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -598,8 +598,8 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "clk_gate/A2",
       "net": "en",
-      "arrival": 5.000e-10,
-      "slew": 0.000e+00
+      "arrival": 5.00e-10,
+      "slew": 0.00e+00
     }
   ],
   "target_clock": "clk",
@@ -610,9 +610,9 @@ clk                                     7.88
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 1.895e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 1.89e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -620,15 +620,15 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
-  "data_arrival_time": 5.000e-10,
-  "crpr": 0.000e+00,
-  "margin": 0.000e+00,
-  "required_time": 1.000e-08,
-  "slack": 9.500e-09
+  "data_arrival_time": 5.00e-10,
+  "crpr": 0.00e+00,
+  "margin": 0.00e+00,
+  "required_time": 1.00e-08,
+  "slack": 9.50e-09
 },
 {
   "type": "output_delay",
@@ -644,9 +644,9 @@ clk                                     7.88
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 1.895e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 1.89e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -654,8 +654,8 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -663,9 +663,9 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "clk_gate/ZN",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "capacitance": 9.766e-16,
-      "slew": 7.005e-12
+      "arrival": 2.45e-11,
+      "capacitance": 9.77e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "reg1",
@@ -673,8 +673,8 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "slew": 7.005e-12
+      "arrival": 2.45e-11,
+      "slew": 7.00e-12
     }
   ],
   "source_path": [
@@ -684,9 +684,9 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n4",
-      "arrival": 1.006e-10,
-      "capacitance": 2.103e-15,
-      "slew": 1.079e-11
+      "arrival": 1.01e-10,
+      "capacitance": 2.10e-15,
+      "slew": 1.08e-11
     },
     {
       "instance": "buf2",
@@ -694,8 +694,8 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n4",
-      "arrival": 1.006e-10,
-      "slew": 1.079e-11
+      "arrival": 1.01e-10,
+      "slew": 1.08e-11
     },
     {
       "instance": "buf2",
@@ -703,26 +703,26 @@ clk                                     7.88
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "out1",
-      "arrival": 1.185e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.736e-12
+      "arrival": 1.19e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.74e-12
     },
     {
       "instance": "",
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.185e-10,
-      "slew": 3.736e-12
+      "arrival": 1.19e-10,
+      "slew": 3.74e-12
     }
   ],
   "target_clock": "clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.185e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.881e-09
+  "data_arrival_time": 1.19e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.88e-09
 }
 ]
 }
@@ -1210,9 +1210,9 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "rst",
-      "arrival": 5.000e-10,
-      "capacitance": 3.557e-15,
-      "slew": 0.000e+00
+      "arrival": 5.00e-10,
+      "capacitance": 3.56e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -1220,8 +1220,8 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "reg1/RN",
       "net": "rst",
-      "arrival": 5.000e-10,
-      "slew": 0.000e+00
+      "arrival": 5.00e-10,
+      "slew": 0.00e+00
     }
   ],
   "target_clock": "clk",
@@ -1232,9 +1232,9 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 1.895e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 1.89e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1242,8 +1242,8 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1251,9 +1251,9 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "clk_gate/ZN",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "capacitance": 9.766e-16,
-      "slew": 7.004e-12
+      "arrival": 2.45e-11,
+      "capacitance": 9.77e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "reg1",
@@ -1261,15 +1261,15 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "slew": 7.004e-12
+      "arrival": 2.45e-11,
+      "slew": 7.00e-12
     }
   ],
-  "data_arrival_time": 5.000e-10,
-  "crpr": 0.000e+00,
-  "margin": -5.373e-11,
-  "required_time": 1.005e-08,
-  "slack": 9.554e-09
+  "data_arrival_time": 5.00e-10,
+  "crpr": 0.00e+00,
+  "margin": -5.37e-11,
+  "required_time": 1.01e-08,
+  "slack": 9.55e-09
 },
 {
   "type": "output_delay",
@@ -1285,9 +1285,9 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 1.895e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 1.89e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1295,8 +1295,8 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1304,9 +1304,9 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "clk_gate/ZN",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "capacitance": 9.766e-16,
-      "slew": 7.005e-12
+      "arrival": 2.45e-11,
+      "capacitance": 9.77e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "reg1",
@@ -1314,8 +1314,8 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "slew": 7.005e-12
+      "arrival": 2.45e-11,
+      "slew": 7.00e-12
     }
   ],
   "source_path": [
@@ -1325,9 +1325,9 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n4",
-      "arrival": 1.006e-10,
-      "capacitance": 2.103e-15,
-      "slew": 1.079e-11
+      "arrival": 1.01e-10,
+      "capacitance": 2.10e-15,
+      "slew": 1.08e-11
     },
     {
       "instance": "buf2",
@@ -1335,8 +1335,8 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n4",
-      "arrival": 1.006e-10,
-      "slew": 1.079e-11
+      "arrival": 1.01e-10,
+      "slew": 1.08e-11
     },
     {
       "instance": "buf2",
@@ -1344,26 +1344,26 @@ reg1/Q (search_data_check_gated)     out1 (output)                           7.8
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "out1",
-      "arrival": 1.185e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.736e-12
+      "arrival": 1.19e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.74e-12
     },
     {
       "instance": "",
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.185e-10,
-      "slew": 3.736e-12
+      "arrival": 1.19e-10,
+      "slew": 3.74e-12
     }
   ],
   "target_clock": "clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.185e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.881e-09
+  "data_arrival_time": 1.19e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.88e-09
 }
 ]
 }
@@ -1534,9 +1534,9 @@ clk                                    -5.38
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 1.895e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 1.89e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1544,8 +1544,8 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1553,9 +1553,9 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "clk_gate/ZN",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "capacitance": 9.766e-16,
-      "slew": 7.005e-12
+      "arrival": 2.45e-11,
+      "capacitance": 9.77e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "reg1",
@@ -1563,8 +1563,8 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "gated_clk",
-      "arrival": 2.450e-11,
-      "slew": 7.005e-12
+      "arrival": 2.45e-11,
+      "slew": 7.00e-12
     }
   ],
   "source_path": [
@@ -1574,9 +1574,9 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n4",
-      "arrival": 1.006e-10,
-      "capacitance": 2.103e-15,
-      "slew": 1.079e-11
+      "arrival": 1.01e-10,
+      "capacitance": 2.10e-15,
+      "slew": 1.08e-11
     },
     {
       "instance": "reg2",
@@ -1584,8 +1584,8 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "reg2/D",
       "net": "n4",
-      "arrival": 1.006e-10,
-      "slew": 1.079e-11
+      "arrival": 1.01e-10,
+      "slew": 1.08e-11
     }
   ],
   "target_clock": "clk",
@@ -1596,9 +1596,9 @@ clk                                    -5.38
       "cell": "search_data_check_gated",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 5.000e-09,
-      "capacitance": 1.756e-15,
-      "slew": 0.000e+00
+      "arrival": 5.00e-09,
+      "capacitance": 1.76e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1606,8 +1606,8 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "clk_gate/A1",
       "net": "clk",
-      "arrival": 5.000e-09,
-      "slew": 0.000e+00
+      "arrival": 5.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "clk_gate",
@@ -1615,9 +1615,9 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "clk_gate/ZN",
       "net": "gated_clk",
-      "arrival": 5.022e-09,
-      "capacitance": 8.807e-16,
-      "slew": 5.048e-12
+      "arrival": 5.02e-09,
+      "capacitance": 8.81e-16,
+      "slew": 5.05e-12
     },
     {
       "instance": "reg1",
@@ -1625,15 +1625,15 @@ clk                                    -5.38
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "gated_clk",
-      "arrival": 5.022e-09,
-      "slew": 5.048e-12
+      "arrival": 5.02e-09,
+      "slew": 5.05e-12
     }
   ],
-  "data_arrival_time": 1.010e-08,
-  "crpr": 0.000e+00,
-  "margin": 3.000e-10,
-  "required_time": 4.722e-09,
-  "slack": -5.378e-09
+  "data_arrival_time": 1.01e-08,
+  "crpr": 0.00e+00,
+  "margin": 3.00e-10,
+  "required_time": 4.72e-09,
+  "slack": -5.38e-09
 }
 ]
 }

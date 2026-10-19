@@ -72,6 +72,8 @@ Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-p
     -keep_capacitive_coupling {Keep coupling capacitors in parasitic networks rather than converting them to grounded capacitors.}
     -coupling_reduction_factor {`factor`: Factor to multiply coupling capacitance by when reducing parasitic networks. The default value is 1.0.}
     filename {The name of the parasitics file to read.}
+    -min {Annotate minimum parasitics. Deprecated; use `-name` and `define_scene`.}
+    -max {Annotate maximum parasitics. Deprecated; use `-name` and `define_scene`.}
   }
 
 # -scene/-min/-max are for compatibilty, Deprecated 11/21/2025

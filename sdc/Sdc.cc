@@ -194,6 +194,7 @@ Sdc::clear()
   input_delay_index_ = 0;
   input_delay_leaf_pin_map_.clear();
   input_delay_internal_pin_map_.clear();
+  input_ref_pin_edges_valid_ = false;
   have_input_delay_ref_pins_ = false;
   have_output_delay_ref_pins_ = false;
 
@@ -2702,8 +2703,10 @@ Sdc::setInputDelay(const Pin *pin,
   }
 
   input_delay->setRefPin(ref_pin);
-  if (ref_pin)
+  if (ref_pin) {
     have_input_delay_ref_pins_ = true;
+    input_ref_pin_edges_valid_ = false;
+  }
   input_delay->setSourceLatencyIncluded(source_latency_included);
   input_delay->setNetworkLatencyIncluded(network_latency_included);
 }
@@ -2854,7 +2857,8 @@ Sdc::swapPortDelays(Sdc *sdc1,
 void
 Sdc::ensureInputDelayRefPinEdges()
 {
-  if (have_input_delay_ref_pins_) {
+  if (!input_ref_pin_edges_valid_
+      && have_input_delay_ref_pins_) {
     for (InputDelay *input_delay : input_delays_) {
       const Pin *ref_pin = input_delay->refPin();
       if (ref_pin
@@ -2869,6 +2873,7 @@ Sdc::ensureInputDelayRefPinEdges()
       }
     }
   }
+  input_ref_pin_edges_valid_ = true;
 }
 
 // The ref_pin edges are owned by the graph. When the graph is deleted the
@@ -2877,9 +2882,10 @@ Sdc::ensureInputDelayRefPinEdges()
 void
 Sdc::inputDelayRefPinEdgesInvalid()
 {
-  if (have_input_delay_ref_pins_) {
+  if (input_ref_pin_edges_valid_ && have_input_delay_ref_pins_) {
     for (InputDelay *input_delay : input_delays_)
       input_delay->setRefPinEdgesExist(false);
+    input_ref_pin_edges_valid_ = false;
   }
 }
 

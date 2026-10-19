@@ -31,6 +31,9 @@ define_cmd_args "report_dcalc" \
     -from {Report delay calculations for timing arcs from instance input pin from_pin.}
     -to {Report delay calculations for timing arcs to instance output pin to_pin.}
     -scene {Report delay calculations for this scene. Required if more than one scene is defined.}
+    -min default
+    -max default
+    -digits default
   }
 
 proc_redirect report_dcalc {
@@ -154,6 +157,10 @@ define_cmd_args "set_assigned_delay" \
     -from {A list of pins.}
     -to {A list of pins.}
     delay {The delay between from_pins and to_pins.}
+    -rise default
+    -fall default
+    -min default
+    -max default
   }
 
 # Change the delay for timing arcs between from_pins and to_pins matching
@@ -265,6 +272,12 @@ define_cmd_args "set_assigned_check" \
     -clock {`rise|fall`: The timing check clock pin transition.}
     -cond {SDF condition string for the annotated check.}
     margin {The timing check margin.}
+    -setup default
+    -hold default
+    -rise default
+    -fall default
+    -min default
+    -max default
   }
 
 proc set_assigned_check { args } {
@@ -380,6 +393,10 @@ define_cmd_args "set_assigned_transition" \
     -scene {Annotate delays for scene.}
     slew {The pin transition time.}
     pin_list {A list of pins.}
+    -rise default
+    -fall default
+    -min default
+    -max default
   }
 
 # Change the slew on a list of ports.
@@ -419,6 +436,7 @@ define_cmd_args "report_slews" {[-scenes scenes] [-digits digits]\
     -scenes {Report slews for these scenes. The default is all scenes.}
     -report_variance {Report SSTA distribution parameters.}
     pin {A pin or port.}
+    -digits default
   }
 
 proc report_slews { args } {

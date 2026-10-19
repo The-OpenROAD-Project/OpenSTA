@@ -88,6 +88,7 @@ set(STA_SOURCE
   dcalc/DelayNormal.cc
   dcalc/DelayScalar.cc
   dcalc/DelaySkewNormal.cc
+  dcalc/DelayNoise.cc
   dcalc/DmpCeff.cc
   dcalc/DmpDelayCalc.cc
   dcalc/FindRoot.cc
@@ -97,7 +98,7 @@ set(STA_SOURCE
   dcalc/ParallelDelayCalc.cc
   dcalc/PrimaDelayCalc.cc
   dcalc/UnitDelayCalc.cc
-  
+
   graph/Graph.cc
   graph/GraphCmp.cc
   
@@ -215,7 +216,12 @@ set(STA_SOURCE
   search/VisitPathEnds.cc
   search/WorstSlack.cc
 
+  spice/Gnuplot.cc
+  spice/PathStages.cc
+  spice/WriteGateGnuplot.cc
+  spice/WriteGateSpice.cc
   spice/WritePathSpice.cc
+  spice/WritePathGnuplot.cc
   spice/WriteSpice.cc
   spice/Xyce.cc
 
@@ -262,6 +268,7 @@ set(STA_TCL_FILES
   tcl/Sta.tcl
   tcl/Splash.tcl
   dcalc/DelayCalc.tcl
+  dcalc/DelayNoise.tcl
   graph/Graph.tcl
   liberty/Liberty.tcl
   network/Link.tcl
@@ -482,6 +489,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
 
 set(SWIG_FILES
   ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/dcalc/DelayNoise.i
   ${STA_HOME}/graph/Graph.i
   ${STA_HOME}/liberty/Liberty.i
   ${STA_HOME}/network/Network.i

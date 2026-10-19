@@ -223,6 +223,7 @@ record_public_tests {
   verilog_unconnected_hpin
   wireload_before_link
   write_path_spice_arc_sense
+  write_timing_model_scenes
 }
 
 define_test_group fast [group_tests all]

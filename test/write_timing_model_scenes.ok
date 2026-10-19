@@ -1,0 +1,18 @@
+fast a -> y: 0.02205,0.02452,0.02726,0.03250,0.04284,0.06345,0.10461
+fast clk -> q: 0.04710,0.04915,0.05147,0.05615,0.06598,0.08629,0.12733
+max_delay/setup group unconstrained
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+y (output)                               INF    0.02     INF (MET)
+
+slow a -> y: 0.09114,0.10524,0.12187,0.15445,0.21887,0.34705,0.60285
+slow clk -> q: 0.29101,0.30130,0.31279,0.33950,0.39956,0.52522,0.77978
+max_delay/setup group unconstrained
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+y (output)                               INF    0.15     INF (MET)
+
