@@ -1261,13 +1261,15 @@ DelayNoise::writeCaseVerilogInsts(const ArcDcalcArgSeq &gates,
         std::string port_vname = portVerilogName(port->name());
       
         const Net *net = network_->net(pin);
-        std::string net_name = network_->name(net);
-        std::string net_vname = netVerilogName(net_name);
-        if (!first_arg)
-          sta::print(stream, ",\n    ");
-        sta::print(stream, ".{}({})", port_vname, net_vname);
-        writen_insts.insert(inst);
-        first_arg = false;
+        if (net) {
+          std::string net_name = network_->name(net);
+          std::string net_vname = netVerilogName(net_name);
+          if (!first_arg)
+            sta::print(stream, ",\n    ");
+          sta::print(stream, ".{}({})", port_vname, net_vname);
+          writen_insts.insert(inst);
+          first_arg = false;
+        }
       }
     }
     delete pin_iter;
@@ -1503,13 +1505,19 @@ std::string
 DelayNoise::spefNodeName(const Pin *pin)
 {
   const Instance *inst = network_->instance(pin);
-  std::string inst_name = network_->pathName(inst);
-  std::string inst_sname = staToSpef(inst_name);
-  const LibertyPort *port = network_->libertyPort(pin);
-  std::string port_sname = staToSpef(port->name());;
-  return sta::format("{}:{}",
-                     inst_sname,
-                     port_sname);
+  if (inst == network_->topInstance()) {
+    const Port *port = network_->port(pin);
+    return staToSpef(network_->name(port));
+  }
+  else {
+    std::string inst_name = network_->pathName(inst);
+    std::string inst_sname = staToSpef(inst_name);
+    const LibertyPort *port = network_->libertyPort(pin);
+    std::string port_sname = staToSpef(port->name());;
+    return sta::format("{}:{}",
+                       inst_sname,
+                       port_sname);
+  }
 }
 
 std::string
