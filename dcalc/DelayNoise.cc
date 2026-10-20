@@ -1239,86 +1239,83 @@ void
 DelayNoise::writeCaseVerilogInsts(const ArcDcalcArgSeq &gates,
                                   std::ofstream &stream)
 {
-  NetSet gate_nets(network_);
-  for (const ArcDcalcArg &gate : gates)
-    gate_nets.insert(gate.drvrNet(network_));
-
-  InstanceSet writen_insts(network_);
+  InstanceSet case_insts(network_);
+  PinSet case_pins(network_);
   for (const ArcDcalcArg &gate : gates) {
     const Pin *drvr_pin = gate.drvrPin();
-    const Instance *inst = network_->instance(drvr_pin);
-    std::string inst_name = network_->pathName(inst);
-    std::string inst_vname = instanceVerilogToSta(inst_name);
-    const LibertyCell *inst_cell = network_->libertyCell(inst);
-    std::string cell_vname = cellVerilogName(inst_cell->name());
-    sta::print(stream, "  {} {} (", cell_vname, inst_vname);
-    bool first_arg = true;
-    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    case_pins.insert(drvr_pin);
+    const Instance *drvr_inst = network_->instance(drvr_pin);
+    case_insts.insert(drvr_inst);
+
+    InstancePinIterator *pin_iter = network_->pinIterator(drvr_inst);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
-      if (!network_->direction(pin)->isPowerGround()) {
-        const LibertyPort *port = network_->libertyPort(pin);
-        std::string port_vname = portVerilogName(port->name());
-      
-        const Net *net = network_->net(pin);
-        if (net) {
-          std::string net_name = network_->name(net);
-          std::string net_vname = netVerilogName(net_name);
-          if (!first_arg)
-            sta::print(stream, ",\n    ");
-          sta::print(stream, ".{}({})", port_vname, net_vname);
-          writen_insts.insert(inst);
-          first_arg = false;
-        }
-      }
+      const Net *net = network_->net(pin);
+      if (net)
+        case_pins.insert(pin);
     }
     delete pin_iter;
-    sta::print(stream, ");\n");
 
-    // Load pins.
     const Net *net = network_->net(drvr_pin);
-    sta::print(stream, "  // load pins\n");
     NetPinIterator *net_pin_iter = network_->pinIterator(net);
     while (net_pin_iter->hasNext()) {
       const Pin *load_pin = net_pin_iter->next();
       const Instance *load_inst = network_->instance(load_pin);
-      if (load_pin != drvr_pin
-          // Load pin instances may be common to multiple aggressors.
-          && !writen_insts.contains(load_inst)) {
-        std::string load_inst_name = network_->pathName(load_inst);
-        std::string load_inst_vname = instanceVerilogToSta(load_inst_name);
-        const LibertyCell *load_cell = network_->libertyCell(load_inst);
-        std::string load_cell_vname = cellVerilogName(load_cell->name());
-        sta::print(stream, "  {} {} (", load_cell_vname, load_inst_vname);
+      case_insts.insert(load_inst);
+      case_pins.insert(load_pin);
+    }
+  }
 
-        // Load pin instance may have inputs connected to other aggressors.
-        bool first_arg = true;
-        InstancePinIterator *load_inst_pin_iter = network_->pinIterator(load_inst);
-        while (load_inst_pin_iter->hasNext()) { 
-          const Pin *load_inst_pin = load_inst_pin_iter->next();
-          const Net *load_inst_pin_net = network_->net(load_inst_pin);
-          if ((load_inst_pin_net != nullptr
-               && gate_nets.contains(load_inst_pin_net))
-              && !network_->direction(load_inst_pin)->isPowerGround()) {
-            const LibertyPort *port = network_->libertyPort(load_inst_pin);
-            std::string port_vname = portVerilogName(port->name());
-            if (!first_arg)
-              sta::print(stream, ",\n    ");
-            std::string net_name = network_->name(load_inst_pin_net);
-            std::string net_vname = netVerilogName(net_name);
-            sta::print(stream, ".{}({})", port_vname, net_vname);
-            first_arg = false;
-          }
-        }
-        sta::print(stream, ");\n");
-        delete load_inst_pin_iter;
+  InstanceSeq insts_sorted;
+  for (const Instance *inst : case_insts)
+      insts_sorted.push_back(inst);
+  sort(insts_sorted, InstancePathNameLess(network_));
 
-        writen_insts.insert(load_inst);
+  const Pin *victim_pin = gates[0].drvrPin();
+  const Net *victim_net = network_->net(victim_pin);
+  const Instance *victim_inst = network_->instance(victim_pin);
+  sta::print(stream, "  // Victim net {}\n",
+             sdc_network_->pathName(victim_net));
+  sta::print(stream, "  //        driver {}\n",
+             sdc_network_->pathName(victim_pin));
+  writeCaseVerilogInst(victim_inst, case_pins, stream);
+
+  for (const Instance *inst : insts_sorted) {
+    if (inst != victim_inst)
+      writeCaseVerilogInst(inst, case_pins, stream);
+  }
+}
+
+void
+DelayNoise::writeCaseVerilogInst(const Instance *inst,
+                                 PinSet &case_pins,
+                                 std::ofstream &stream)
+{
+  std::string inst_name = network_->pathName(inst);
+  std::string inst_vname = instanceVerilogToSta(inst_name);
+  const LibertyCell *inst_cell = network_->libertyCell(inst);
+  std::string cell_vname = cellVerilogName(inst_cell->name());
+  sta::print(stream, "  {} {} (", cell_vname, inst_vname);
+  bool first_arg = true;
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (case_pins.contains(pin)) {
+      const Net *net = network_->net(pin);
+      if (net) {
+        std::string port_name = network_->portName(pin);
+        std::string port_vname = portVerilogName(port_name);
+        std::string net_name = network_->name(net);
+        std::string net_vname = netVerilogName(net_name);
+        if (!first_arg)
+          sta::print(stream, ",\n    ");
+        sta::print(stream, ".{}({})", port_vname, net_vname);
+        first_arg = false;
       }
     }
-    delete net_pin_iter;
-    sta::print(stream, "\n");
   }
+  delete pin_iter;
+  sta::print(stream, ");\n");
 }
 
 void

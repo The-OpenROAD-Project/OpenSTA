@@ -313,6 +313,9 @@ protected:
                             std::ofstream &stream);
   void writeCaseVerilogInsts(const ArcDcalcArgSeq &gates,
                              std::ofstream &stream);
+  void writeCaseVerilogInst(const Instance *inst,
+                            PinSet &case_pins,
+                            std::ofstream &stream);
   void writeCaseSpef(const ArcDcalcArgSeq &gates,
                      const std::string &filename,
                      float min_coupling_sum_ratio,
