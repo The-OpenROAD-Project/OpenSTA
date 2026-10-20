@@ -26,10 +26,14 @@
 
 #include <algorithm>  // max
 #include <cmath>      // abs
+#include <array>       // OpenROAD fork: power activity
 #include <cstddef>
+#include <functional>  // OpenROAD fork: power activity
+#include <limits>      // OpenROAD fork: power activity
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>      // OpenROAD fork: power activity
 
 #include "Bfs.hh"
 #include "ClkNetwork.hh"
@@ -123,6 +127,7 @@ Power::clearNonSdc()
   user_activity_map_.clear();
   seq_activity_map_.clear();
   activity_map_.clear();
+  launch_period_cache_.clear();  // OpenROAD fork: power activity
   powerInvalid();
 }
 
@@ -684,8 +689,11 @@ PropActivityVisitor::visit(Vertex *vertex)
             PwrActivity activity2 = power_->findActivity(enable);
             float p1 = activity1.duty();
             float p2 = activity2.duty();
-            PwrActivity activity(activity1.density() * p2 + activity2.density() * p1,
+            // ---- OpenROAD fork: power activity (begin) ----
+            // The enable is latched, so only clock edges make gated clock edges.
+            PwrActivity activity(activity1.density() * p2,
                                  p1 * p2, PwrActivityOrigin::propagated);
+            // ---- OpenROAD fork: power activity (end) ----
             changed = setActivityCheck(gclk, activity);
             debugPrint(debug_, "power_activity", 3, "gated_clk {} {:.2e} {:.2f}",
                        network_->pathName(gclk), activity.density(),
@@ -742,6 +750,21 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
   float max_density = (min_rf_slew > 0.0) ? 1.0 / min_rf_slew : INF;
   if (activity.density() > max_density)
     activity.setDensity(max_density);
+  // ---- OpenROAD fork: power activity (begin) ----
+  // The slew limit still allows hundreds of transitions per clock period.
+  // Propagated activity is limited to one transition per launching clock
+  // period (two for clock nets). Annotated activities are not limited, and
+  // neither are loads, which copy their driver's (already limited) activity.
+  if (activity.origin() == PwrActivityOrigin::propagated
+      && network_->isDriver(pin)) {
+    float max_prop_density = power_->maxPropagatedDensity(pin);
+    if (activity.density() > max_prop_density) {
+      debugPrint(debug_, "power_activity", 2, "limit {} {:.2e} -> {:.2e}",
+                 network_->pathName(pin), activity.density(), max_prop_density);
+      activity.setDensity(max_prop_density);
+    }
+  }
+  // ---- OpenROAD fork: power activity (end) ----
   PwrActivity &prev_activity = power_->activity(pin);
   float density_delta = percentChange(activity.density(), prev_activity.density());
   float duty_delta = percentChange(activity.duty(), prev_activity.duty());
@@ -810,6 +833,7 @@ Power::evalActivity(FuncExpr *expr,
 float
 Power::evalDiffDuty(FuncExpr *expr,
                     LibertyPort *from_port,
+                    FuncExpr *when,  // OpenROAD fork: power activity
                     const Instance *inst)
 {
   DdNode *bdd = bdd_.funcBdd(expr);
@@ -817,6 +841,17 @@ Power::evalDiffDuty(FuncExpr *expr,
   unsigned var_index = Cudd_NodeReadIndex(var_node);
   DdNode *diff = Cudd_bddBooleanDiff(bdd_.cuddMgr(), bdd, var_index);
   Cudd_Ref(diff);
+  // ---- OpenROAD fork: power activity (begin) ----
+  // Weight state dependent internal power groups by P(when).
+  if (when) {
+    DdNode *when_bdd = bdd_.funcBdd(when);
+    DdNode *diff_when = Cudd_bddAnd(bdd_.cuddMgr(), diff, when_bdd);
+    Cudd_Ref(diff_when);
+    Cudd_RecursiveDeref(bdd_.cuddMgr(), when_bdd);
+    Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
+    diff = diff_when;
+  }
+  // ---- OpenROAD fork: power activity (end) ----
   float duty = evalBddDuty(diff, inst);
 
   Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
@@ -845,19 +880,23 @@ Power::evalBddDuty(DdNode *bdd,
     unsigned int index = Cudd_NodeReadIndex(bdd);
     int var_index = Cudd_ReadPerm(bdd_.cuddMgr(), index);
     const LibertyPort *port = bdd_.varIndexPort(var_index);
+    // ---- OpenROAD fork: power activity (begin) ----
+    // Expand internal (IQ) variables too; returning their duty ignored the
+    // cofactors and complement (e.g. "!IQ").
+    float var_duty;
     if (port->direction()->isInternal())
-      return findSeqActivity(inst, const_cast<LibertyPort *>(port)).duty();
+      var_duty = findSeqActivity(inst, const_cast<LibertyPort *>(port)).duty();
     else {
       const Pin *pin = findLinkPin(inst, port);
-      if (pin) {
-        PwrActivity var_activity = findActivity(pin);
-        float var_duty = var_activity.duty();
-        float duty = duty0 * (1.0 - var_duty) + duty1 * var_duty;
-        if (Cudd_IsComplement(bdd))
-          duty = 1.0 - duty;
-        return duty;
-      }
+      if (pin == nullptr)
+        return 0.0;
+      var_duty = findActivity(pin).duty();
     }
+    float duty = duty0 * (1.0 - var_duty) + duty1 * var_duty;
+    if (Cudd_IsComplement(bdd))
+      duty = 1.0 - duty;
+    return duty;
+    // ---- OpenROAD fork: power activity (end) ----
   }
   return 0.0;
 }
@@ -869,6 +908,11 @@ float
 Power::evalBddActivity(DdNode *bdd,
                        const Instance *inst)
 {
+  // ---- OpenROAD fork: power activity (begin) ----
+  float change_density;
+  if (evalBddChangeDensity(bdd, inst, change_density))
+    return change_density;
+  // ---- OpenROAD fork: power activity (end) ----
   float density = 0.0;
   for (const auto [port, var_node] : bdd_.portVarMap()) {
     const Pin *pin = findLinkPin(inst, port);
@@ -889,6 +933,95 @@ Power::evalBddActivity(DdNode *bdd,
   return density;
 }
 
+// ---- OpenROAD fork: power activity (begin) ----
+// Summing density * P(boolean difference) over inputs (evalBddActivity)
+// counts simultaneous input transitions as separate output transitions,
+// which overestimates deep synchronous logic by orders of magnitude
+// (parallaxsw/OpenSTA issue #333). Instead use the probability that the
+// function value differs between consecutive clock periods, with each input
+// an independent two state process. Based on parallaxsw/OpenSTA PR #438.
+// Returns false for clock inputs, which switch twice per period.
+bool
+Power::evalBddChangeDensity(DdNode *bdd,
+                            const Instance *inst,
+                            // Return value.
+                            float &density)
+{
+  // Sample once per period of the fastest clock launching the inputs.
+  float period = INF;
+  std::vector<std::pair<unsigned, PwrActivity>> var_activities;
+  for (const auto [port, var_node] : bdd_.portVarMap()) {
+    PwrActivity activity;
+    if (port->direction()->isInternal())
+      activity = findSeqActivity(inst, const_cast<LibertyPort *>(port));
+    else {
+      const Pin *pin = findLinkPin(inst, port);
+      if (pin == nullptr || scene_->mode()->clkNetwork()->isClock(pin))
+        return false;
+      activity = findActivity(pin);
+      float pin_period = launchClkPeriod(pin);
+      if (pin_period > 0.0)
+        period = std::min(period, pin_period);
+    }
+    var_activities.emplace_back(Cudd_NodeReadIndex(var_node), activity);
+  }
+  if (period == INF)
+    period = clockMinPeriod(scene_->mode()->sdc());
+  if (period == 0.0)
+    period = units_->timeUnit()->scale();
+
+  // var_probs[var index][previous value][current value]
+  std::map<unsigned, std::array<std::array<float, 2>, 2>> var_probs;
+  for (const auto &[var_index, activity] : var_activities) {
+    float duty = std::clamp(activity.duty(), 0.0F, 1.0F);
+    // Changes per period cannot exceed 2 * min(duty, 1 - duty).
+    float half_change = std::min(activity.density() * period,
+                                 2.0F * std::min(duty, 1.0F - duty)) / 2.0F;
+    var_probs[var_index] = {{{1.0F - duty - half_change, half_change},
+                             {half_change, duty - half_change}}};
+  }
+
+  DdManager *cudd_mgr = bdd_.cuddMgr();
+  auto level = [cudd_mgr](DdNode *node) {
+    return Cudd_IsConstant(node)
+      ? std::numeric_limits<int>::max()
+      : Cudd_ReadPerm(cudd_mgr, Cudd_NodeReadIndex(node));
+  };
+  auto cofactor = [](DdNode *node, unsigned var_index, int value) {
+    DdNode *regular = Cudd_Regular(node);
+    if (Cudd_IsConstant(regular) || Cudd_NodeReadIndex(regular) != var_index)
+      return node;
+    DdNode *child = value ? Cudd_T(regular) : Cudd_E(regular);
+    return Cudd_IsComplement(node) ? Cudd_Not(child) : child;
+  };
+  // Probability that from (previous period) and to (current period) differ.
+  std::map<std::pair<DdNode *, DdNode *>, float> cache;
+  std::function<float(DdNode *, DdNode *)> change_prob =
+    [&](DdNode *from, DdNode *to) {
+      if (Cudd_IsConstant(from) && Cudd_IsConstant(to))
+        return from == to ? 0.0F : 1.0F;
+      auto key = std::make_pair(from, to);
+      auto itr = cache.find(key);
+      if (itr != cache.end())
+        return itr->second;
+      unsigned var_index = Cudd_NodeReadIndex(level(from) <= level(to) ? from : to);
+      auto probs_itr = var_probs.find(var_index);
+      if (probs_itr == var_probs.end())
+        return 0.0F;
+      const auto &probs = probs_itr->second;
+      float prob = 0.0F;
+      for (int prev : {0, 1})
+        for (int curr : {0, 1})
+          prob += probs[prev][curr] * change_prob(cofactor(from, var_index, prev),
+                                                  cofactor(to, var_index, curr));
+      cache[key] = prob;
+      return prob;
+    };
+  density = change_prob(bdd, bdd) / period;
+  return true;
+}
+// ---- OpenROAD fork: power activity (end) ----
+
 ////////////////////////////////////////////////////////////////
 
 void
@@ -900,6 +1033,7 @@ Power::ensureActivities(const Scene *scene)
     activities_valid_ = false;
     instance_powers_.clear();
     instance_powers_valid_ = false;
+    launch_period_cache_.clear();  // OpenROAD fork: power activity
   }
 
   if (!activities_valid_) {
@@ -920,7 +1054,9 @@ Power::ensureActivities(const Scene *scene)
       }
       ActivitySrchPred activity_srch_pred(this);
       BfsFwdIterator bfs(BfsIndex::other, &activity_srch_pred, this);
+      launch_period_cache_.clear();  // OpenROAD fork: power activity
       seedActivities(bfs);
+      seedFuncLessOutputActivities(bfs);  // OpenROAD fork: power activity
       PropActivityVisitor visitor(this, scene_->mode(), &bfs);
       // Propagate activities through combinational logic.
       bfs.visit(levelize_->maxLevel(), &visitor);
@@ -942,6 +1078,13 @@ Power::ensureActivities(const Scene *scene)
                    network_->pathName(visitor.maxChangePin()));
         pass++;
       }
+      // ---- OpenROAD fork: power activity (begin) ----
+      if (!regs.empty() && !convergence_warned_) {
+        report_->warn(2402, "power activity propagation through registers did "
+                      "not converge after {} passes.", max_activity_passes_);
+        convergence_warned_ = true;
+      }
+      // ---- OpenROAD fork: power activity (end) ----
     }
     activities_valid_ = true;
   }
@@ -1008,8 +1151,10 @@ Power::seedRegOutputActivities(const Instance *inst,
       if (port) {
         FuncExpr *func = port->function();
         Vertex *vertex = graph_->pinDrvrVertex(pin);
+        // OpenROAD fork: power activity. Include functions of the state such
+        // as "!IQ", not only the state port itself.
         if (vertex && func
-            && (func->port() == seq.output() || func->port() == seq.outputInv())) {
+            && (func->hasPort(seq.output()) || func->hasPort(seq.outputInv()))) {
           debugPrint(debug_, "power_reg", 1, "enqueue reg output {}",
                      vertex->to_string(this));
           bfs.enqueue(vertex);
@@ -1036,10 +1181,20 @@ Power::seedRegOutputActivities(const Instance *reg,
     float out_duty = in_duty;
     PwrActivity clk_activity = evalActivity(seq.clock(), reg);
     float clk_density = clk_activity.density();
-    if (in_density > clk_density / 2) {
-      if (seq.isRegister())
-        out_density = 2 * in_duty * (1 - in_duty) * clk_density;
-      else if (seq.isLatch()) {
+    // ---- OpenROAD fork: power activity (begin) ----
+    // A register output changes at most once per active clock edge
+    // (clk_density / 2), with probability at most 2 * min(duty, 1 - duty),
+    // so the output is continuous in the input density.
+    if (seq.isRegister()) {
+      out_density = std::min(in_density,
+                             std::min(in_duty, 1 - in_duty) * clk_density);
+      // The state has no activity yet when next_state refers to it (e.g.
+      // "(D&DE) | (IQ&!DE)"), so solve the hold loop instead.
+      evalRegHoldActivity(reg, seq, clk_density, out_density, out_duty);
+    }
+    else if (in_density > clk_density / 2) {
+      if (seq.isLatch()) {
+    // ---- OpenROAD fork: power activity (end) ----
         PwrActivity clk_activity = evalActivity(seq.clock(), reg);
         float clk_duty = clk_activity.duty();
         FuncExpr *clk_func = seq.clock();
@@ -1058,6 +1213,69 @@ Power::seedRegOutputActivities(const Instance *reg,
   }
 }
 
+// ---- OpenROAD fork: power activity (begin) ----
+// For a next_state that refers to the register's own state, each active
+// clock edge sets the state with probability u = P(next_state | IQ=0) and
+// clears it with probability v = P(!next_state | IQ=1). As a two-state
+// process the duty is u / (u + v) and the state changes 2uv / (u + v) times
+// per active edge. That assumes inputs that are random every cycle, which
+// is too high for slow inputs (an enable that is always on makes the cell
+// a plain register), so density is only lowered from its value on entry.
+// Returns false if next_state does not refer to the state.
+bool
+Power::evalRegHoldActivity(const Instance *reg,
+                           const Sequential &seq,
+                           float clk_density,
+                           // Return values.
+                           float &density,
+                           float &duty)
+{
+  FuncExpr *data = seq.data();
+  LibertyPort *iq = seq.output();
+  LibertyPort *iqn = seq.outputInv();
+  if (data == nullptr
+      || !((iq && data->hasPort(iq)) || (iqn && data->hasPort(iqn))))
+    return false;
+  DdManager *mgr = bdd_.cuddMgr();
+  DdNode *bdd = bdd_.funcBdd(data);
+  float state_duty[2];
+  for (int value : {0, 1}) {
+    DdNode *node = bdd;
+    Cudd_Ref(node);
+    for (const auto &[port, port_value] : {std::pair(iq, value),
+                                           std::pair(iqn, 1 - value)}) {
+      DdNode *var = port ? bdd_.findNode(port) : nullptr;
+      if (var) {
+        DdNode *cofactor = Cudd_bddCompose(mgr, node,
+                                           port_value ? Cudd_ReadOne(mgr)
+                                                      : Cudd_ReadLogicZero(mgr),
+                                           Cudd_NodeReadIndex(var));
+        Cudd_Ref(cofactor);
+        Cudd_RecursiveDeref(mgr, node);
+        node = cofactor;
+      }
+    }
+    state_duty[value] = evalBddDuty(node, reg);
+    Cudd_RecursiveDeref(mgr, node);
+  }
+  Cudd_RecursiveDeref(mgr, bdd);
+  bdd_.clearVarMap();
+  float set = state_duty[0];
+  float clear = 1.0 - state_duty[1];
+  if (set + clear > 0.0) {
+    duty = set / (set + clear);
+    // There are clk_density / 2 active edges.
+    density = std::min(density, set * clear / (set + clear) * clk_density);
+  }
+  else {
+    // The state never changes; its value is unknown.
+    duty = 0.5;
+    density = 0.0;
+  }
+  return true;
+}
+// ---- OpenROAD fork: power activity (end) ----
+
 void
 Power::seedClkGateOutputActivities(const Instance *inst,
                                    BfsFwdIterator &bfs)
@@ -1074,6 +1292,65 @@ Power::seedClkGateOutputActivities(const Instance *inst,
   }
   delete pin_iter;
 }
+
+// ---- OpenROAD fork: power activity (begin) ----
+// Outputs of cells without a liberty function or sequential model (memories,
+// macros, statetable cells) are never reached by propagation. Seed them like
+// primary inputs, using any annotated (vcd/saif/user) activity.
+void
+Power::seedFuncLessOutputActivities(BfsFwdIterator &bfs)
+{
+  const Mode *mode = scene_->mode();
+  LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
+  while (inst_iter->hasNext()) {
+    Instance *inst = inst_iter->next();
+    LibertyCell *cell = network_->libertyCell(inst);
+    if (cell == nullptr || !cell->sequentials().empty() || cell->testCell()
+        || cell->isClockGate())
+      continue;
+    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      LibertyPort *port = network_->libertyPort(pin);
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (port && port->direction()->isAnyOutput() && port->function() == nullptr
+          && vertex && !mode->clkNetwork()->isClock(pin)) {
+        setActivity(pin, hasUserActivity(pin) ? userActivity(pin) : input_activity_);
+        bfs.enqueueAdjacentVertices(vertex, mode);
+      }
+    }
+    delete pin_iter;
+  }
+  delete inst_iter;
+}
+
+// Period of the fastest clock launching paths through pin, or of the
+// fastest clock in the design if none does. Zero if there are no clocks.
+float
+Power::launchClkPeriod(const Pin *pin)
+{
+  auto cache_itr = launch_period_cache_.find(pin);
+  if (cache_itr != launch_period_cache_.end())
+    return cache_itr->second;
+  const Clock *clk = findClk(pin);
+  float period = clk ? clk->period() : 0.0;
+  if (period <= 0.0)
+    period = clockMinPeriod(scene_->mode()->sdc());
+  launch_period_cache_[pin] = period;
+  return period;
+}
+
+float
+Power::maxPropagatedDensity(const Pin *pin)
+{
+  float period = launchClkPeriod(pin);
+  if (period <= 0.0)
+    return INF;
+  float transitions_per_period =
+      scene_->mode()->clkNetwork()->isClock(pin) ? 2.0 : 1.0;
+  return transitions_per_period / period;
+}
+// ---- OpenROAD fork: power activity (end) ----
 
 ////////////////////////////////////////////////////////////////
 
@@ -1201,21 +1478,11 @@ Power::findInputInternalPower(const Pin *pin,
           energy /= rf_count;  // average non-inf energies
         float duty = 1.0;      // fallback default
         FuncExpr *when = pwr->when();
-        if (when) {
-          const LibertyPort *out_scene_port = findExprOutPort(when);
-          if (out_scene_port) {
-            LibertyPort *out_port = findLinkPort(cell, out_scene_port);
-            if (out_port) {
-              FuncExpr *func = out_port->function();
-              if (func && func->hasPort(port))
-                duty = evalDiffDuty(func, port, inst);
-              else
-                duty = evalActivity(when, inst).duty();
-            }
-          }
-          else
-            duty = evalActivity(when, inst).duty();
-        }
+        // ---- OpenROAD fork: power activity (begin) ----
+        // Weight each group by P(when).
+        if (when)
+          duty = evalActivity(when, inst).duty();
+        // ---- OpenROAD fork: power activity (end) ----
         float port_internal = energy * duty * activity.density();
         debugPrint(debug_, "power", 2, " {} {}  {:.2f}  {:.2f} {:9.2e} {:9.2e} {}",
                    port->name(), when ? when->to_string() : "",
@@ -1265,38 +1532,6 @@ Power::getMinRfSlew(const Pin *pin)
     return mm_slew;
   }
   return 0.0;
-}
-
-LibertyPort *
-Power::findExprOutPort(FuncExpr *expr)
-{
-  LibertyPort *port;
-  switch (expr->op()) {
-    case FuncExpr::Op::port:
-      port = expr->port();
-      if (port && port->direction()->isAnyOutput())
-        return expr->port();
-      return nullptr;
-    case FuncExpr::Op::not_:
-      port = findExprOutPort(expr->left());
-      if (port)
-        return port;
-      return nullptr;
-    case FuncExpr::Op::or_:
-    case FuncExpr::Op::and_:
-    case FuncExpr::Op::xor_:
-      port = findExprOutPort(expr->left());
-      if (port)
-        return port;
-      port = findExprOutPort(expr->right());
-      if (port)
-        return port;
-      return nullptr;
-    case FuncExpr::Op::one:
-    case FuncExpr::Op::zero:
-      return nullptr;
-  }
-  return nullptr;
 }
 
 void
@@ -1398,7 +1633,7 @@ Power::findInputDuty(const Instance *inst,
       FuncExpr *when = pwr->when();
       Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
       if (func && func->hasPort(from_port)) {
-        float duty = evalDiffDuty(func, from_port, inst);
+        float duty = evalDiffDuty(func, from_port, when, inst);  // OpenROAD fork
         return duty;
       }
       else if (when)
@@ -1591,6 +1826,14 @@ Power::findActivity(const Pin *pin)
 {
   const Mode *mode = scene_->mode();
   Vertex *vertex = graph_->pinLoadVertex(pin);
+  // ---- OpenROAD fork: power activity (begin) ----
+  // Constant pins (case analysis, set_logic) do not switch.
+  LogicValue sim_value = mode->sim()->simValue(pin);
+  if (sim_value == LogicValue::zero)
+    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
+  if (sim_value == LogicValue::one)
+    return PwrActivity(0.0, 1.0, PwrActivityOrigin::constant);
+  // ---- OpenROAD fork: power activity (end) ----
   if (vertex && mode->clkNetwork()->isClock(pin)) {
     PwrActivity *activity = findKeyValuePtr(activity_map_, pin);
     if (activity && activity->origin() != PwrActivityOrigin::unknown)
@@ -1616,6 +1859,14 @@ Power::findActivity(const Pin *pin)
 float
 Power::clockDuty(const Clock *clk)
 {
+  // ---- OpenROAD fork: power activity (begin) ----
+  // Use the generated clock's own waveform (divide_by, edges) when known.
+  if (clk->isGenerated() && clk->waveform().size() >= 2 && clk->period() > 0.0) {
+    float duty = (clk->waveform()[1] - clk->waveform()[0]) / clk->period();
+    if (duty > 0.0 && duty < 1.0)
+      return duty;
+  }
+  // ---- OpenROAD fork: power activity (end) ----
   if (clk->isGenerated()) {
     const Clock *master = clk->masterClk();
     if (master == nullptr)
@@ -1685,7 +1936,11 @@ Power::findClk(const Pin *to_pin)
   const Clock *clk = nullptr;
   Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
   if (to_vertex) {
-    VertexPathIterator path_iter(to_vertex, this);
+    // ---- OpenROAD fork: power activity (begin) ----
+    // Only paths of the scene being analyzed; other modes can have faster
+    // clocks. No min/max or rise/fall filter.
+    VertexPathIterator path_iter(to_vertex, scene_, nullptr, nullptr, this);
+    // ---- OpenROAD fork: power activity (end) ----
     while (path_iter.hasNext()) {
       Path *path = path_iter.next();
       const Clock *path_clk = path->clock(this);
