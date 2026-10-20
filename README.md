@@ -64,7 +64,7 @@ The upstream git repository is located at
 https://github.com/parallaxsw/OpenSTA.git. This fork has not been
 tested with Parallax regressions which are not publicly available.
 
-Note that this repo is not a fork in GitHub for historical reasons but
+Note that this repo is not a fork on GitHub for historical reasons but
 functions as one in practical terms.
 
 ## Build from source
