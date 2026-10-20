@@ -742,6 +742,8 @@ define_common_arg_help {
   -report_variance {Include delay distribution variance in the report.}
   -report_annotated {Report objects that are annotated.}
   -no_line_splits {Do not split long lines into multiple lines.}
+  -min_coupling_sum_ratio  {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_sum_ratio_default, or .7.}
+  -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_ratio_default, or .1.}
 }
 
 # Unknown proc handler for command interpreter.
