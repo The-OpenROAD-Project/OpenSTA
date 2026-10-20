@@ -69,7 +69,7 @@ proc annotate_noise_delays { args } {
 define_cmd_args "report_noise_delays" {[-net net]\
                                          [-max_count max_count]\
                                          [-rise|-fall]\
-                                         [-scene sc`ene] [-min] [-max]\
+                                         [-scene scene] [-min] [-max]\
                                          [-min_coupling_sum_ratio coupling_sum_ratio]\
                                          [-min_coupling_ratio coupling_ratio]\
                                          [-digits digits]}\
@@ -229,7 +229,7 @@ proc write_delay_noise_case { args } {
   variable min_coupling_ratio_default
 
   parse_key_args "write_delay_noise_case" args \
-    keys {-min_coupling_sum_ratio -scene} \
+    keys {-min_coupling_sum_ratio -min_coupling_ratio -scene} \
     flags {-rise -fall -min -max -no_timestamp}
 
   check_argc_eq2 "write_delay_noise_case" $args
