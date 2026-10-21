@@ -136,7 +136,6 @@ protected:
                  const RiseFall *rf,
                  const TimingArc *next_arc);
   float slewAxisMinValue(const TimingArc *arc);
-  float clkWaveformTimeOffset(const Clock *clk);
 
   void gatePortValues(const Pin *input_pin,
                       const Pin *drvr_pin,

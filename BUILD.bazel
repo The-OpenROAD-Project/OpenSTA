@@ -129,6 +129,7 @@ tcl_srcs = [
     "network/NetworkEdit.tcl",
     "search/Search.tcl",
     "dcalc/DelayCalc.tcl",
+    "dcalc/DelayNoise.tcl",
     "parasitics/Parasitics.tcl",
     "power/Power.tcl",
     "sdc/Sdc.tcl",
@@ -214,6 +215,7 @@ filegroup(
     srcs = [
         "app/StaApp.i",
         "dcalc/DelayCalc.i",
+        "dcalc/DelayNoise.i",
         "graph/Graph.i",
         "liberty/Liberty.i",
         "network/Network.i",
@@ -392,6 +394,9 @@ cc_library(
         "search/Levelize.hh",
         "search/ReportPath.hh",
         "spice/WritePathSpice.hh",
+        "spice/WriteGateSpice.hh",
+        "spice/WriteGateGnuplot.hh",
+        "spice/WritePathGnuplot.hh",
         "dcalc/PrimaDelayCalc.hh",
         # Needed by src/dbSta to synthesize LibertyCells programmatically.
         "liberty/LibertyBuilder.hh",

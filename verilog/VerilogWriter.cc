@@ -62,7 +62,6 @@ protected:
   void writePorts(const Cell *cell);
   void writePortDcls(const Cell *cell);
   void writeWireDcls(const Instance *inst);
-  const char *verilogPortDir(PortDirection *dir);
   void writeChildren(const Instance *inst);
   void writeChild(const Instance *child);
   void writeInstPin(const Instance *inst,
@@ -225,30 +224,28 @@ VerilogWriter::writePortDcls(const Cell *cell)
     if (include_pwr_gnd_
         || !network_->direction(port)->isPowerGround()) {
       std::string port_vname = portVerilogName(std::string(network_->name(port)));
-      const char *vtype = verilogPortDir(dir);
-      if (vtype) {
-        sta::print(stream_, " {}", vtype);
+      std::string_view vtype = verilogPortDir(dir);
+      sta::print(stream_, " {}", vtype);
+      if (network_->isBus(port))
+        sta::print(stream_, " [{}:{}]",
+                   network_->fromIndex(port),
+                   network_->toIndex(port));
+      sta::print(stream_, " {};\n", port_vname);
+      if (dir->isTristate()) {
+        sta::print(stream_, " tri");
         if (network_->isBus(port))
           sta::print(stream_, " [{}:{}]",
-                    network_->fromIndex(port),
-                    network_->toIndex(port));
+                     network_->fromIndex(port),
+                     network_->toIndex(port));
         sta::print(stream_, " {};\n", port_vname);
-        if (dir->isTristate()) {
-          sta::print(stream_, " tri");
-          if (network_->isBus(port))
-            sta::print(stream_, " [{}:{}]",
-                      network_->fromIndex(port),
-                      network_->toIndex(port));
-          sta::print(stream_, " {};\n", port_vname);
-        }
       }
     }
   }
   delete port_iter;
 }
 
-const char *
-VerilogWriter::verilogPortDir(PortDirection *dir)
+std::string_view
+verilogPortDir(PortDirection *dir)
 {
   if (dir == PortDirection::input())
     return "input";
@@ -269,7 +266,7 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
     return "inout";
   else {
     criticalError(268, "unknown port direction");
-    return nullptr;
+    return "";
   }
 }
 

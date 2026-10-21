@@ -1810,9 +1810,9 @@ Path Type: max
       "cell": "search_latch",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 2.921e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 2.92e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "latch1",
@@ -1820,8 +1820,8 @@ Path Type: max
       "verilog_src": "",
       "pin": "latch1/G",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
   "source_path": [
@@ -1831,9 +1831,9 @@ Path Type: max
       "verilog_src": "",
       "pin": "latch1/Q",
       "net": "n3",
-      "arrival": 1.106e-09,
-      "capacitance": 1.932e-15,
-      "slew": 1.074e-11
+      "arrival": 1.11e-09,
+      "capacitance": 1.93e-15,
+      "slew": 1.07e-11
     },
     {
       "instance": "latch2",
@@ -1841,8 +1841,8 @@ Path Type: max
       "verilog_src": "",
       "pin": "latch2/D",
       "net": "n3",
-      "arrival": 1.106e-09,
-      "slew": 1.074e-11
+      "arrival": 1.11e-09,
+      "slew": 1.07e-11
     }
   ],
   "target_clock": "clk",
@@ -1853,9 +1853,9 @@ Path Type: max
       "cell": "search_latch",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 2.921e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 2.92e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "latch2",
@@ -1863,15 +1863,15 @@ Path Type: max
       "verilog_src": "",
       "pin": "latch2/G",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
-  "data_arrival_time": 1.106e-09,
-  "crpr": 0.000e+00,
-  "margin": 5.497e-11,
-  "required_time": 1.106e-09,
-  "slack": 0.000e+00
+  "data_arrival_time": 1.11e-09,
+  "crpr": 0.00e+00,
+  "margin": 5.50e-11,
+  "required_time": 1.11e-09,
+  "slack": 0.00e+00
 }
 ]
 }
@@ -1890,9 +1890,9 @@ Path Type: max
       "cell": "search_latch",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 2.921e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 2.92e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "latch1",
@@ -1900,8 +1900,8 @@ Path Type: max
       "verilog_src": "",
       "pin": "latch1/G",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
   "source_path": [
@@ -1911,9 +1911,9 @@ Path Type: max
       "verilog_src": "",
       "pin": "latch1/Q",
       "net": "n3",
-      "arrival": 5.291e-11,
-      "capacitance": 2.054e-15,
-      "slew": 9.761e-12
+      "arrival": 5.29e-11,
+      "capacitance": 2.05e-15,
+      "slew": 9.76e-12
     },
     {
       "instance": "reg1",
@@ -1921,8 +1921,8 @@ Path Type: max
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n3",
-      "arrival": 5.291e-11,
-      "slew": 9.761e-12
+      "arrival": 5.29e-11,
+      "slew": 9.76e-12
     }
   ],
   "target_clock": "clk",
@@ -1933,9 +1933,9 @@ Path Type: max
       "cell": "search_latch",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 2.921e-15,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 2.92e-15,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -1943,15 +1943,15 @@ Path Type: max
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
-  "data_arrival_time": 5.291e-11,
-  "crpr": 0.000e+00,
-  "margin": 6.024e-12,
-  "required_time": 6.024e-12,
-  "slack": 4.688e-11
+  "data_arrival_time": 5.29e-11,
+  "crpr": 0.00e+00,
+  "margin": 6.02e-12,
+  "required_time": 6.02e-12,
+  "slack": 4.69e-11
 }
 ]
 }

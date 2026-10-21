@@ -96,6 +96,7 @@ define_cmd_args "report_annotated_delay" \
     -report_annotated {Report annotated timing arcs.}
     -report_unannotated {Report unannotated timing arcs.}
     -constant_arcs {Report separate annotation counts for arcs disabled by logic constants (`set_logic_one`, `set_logic_zero`).}
+    -scene default
   }
 
 proc_redirect report_annotated_delay {
@@ -160,6 +161,9 @@ define_cmd_args "report_annotated_check" \
     -report_annotated {Report annotated timing arcs.}
     -report_unannotated {Report unannotated timing arcs.}
     -constant_arcs {Report separate annotation counts for arcs disabled by logic constants (`set_logic_one`, `set_logic_zero`).}
+    -setup default
+    -hold default
+    -scene default
   }
 
 proc_redirect report_annotated_check {
@@ -229,6 +233,7 @@ define_cmd_args "write_sdf" \
     -no_timestamp {Do not write a DATE statement.}
     -no_version {Do not write a VERSION statement.}
     filename {The SDF filename to write.}
+    -digits {The number of digits after the decimal point to write. The default value is 3.}
   }
 
 proc_redirect write_sdf {

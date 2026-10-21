@@ -180,6 +180,7 @@ record_public_tests {
   liberty_retain
   make_concrete_parasitics_leak
   max_power_area
+  noise_case
   non_seq_timing
   package_require
   parasitic_network_new_net
@@ -223,6 +224,7 @@ record_public_tests {
   verilog_unconnected_hpin
   wireload_before_link
   write_path_spice_arc_sense
+  write_timing_model_scenes
 }
 
 define_test_group fast [group_tests all]

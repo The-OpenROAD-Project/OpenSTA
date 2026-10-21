@@ -57,6 +57,8 @@ Total                  3.48e-06   6.72e-08   3.12e-07   3.86e-06 100.0%
     -instances {`instances`: Report the power for each instance of instances. If the instance is hierarchical the total power for the instances inside the hierarchical instance is reported.}
     -highest_power_instances {`count`: Report the power for the count highest power instances.}
     -format {`text`: Print a text table (the default). `json`: Print JSON.}
+    -scene default
+    -digits default
   }
 
 proc_redirect report_power {
