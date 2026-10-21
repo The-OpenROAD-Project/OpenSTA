@@ -31,9 +31,9 @@ Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors
   -arg_help {
     -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
     -min {Only annotate minimum delays.}
-    -max { Only annotate maximum delays.}
-    -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
-    -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
+    -max {Only annotate maximum delays.}
+    -min_coupling_sum_ratio default
+    -min_coupling_ratio default
   }
 
 proc annotate_noise_delays { args } {
@@ -82,8 +82,8 @@ define_cmd_args "report_noise_delays" {[-net net]\
     -min {nly report minimum delays.}
     -max {Only report maximum delays.}
     -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
-    -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
-    -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
+    -min_coupling_sum_ratio default
+    -min_coupling_ratio default
     -digits default
   }
 
@@ -143,7 +143,7 @@ define_cmd_args "report_victim_nets" {[-scene scene]\
     -scene {The delay calculation scene to annotate. Required for multi-scene analysis.}
     -min {Only annotate minimum delays.}
     -max {Only annotate maximum delays.}
-    -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
+    -min_coupling_sum_ratio default
   }
 
 proc report_victim_nets { args } {
@@ -219,8 +219,8 @@ define_cmd_args "write_delay_noise_case" {net file_basename -rise|-fall\
     -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
     -min {Only annotate minimum delays.}
     -max { Only annotate maximum delays.}
-    -min_coupling_sum_ratio {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.}
-    -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.}
+    -min_coupling_sum_ratio default
+    -min_coupling_ratio default
     -no_timestamp {Do not include a time and date in the written files.}
   }
 

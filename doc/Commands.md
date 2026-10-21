@@ -101,13 +101,13 @@ Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors
 : Only annotate minimum delays.
 
 `-max` {: #opt-annotate_noise_delays-max }
-:  Only annotate maximum delays.
+: Only annotate maximum delays.
 
 `-min_coupling_sum_ratio` {: #opt-annotate_noise_delays-min_coupling_sum_ratio }
-: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_sum_ratio_default, or .7.
 
 `-min_coupling_ratio` {: #opt-annotate_noise_delays-min_coupling_ratio }
-: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_ratio_default, or .1.
 
 ## check_setup
 
@@ -2126,10 +2126,10 @@ Report noise delays on nets. Use -net to report noise delays on a net. Use -max_
 : Only report maximum delays.
 
 `-min_coupling_sum_ratio` {: #opt-report_noise_delays-min_coupling_sum_ratio }
-: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_sum_ratio_default, or .7.
 
 `-min_coupling_ratio` {: #opt-report_noise_delays-min_coupling_ratio }
-: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_ratio_default, or .1.
 
 `-digits` {: #opt-report_noise_delays-digits }
 : Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.
@@ -2332,7 +2332,7 @@ Report victim nets that have coupling capacitances to aggressor nets that switch
 : Only annotate maximum delays.
 
 `-min_coupling_sum_ratio` {: #opt-report_victim_nets-min_coupling_sum_ratio }
-: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_sum_ratio_default, or .7.
 
 ## report_wns
 
@@ -4625,10 +4625,10 @@ Write verilog and spef files for noise delays on a net. For debugging noise case
 :  Only annotate maximum delays.
 
 `-min_coupling_sum_ratio` {: #opt-write_delay_noise_case-min_coupling_sum_ratio }
-: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .1.
+: The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_sum_ratio_default, or .7.
 
 `-min_coupling_ratio` {: #opt-write_delay_noise_case-min_coupling_ratio }
-: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is .7.
+: The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_ratio_default, or .1.
 
 `-no_timestamp` {: #opt-write_delay_noise_case-no_timestamp }
 : Do not include a time and date in the written files.
