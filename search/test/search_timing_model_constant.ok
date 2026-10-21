@@ -1,16 +1,24 @@
+Warning 1382: output zte is constant 0 only in this mode (set_case_analysis, set_logic_zero/one); the model has no arcs to it.
 --- constant outputs ---
 u/z0 0
 u/z1 1
 u/zand 0
+u/zte X
 r0/D 0
 r1/D 1
 rz/D 0
+rte/D X
 --- check_setup -unconstrained_endpoints ---
+Warning: There is 1 unconstrained endpoint.
+  rte/D
 --- rq/D ---
 max_delay/setup group clk
 
                                      Required  Actual
 Endpoint                               Delay   Delay   Slack
 ------------------------------------------------------------
-rq/D (DFFHQNx1_ASAP7_75t_R)           985.06   48.43  936.63 (MET)
+rq/D (DFFHQNx1_ASAP7_75t_R)           985.04   51.63  933.42 (MET)
+
+--- rte/D ---
+No paths found.
 
