@@ -21,6 +21,7 @@ variable hidden_cmds {
   show_copying
   show_splash
   show_warranty
+  write_delay_noise_case
   write_gate_gnuplot
   write_gate_spice
 }
