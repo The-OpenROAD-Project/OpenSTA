@@ -1494,8 +1494,13 @@ DelayNoise::spefNodeName(const ParasiticNode *node,
   const Pin *pin = parasitics->pin(node);
   if (pin)
     return spefNodeName(pin);
-  else
-    return parasitics->name(node);
+  else {
+    const Net *net = parasitics->net(node, network_);
+    std::string net_name = staToSpef(network_->name(net));
+    unsigned net_id = parasitics->netId(node);
+    std::string spef_name = net_name + ":" + std::to_string(net_id);
+    return spef_name;
+  }
 }
 
 std::string
