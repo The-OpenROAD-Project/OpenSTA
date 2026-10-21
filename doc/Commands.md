@@ -2093,7 +2093,7 @@ Report the connections and capacitance of a net.
     [<a href="#opt-report_noise_delays-net">-net</a> net]
     [<a href="#opt-report_noise_delays-max_count">-max_count</a> max_count]
     [<a href="#opt-report_noise_delays-rise">-rise</a>|<a href="#opt-report_noise_delays-fall">-fall</a>]
-    [<a href="#opt-report_noise_delays-scene">-scene</a> sc`ene]
+    [<a href="#opt-report_noise_delays-scene">-scene</a> scene]
     [<a href="#opt-report_noise_delays-min">-min</a>]
     [<a href="#opt-report_noise_delays-max">-max</a>]
     [<a href="#opt-report_noise_delays-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
