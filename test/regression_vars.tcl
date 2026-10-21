@@ -180,6 +180,7 @@ record_public_tests {
   liberty_retain
   make_concrete_parasitics_leak
   max_power_area
+  noise_case
   non_seq_timing
   package_require
   parasitic_network_new_net
