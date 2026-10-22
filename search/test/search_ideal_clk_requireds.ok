@@ -1,0 +1,230 @@
+--- ideal ---
+ckbuf/A  max INF        min INF
+ckbuf/Z  max INF        min INF
+icg/CK   max INF        min INF
+cg/A1    max INF        min INF
+r1/CK    max 0.093333   min 0.111042
+r2/CK    max 0.147763   min -0.013328
+r1/Q     max 0.126714   min 0.077660
+r2/Q     max 0.181144   min -0.046710
+u2/Z     max 0.126714   min 0.126467
+icg/E    max 0.126714   min 0.126467
+u3/Z     max 0.193710   min -0.046710
+cg/A2    max 0.193710   min -0.046710
+r3/D     max 0.181144   min 0.077660
+r4/D     max 0.181144   min 0.077660
+wns max 0.00
+tns max 0.00
+worst slack min -0.05
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.30    0.11    0.19 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.25    0.12    0.13 (MET)
+
+min_delay/hold group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.15    0.10   -0.05 (VIOLATED)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.00    0.12    0.13 (MET)
+
+--- ideal, resized u1 ---
+ckbuf/A  max INF        min INF
+ckbuf/Z  max INF        min INF
+icg/CK   max INF        min INF
+cg/A1    max INF        min INF
+r1/CK    max 0.090435   min 0.114516
+r2/CK    max 0.147763   min -0.013328
+r1/Q     max 0.123817   min 0.081135
+r2/Q     max 0.181144   min -0.046710
+u2/Z     max 0.123817   min 0.129372
+icg/E    max 0.123817   min 0.129372
+u3/Z     max 0.193710   min -0.046710
+cg/A2    max 0.193710   min -0.046710
+r3/D     max 0.175960   min 0.081135
+r4/D     max 0.181144   min 0.077660
+wns max 0.00
+tns max 0.00
+worst slack min -0.05
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.30    0.11    0.19 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.25    0.13    0.12 (MET)
+
+min_delay/hold group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.15    0.10   -0.05 (VIOLATED)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.00    0.13    0.13 (MET)
+
+--- ideal, resized r1 ---
+ckbuf/A  max INF        min INF
+ckbuf/Z  max INF        min INF
+icg/CK   max INF        min INF
+cg/A1    max INF        min INF
+r1/CK    max 0.067231   min 0.122534
+r2/CK    max 0.147763   min -0.013328
+r1/Q     max 0.100613   min 0.089152
+r2/Q     max 0.181144   min -0.046710
+u2/Z     max 0.100613   min 0.149799
+icg/E    max 0.100613   min 0.149799
+u3/Z     max 0.193710   min -0.046710
+cg/A2    max 0.193710   min -0.046710
+r3/D     max 0.152495   min 0.089152
+r4/D     max 0.181144   min 0.077660
+wns max 0.00
+tns max 0.00
+worst slack min -0.05
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.30    0.11    0.19 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.25    0.15    0.10 (MET)
+
+min_delay/hold group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.15    0.10   -0.05 (VIOLATED)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                     -0.02    0.13    0.15 (MET)
+
+--- propagated ---
+ckbuf/A  max 0.094682   min -0.040228
+ckbuf/Z  max 0.094682   min -0.040228
+icg/CK   max 0.137846   min 0.160447
+cg/A1    max 0.133630   min 0.164661
+r1/CK    max 0.094682   min 0.067897
+r2/CK    max 0.187865   min -0.040228
+r1/Q     max 0.094682   min 0.067897
+r2/Q     max 0.187865   min -0.040228
+u2/Z     max 0.094682   min 0.153302
+icg/E    max 0.094682   min 0.153302
+u3/Z     max 0.187865   min -0.040228
+cg/A2    max 0.187865   min -0.040228
+r3/D     max 0.173292   min 0.067897
+r4/D     max 0.206922   min 0.052335
+wns max 0.00
+tns max 0.00
+worst slack min -0.04
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.33    0.15    0.19 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.28    0.19    0.09 (MET)
+
+min_delay/hold group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.18    0.14   -0.04 (VIOLATED)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.02    0.17    0.15 (MET)
+
+--- ideal again ---
+ckbuf/A  max INF        min INF
+ckbuf/Z  max INF        min INF
+icg/CK   max INF        min INF
+cg/A1    max INF        min INF
+r1/CK    max 0.067279   min 0.122486
+r2/CK    max 0.147811   min -0.013376
+r1/Q     max 0.100613   min 0.089152
+r2/Q     max 0.181144   min -0.046710
+u2/Z     max 0.100613   min 0.149799
+icg/E    max 0.100613   min 0.149799
+u3/Z     max 0.193710   min -0.046710
+cg/A2    max 0.193710   min -0.046710
+r3/D     max 0.152495   min 0.089152
+r4/D     max 0.181144   min 0.077660
+wns max 0.00
+tns max 0.00
+worst slack min -0.05
+max_delay/setup group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.30    0.11    0.19 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                      0.25    0.15    0.10 (MET)
+
+min_delay/hold group gated clock
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+cg/A2 (AND2_X1)                         0.15    0.10   -0.05 (VIOLATED)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+icg/E (CLKGATE_X1)                     -0.02    0.13    0.15 (MET)
+
