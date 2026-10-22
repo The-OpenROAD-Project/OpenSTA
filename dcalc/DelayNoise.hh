@@ -307,15 +307,18 @@ protected:
 
   void writeCaseVerilog(const ArcDcalcArgSeq &gates,
                         const std::string &filename);
-  void writeCaseVerilogModule(const ArcDcalcArgSeq &gates,
-                              std::ofstream &stream);
-  void writeCaseVerilogDcls(const ArcDcalcArgSeq &gates,
-                            std::ofstream &stream);
-  void writeCaseVerilogInsts(const ArcDcalcArgSeq &gates,
-                             std::ofstream &stream);
-  void writeCaseVerilogInst(const Instance *inst,
-                            PinSet &case_pins,
-                            std::ofstream &stream);
+  Network *makeCaseNetwork(const ArcDcalcArgSeq &gates);
+  Instance *ensureCaseInstance(NetworkReader *case_network,
+                               const Instance *inst);
+  Net *ensureCaseNet(NetworkReader *case_network,
+                     const Net *net);
+  Pin *ensureCasePin(NetworkReader *case_network,
+                     const Pin *pin,
+                     Net *case_net);
+  void ensureCasePort(NetworkReader *case_network,
+                      Net *case_net);
+  bool hasTopLevelPortPin(const Net *net);
+
   void writeCaseSpef(const ArcDcalcArgSeq &gates,
                      const std::string &filename,
                      float min_coupling_sum_ratio,
