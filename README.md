@@ -200,7 +200,7 @@ following command builds a Docker image.
 
 ```
 cd OpenSTA
-docker build --file Dockerfile.ubuntu24.04 --tag opensta_ubuntu24.04 .
+docker build --file Dockerfile.ubuntu26.04 --tag opensta_ubuntu26.04 .
 or
 docker build --file Dockerfile.centos7 --tag opensta_centos7 .
 ```
