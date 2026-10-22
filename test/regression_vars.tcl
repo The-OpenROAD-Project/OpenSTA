@@ -191,6 +191,7 @@ record_public_tests {
   set_path_margin5
   set_path_margin6
   slash_port_test
+  timing_model1
   suppress_msg
   swig_seq_double_free
   swig_seq_leak

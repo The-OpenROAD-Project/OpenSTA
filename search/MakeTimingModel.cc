@@ -550,12 +550,14 @@ MakeTimingModel::findClkedOutputPaths()
             const RiseFall *clk_rf = clk_edge->transition();
             TimingArcAttrsPtr attrs = nullptr;
             for (const RiseFall *output_rf : RiseFall::range()) {
-              float delay = delays.value(output_rf, min_max_) - clk_edge->time();
-              TimingModel *gate_model =
-                  makeGateModelTable(output_pin, delay, output_rf);
-              if (attrs == nullptr)
-                attrs = std::make_shared<TimingArcAttrs>();
-              attrs->setModel(output_rf, gate_model);
+              if (delays.hasValue(output_rf, min_max_)) {
+                float delay = delays.value(output_rf, min_max_) - clk_edge->time();
+                TimingModel *gate_model =
+                    makeGateModelTable(output_pin, delay, output_rf);
+                if (attrs == nullptr)
+                  attrs = std::make_shared<TimingArcAttrs>();
+                attrs->setModel(output_rf, gate_model);
+              }
             }
             if (attrs) {
               lib_builder_->makeFromTransitionArcs(cell_, clk_port, output_port,
