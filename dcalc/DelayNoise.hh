@@ -316,7 +316,8 @@ protected:
                      const Pin *pin,
                      Net *case_net);
   void ensureCasePort(NetworkReader *case_network,
-                      Net *case_net);
+                      Net *case_net,
+                      PortDirection *dir);
   bool hasTopLevelPortPin(const Net *net);
 
   void writeCaseSpef(const ArcDcalcArgSeq &gates,
