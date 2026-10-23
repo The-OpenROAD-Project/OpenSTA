@@ -1702,7 +1702,7 @@ protected:
   void deleteScenes();
   void noiseDelayPreamble();
   void checkLibrarayPocv();
-  void checkLibrarayCcs();
+  void checkLibraryCcs();
 
   Scene *cmd_scene_{nullptr};
   Mode *cmd_mode_{nullptr};

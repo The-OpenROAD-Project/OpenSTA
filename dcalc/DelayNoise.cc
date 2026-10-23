@@ -1217,8 +1217,10 @@ DelayNoise::hasTopLevelPortPin(const Net *net)
   NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    if (network_->isTopLevelPort(pin))
+    if (network_->isTopLevelPort(pin)) {
+      delete pin_iter;
       return true;
+    }
   }
   delete pin_iter;
   return false;
@@ -1278,26 +1280,29 @@ DelayNoise::ensureCasePort(NetworkReader *case_network,
     if (case_port == nullptr) {
       const Instance *top_inst = network_->topInstance();
       const Cell *top_cell = network_->cell(top_inst);
-      Port *port = network_->findPort(top_cell, bus_name);
-      case_port = case_network->makeBusPort(case_top_cell, bus_name,
-                                            network_->fromIndex(port),
-                                            network_->toIndex(port));
-      case_network->setDirection(case_port, dir);
+      Port *case_port = case_network->findPort(case_top_cell, bus_name);
+      if (case_port == nullptr) {
+        Port *port = network_->findPort(top_cell, bus_name);
+        case_port = case_network->makeBusPort(case_top_cell, bus_name,
+                                              network_->fromIndex(port),
+                                              network_->toIndex(port));
+        case_network->setDirection(case_port, dir);
+        Port *case_bit_port = case_network->findBusBit(case_port, bus_index);
+        Pin *case_pin = case_network->findPin(case_top_inst, case_bit_port);
+        if (case_pin == nullptr)
+          case_network->connect(case_top_inst, case_bit_port, case_net);
+      }
     }
-    Port *case_bit_port = case_network->findBusBit(case_port, bus_index);
-    Pin *case_pin = case_network->findPin(case_top_inst, case_bit_port);
-    if (case_pin == nullptr)
-      case_network->connect(case_top_inst, case_bit_port, nullptr);
   }
   else {
     Port *case_port = case_network->findPort(case_top_cell, port_name);
     if (case_port == nullptr) {
       case_port = case_network->makePort(case_top_cell, port_name);
       case_network->setDirection(case_port, dir);
+      Pin *case_pin = case_network->findPin(case_top_inst, case_port);
+      if (case_pin == nullptr)
+        case_network->connect(case_top_inst, case_port, case_net);
     }
-    Pin *case_pin = case_network->findPin(case_top_inst, case_port);
-    if (case_pin == nullptr)
-      case_network->connect(case_top_inst, case_port, nullptr);
   }
 }
 
