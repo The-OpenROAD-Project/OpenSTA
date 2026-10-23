@@ -9,7 +9,7 @@ puts "cells: [llength [get_lib_cells *]]"
 
 # A text liberty file named .blib is read as text.
 set text_blib [make_result_file liberty_binary_detect_text.blib]
-file copy -force liberty_backslash_eol.lib $text_blib
+copy_file_contents liberty_backslash_eol.lib $text_blib
 read_liberty $text_blib
 puts "text cells: [llength [get_lib_cells liberty_backslash_eol/*]]"
 
