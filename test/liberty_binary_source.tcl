@@ -47,7 +47,7 @@ foreach checkout {checkout_a {another checkout}} {
   set copy_dir $copies_dir/$checkout
   file mkdir $copy_dir
   set copy_source $copy_dir/liberty_float_as_str.lib
-  file copy -force liberty_float_as_str.lib $copy_source
+  copy_file_contents liberty_float_as_str.lib $copy_source
   set copy_blib $copy_dir/output.blib
   write_liberty_binary $copy_source $copy_blib
   set stream [open $copy_blib rb]
@@ -69,11 +69,13 @@ puts "different content changes source hash: [expr { [dict get $changed_info sou
 # only its basename rather than any part of the directory path.
 set source_dir [make_result_file liberty_binary_source_path]
 file mkdir $source_dir/real/child
-file copy -force liberty_float_as_str.lib $source_dir/real/source.lib
+copy_file_contents liberty_float_as_str.lib $source_dir/real/source.lib
 file delete -force $source_dir/alias
 file link -symbolic $source_dir/alias $source_dir/real/child
 set alias_blib [make_result_file liberty_binary_source_alias.blib]
 write_liberty_binary $source_dir/alias/../source.lib $alias_blib
+# The absolute link dangles once bazel moves the results out of the sandbox.
+file delete $source_dir/alias
 set alias_info [liberty_binary_info $alias_blib]
 set recorded_source [dict get $alias_info source_file]
 puts "symlink source matches: [expr { $recorded_source eq "source.lib" }]"
