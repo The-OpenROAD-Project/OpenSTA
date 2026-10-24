@@ -353,8 +353,15 @@ set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
 # TCL files included as part of the executable are shoved into StaTclInitVar.cc.
 # These files are encoded and shipped as part of the executable 
 # so that they do not have to be installed on the client host.
+# Windows cannot run a script by its #! line.
+if (WIN32)
+  find_program(TCLSH NAMES tclsh tclsh86 REQUIRED)
+  set(STA_TCL_ENCODE ${TCLSH} etc/TclEncode.tcl)
+else()
+  set(STA_TCL_ENCODE etc/TclEncode.tcl)
+endif()
 add_custom_command(OUTPUT ${STA_TCL_INIT}
-  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
+  COMMAND ${STA_TCL_ENCODE} ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
   DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
   )
