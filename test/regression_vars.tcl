@@ -206,7 +206,9 @@ record_public_tests {
   verilog_input_alias
   verilog_input_alias_shared_inputs
   verilog_input_alias_supplies
-  verilog_wired_nets
+  verilog_wor
+  verilog_wand
+  verilog_port_assign
   verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
