@@ -136,6 +136,11 @@ public:
                             VerilogDclArgSeq *args,
                             VerilogAttrStmtSeq *attr_stmts,
                             int line);
+  // Record the first unsupported net type. read() reports it after parse().
+  void unsupportedNetType(std::string_view net_type,
+                          int line);
+  void deleteDcl(VerilogAttrStmtSeq *attr_stmts,
+                 VerilogDclArgSeq *args);
   VerilogInst *makeModuleInst(std::string_view module_vname,
                               std::string_view inst_vname,
                               VerilogNetSeq *pins,
@@ -321,6 +326,9 @@ protected:
   const std::string one_net_name_;
   std::string constant10_max_;
   ViewType *view_type_;
+  // Set when a wand/wor declaration is seen. Empty if none.
+  std::string unsupported_net_type_;
+  int unsupported_net_line_{0};
 };
 
 } // namespace sta
