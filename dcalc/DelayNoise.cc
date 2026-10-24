@@ -763,6 +763,7 @@ DelayNoise::findVictimNets(float min_coupling_sum_ratio,
     if (couplingCapRatio(net, scene, min_max) > min_coupling_sum_ratio)
       victims.push_back(net);
   }
+  delete net_iter;
   return victims;
 }
 
