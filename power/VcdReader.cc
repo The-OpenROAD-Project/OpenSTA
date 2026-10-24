@@ -366,8 +366,8 @@ VcdCountReader::varAppendBusValue(const std::string &id,
     }
     for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
       char bit_value = (bit_idx < bus_value.size())
-        ? bit_value = std::toupper(bus_value[bit_idx])
-        : bit_value = extend_value;
+        ? std::toupper(bus_value[bit_idx])
+        : extend_value;
       VcdCount &vcd_count = vcd_counts[bit_idx];
       vcd_count.incrCounts(time, bit_value, 1.0);
       if (debug_->check("read_vcd", 3)) {
