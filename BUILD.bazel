@@ -7,6 +7,7 @@ load("//bazel:bison.bzl", "genyacc")
 load("//bazel:flex.bzl", "genlex")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
 load("//bazel:tcl_wrap_cc.bzl", "swig_defs", "tcl_wrap_cc")
+load("//test:regression.bzl", "regression_rule_test")
 
 package(
     default_visibility = ["//:__subpackages__"],
@@ -448,3 +449,65 @@ filegroup(
     ],
     visibility = ["//visibility:public"],
 )
+
+# The Tcl regressions CMake registers, run on opensta with the same
+# pass rule: test/ by exit code, except liberty_binary*, which also
+# diffs its .ok; <module>/test by a diff against its .ok; examples/ by
+# exit code. Tests reach across these directories
+# (../../test/helpers.tcl), so they share one data set.
+filegroup(
+    name = "regression_data",
+    srcs = glob(
+        [
+            "examples/**",
+            "test/**",
+            "*/test/**",
+        ],
+        exclude = [
+            "*/test/cpp/**",
+            "**/CMakeLists.txt",
+            # Output of local CMake runs; tests write here.
+            "**/results/**",
+        ],
+    ),
+)
+
+STA_TEST_TCLS = glob(["test/*.tcl"])
+
+STA_TESTS = [
+    # test/ registers each .ok that has a matching .tcl.
+    (
+        ok.removesuffix(".ok"),
+        ok.startswith("test/liberty_binary"),
+    )
+    for ok in glob(["test/*.ok"])
+    if ok.removesuffix(".ok") + ".tcl" in STA_TEST_TCLS
+] + [
+    (
+        ok.removesuffix(".ok"),
+        True,
+    )
+    for ok in glob(["*/test/*.ok"])
+] + [
+    (
+        tcl.removesuffix(".tcl"),
+        False,
+    )
+    for tcl in glob(["examples/*.tcl"])
+]
+
+[
+    regression_rule_test(
+        name = test,
+        size = "small",
+        bazel_test_sh = "//test:bazel_test.sh",
+        check_log = check_log,
+        data = [":regression_data"],
+        openroad = ":opensta",
+        regression_test = "//test:regression_test.sh",
+        tags = ["tcl"],
+        test_file = test + ".tcl",
+        test_name = test.rpartition("/")[2],
+    )
+    for test, check_log in STA_TESTS
+]
