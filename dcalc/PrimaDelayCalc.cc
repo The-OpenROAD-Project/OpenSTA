@@ -479,7 +479,7 @@ void
 PrimaDelayCalc::initSim()
 {
   ceff_.resize(drvr_count_);
-  ceff_vth_.resize(drvr_count_);
+  ceff_vth_.assign(drvr_count_, 0.0);
   drvr_current_.resize(drvr_count_);
   drvr_current1_.resize(drvr_count_);
   waveform_begin_.resize(drvr_count_);
@@ -570,7 +570,10 @@ PrimaDelayCalc::setOrder()
   C_.resize(order_, order_);
   B_.resize(order_, port_count_);
   u_.resize(port_count_);
-  threshold_times_.resize(node_count_);
+  // Initialize thhresold crossings to unset.
+  ThresholdTimes unset_times;
+  unset_times.fill(unset_value_);
+  threshold_times_.assign(node_count_, unset_times);
 }
 
 void
@@ -1020,6 +1023,36 @@ PrimaDelayCalc::voltagePrev2(size_t node_idx)
   return v_prev2_[node_idx];
 }
 
+static bool
+isUnset(double value)
+{
+  return std::isnan(value);
+}
+
+// Return time1 - time2, or unset_delay when either crossing was not measured.
+static double
+measuredDelay(double time1,
+              double time2,
+              double unset_delay)
+{
+  double delay = unset_delay;
+  if (!isUnset(time1) && !isUnset(time2))
+    delay = time1 - time2;
+  return delay;
+}
+
+// Return |time1 - time2|, or unset_slew when either crossing was not measured.
+static double
+measuredSlew(double time1,
+             double time2,
+             double unset_slew)
+{
+  double slew = unset_slew;
+  if (!isUnset(time1) && !isUnset(time2))
+    slew = std::abs(time1 - time2);
+  return slew;
+}
+
 ArcDcalcResultSeq
 PrimaDelayCalc::dcalcResults()
 {
@@ -1036,8 +1069,10 @@ PrimaDelayCalc::dcalcResults()
       size_t drvr_node = pin_node_map_[drvr_pin];
       ThresholdTimes &drvr_times = threshold_times_[drvr_node];
       float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlewFlt());
-      double gate_delay = drvr_times[threshold_vth] - ref_time;
-      double drvr_slew = std::abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
+      double unset = min_max_->initValue();
+      double gate_delay = measuredDelay(drvr_times[threshold_vth], ref_time, unset);
+      double drvr_slew = measuredSlew(drvr_times[threshold_vh],
+                                      drvr_times[threshold_vl], unset);
 
       ArcDelay gate_delay2(gate_delay);
       Slew drvr_slew2(drvr_slew);
@@ -1055,8 +1090,10 @@ PrimaDelayCalc::dcalcResults()
         size_t load_node = pin_node_map_[load_pin];
         ThresholdTimes &wire_times = threshold_times_[load_node];
         ThresholdTimes &drvr_times = threshold_times_[drvr_node];
-        double wire_delay = wire_times[threshold_vth] - drvr_times[threshold_vth];
-        double load_slew = std::abs(wire_times[threshold_vh] - wire_times[threshold_vl]);
+        double wire_delay = measuredDelay(wire_times[threshold_vth],
+                                          drvr_times[threshold_vth], unset);
+        double load_slew = measuredSlew(wire_times[threshold_vh],
+                                        wire_times[threshold_vl], unset);
         debugPrint(debug_, "prima", 1, "load {} {} delay {} slew {}",
                    network_->pathName(load_pin),
                    drvr_rf_->shortName(),
