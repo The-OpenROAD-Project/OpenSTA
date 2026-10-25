@@ -251,7 +251,7 @@ DelayNoise::findNoiseDelays(ArcDcalcArgSeq &gates,
                             const MinMax *min_max,
                             DcalcResults &noise_delays)
 {
-  // Need more poles to accommodate aggressor parasitics.
+  // The default order is too small once aggressors are included.
   prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
   if (debug_->check("delay_noise", 1))
     debugPrint(debug_, "delay_noise", 1, "{} {}",
@@ -484,7 +484,6 @@ DelayNoise::alignAggressorsCmd(ArcDcalcArgSeq &gates,
 {
   if (!gates.empty()) {
     prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
-    prima_dcalc_->setPrimaReduceOrder(gates.size() * 3);
     ArcDcalcArg &drvr_arg = gates[0];
     Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
     LoadPinIndexMap load_pin_index_map =
@@ -499,6 +498,8 @@ DelayNoise::alignAggressors(ArcDcalcArgSeq &gates,
                             const Scene *scene,
                             const MinMax *min_max)
 {
+  // Same order as the noise simulation.
+  prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
   ArcDcalcArg &drvr_arg = gates[0];
   Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_arg.drvrPin());
   // Use load with max/min slew for alignment canary.
