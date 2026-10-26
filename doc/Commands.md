@@ -1258,7 +1258,7 @@ The `read_power_activities` command is deprecated. Use `read_vcd` instead.
     [<a href="#opt-read_saif-scope">-scope</a> scope]
     filename</code></pre>
 
-The `read_saif` command reads a SAIF (Switching Activity Interchange Format) file from a Verilog simulation and extracts pin activities and duty cycles for use in power estimation. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.
+The `read_saif` command reads a SAIF (Switching Activity Interchange Format) file from a Verilog simulation and extracts activities and duty cycles for use in power estimation. A SAIF name that matches a net annotates the pins connected to the net. A name that matches a pin but not a net annotates that pin. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.
 
 ### Options
 
