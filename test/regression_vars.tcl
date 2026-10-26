@@ -209,6 +209,7 @@ record_public_tests {
   verilog_wor
   verilog_wand
   verilog_port_assign
+  verilog_signed
   verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
