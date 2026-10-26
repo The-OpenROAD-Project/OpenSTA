@@ -300,7 +300,7 @@ proc read_power_activities { args } {
 
 define_cmd_args "read_vcd" \
   {[-scope scope] [-mode mode_name] [-begin_time begin_time] [-end_time end_time] filename} \
-  -help {The `read_vcd` command reads a VCD (Value Change Dump) file from a Verilog simulation and extracts pin activities and duty cycles for use in power estimation. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
+  -help {The `read_vcd` command reads a VCD (Value Change Dump) file from a Verilog simulation and extracts activities and duty cycles for use in power estimation. A VCD name that matches a net annotates the pins connected to the net. A pin named by its own VCD variable keeps that variable's activity. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
   -arg_help {
     -scope {The VCD scope of the current design to extract simulation data. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
     -mode {Mode to annotate activities.}
