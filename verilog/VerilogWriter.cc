@@ -74,7 +74,6 @@ protected:
                           const Port *port,
                           bool &first_member);
   void writeAssigns(const Instance *inst);
-  // OpenROAD fork: validate signal input aliases before writing any module.
   void checkInputAliases(const Instance *inst);
 
   int findUnconnectedNetCount(const Instance *inst);
@@ -97,10 +96,8 @@ writeVerilog(const char *filename,
              Network *network)
 {
   if (network->topInstance()) {
-    // ---- OpenROAD fork: validate aliases before opening output (begin) ----
     VerilogWriter writer(filename, include_pwr_gnd, remove_cells, network);
     writer.writeModules();
-    // ---- OpenROAD fork: validate aliases before opening output (end) ----
   }
 }
 
@@ -124,17 +121,13 @@ void
 VerilogWriter::writeModules()
 {
   InstanceSeq hier_childrenn = findHierChildren();
-  // ---- OpenROAD fork: reject multiple signal input aliases (begin) ----
   checkInputAliases(network_->topInstance());
   for (const Instance *child : hier_childrenn)
     checkInputAliases(child);
-  // ---- OpenROAD fork: reject multiple signal input aliases (end) ----
-  // ---- OpenROAD fork: preserve existing output on alias errors (begin) ----
   bool gzip = std::string_view(filename_).ends_with(".gz");
   stream_ = gzopen(filename_, gzip ? "wb" : "wT");
   if (!stream_)
     throw FileNotWritable(filename_);
-  // ---- OpenROAD fork: preserve existing output on alias errors (end) ----
   // Write the top level module first.
   writeModule(network_->topInstance());
   for (const Instance *child : hier_childrenn)
@@ -443,8 +436,7 @@ VerilogWriter::writeInstBusPinBit(const Instance *inst,
 
 // Verilog "ports" are not distinct from nets.
 // Use an assign statement to alias the net when it is connected to
-// multiple output ports.
-// OpenROAD fork: also preserve differently named signal input ports.
+// differently named input or output ports.
 void
 VerilogWriter::writeAssigns(const Instance *inst)
 {
@@ -460,7 +452,6 @@ VerilogWriter::writeAssigns(const Instance *inst)
           && (include_pwr_gnd_
               || !(network_->isPower(net) || network_->isGround(net)))
           && (network_->direction(port)->isAnyOutput()
-              // OpenROAD fork: signal input aliases must not drive supply nets.
               || (network_->direction(port)->isInput()
                   && !(network_->isPower(net) || network_->isGround(net)))
               || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
@@ -468,19 +459,16 @@ VerilogWriter::writeAssigns(const Instance *inst)
         // Port name is different from net name.
         std::string port_vname = netVerilogName(std::string(network_->name(port)));
         std::string net_vname = netVerilogName(std::string(network_->name(net)));
-        // ---- OpenROAD fork: write input port aliases (begin) ----
         bool is_input = network_->direction(port)->isInput();
         const std::string &lhs = is_input ? net_vname : port_vname;
         const std::string &rhs = is_input ? port_vname : net_vname;
         sta::print(stream_, " assign {} = {};\n", lhs, rhs);
-        // ---- OpenROAD fork: write input port aliases (end) ----
       }
     }
   }
   delete pin_iter;
 }
 
-// ---- OpenROAD fork: reject multiple signal input aliases (begin) ----
 void
 VerilogWriter::checkInputAliases(const Instance *inst)
 {
@@ -505,7 +493,6 @@ VerilogWriter::checkInputAliases(const Instance *inst)
     }
   }
 }
-// ---- OpenROAD fork: reject multiple signal input aliases (end) ----
 
 ////////////////////////////////////////////////////////////////
 

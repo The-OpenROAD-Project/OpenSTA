@@ -6326,14 +6326,14 @@ Sta::writeNoiseDelayCase(const Net *net,
 void
 Sta::noiseDelayPreamble()
 {
-  checkLibrarayCcs();
+  checkLibraryCcs();
   // Arrivals required to filter aggressors.
   searchPreamble();
   search_->findArrivals();
 }
 
 void
-Sta::checkLibrarayCcs()
+Sta::checkLibraryCcs()
 {
   LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
   while (lib_iter->hasNext()) {
@@ -6345,12 +6345,15 @@ Sta::checkLibrarayCcs()
         for (const TimingArc *arc : arc_set->arcs()) {
           GateTableModel *gate_model = arc->gateTableModel();
           if (gate_model
-              && gate_model->outputWaveforms() != nullptr)
+              && gate_model->outputWaveforms() != nullptr) {
+            delete lib_iter;
             return;
+          }
         }
       }
     }
   }
+  delete lib_iter;
   report_->warn(1579, "No liberty CCS models found.");
 }
 

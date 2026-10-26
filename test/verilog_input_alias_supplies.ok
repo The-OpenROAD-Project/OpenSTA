@@ -1,0 +1,84 @@
+Supply net: power_net; options: {}
+module alias_top (external_input,
+    other_input,
+    external_output,
+    external_io);
+ input external_input;
+ input other_input;
+ output external_output;
+ inout external_io;
+
+ wire internal_input;
+ wire internal_io;
+ wire internal_output;
+
+ BUFx2_ASAP7_75t_R buffer (.Y(internal_output),
+    .A(internal_input));
+ BUFx2_ASAP7_75t_R io_buffer (.A(internal_io));
+ assign external_output = internal_output;
+ assign external_io = internal_io;
+endmodule
+Supply net: power_net; options: -include_pwr_gnd
+module alias_top (external_input,
+    other_input,
+    external_output,
+    external_io);
+ input external_input;
+ input other_input;
+ output external_output;
+ inout external_io;
+
+ wire ground_net;
+ wire internal_input;
+ wire internal_io;
+ wire internal_output;
+ wire power_net;
+
+ BUFx2_ASAP7_75t_R buffer (.Y(internal_output),
+    .A(internal_input));
+ BUFx2_ASAP7_75t_R io_buffer (.A(internal_io));
+ assign external_output = internal_output;
+ assign external_io = internal_io;
+endmodule
+Supply net: ground_net; options: {}
+module alias_top (external_input,
+    other_input,
+    external_output,
+    external_io);
+ input external_input;
+ input other_input;
+ output external_output;
+ inout external_io;
+
+ wire internal_input;
+ wire internal_io;
+ wire internal_output;
+
+ BUFx2_ASAP7_75t_R buffer (.Y(internal_output),
+    .A(internal_input));
+ BUFx2_ASAP7_75t_R io_buffer (.A(internal_io));
+ assign external_output = internal_output;
+ assign external_io = internal_io;
+endmodule
+Supply net: ground_net; options: -include_pwr_gnd
+module alias_top (external_input,
+    other_input,
+    external_output,
+    external_io);
+ input external_input;
+ input other_input;
+ output external_output;
+ inout external_io;
+
+ wire ground_net;
+ wire internal_input;
+ wire internal_io;
+ wire internal_output;
+ wire power_net;
+
+ BUFx2_ASAP7_75t_R buffer (.Y(internal_output),
+    .A(internal_input));
+ BUFx2_ASAP7_75t_R io_buffer (.A(internal_io));
+ assign external_output = internal_output;
+ assign external_io = internal_io;
+endmodule

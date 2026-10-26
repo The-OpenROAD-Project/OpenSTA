@@ -362,6 +362,7 @@ Parasitics::makeWireloadNetworkBalanced(Parasitic *parasitic,
       incrCap(load_node1, fanout_cap);
     }
   }
+  delete load_iter;
 }
 
 void

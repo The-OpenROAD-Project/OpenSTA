@@ -51,7 +51,8 @@ public:
   double transitionCount() const { return transition_count_; }
   VcdTime highTime(VcdTime time_max) const;
   void incrCounts(VcdTime time,
-                  char value);
+                  char value,
+                  double x_value);
   void addPin(const Pin *pin);
   const PinSeq &pins() const { return pins_; }
 
@@ -60,6 +61,7 @@ public:
 
 private:
   VcdTime clippedIntervalStart() const;
+
   PinSeq pins_;
   VcdTime prev_time_ = vcd_null_time;
   char prev_value_ = '\0';
@@ -98,24 +100,30 @@ VcdCount::setFilter(VcdTime begin,
 
 void
 VcdCount::incrCounts(VcdTime time,
-                     char value)
+                     char value,
+                     double x_value)
 {
-  // Determine if this time point is within the filter window
-  bool in_window = (begin_time_ == vcd_null_time || time >= begin_time_)
-                   && (end_time_ == vcd_null_time || time <= end_time_);
-
   // Initial value does not contribute to transitions or high time.
-  if (prev_time_ != vcd_null_time && in_window) {
+  if (prev_time_ != vcd_null_time
+      // Determine if this time point is within the filter window
+      && (begin_time_ == vcd_null_time || time >= begin_time_)
+      && (end_time_ == vcd_null_time || time <= end_time_)) {
+    value = std::toupper(value);
     if (prev_value_ == '1') {
       VcdTime interval_start = clippedIntervalStart();
       if (time > interval_start)
         high_time_ += time - interval_start;
     }
-    if (value != prev_value_)
-      transition_count_ +=
-          (value == 'X' || value == 'Z' || prev_value_ == 'X' || prev_value_ == 'Z')
-          ? .5
-          : 1.0;
+    if (value != prev_value_
+        // Filter X->Z and Z->X transitions.
+        && !((value == 'X' && prev_value_ == 'Z')
+             || (value == 'Z' && prev_value_ == 'X'))) {
+      if ((value == '0' || value == '1')
+          && (prev_value_ == '0' || prev_value_ == '1'))
+        transition_count_ += 1.0;
+      else
+        transition_count_ += x_value;
+    }
   }
   // Update state for transitions before or within the window.
   // This prevents values after window boundaries corrupting high time.
@@ -337,9 +345,8 @@ VcdCountReader::varAppendValue(const std::string &id,
         }
       }
     }
-    for (auto &vcd_count : vcd_counts) {
-      vcd_count.incrCounts(time, value);
-    }
+    for (auto &vcd_count : vcd_counts)
+      vcd_count.incrCounts(time, value, 0.5);
   }
 }
 
@@ -351,16 +358,18 @@ VcdCountReader::varAppendBusValue(const std::string &id,
   const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;
+    char extend_value = '0';
+    if (bus_value.size() < vcd_counts.size()) {
+      char left_value = std::toupper(bus_value[bus_value.size() - 1]);
+      if (left_value == 'X' || left_value == 'Z')
+        extend_value = left_value;
+    }
     for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
-      char bit_value;
-      if (bus_value.size() == 1)
-        bit_value = bus_value[0];
-      else if (bit_idx < bus_value.size())
-        bit_value = bus_value[bit_idx];
-      else
-        bit_value = '0';
+      char bit_value = (bit_idx < bus_value.size())
+        ? std::toupper(bus_value[bit_idx])
+        : extend_value;
       VcdCount &vcd_count = vcd_counts[bit_idx];
-      vcd_count.incrCounts(time, bit_value);
+      vcd_count.incrCounts(time, bit_value, 1.0);
       if (debug_->check("read_vcd", 3)) {
         for (const Pin *pin : vcd_count.pins()) {
           debugPrint(debug_, "read_vcd", 3, "{} time {} value {}",

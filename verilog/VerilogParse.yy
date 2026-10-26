@@ -321,9 +321,21 @@ param_value:
 
 declaration:
 	attr_instance_seq dcl_type dcl_args ';'
-	{ $$ = reader->makeDcl($2, $3, $1, loc_line(@2)); }
+	{ if ($2)
+	    $$ = reader->makeDcl($2, $3, $1, loc_line(@2));
+	  else {
+	    reader->deleteDcl($1, $3);
+	    $$ = nullptr;
+	  }
+	}
 |	attr_instance_seq dcl_type '[' INT ':' INT ']' dcl_args ';'
-	{ $$ = reader->makeDclBus($2, $4, $6, $8, $1,loc_line(@2)); }
+	{ if ($2)
+	    $$ = reader->makeDclBus($2, $4, $6, $8, $1, loc_line(@2));
+	  else {
+	    reader->deleteDcl($1, $8);
+	    $$ = nullptr;
+	  }
+	}
 	;
 
 dcl_type:
@@ -333,13 +345,9 @@ dcl_type:
 |	SUPPLY0 { $$ = sta::PortDirection::ground(); }
 |	SUPPLY1 { $$ = sta::PortDirection::power(); }
 |	TRI { $$ = sta::PortDirection::tristate(); }
-|	WAND { error(@1, "unsupported net type 'wand'; "
-                    "resolve wired logic before static timing analysis");
-        }
+|	WAND { reader->unsupportedNetType("wand", loc_line(@1)); $$ = nullptr; }
 |	WIRE { $$ = sta::PortDirection::internal(); }
-|	WOR { error(@1, "unsupported net type 'wor'; "
-                   "resolve wired logic before static timing analysis");
-       }
+|	WOR { reader->unsupportedNetType("wor", loc_line(@1)); $$ = nullptr; }
 	;
 
 dcl_args:
