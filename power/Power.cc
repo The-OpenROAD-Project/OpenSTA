@@ -970,7 +970,7 @@ Power::evalBddChangeDensity(DdNode *bdd,
   if (period == 0.0)
     period = units_->timeUnit()->scale();
 
-  // var_probs[var index][previous value][current value]
+  // var_probs[var index][previous value][current value].
   std::map<unsigned, std::array<std::array<float, 2>, 2>> var_probs;
   for (const auto &[var_index, activity] : var_activities) {
     float duty = std::clamp(activity.duty(), 0.0F, 1.0F);
@@ -1010,10 +1010,11 @@ Power::evalBddChangeDensity(DdNode *bdd,
         return 0.0F;
       const auto &probs = probs_itr->second;
       float prob = 0.0F;
-      for (int prev : {0, 1})
+      for (int prev : {0, 1}) {
         for (int curr : {0, 1})
           prob += probs[prev][curr] * change_prob(cofactor(from, var_index, prev),
                                                   cofactor(to, var_index, curr));
+      }
       cache[key] = prob;
       return prob;
     };
@@ -1305,21 +1306,21 @@ Power::seedFuncLessOutputActivities(BfsFwdIterator &bfs)
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
     LibertyCell *cell = network_->libertyCell(inst);
-    if (cell == nullptr || !cell->sequentials().empty() || cell->testCell()
-        || cell->isClockGate())
-      continue;
-    InstancePinIterator *pin_iter = network_->pinIterator(inst);
-    while (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
-      LibertyPort *port = network_->libertyPort(pin);
-      Vertex *vertex = graph_->pinDrvrVertex(pin);
-      if (port && port->direction()->isAnyOutput() && port->function() == nullptr
-          && vertex && !mode->clkNetwork()->isClock(pin)) {
-        setActivity(pin, hasUserActivity(pin) ? userActivity(pin) : input_activity_);
-        bfs.enqueueAdjacentVertices(vertex, mode);
+    if (cell && cell->sequentials().empty() && cell->testCell() == nullptr
+        && !cell->isClockGate()) {
+      InstancePinIterator *pin_iter = network_->pinIterator(inst);
+      while (pin_iter->hasNext()) {
+        const Pin *pin = pin_iter->next();
+        LibertyPort *port = network_->libertyPort(pin);
+        Vertex *vertex = graph_->pinDrvrVertex(pin);
+        if (port && port->direction()->isAnyOutput() && port->function() == nullptr
+            && vertex && !mode->clkNetwork()->isClock(pin)) {
+          setActivity(pin, hasUserActivity(pin) ? userActivity(pin) : input_activity_);
+          bfs.enqueueAdjacentVertices(vertex, mode);
+        }
       }
+      delete pin_iter;
     }
-    delete pin_iter;
   }
   delete inst_iter;
 }
