@@ -142,6 +142,7 @@ record_example_tests {
 
 record_public_tests {
   bidirect_pad_fanout
+  clock_delete_inst
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst

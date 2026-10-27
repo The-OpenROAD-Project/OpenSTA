@@ -368,6 +368,7 @@ Sdc::isConstrained(const Pin *pin) const
 {
   Port *port = network_->isTopLevelPort(pin) ? network_->port(pin) : nullptr;
   return clock_pin_map_.contains(pin)
+    || clock_leaf_pin_map_.contains(pin)
     || propagated_clk_pins_.contains(pin)
     || hasClockLatency(pin)
     || hasClockInsertion(pin)
@@ -5815,6 +5816,16 @@ Sdc::deletePinBefore(const Pin *pin)
     pin_exceptions_.erase(pin);
   }
   deletePortDelayReferences(pin);
+  ClockSet *leaf_pin_clks = findKey(clock_leaf_pin_map_, pin);
+  if (leaf_pin_clks) {
+    ClockSet clks = *leaf_pin_clks;
+    for (Clock *clk : clks) {
+      deleteClkPinMappings(clk);
+      clk->deletePin(pin);
+      clk->leafPins().erase(pin);
+      makeClkPinMappings(clk);
+    }
+  }
   drvr_pin_wire_cap_map_.erase(pin);
 }
 
