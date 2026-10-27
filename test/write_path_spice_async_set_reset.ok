@@ -1,0 +1,62 @@
+* Path from r0/Q ^ to q ^
+.include "write_path_spice_async_set_reset.models"
+.include "write_path_spice_async_set_reset.sp_1.subckt"
+.tran 1e-13 3.1e-08
+
+.print tran v(clk) v(r0/CLK) v(r0/Q) v(q)
+
+**************
+* Input source
+**************
+
+v1 clk 0 pwl(
++0.000e+00 0.000e+00
++8.333e-12 1.800e+00
++4.992e-09 1.800e+00
++5.008e-09 0.000e+00
++9.992e-09 0.000e+00
++1.001e-08 1.800e+00
++1.499e-08 1.800e+00
++1.501e-08 0.000e+00
++1.999e-08 0.000e+00
++2.001e-08 1.800e+00
++2.499e-08 1.800e+00
++2.501e-08 0.000e+00
++3.100e-08 0.000e+00
++)
+
+*****************
+* Stage instances
+*****************
+
+xstage1 clk r0/CLK stage1
+xstage2 r0/CLK r0/Q q stage2
+
+***************
+* Stage subckts
+***************
+
+.subckt stage1 clk r0/CLK
+* Net clk
+* Net has no parasitics.
+R1 clk r0/CLK 1.000e-04
+.ends
+
+.subckt stage2 r0/CLK r0/Q q
+* Gate r0 CLK -> Q
+xr0 r0/CLK r0/D r0/RESET_B r0/SET_B r0/VGND r0/VNB r0/VPB r0/VPWR r0/Q r0/Q_N sky130_fd_sc_hd__dfbbp_1
+v1 r0/D 0 1.800
+v2 r0/RESET_B 0 1.800
+v3 r0/SET_B 0 1.800
+v4 r0/VGND 0 0.000
+v5 r0/VNB 0 0.000
+v6 r0/VPB 0 1.800
+v7 r0/VPWR 0 1.800
+
+* Load pins
+* Net q
+* Net has no parasitics.
+R1 r0/Q q 1.000e-04
+.ends
+
+.end

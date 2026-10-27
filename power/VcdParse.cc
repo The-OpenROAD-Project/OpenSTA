@@ -77,9 +77,11 @@ VcdParse::read(const char *filename,
         parseScope();
       else if (token == "$upscope")
         parseUpscope();
-      else if (token == "$enddefinitions")
+      else if (token == "$enddefinitions") {
         // empty body
         readStmtString();
+        reader_->endDefinitions();
+      }
       else if (token == "$dumpall")
         // Ignore dumpall body.
         readStmtTokens();
@@ -105,8 +107,11 @@ VcdParse::read(const char *filename,
       }
       else if (token[0] == '$')
         report_->fileError(800, filename_, file_line_, "unknown vcd command.");
-      else
-        parseVarValues();
+      else {
+        // The value token is already read. Passing it avoids dropping the
+        // first value in files that have no $dumpvars statement.
+        parseVarValues(token);
+      }
 
       token = getToken();
     }
@@ -221,7 +226,13 @@ VcdParse::parseUpscope()
 void
 VcdParse::parseVarValues()
 {
-  std::string token = getToken();
+  parseVarValues(getToken());
+}
+
+void
+VcdParse::parseVarValues(const std::string &first_token)
+{
+  std::string token = first_token;
   while (!token.empty()) {
     char char0 = toupper(token[0]);
     if (char0 == '#' && token.size() > 1) {
@@ -305,7 +316,8 @@ VcdParse::getToken()
   }
   if (ch == '\n')
     file_line_++;
-  if (ch == EOF)
+  // Keep a token that ends at EOF. Only a read with no characters is empty.
+  if (ch == EOF && token.empty())
     return "";
   else
     return token;

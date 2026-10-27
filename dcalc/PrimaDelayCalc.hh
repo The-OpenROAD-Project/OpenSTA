@@ -27,6 +27,7 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
 #include <array>
+#include <limits>
 #include <map>
 #include <vector>
 
@@ -268,6 +269,8 @@ protected:
   static constexpr size_t threshold_vth = 1;
   static constexpr size_t threshold_vh = 2;
   static constexpr size_t measure_threshold_count_ = 3;
+  // Crossing time recorded when a threshold is not reached.
+  static constexpr double unset_value_ = std::numeric_limits<double>::quiet_NaN();
   using ThresholdTimes = std::array<double, measure_threshold_count_>;
   // Vl Vth Vh
   ThresholdTimes measure_thresholds_;

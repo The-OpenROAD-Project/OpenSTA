@@ -22,12 +22,15 @@
 #include <fstream>
 #include <iterator>
 
+#include "ConcreteNetwork.hh"
 #include "Debug.hh"
 #include "Graph.hh"
 #include "GraphDelayCalc.hh"
 #include "Liberty.hh"
 #include "Network.hh"
+#include "MakeConcreteNetwork.hh"
 #include "Parasitics.hh"
+#include "ParseBus.hh"
 #include "PortDirection.hh"
 #include "PrimaDelayCalc.hh"
 #include "Scene.hh"
@@ -248,7 +251,7 @@ DelayNoise::findNoiseDelays(ArcDcalcArgSeq &gates,
                             const MinMax *min_max,
                             DcalcResults &noise_delays)
 {
-  // Need more poles to accommodate aggressor parasitics.
+  // The default order is too small once aggressors are included.
   prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
   if (debug_->check("delay_noise", 1))
     debugPrint(debug_, "delay_noise", 1, "{} {}",
@@ -481,7 +484,6 @@ DelayNoise::alignAggressorsCmd(ArcDcalcArgSeq &gates,
 {
   if (!gates.empty()) {
     prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
-    prima_dcalc_->setPrimaReduceOrder(gates.size() * 3);
     ArcDcalcArg &drvr_arg = gates[0];
     Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
     LoadPinIndexMap load_pin_index_map =
@@ -496,6 +498,8 @@ DelayNoise::alignAggressors(ArcDcalcArgSeq &gates,
                             const Scene *scene,
                             const MinMax *min_max)
 {
+  // Same order as the noise simulation.
+  prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
   ArcDcalcArg &drvr_arg = gates[0];
   Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_arg.drvrPin());
   // Use load with max/min slew for alignment canary.
@@ -760,6 +764,7 @@ DelayNoise::findVictimNets(float min_coupling_sum_ratio,
     if (couplingCapRatio(net, scene, min_max) > min_coupling_sum_ratio)
       victims.push_back(net);
   }
+  delete net_iter;
   return victims;
 }
 
@@ -1143,59 +1148,164 @@ DelayNoise::writeCaseFiles(const Net *net,
                                                               drvr_clk_arrivals);
         if (!gates.empty()) {
           std::string verilog_file = std::string(file_basename) + ".v";
-          writeCaseVerilog(gates, verilog_file);
+          Network *case_network = makeCaseNetwork(gates);
+          writeVerilog(verilog_file.c_str(), false, nullptr, case_network);
+
           std::string spef_file = std::string(file_basename) + ".spef";
-          writeCaseSpef(gates, spef_file, min_coupling_ratio, no_timestamp,
-                        scene, min_max);
-          //writeCmds(cmd_file);
+          writeCaseSpef(gates, spef_file, case_network, min_coupling_ratio,
+                        no_timestamp, scene, min_max);
+
+          delete case_network;
         }
       }
     }
   }
 }
 
-void
-DelayNoise::writeCaseVerilog(const ArcDcalcArgSeq &gates,
-                             const std::string &filename)
+Network *
+DelayNoise::makeCaseNetwork(const ArcDcalcArgSeq &gates)
 {
-  std::ofstream stream;
-  stream.open(filename);
-  if (stream.is_open()) {
-    writeCaseVerilogModule(gates, stream);
-    writeCaseVerilogDcls(gates, stream);
-    writeCaseVerilogInsts(gates, stream);
-    sta::print(stream, "endmodule\n");
-  }
-  stream.close();
-}
+  NetworkReader *case_network = makeConcreteNetwork();
+  Library *case_lib = case_network->makeLibrary("case", "");
+  std::string top_cell_name = topCellName(gates);
+  Cell *top_cell = case_network->makeCell(case_lib, top_cell_name, false, "");
+  Instance *top_inst = case_network->makeInstance(top_cell, top_cell_name, nullptr);
+  dynamic_cast<ConcreteNetwork*>(case_network)->setTopInstance(top_inst);
 
-void
-DelayNoise::writeCaseVerilogModule(const ArcDcalcArgSeq &gates,
-                                   std::ofstream &stream)
-{
-  std::string top_cell_vname = cellVerilogName(topCellName(gates));
-  sta::print(stream, "module {} (", top_cell_vname);
-
-  bool first_arg = true;
   for (const ArcDcalcArg &gate : gates) {
     const Pin *drvr_pin = gate.drvrPin();
-    const Instance *inst = network_->instance(drvr_pin);
-    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    const Instance *gate_inst = network_->instance(drvr_pin);
+    ensureCaseInstance(case_network, gate_inst);
+    InstancePinIterator *pin_iter = network_->pinIterator(gate_inst);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
-      if (network_->direction(pin)->isAnyInput()) {
-        const Net *net = network_->net(pin);
-        std::string net_name = network_->name(net);
-        std::string net_vname = netVerilogName(net_name);
-        if (!first_arg)
-          sta::print(stream, ",\n  ");
-        sta::print(stream, "{}", net_vname);
-        first_arg = false;
+      const Net *net = network_->net(pin);
+      if (net) {
+        Net *case_net = ensureCaseNet(case_network, net);
+        ensureCasePin(case_network, pin, case_net);
+        if (hasTopLevelPortPin(net))
+          ensureCasePort(case_network, case_net, network_->direction(pin));
+
+        // Make ports for gate inputs.
+        if (network_->direction(pin)->isAnyInput())
+          ensureCasePort(case_network, case_net, network_->direction(pin));
+
+        // Add load pin instances.
+        NetPinIterator *net_pin_iter = network_->pinIterator(net);
+        while (net_pin_iter->hasNext()) {
+          const Pin *load_pin = net_pin_iter->next();
+          ensureCasePin(case_network, load_pin, case_net);
+          const Instance *load_inst = network_->instance(load_pin);
+          ensureCaseInstance(case_network, load_inst);
+          const Net *load_net = network_->net(load_pin);
+          if (load_net) {
+            Net *case_load_net = ensureCaseNet(case_network, load_net);
+            ensureCasePin(case_network, pin, case_load_net);
+          }
+        }
+        delete net_pin_iter;
       }
+      else
+        ensureCasePin(case_network, pin, nullptr);
     }
     delete pin_iter;
   }
-  sta::print(stream, ");\n");
+  return case_network;
+}
+
+bool
+DelayNoise::hasTopLevelPortPin(const Net *net)
+{
+  NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network_->isTopLevelPort(pin)) {
+      delete pin_iter;
+      return true;
+    }
+  }
+  delete pin_iter;
+  return false;
+}
+
+Instance *
+DelayNoise::ensureCaseInstance(NetworkReader *case_network,
+                               const Instance *inst)
+{
+  std::string inst_name = network_->pathName(inst);
+  Instance *case_inst = case_network->findInstance(inst_name);
+  if (case_inst == nullptr)
+    case_inst = case_network->makeInstance(network_->cell(inst), inst_name,
+                                           case_network->topInstance());
+  return case_inst;
+}
+
+Net *
+DelayNoise::ensureCaseNet(NetworkReader *case_network,
+                          const Net *net)
+{
+  std::string net_name = network_->pathName(net);
+  Net *case_net = case_network->findNet(net_name);
+  if (case_net == nullptr)
+    case_net = case_network->makeNet(net_name, case_network->topInstance());
+  return case_net;
+}
+
+Pin *
+DelayNoise::ensureCasePin(NetworkReader *case_network,
+                          const Pin *pin,
+                          Net *case_net)
+{
+  const Instance *inst = network_->instance(pin);
+  Instance *case_inst = ensureCaseInstance(case_network, inst);
+  Port *port = network_->port(pin);
+  Pin *case_pin = case_network->findPin(case_inst, port);
+  if (case_pin == nullptr)
+    case_pin = case_network->connect(case_inst, port, case_net);
+  return case_pin;
+}
+
+void
+DelayNoise::ensureCasePort(NetworkReader *case_network,
+                           Net *case_net,
+                           PortDirection *dir)
+{
+  Instance *case_top_inst = case_network->topInstance();
+  Cell *case_top_cell = case_network->cell(case_top_inst);
+  std::string port_name = network_->name(case_net);
+  bool is_bus;
+  std::string bus_name;
+  int bus_index;
+  parseBusName(port_name, '[', ']', '\\', is_bus, bus_name, bus_index);
+  if (is_bus) {
+    Port *case_port = case_network->findPort(case_top_cell, bus_name);
+    if (case_port == nullptr) {
+      const Instance *top_inst = network_->topInstance();
+      const Cell *top_cell = network_->cell(top_inst);
+      Port *case_port = case_network->findPort(case_top_cell, bus_name);
+      if (case_port == nullptr) {
+        Port *port = network_->findPort(top_cell, bus_name);
+        case_port = case_network->makeBusPort(case_top_cell, bus_name,
+                                              network_->fromIndex(port),
+                                              network_->toIndex(port));
+        case_network->setDirection(case_port, dir);
+        Port *case_bit_port = case_network->findBusBit(case_port, bus_index);
+        Pin *case_pin = case_network->findPin(case_top_inst, case_bit_port);
+        if (case_pin == nullptr)
+          case_network->connect(case_top_inst, case_bit_port, case_net);
+      }
+    }
+  }
+  else {
+    Port *case_port = case_network->findPort(case_top_cell, port_name);
+    if (case_port == nullptr) {
+      case_port = case_network->makePort(case_top_cell, port_name);
+      case_network->setDirection(case_port, dir);
+      Pin *case_pin = case_network->findPin(case_top_inst, case_port);
+      if (case_pin == nullptr)
+        case_network->connect(case_top_inst, case_port, case_net);
+    }
+  }
 }
 
 std::string
@@ -1211,119 +1321,9 @@ DelayNoise::topCellName(const ArcDcalcArgSeq &gates)
 }
 
 void
-DelayNoise::writeCaseVerilogDcls(const ArcDcalcArgSeq &gates,
-                                  std::ofstream &stream)
-{
-  for (const ArcDcalcArg &gate : gates) {
-    const Pin *drvr_pin = gate.drvrPin();
-    const Instance *inst = network_->instance(drvr_pin);
-    InstancePinIterator *pin_iter = network_->pinIterator(inst);
-    while (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
-      if (network_->direction(pin)->isAnyInput()) {
-        const LibertyPort *port = network_->libertyPort(pin);
-        PortDirection *dir = port->direction();
-        if (!dir->isPowerGround()) {
-          const Net *net = network_->net(pin);
-          std::string net_name = network_->name(net);
-          std::string net_vname = netVerilogName(net_name);
-          sta::print(stream, "  input {};\n", net_vname);
-        }
-      }
-    }
-    delete pin_iter;
-  }
-}
-
-void
-DelayNoise::writeCaseVerilogInsts(const ArcDcalcArgSeq &gates,
-                                  std::ofstream &stream)
-{
-  NetSet gate_nets(network_);
-  for (const ArcDcalcArg &gate : gates)
-    gate_nets.insert(gate.drvrNet(network_));
-
-  InstanceSet writen_insts(network_);
-  for (const ArcDcalcArg &gate : gates) {
-    const Pin *drvr_pin = gate.drvrPin();
-    const Instance *inst = network_->instance(drvr_pin);
-    std::string inst_name = network_->pathName(inst);
-    std::string inst_vname = instanceVerilogToSta(inst_name);
-    const LibertyCell *inst_cell = network_->libertyCell(inst);
-    std::string cell_vname = cellVerilogName(inst_cell->name());
-    sta::print(stream, "  {} {} (", cell_vname, inst_vname);
-    bool first_arg = true;
-    InstancePinIterator *pin_iter = network_->pinIterator(inst);
-    while (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
-      if (!network_->direction(pin)->isPowerGround()) {
-        const LibertyPort *port = network_->libertyPort(pin);
-        std::string port_vname = portVerilogName(port->name());
-      
-        const Net *net = network_->net(pin);
-        if (net) {
-          std::string net_name = network_->name(net);
-          std::string net_vname = netVerilogName(net_name);
-          if (!first_arg)
-            sta::print(stream, ",\n    ");
-          sta::print(stream, ".{}({})", port_vname, net_vname);
-          writen_insts.insert(inst);
-          first_arg = false;
-        }
-      }
-    }
-    delete pin_iter;
-    sta::print(stream, ");\n");
-
-    // Load pins.
-    const Net *net = network_->net(drvr_pin);
-    sta::print(stream, "  // load pins\n");
-    NetPinIterator *net_pin_iter = network_->pinIterator(net);
-    while (net_pin_iter->hasNext()) {
-      const Pin *load_pin = net_pin_iter->next();
-      const Instance *load_inst = network_->instance(load_pin);
-      if (load_pin != drvr_pin
-          // Load pin instances may be common to multiple aggressors.
-          && !writen_insts.contains(load_inst)) {
-        std::string load_inst_name = network_->pathName(load_inst);
-        std::string load_inst_vname = instanceVerilogToSta(load_inst_name);
-        const LibertyCell *load_cell = network_->libertyCell(load_inst);
-        std::string load_cell_vname = cellVerilogName(load_cell->name());
-        sta::print(stream, "  {} {} (", load_cell_vname, load_inst_vname);
-
-        // Load pin instance may have inputs connected to other aggressors.
-        bool first_arg = true;
-        InstancePinIterator *load_inst_pin_iter = network_->pinIterator(load_inst);
-        while (load_inst_pin_iter->hasNext()) { 
-          const Pin *load_inst_pin = load_inst_pin_iter->next();
-          const Net *load_inst_pin_net = network_->net(load_inst_pin);
-          if ((load_inst_pin_net != nullptr
-               && gate_nets.contains(load_inst_pin_net))
-              && !network_->direction(load_inst_pin)->isPowerGround()) {
-            const LibertyPort *port = network_->libertyPort(load_inst_pin);
-            std::string port_vname = portVerilogName(port->name());
-            if (!first_arg)
-              sta::print(stream, ",\n    ");
-            std::string net_name = network_->name(load_inst_pin_net);
-            std::string net_vname = netVerilogName(net_name);
-            sta::print(stream, ".{}({})", port_vname, net_vname);
-            first_arg = false;
-          }
-        }
-        sta::print(stream, ");\n");
-        delete load_inst_pin_iter;
-
-        writen_insts.insert(load_inst);
-      }
-    }
-    delete net_pin_iter;
-    sta::print(stream, "\n");
-  }
-}
-
-void
 DelayNoise::writeCaseSpef(const ArcDcalcArgSeq &gates,
                           const std::string &filename,
+                          Network *case_network,
                           float min_coupling_sum_ratio,
                           bool no_timestamp,
                           const Scene *scene,
@@ -1333,6 +1333,7 @@ DelayNoise::writeCaseSpef(const ArcDcalcArgSeq &gates,
   stream.open(filename);
   if (stream.is_open()) {
     writeCaseSpefHeader(gates, stream, no_timestamp);
+    writeCaseSpePorts(case_network, stream);
     writeCaseSpefNets(gates, min_coupling_sum_ratio,
                       scene, min_max, stream);
   }
@@ -1384,6 +1385,29 @@ DelayNoise::writeCaseSpefHeader(const ArcDcalcArgSeq &gates,
 }
 
 void
+DelayNoise::writeCaseSpePorts(Network *case_network,
+                              std::ofstream &stream)
+{
+  sta::print(stream, "*PORTS\n");
+  const Cell *top_cell = case_network->cell(case_network->topInstance());
+  CellPortBitIterator *port_iter = case_network->portBitIterator(top_cell);
+  while (port_iter->hasNext()) {
+    const Port *port = port_iter->next();
+    std::string spef_dir = "I";
+    PortDirection *dir = case_network->direction(port);
+    if (dir == PortDirection::input())
+      spef_dir = "I";
+    else if (dir->isAnyOutput())
+      spef_dir = "O";
+    sta::print(stream, "{} {}\n",
+               case_network->name(port),
+               spef_dir);
+  }
+  delete port_iter;
+  sta::print(stream, "\n");
+}
+
+void
 DelayNoise::writeCaseSpefNets(const ArcDcalcArgSeq &gates,
                               float min_coupling_sum_ratio,
                               const Scene *scene,
@@ -1414,6 +1438,8 @@ DelayNoise::writeCaseSpefNetCaps(const ArcDcalcArgSeq &gates,
   std::string net_name = network_->pathName(gate_net);
   std::string net_spef_name = staToSpef(net_name);
   sta::print(stream, "*D_NET {} {:.3e}\n", net_spef_name, spefCap(gate.loadCap()));
+
+  // connections
   sta::print(stream, "*CONN\n");
   NetPinIterator *net_pin_iter = network_->pinIterator(gate_net);
   while (net_pin_iter->hasNext()) {
@@ -1430,6 +1456,7 @@ DelayNoise::writeCaseSpefNetCaps(const ArcDcalcArgSeq &gates,
   for (const ArcDcalcArg &gate : gates)
     case_nets.insert(gate.drvrNet(network_));
 
+  // Grouned capacitances.
   sta::print(stream, "*CAP\n");
   // Node cap to gnd.
   size_t cap_id = 1;
@@ -1497,8 +1524,13 @@ DelayNoise::spefNodeName(const ParasiticNode *node,
   const Pin *pin = parasitics->pin(node);
   if (pin)
     return spefNodeName(pin);
-  else
-    return parasitics->name(node);
+  else {
+    const Net *net = parasitics->net(node, network_);
+    std::string net_name = staToSpef(network_->name(net));
+    unsigned net_id = parasitics->netId(node);
+    std::string spef_name = net_name + ":" + std::to_string(net_id);
+    return spef_name;
+  }
 }
 
 std::string

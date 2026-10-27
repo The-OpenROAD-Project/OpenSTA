@@ -142,6 +142,7 @@ record_example_tests {
 
 record_public_tests {
   bidirect_pad_fanout
+  clock_delete_inst
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst
@@ -204,6 +205,7 @@ record_public_tests {
   set_path_margin6
   slash_port_test
   spef_hier_reduce
+  timing_model1
   suppress_msg
   swig_seq_double_free
   swig_seq_leak
@@ -215,7 +217,13 @@ record_public_tests {
   verilog_port_bundle_find_pin
   verilog_port_bundle_ordered
   verilog_port_concat
-  verilog_wired_nets
+  verilog_input_alias
+  verilog_input_alias_shared_inputs
+  verilog_input_alias_supplies
+  verilog_wor
+  verilog_wand
+  verilog_port_assign
+  verilog_signed
   verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
@@ -224,6 +232,7 @@ record_public_tests {
   verilog_unconnected_hpin
   wireload_before_link
   write_path_spice_arc_sense
+  write_path_spice_async_set_reset
   write_timing_model_scenes
 }
 
