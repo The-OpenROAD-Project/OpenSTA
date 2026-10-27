@@ -416,6 +416,8 @@ cc_library(
         "-Wno-unused-parameter",
         "-Wno-sign-compare",
     ],
+    # OpenROAD fork: lets dependents (dbSta) compile fork-only code.
+    defines = ["STA_OPENROAD_FORK"],
     features = [
         "-use_header_modules",
     ],
