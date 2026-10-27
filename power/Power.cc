@@ -117,19 +117,29 @@ Power::clear()
 {
   global_activity_.init();
   input_activity_.init();
+  user_activity_map_.clear();  // OpenROAD fork: power activity
   clearNonSdc();
 }
 
 void
 Power::clearNonSdc()
 {
-  // Pin/instance keyed maps can hold dangling pointers after a network edit.
-  user_activity_map_.clear();
+  // OpenROAD fork: power activity
+  // user_activity_map_ is kept; deletePinBefore removes deleted pins.
   seq_activity_map_.clear();
   activity_map_.clear();
   launch_period_cache_.clear();  // OpenROAD fork: power activity
   powerInvalid();
 }
+
+// ---- OpenROAD fork: power activity (begin) ----
+void
+Power::deletePinBefore(const Pin *pin)
+{
+  unsetUserActivity(pin);
+  activity_map_.erase(pin);
+}
+// ---- OpenROAD fork: power activity (end) ----
 
 void
 Power::activitiesInvalid()

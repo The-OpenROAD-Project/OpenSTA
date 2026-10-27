@@ -80,6 +80,7 @@ public:
   // Clear network/graph-dependent state.
   // Preserve set_power_activity annotations.
   void clearNonSdc();
+  void deletePinBefore(const Pin *pin);  // OpenROAD fork: power activity
   void activitiesInvalid();
   void reportDesign(const Scene *scene,
                     int digits);

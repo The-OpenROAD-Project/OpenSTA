@@ -13,6 +13,7 @@ sta_module_tests("power"
     enable_flop
     scene_clk
     tie_when
+    pin_delete
 )
 
 add_subdirectory(cpp)
