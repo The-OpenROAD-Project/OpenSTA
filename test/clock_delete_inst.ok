@@ -1,0 +1,53 @@
+Startpoint: r1 (rising edge-triggered flip-flop clocked by hclk)
+Endpoint: out1 (output port clocked by hclk)
+Path Group: hclk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock hclk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+  63.94   63.94 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+   0.00   63.94 ^ out1 (out)
+          63.94   data arrival time
+
+ 500.00  500.00   clock hclk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+ -10.00  490.00   output external delay
+         490.00   data required time
+---------------------------------------------------------
+         490.00   data required time
+         -63.94   data arrival time
+---------------------------------------------------------
+         426.06   slack (MET)
+
+
+Startpoint: r2 (rising edge-triggered flip-flop clocked by lclk)
+Endpoint: out2 (output port clocked by lclk)
+Path Group: lclk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock lclk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  63.94   63.94 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+   0.00   63.94 ^ out2 (out)
+          63.94   data arrival time
+
+1000.00 1000.00   clock lclk (rise edge)
+   0.00 1000.00   clock network delay (ideal)
+   0.00 1000.00   clock reconvergence pessimism
+ -10.00  990.00   output external delay
+         990.00   data required time
+---------------------------------------------------------
+         990.00   data required time
+         -63.94   data arrival time
+---------------------------------------------------------
+         926.06   slack (MET)
+
+
+No paths found.
