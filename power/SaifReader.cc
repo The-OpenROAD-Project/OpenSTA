@@ -29,10 +29,12 @@
 #include <string>
 #include <utility>
 
+#include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "Liberty.hh"
 #include "Network.hh"
+#include "NetworkCmp.hh"
 #include "PortDirection.hh"
 #include "Power.hh"
 #include "Report.hh"
@@ -159,20 +161,37 @@ SaifReader::setNetDurations(std::string &&net_name,
     Instance *parent = path_.empty() ? sdc_network_->topInstance() : path_.back();
     if (parent) {
       std::string unescaped_name = unescaped(net_name);
-      const Pin *pin = sdc_network_->findPin(parent, unescaped_name);
-      LibertyPort *liberty_port = pin ? sdc_network_->libertyPort(pin) : nullptr;
-      if (pin && !sdc_network_->isHierarchical(pin)
-          && !sdc_network_->direction(pin)->isInternal()
-          && !(liberty_port && liberty_port->isPwrGnd())) {
-        double t1 = durations[static_cast<int>(SaifState::T1)];
-        float duty = t1 / duration_;
-        double tc = durations[static_cast<int>(SaifState::TC)];
-        float density = tc / (duration_ * timescale_);
-        debugPrint(debug_, "read_saif", 2,
-                   "{} duty {:.0f} / {} = {:.2f} tc {:.0f} density {:.2f}",
-                   sdc_network_->pathName(pin), t1, duration_, duty, tc, density);
-        power_->setUserActivity(pin, density, duty, PwrActivityOrigin::saif);
-        annotated_pins_.insert(pin);
+      double t1 = durations[static_cast<int>(SaifState::T1)];
+      float duty = t1 / duration_;
+      double tc = durations[static_cast<int>(SaifState::TC)];
+      float density = tc / (duration_ * timescale_);
+      // A net name annotates every pin on the net. A pin name that is
+      // not a net annotates that pin.
+      PinSeq pins;
+      Net *net = sdc_network_->findNet(parent, unescaped_name);
+      if (net) {
+        NetConnectedPinIterator *pin_iter = sdc_network_->connectedPinIterator(net);
+        while (pin_iter->hasNext())
+          pins.push_back(pin_iter->next());
+        delete pin_iter;
+        sort(pins, PinPathNameLess(sdc_network_));
+      }
+      else {
+        const Pin *pin = sdc_network_->findPin(parent, unescaped_name);
+        if (pin)
+          pins.push_back(pin);
+      }
+      for (const Pin *pin : pins) {
+        LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
+        if (!sdc_network_->isHierarchical(pin)
+            && !sdc_network_->direction(pin)->isInternal()
+            && !(liberty_port && liberty_port->isPwrGnd())) {
+          debugPrint(debug_, "read_saif", 2,
+                     "{} duty {:.0f} / {} = {:.2f} tc {:.0f} density {:.2f}",
+                     sdc_network_->pathName(pin), t1, duration_, duty, tc, density);
+          power_->setUserActivity(pin, density, duty, PwrActivityOrigin::saif);
+          annotated_pins_.insert(pin);
+        }
       }
     }
   }

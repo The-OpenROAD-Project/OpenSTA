@@ -29,10 +29,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Liberty.hh"
 #include "Mode.hh"
 #include "Network.hh"
+#include "NetworkCmp.hh"
 #include "ParseBus.hh"
 #include "PortDirection.hh"
 #include "Power.hh"
@@ -188,19 +190,36 @@ public:
   void varAppendBusValue(const std::string &id,
                          VcdTime time,
                          std::string_view bus_value) override;
+  void endDefinitions() override;
 
 private:
-  void addVarPin(std::string_view pin_name,
+  struct Var
+  {
+    std::string name;
+    std::string id;
+    size_t width;
+    size_t bit_idx;
+  };
+
+  void recordVar(const std::string &name,
                  std::string_view id,
                  size_t width,
                  size_t bit_idx);
+  void resolveVars();
+  void addVarPin(const Var &var,
+                 const PinUnorderedSet &named_pins);
+  bool annotatable(const Pin *pin) const;
 
   const std::string scope_;
 
   double time_scale_ = 1.0;
   VcdTime time_min_ = 0;
   VcdTime time_max_ = 0;
+  std::vector<Var> vars_;
+  bool vars_resolved_ = false;
   VcdIdCountsMap vcd_count_map_;
+  // Pins already added from a VCD name.
+  PinUnorderedSet added_pins_;
 
   const Network *sdc_network_;
   Report *report_;
@@ -271,7 +290,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
       std::string var_scoped = path_name.substr(scope_length + 1);
       if (width == 1) {
         std::string pin_name = netVerilogToSta(var_scoped);
-        addVarPin(pin_name, id, width, 0);
+        recordVar(pin_name, id, width, 0);
       }
       else {
         bool is_bus, is_range, subscript_wild;
@@ -288,7 +307,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
               pin_name += '[';
               pin_name += std::to_string(bus_bit);
               pin_name += ']';
-              addVarPin(pin_name, id, width, bit_idx);
+              recordVar(pin_name, id, width, bit_idx);
               bit_idx++;
             }
           }
@@ -298,7 +317,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
               pin_name += '[';
               pin_name += std::to_string(bus_bit);
               pin_name += ']';
-              addVarPin(pin_name, id, width, bit_idx);
+              recordVar(pin_name, id, width, bit_idx);
               bit_idx++;
             }
           }
@@ -311,22 +330,78 @@ VcdCountReader::makeVar(const VcdScope &scope,
 }
 
 void
-VcdCountReader::addVarPin(std::string_view pin_name,
+VcdCountReader::recordVar(const std::string &name,
                           std::string_view id,
                           size_t width,
                           size_t bit_idx)
 {
-  const Pin *pin = sdc_network_->findPin(pin_name);
-  LibertyPort *liberty_port = pin ? sdc_network_->libertyPort(pin) : nullptr;
-  if (pin && !sdc_network_->isHierarchical(pin)
+  vars_.push_back(Var{name, std::string(id), width, bit_idx});
+}
+
+void
+VcdCountReader::endDefinitions()
+{
+  resolveVars();
+}
+
+void
+VcdCountReader::resolveVars()
+{
+  if (!vars_resolved_) {
+    vars_resolved_ = true;
+    // Pins named by a VCD variable. A net variable does not override these.
+    PinUnorderedSet named_pins;
+    for (const Var &var : vars_) {
+      const Pin *pin = sdc_network_->findPin(var.name);
+      if (pin && annotatable(pin))
+        named_pins.insert(pin);
+    }
+    for (const Var &var : vars_)
+      addVarPin(var, named_pins);
+  }
+}
+
+void
+VcdCountReader::addVarPin(const Var &var,
+                          const PinUnorderedSet &named_pins)
+{
+  // A net name annotates every pin on the net that has no VCD variable of
+  // its own. A pin name that is not a net annotates that pin.
+  PinSeq pins;
+  Net *net = sdc_network_->findNet(var.name);
+  const Pin *named_pin = sdc_network_->findPin(var.name);
+  if (net) {
+    NetConnectedPinIterator *pin_iter = sdc_network_->connectedPinIterator(net);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      if (pin == named_pin || !named_pins.contains(pin))
+        pins.push_back(pin);
+    }
+    delete pin_iter;
+    sort(pins, PinPathNameLess(sdc_network_));
+  }
+  else if (named_pin)
+    pins.push_back(named_pin);
+  for (const Pin *pin : pins) {
+    if (annotatable(pin) && !added_pins_.contains(pin)) {
+      added_pins_.insert(pin);
+      VcdCounts &vcd_counts = vcd_count_map_[var.id];
+      vcd_counts.resize(var.width);
+      vcd_counts[var.bit_idx].addPin(pin);
+      debugPrint(debug_, "read_vcd", 2, "id {} pin {}", var.id,
+                 sdc_network_->pathName(pin));
+    }
+  }
+}
+
+bool
+VcdCountReader::annotatable(const Pin *pin) const
+{
+  LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
+  return !sdc_network_->isHierarchical(pin)
       && !sdc_network_->direction(pin)->isInternal()
       && !sdc_network_->direction(pin)->isPowerGround()
-      && !(liberty_port && liberty_port->isPwrGnd())) {
-    VcdCounts &vcd_counts = vcd_count_map_[std::string(id)];
-    vcd_counts.resize(width);
-    vcd_counts[bit_idx].addPin(pin);
-    debugPrint(debug_, "read_vcd", 2, "id {} pin {}", id, pin_name);
-  }
+      && !(liberty_port && liberty_port->isPwrGnd());
 }
 
 void
@@ -334,6 +409,7 @@ VcdCountReader::varAppendValue(const std::string &id,
                                VcdTime time,
                                char value)
 {
+  resolveVars();
   const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;
@@ -355,6 +431,7 @@ VcdCountReader::varAppendBusValue(const std::string &id,
                                   VcdTime time,
                                   std::string_view bus_value)
 {
+  resolveVars();
   const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;

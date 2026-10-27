@@ -105,11 +105,6 @@ WritePathGnuplot::writeFiles()
   for (Stage stage : stages_) {
     const Pin *drvr_pin = stages_.stageDrvrPin(stage);
     const Pin *load_pin = stages_.stageLoadPin(stage);
-
-    report_->report("drvr {} load {}",
-                    network_->pathName(drvr_pin),
-                    network_->pathName(load_pin));
-
     arc_dcalc_->clearWatchPins();
     if (plot_pins_.contains(drvr_pin))
       arc_dcalc_->watchPin(drvr_pin);

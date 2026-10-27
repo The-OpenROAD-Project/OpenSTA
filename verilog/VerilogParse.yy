@@ -90,7 +90,7 @@ using VerilogStmtSeq = std::vector<VerilogStmt*>;
 %token <std::string> ID STRING CONSTANT
 %token MODULE ENDMODULE ASSIGN PARAMETER DEFPARAM
 %token SPECIFY ENDSPECIFY SPECPARAM
-%token WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0 REG
+%token WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0 REG SIGNED
 %token ATTR_OPEN ATTR_CLOSED
 
 %left '-' '+'
@@ -197,10 +197,10 @@ port_dcls:
 	;
 
 port_dcl:
-	attr_instance_seq port_dcl_type dcl_arg
-	{ $$ = reader->makeDcl($2, $3, $1, loc_line(@2)); }
-|	attr_instance_seq port_dcl_type '[' INT ':' INT ']' dcl_arg
-	{ $$ = reader->makeDclBus($2, $4, $6, $8, $1, loc_line(@2)); }
+	attr_instance_seq port_dcl_type signed_opt dcl_arg
+	{ $$ = reader->makeDcl($2, $4, $1, loc_line(@2)); }
+|	attr_instance_seq port_dcl_type signed_opt '[' INT ':' INT ']' dcl_arg
+	{ $$ = reader->makeDclBus($2, $5, $7, $9, $1, loc_line(@2)); }
 	;
 
 port_dcl_type:
@@ -320,22 +320,28 @@ param_value:
 	;
 
 declaration:
-	attr_instance_seq dcl_type dcl_args ';'
+	attr_instance_seq dcl_type signed_opt dcl_args ';'
 	{ if ($2)
-	    $$ = reader->makeDcl($2, $3, $1, loc_line(@2));
+	    $$ = reader->makeDcl($2, $4, $1, loc_line(@2));
 	  else {
-	    reader->deleteDcl($1, $3);
+	    reader->deleteDcl($1, $4);
 	    $$ = nullptr;
 	  }
 	}
-|	attr_instance_seq dcl_type '[' INT ':' INT ']' dcl_args ';'
+|	attr_instance_seq dcl_type signed_opt '[' INT ':' INT ']' dcl_args ';'
 	{ if ($2)
-	    $$ = reader->makeDclBus($2, $4, $6, $8, $1, loc_line(@2));
+	    $$ = reader->makeDclBus($2, $5, $7, $9, $1, loc_line(@2));
 	  else {
-	    reader->deleteDcl($1, $8);
+	    reader->deleteDcl($1, $9);
 	    $$ = nullptr;
 	  }
 	}
+	;
+
+// Signedness only matters to expressions, which a netlist does not have.
+signed_opt:
+	// empty
+|	SIGNED
 	;
 
 dcl_type:
