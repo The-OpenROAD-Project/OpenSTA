@@ -128,6 +128,10 @@ public:
 		       float duty,
 		       PwrActivityOrigin origin);
   void unsetUserActivity(const Pin *pin);
+  // OpenROAD fork: power activity - public so OpenROAD can copy
+  // annotations to pins that replace deleted ones.
+  bool hasUserActivity(const Pin *pin);
+  PwrActivity &userActivity(const Pin *pin);
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
   float clockMinPeriod(const Sdc *sdc);
@@ -142,8 +146,6 @@ protected:
                    const Scene *scene,
                    PowerResult &result);
   void ensureActivities(const Scene *scene);
-  bool hasUserActivity(const Pin *pin);
-  PwrActivity &userActivity(const Pin *pin);
   void setSeqActivity(const Instance *reg,
 		      LibertyPort *output,
 		      PwrActivity &activity);
