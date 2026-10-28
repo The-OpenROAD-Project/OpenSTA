@@ -5110,6 +5110,7 @@ Sta::deletePinBefore(const Pin *pin)
     mode->sim()->deletePinBefore(pin);
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  power_->deletePinBefore(pin);
   // Tags on pins downstream from input delays reference the input delay.
   if (port_delay_deleted)
     search_->arrivalsInvalid();
