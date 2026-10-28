@@ -80,6 +80,8 @@ public:
   // Clear network/graph-dependent state.
   // Preserve set_power_activity annotations.
   void clearNonSdc();
+  // Remove the activities of a pin that is about to be deleted.
+  void deletePinBefore(const Pin *pin);
   void activitiesInvalid();
   void reportDesign(const Scene *scene,
                     int digits);
@@ -127,6 +129,8 @@ public:
 		       float duty,
 		       PwrActivityOrigin origin);
   void unsetUserActivity(const Pin *pin);
+  bool hasUserActivity(const Pin *pin);
+  PwrActivity &userActivity(const Pin *pin);
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
   float clockMinPeriod(const Sdc *sdc);
@@ -141,8 +145,6 @@ protected:
                    const Scene *scene,
                    PowerResult &result);
   void ensureActivities(const Scene *scene);
-  bool hasUserActivity(const Pin *pin);
-  PwrActivity &userActivity(const Pin *pin);
   void setSeqActivity(const Instance *reg,
 		      LibertyPort *output,
 		      PwrActivity &activity);
@@ -240,11 +242,11 @@ protected:
 		      const InternalPower *pwr);
   float evalDiffDuty(FuncExpr *expr,
                      LibertyPort *from_port,
-                     FuncExpr *when,  // OpenROAD fork: power activity
+                     FuncExpr *when,
                      const Instance *inst);
-  // ---- OpenROAD fork: power activity (begin) ----
   bool evalBddChangeDensity(DdNode *bdd,
                             const Instance *inst,
+                            // Return value.
                             float &density);
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
@@ -255,7 +257,6 @@ protected:
                            // Return values.
                            float &density,
                            float &duty);
-  // ---- OpenROAD fork: power activity (end) ----
   LibertyPort *findLinkPort(const LibertyCell *cell,
                             const LibertyPort *scene_port);
   Pin *findLinkPin(const Instance *inst,
@@ -294,10 +295,8 @@ private:
   bool instance_powers_valid_{false};
 
   static constexpr int max_activity_passes_ = 50;
-  // ---- OpenROAD fork: power activity (begin) ----
   std::unordered_map<const Pin*, float> launch_period_cache_;
   bool convergence_warned_{false};
-  // ---- OpenROAD fork: power activity (end) ----
 
   friend class PropActivityVisitor;
 };

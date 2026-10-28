@@ -1,0 +1,9 @@
+input           2
+unannotated     6
+Annotated pins:
+ user in1
+ user reg1/Q
+input           1
+unannotated     4
+Annotated pins:
+ user in1
