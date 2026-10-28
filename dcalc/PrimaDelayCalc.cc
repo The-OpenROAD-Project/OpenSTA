@@ -610,7 +610,10 @@ PrimaDelayCalc::initCeffIdrvr()
 
     time_begin_ = std::min(time_begin_, waveform_begin);
     double drvr_r = driverResistance(dcalc_arg);
-    double time_max = waveform_begin + delayAsFloat(dcalc_arg.inSlew())
+    // Simulate at least to the end of the driver waveform so the
+    // slew thresholds are crossed.
+    double time_max = std::max(waveform_begin + delayAsFloat(dcalc_arg.inSlew()),
+                               waveform_end)
       + (drvr_r + maxParasiticPathResistance(dcalc_arg)) * load_cap * 2.0;
     time_end_ = std::max(time_end_, time_max);
     time_step_ = std::min(time_step_, drvr_r * load_cap * .02);
@@ -868,7 +871,7 @@ PrimaDelayCalc::updateCeffIdrvr(double time)
       else
         drvr_current = -v1 / hold_resistance;
       debugPrint(debug_, "prima", 3,
-                 " %zu ceff {} VDrvr {:.3f} Idrvr {} hold_r {} hold after",
+                 " {} ceff {} VDrvr {:.3f} Idrvr {} hold_r {} hold after",
                  drvr_idx,
                  units_->capacitanceUnit()->asString(ceff_[drvr_idx]),
                  v1,
@@ -922,7 +925,7 @@ PrimaDelayCalc::updateCeffIdrvr(double time)
           region = "volt_current";
         }
       }
-      debugPrint(debug_, "prima", 3, " %zu ceff {} end {} VDrvr {:.3f} Idrvr {} {}",
+      debugPrint(debug_, "prima", 3, " {} ceff {} end {} VDrvr {:.3f} Idrvr {} {}",
                  drvr_idx,
                  units_->capacitanceUnit()->asString(ceff_[drvr_idx]),
                  delayAsString(waveform_end_[drvr_idx], this),

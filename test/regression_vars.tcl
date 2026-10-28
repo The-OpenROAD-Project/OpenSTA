@@ -182,6 +182,7 @@ record_public_tests {
   power_enable_flop
   power_pin_delete
   prima3
+  prima4
   prima_singular
   read_saif_null_instance
   report_checks_sorted
