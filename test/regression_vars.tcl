@@ -190,6 +190,7 @@ record_public_tests {
   power_network_changed
   power_json
   prima3
+  prima4
   prima_singular
   read_saif_null_instance
   report_checks_sorted
