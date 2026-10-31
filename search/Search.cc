@@ -2350,6 +2350,20 @@ Search::clkPathArrival(const Path *clk_path) const
   return clkPathArrival(clk_path, clk_info, clk_edge, min_max);
 }
 
+// ---- OpenROAD fork: ideal clock network requireds (begin) ----
+// Clock path at a register clock pin on an ideal clock. Arrivals use the
+// ideal insertion and latency there, and requireds are not propagated
+// from there back into the clock network.
+static bool
+isIdealRegClk(const Vertex *vertex,
+              bool is_clk,
+              const ClkInfo *clk_info)
+{
+  return vertex->isRegClk() && is_clk && clk_info->clkEdge()
+    && !clk_info->isPropagated();
+}
+// ---- OpenROAD fork: ideal clock network requireds (end) ----
+
 Arrival
 Search::clkPathArrival(const Path *clk_path,
                        const ClkInfo *clk_info,
@@ -2357,8 +2371,8 @@ Search::clkPathArrival(const Path *clk_path,
                        const MinMax *min_max) const
 {
   const Scene *scene = clk_path->scene(this);
-  if (clk_path->vertex(this)->isRegClk() && clk_path->isClock(this) && clk_edge
-      && !clk_info->isPropagated()) {
+  // OpenROAD fork: shared with ideal clock network requireds.
+  if (isIdealRegClk(clk_path->vertex(this), clk_path->isClock(this), clk_info)) {
     // Ideal clock, apply ideal insertion delay and latency.
     const EarlyLate *early_late = min_max;
     Arrival insertion = clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
@@ -3505,6 +3519,23 @@ Search::seedRequiredEnqueueFanin(Vertex *vertex)
 
 ////////////////////////////////////////////////////////////////
 
+// ---- OpenROAD fork: ideal clock network requireds (begin) ----
+// Required times are not propagated from register clock pins back into
+// an ideal clock network. Before CTS a clock net driver fans out to every
+// register, so re-evaluating its required after a change at any one
+// register visits all of them. The trade-off: clock network pins above
+// the register clock pins have INF required/slack instead of the worst
+// slack of the paths through them. Register clock pins keep their
+// required (and slack) from the clk->q arc, and data and clock gating
+// check requireds are unchanged.
+static bool
+isIdealRegClkPath(const Vertex *vertex,
+                  const Tag *tag)
+{
+  return isIdealRegClk(vertex, tag->isClock(), tag->clkInfo());
+}
+// ---- OpenROAD fork: ideal clock network requireds (end) ----
+
 void
 RequiredCmp::requiredsInit(Vertex *vertex,
                            const StaState *sta)
@@ -3542,6 +3573,8 @@ RequiredCmp::requiredsSave(Vertex *vertex,
 {
   bool requireds_changed = false;
   Debug *debug = sta->debug();
+  // OpenROAD fork: ideal clock network requireds.
+  const bool reg_clk = vertex->isRegClk();
   VertexPathIterator path_iter(vertex, sta);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
@@ -3554,7 +3587,9 @@ RequiredCmp::requiredsSave(Vertex *vertex,
                delayAsString(prev_req, sta),
                delayAsString(req, sta),
                changed ? " changed" : "");
-    requireds_changed |= changed;
+    // OpenROAD fork: ideal clock network requireds.
+    if (!(reg_clk && isIdealRegClkPath(vertex, path->tag(sta))))
+      requireds_changed |= changed;
     path->setRequired(req);
   }
   return requireds_changed;
@@ -3627,6 +3662,10 @@ RequiredVisitor::visitFromToPath(const Pin *,
                                  Arrival &,
                                  const MinMax *min_max)
 {
+  // ---- OpenROAD fork: ideal clock network requireds (begin) ----
+  if (isIdealRegClkPath(to_vertex, to_tag))
+    return true;
+  // ---- OpenROAD fork: ideal clock network requireds (end) ----
   // Don't propagate required times through latch D->Q edges.
   if (!edge->role()->isLatchDtoQ()) {
     debugPrint(debug_, "search", 3, "  {} -> {} {}", from_rf->shortName(),
