@@ -195,6 +195,7 @@ record_public_tests {
   prima3
   prima4
   prima_singular
+  read_saif_escaped_divider
   read_saif_null_instance
   report_checks_sorted
   report_checks_src_attr
