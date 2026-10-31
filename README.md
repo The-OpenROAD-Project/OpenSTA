@@ -60,27 +60,12 @@ help registry when the binary is built (CMake and Read the Docs run
 See [doc/ChangeLog.md](doc/ChangeLog.md) for changes to commands.
 See [doc/StaApi.md](doc/StaApi.md) for timing engine API documentation.
 
-OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
-is also licensed for commerical applications by Parallax Software without
-the GPL's requirements.
+The upstream git repository is located at
+https://github.com/parallaxsw/OpenSTA.git. This fork has not been
+tested with Parallax regressions which are not publicly available.
 
-OpenSTA is open source, meaning the sources are published and can be
-compiled locally.  Derivative works are supported as long as they
-adhere to the GPL license requirements.  However, OpenSTA is not
-supported by a public community of developers as many other open
-source projects are. The copyright and development are exclusive to
-Parallax Software.
-
-Removing copyright and license notices from OpenSTA sources (or any
-other open source project for that matter) is illegal. This should be
-obvious, but the author of OpenSTA has discovered two different cases
-where the copyright and license were removed from source files that
-were copied.
-
-The official git repository is located at
-https://github.com/parallaxsw/OpenSTA.git. Any forks from this code
-base have not passed extensive regression testing which is not
-publicly available.
+Note that this repo is not a fork on GitHub for historical reasons but
+functions as one in practical terms.
 
 ## Build from source
 
@@ -279,27 +264,35 @@ tarfile.
 
 ## Contributions
 
-Contributors must sign the Contributor License Agreement
-([doc/CLA.txt](doc/CLA.txt))
-when submitting pull requests.
-
 All contributors should read
 [doc/CodingGuidelines.md](doc/CodingGuidelines.md)
 for notes on
 making code that adheres to the existing naming and formatting style.
 
-Contributions that claim 4% performance improvements in OpenROAD flow
-scripts will largely be ignored. Small performance improvements
-simply do not justify the time required to audit and verify the changes.
+## Licensing
+The upstream [OpenSTA](https://github.com/parallaxsw/OpenSTA) is dual
+licensed as described in their
+[README](https://github.com/parallaxsw/OpenSTA/blob/master/README.md). It
+is released under GPL v3 as OpenSTA and is also licensed for
+commercial applications by Parallax Software without the GPL's
+requirements.
 
-Contributions that add dependencies on external libraries like boost,
-abseil and Intel TBB will not be accepted.
+Contributions to this fork of OpenSTA merged on or after October 19,
+2026 are made under dual [GPL](./LICENSE-GPL) and
+[BSD-3](./LICENSE-BSD3) licensing (see [CONTRIBUTING.md](CONTRIBUTING.md)).
+Contributions merged before that date are licensed under GPL v3 only.  **Note
+that the combined work is still covered by GPL unless you obtain a
+commercial license from Parallax Software.** Those with a commercial
+license can use any additional code from this fork under the BSD-3
+license.
 
-As the author of OpenSTA I vastly prefer writing code to reviewing
-code.  I don't have the patience to go round after round to correct
-code formatting that is not consistent with the rest of the code.
+Removing copyright and license notices from OpenSTA sources (or any
+other open source project for that matter) is illegal. This should be
+obvious, but the upstream author of OpenSTA has discovered two
+different cases where the copyright and license were removed from
+source files that were copied.
 
-## Authors
+## Upstream Authors
 
 * James Cherry
 
@@ -307,7 +300,7 @@ code formatting that is not consistent with the rest of the code.
   which was subsequently licensed to Nefelus, Inc that has graciously
   contributed it to OpenSTA.
 
-## License
+## Upstream License
 
 OpenSTA, Static Timing Analyzer
 Copyright (c) 2023, Parallax Software, Inc.
