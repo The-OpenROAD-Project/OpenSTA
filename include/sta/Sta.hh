@@ -1469,16 +1469,17 @@ public:
                            const Scene *scene,
                            const MinMaxAll *min_max);
   void reportNoiseDelays(size_t max_count,
+                         const RiseFallBoth *drvr_rf,
                          float min_coupling_sum_ratio,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs,
+                         const MinMaxAll *min_max,
                          int digits);
   void reportNoiseDelays(const Net *net,
-                         const RiseFallBoth *drvr_rfs,
+                         const RiseFallBoth *drvr_rf,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs,
+                         const MinMaxAll *min_max,
                          int digits);
   void reportNoiseDelays(ArcDcalcArgSeq gates,
                          const Scene *scene,
@@ -1499,6 +1500,11 @@ public:
                            bool no_timestamp,
                            const Scene *scene,
                            const MinMax *min_max);
+  ArcDcalcArgSeq makeDcalcArgs(const Net *net,
+                               const RiseFall *drvr_rf,
+                               float min_coupling_ratio,
+                               const Scene *scene,
+                               const MinMax *min_max);
 
   ////////////////////////////////////////////////////////////////
   // TCL Variables

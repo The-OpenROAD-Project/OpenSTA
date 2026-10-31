@@ -543,6 +543,8 @@ Sta::clear()
 {
   clearNonSdc();
   power_->clear();
+  arc_delay_calc_->clear();
+  delay_noise_->clear();
   for (Mode *mode : modes_)
     mode->sdc()->clear();
 }
@@ -6199,28 +6201,29 @@ Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
 
 void
 Sta::reportNoiseDelays(size_t max_count,
+                       const RiseFallBoth *drvr_rf,
                        float min_coupling_sum_ratio,
                        float min_coupling_ratio,
                        const Scene *scene,
-                       const MinMaxAll *min_maxs,
+                       const MinMaxAll *min_max,
                        int digits)
 {
   noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(max_count, min_coupling_sum_ratio,
-                                  min_coupling_ratio, scene, min_maxs, digits);
+  delay_noise_->reportNoiseDelays(max_count, drvr_rf, min_coupling_sum_ratio,
+                                  min_coupling_ratio, scene, min_max, digits);
 }
 
 void
 Sta::reportNoiseDelays(const Net *net,
-                       const RiseFallBoth *drvr_rfs,
+                       const RiseFallBoth *drvr_rf,
                        float min_coupling_ratio,
                        const Scene *scene,
-                       const MinMaxAll *min_maxs,
+                       const MinMaxAll *min_max,
                        int digits)
 {
   noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene,
-                                  min_maxs, digits);
+  delay_noise_->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene,
+                                  min_max, digits);
 }
 
 void
@@ -6301,6 +6304,18 @@ Sta::checkLibraryCcs()
   }
   delete lib_iter;
   report_->warn(1579, "No liberty CCS models found.");
+}
+
+ArcDcalcArgSeq
+Sta::makeDcalcArgs(const Net *net,
+                   const RiseFall *drvr_rf,
+                   float min_coupling_ratio,
+                   const Scene *scene,
+                   const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  return delay_noise_->makeDcalcArgs(net, drvr_rf, min_coupling_ratio,
+                                     scene, min_max);
 }
 
 ////////////////////////////////////////////////////////////////

@@ -191,7 +191,7 @@ protected:
                          ArcDelayCalc *arc_delay_calc);
   void findDriverDelays(Vertex *drvr_vertex,
                         ArcDelayCalc *arc_delay_calc,
-                        LoadPinIndexMap &load_pin_index_map);
+                        const LoadPinIndexMap &load_pin_index_map);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_vertex);
   MultiDrvrNet *makeMultiDrvrNet(Vertex *drvr_vertex);
@@ -200,14 +200,14 @@ protected:
   void findDriverDelays1(Vertex *drvr_vertex,
                          MultiDrvrNet *multi_drvr,
                          ArcDelayCalc *arc_delay_calc,
-                         LoadPinIndexMap &load_pin_index_map,
+                         const LoadPinIndexMap &load_pin_index_map,
                          RiseFallExists &load_slew_set);
   void initLoadSlews(Vertex *drvr_vertex);
   bool findDriverEdgeDelays(Vertex *drvr_vertex,
                             const MultiDrvrNet *multi_drvr,
                             Edge *edge,
                             ArcDelayCalc *arc_delay_calc,
-                            LoadPinIndexMap &load_pin_index_map,
+                            const LoadPinIndexMap &load_pin_index_map,
                             // Return values.
                             RiseFallExists &drvr_slew_set,
                             RiseFallExists &load_slew_set);
@@ -218,14 +218,14 @@ protected:
                            const Scene *scene,
                            const MinMax *min_max,
                            ArcDelayCalc *arc_delay_calc,
-                           LoadPinIndexMap &load_pin_index_map);
-  ArcDcalcArgSeq makeArcDcalcArgs(Vertex *drvr_vertex,
-                                  const MultiDrvrNet *multi_drvr,
-                                  Edge *edge,
-                                  const TimingArc *arc,
-                                  const Scene *scene,
-                                  const MinMax *min_max,
-                                  ArcDelayCalc *arc_delay_calc);
+                           const LoadPinIndexMap &load_pin_index_map);
+  ArcDcalcArgSeq makeDcalcArgs(Vertex *drvr_vertex,
+                               const MultiDrvrNet *multi_drvr,
+                               Edge *edge,
+                               const TimingArc *arc,
+                               const Scene *scene,
+                               const MinMax *min_max,
+                               ArcDelayCalc *arc_delay_calc);
   void findParallelEdge(Vertex *vertex,
                         const TimingArc *drvr_arc,
                         // Return values.
@@ -235,19 +235,19 @@ protected:
   void initRootSlews(Vertex *vertex);
   void zeroDrvrSlew(Vertex *drvr_vertex,
                     const RiseFall *rf);
-  void zeroUnsetLoadSlews(LoadPinIndexMap &load_pin_index_map,
+  void zeroUnsetLoadSlews(const LoadPinIndexMap &load_pin_index_map,
                           RiseFallExists &load_slew_set);
   void findVertexDelay(Vertex *vertex,
                        ArcDelayCalc *arc_delay_calc);
-  DrvrLoadSlews loadSlews(LoadPinIndexMap &load_pin_index_map);
+  DrvrLoadSlews loadSlews(const LoadPinIndexMap &load_pin_index_map);
   void enqueueCheckEdges(Vertex *vertex);
   bool loadSlewChanged(Vertex *load_vertex,
                        DrvrLoadSlews &load_slews_prev,
-                       LoadPinIndexMap &load_pin_index_map);
+                       const LoadPinIndexMap &load_pin_index_map);
   bool annotateDelaysSlews(Edge *edge,
                            const TimingArc *arc,
                            ArcDcalcResult &dcalc_result,
-                           LoadPinIndexMap &load_pin_index_map,
+                           const LoadPinIndexMap &load_pin_index_map,
                            const Scene *scene,
                            const MinMax *min_max);
 
@@ -260,7 +260,7 @@ protected:
   void annotateLoadDelays(Vertex *drvr_vertex,
                           const RiseFall *drvr_rf,
                           ArcDcalcResult &dcalc_result,
-                          LoadPinIndexMap &load_pin_index_map,
+                          const LoadPinIndexMap &load_pin_index_map,
                           const ArcDelay &extra_delay,
                           bool merge,
                           const Scene *scene,

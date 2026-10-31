@@ -906,14 +906,22 @@ proc get_port_pin_arg { arg_name arg warn_error } {
   return $pin
 }
 
+proc get_port_pins_warn { arg_name arglist } {
+  return [get_port_pins_warn_error $arg_name $arglist "warn"]
+}
+
 proc get_port_pins_error { arg_name arglist } {
+  return [get_port_pins_warn_error $arg_name $arglist "error"]
+}
+
+proc get_port_pins_warn_error { arg_name arglist warn_error } {
   set pins {}
   # Copy backslashes that will be removed by foreach.
   set arglist [string map {\\ \\\\} $arglist]
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set pins [concat $pins [get_port_pins_error $arg_name $arg]]
+      set pins [concat $pins [get_port_pins_warn_error $arg_name $arg $warn_error]]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Pin" } {
@@ -922,14 +930,14 @@ proc get_port_pins_error { arg_name arglist } {
         # Convert port to pin.
         lappend pins [get_port_pin $arg]
       } else {
-        sta_error 131 "$arg_name type '$object_type' is not a pin or port."
+        sta_warn_error 131 $warn_error "$arg_name type '$object_type' is not a pin or port."
       }
     } elseif { $arg != {} } {
       set arg_pins [get_ports_or_pins $arg]
       if { $arg_pins != {} } {
         set pins [concat $pins $arg_pins]
       } else {
-        sta_error 132 "pin '$arg' not found."
+        sta_warn_error 132 $warn_error "pin '$arg' not found."
       }
     }
   }

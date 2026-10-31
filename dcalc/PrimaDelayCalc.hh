@@ -63,8 +63,11 @@ public:
   ~PrimaDelayCalc() override;
   ArcDelayCalc *copy() override;
   void copyState(const StaState *sta) override;
+  void clear() override;
   std::string_view name() const override { return "prima"; }
-  size_t primaReduceOrder() const { return prima_order_; }
+  // Prima reduced eqn order per gate.
+  size_t primaReduceOrder() const { return prima_gate_order_; }
+  // Prima reduced eqn order per gate.
   void setPrimaReduceOrder(size_t order);
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
@@ -229,8 +232,10 @@ protected:
   Eigen::VectorXd x_init_;
   Eigen::VectorXd u_;
 
-  // Prima reduced MNA eqns
-  size_t prima_order_{3};
+  // Prima reduced MNA eqn order per gate.
+  size_t prima_gate_order_;
+  // Prima reduced MNA eqn order.
+  size_t prima_order_;
   Eigen::MatrixXd Vq_;
   MatrixSd Gq_;
   MatrixSd Cq_;

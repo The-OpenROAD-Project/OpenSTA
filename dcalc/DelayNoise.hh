@@ -19,6 +19,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <utility>
 
 #include "MinMax.hh"
 #include "StaState.hh"
@@ -94,6 +95,7 @@ public:
   DelayNoise(StaState *sta);
   ~DelayNoise() override;
   void copyState(const StaState *sta) override;
+  void clear();
 
   // Annotate noise delays and slews for aggressors with
   // sum(coupling_caps) / cap_ground > min_coupling_sum_ratio
@@ -119,18 +121,19 @@ public:
   // Report noise delays for all nets with aggressors with
   // sum(coupling_cap) / cap_gnd > min_coupling_sum_ratio
   void reportNoiseDelays(size_t max_count,
+                         const RiseFallBoth *drvr_rf,
                          float min_coupling_sum_ratio,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs,
+                         const MinMaxAll *min_max,
                          int digits);
   // Report noise delays for aggressors with
   // coupling_cap / cap_gnd > min_coupling_ratio
   void reportNoiseDelays(const Net *net,
-                         const RiseFallBoth *drvr_rfs,
+                         const RiseFallBoth *drvr_rf,
                          float min_coupling_ratio,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs,
+                         const MinMaxAll *min_max,
                          int digits);
   void reportNoiseDelays(ArcDcalcArgSeq &gates,
                          const Scene *scene,
@@ -161,17 +164,15 @@ public:
                              float min_coupling_ratio,
                              const Scene *scene,
                              const MinMax *min_max);
-  ArcDcalcArg makeNetGateDrvr(const Net *net,
-                              const RiseFall *drvr_rf);
-  ArcDcalcArgSeq makeArcDcalcArgs(ArcDcalcArg &drvr,
-                                  ConstNetSeq &aggressors,
-                                  const Scene *scene,
-                                  const MinMax *min_max);
-  ArcDcalcArgSeq makeArcDcalcArgs(const Net *net,
-                                  const RiseFall *drvr_rf,
-                                  float min_coupling_ratio,
-                                  const Scene *scene,
-                                  const MinMax *min_max);
+  ArcDcalcArgSeq makeDrvrDcalcArgs(ArcDcalcArg &drvr,
+                                   ConstNetSeq &aggressors,
+                                   const Scene *scene,
+                                   const MinMax *min_max);
+  ArcDcalcArgSeq makeDcalcArgs(const Net *net,
+                               const RiseFall *drvr_rf,
+                               float min_coupling_ratio,
+                               const Scene *scene,
+                               const MinMax *min_max);
   void alignAggressorsCmd(ArcDcalcArgSeq &gates,
                           const Scene *scene,
                           const MinMax *min_max);
@@ -196,25 +197,36 @@ protected:
                        const MinMaxAll *min_max1,
                        DcalcResults &noise_delays);
   void findNoiseDelays(ArcDcalcArgSeq &gates,
-                       LoadPinIndexMap &load_pin_index_map,
+                       const LoadPinIndexMap &load_pin_index_map,
                        const Scene *scene,
                        const MinMax *min_max,
                        DcalcResults &noise_delays);
   void findLoadDelays(Vertex *drvr_vertex,
                       const RiseFall *drvr_rf,
                       ArcDcalcResult &dcalc_result,
-                      LoadPinIndexMap &load_pin_index_map,
+                      const LoadPinIndexMap &load_pin_index_map,
                       const Scene *scene,
                       const MinMax *min_max,
                       DcalcResults &noise_delays);
-  ArcDcalcArgSeq makeArcDcalcArgs(const Net *net,
-                                  Vertex *drvr_vertex,
-                                  const RiseFall *drvr_rf,
-                                  const Parasitic *parasitic,
-                                  float min_coupling_ratio,
-                                  const Scene *scene,
-                                  const MinMax *min_max,
-                                  const DelaysWrtClks &drvr_clk_arrivals);
+  ArcDcalcArgSeq makeDcalcArgs(const Net *net,
+                               const RiseFall *drvr_rf,
+                               const DelaysWrtClks &drvr_clk_arrivals,
+                               float min_coupling_ratio,
+                               const Scene *scene,
+                               const MinMax *min_max,
+                               const LoadPinIndexMap &load_pin_index_map);
+  ArcDcalcArgSeq makeDcalcArgs(const Net *net,
+                               const RiseFall *drvr_rf,
+                               const DelaysWrtClks &drvr_clk_arrivals,
+                               const Parasitic *parasitic,
+                               float min_coupling_ratio,
+                               const Scene *scene,
+                               const MinMax *min_max);
+  ArcDcalcArg makeNetGateDrvr(const Net *net,
+                              const RiseFall *drvr_rf,
+                              const DelaysWrtClks &drvr_clk_arrivals,
+                              const Scene *scene,
+                              const MinMax *min_max);
   NetSeq findVictimNets(float min_coupling_sum_ratio,
                         const Scene *scene,
                         const MinMax *min_max);
@@ -224,29 +236,39 @@ protected:
                        const Scene *scene,
                        const MinMax *min_max);
   void alignAggressors(ArcDcalcArgSeq &gates,
-                       LoadPinIndexMap &load_pin_index_map,
+                       const LoadPinIndexMap &load_pin_index_map,
                        const Scene *scene,
                        const MinMax *min_max);
   const Pin *findMaxSlewLoad(Vertex *drvr_vertex,
                              const RiseFall *drvr_rf,
                              const Scene *scene,
                              const MinMax *min_max);
-  FloatSeq findAggressorInitialOffsets(ArcDcalcArgSeq &gates,
-                                       const Scene *scene,
-                                       const MinMax *min_max);
-  float findDeltaDelayOffset(ArcDcalcArgSeq &gates,
-                             LoadPinIndexMap &load_pin_index_map,
-                             const Scene *scene,
-                             const MinMax *min_max,
-                             FloatSeq &initial_offsets,
-                             size_t load_idx);
+  std::pair<FloatSeq, float>
+  findAggressorOffsets(ArcDcalcArgSeq &gates,
+                       const Scene *scene,
+                       const MinMax *min_max);
+  void findDrvrOffset(ArcDcalcArgSeq &gates,
+                      FloatSeq &aggr_offsets,
+                      float aggr_offset_min,
+                      size_t load_idx,
+                      const LoadPinIndexMap &load_pin_index_map,
+                      const Scene *scene,
+                      const MinMax *min_max);
+  float railToRailSlew(float slew,
+                       const RiseFall *rf,
+                       const LibertyLibrary *lib);
   float loadDelay(ArcDcalcArgSeq &gates,
-                  LoadPinIndexMap &load_pin_index_map,
-                  const Scene *scene,
-                  const MinMax *min_max,
+                  float offset,
+                  FloatSeq &aggr_offsets,
+                  float aggr_offset_min,
                   size_t load_idx,
-                  FloatSeq &initial_offsets,
-                  float offset);
+                  const LoadPinIndexMap &load_pin_index_map,
+                  const Scene *scene,
+                  const MinMax *min_max);
+  void ensurePositiveWaveforms(ArcDcalcArgSeq &gates,
+                               float offset,
+                               FloatSeq &aggr_offsets,
+                               float aggr_offset_min);
   void findDrvrEdgeArc(Vertex *drvr_vertex,
                        const RiseFall *drvr_rf,
                        const DelaysWrtClks &victim_clk_arrivals,
@@ -263,24 +285,24 @@ protected:
                              const MinMax *min_max);
   float couplingCapRatio(const Parasitic *parasitic,
                          const Scene *scene,
-                         const MinMax *min_max) const;
+                         const MinMax *min_max);
   void capacitances(const Parasitic *parasitic,
                     const Scene *scene,
                     const MinMax *min_max,
                     // Return values.
                     float &coupling_cap,
-                    float &cap_gnd) const;
+                    float &cap_gnd);
   float pinCap(const Pin *pin,
                const Scene *scene,
                const MinMax *min_max) const;
   float capGnd(const Parasitic *parasitic,
                const Scene *scene,
-               const MinMax *min_max) const;
+               const MinMax *min_max);
   const Pin *netDrvrPin(const Net *net) const;
   // sum(coupling_caps) / cap_ground
   float couplingCapRatio(const Net *net,
                          const Scene *scene,
-                         const MinMax *min_max) const;
+                         const MinMax *min_max);
   // sum(coupling_caps)
   float couplingCap(const Net *net,
                     const Scene *scene,
@@ -288,7 +310,7 @@ protected:
   // capacitance to ground
   float capGnd(const Net *net,
                const Scene *scene,
-               const MinMax *min_max) const;
+               const MinMax *min_max);
   float victimCapToAggressor(const Net *victim,
                              const Net *aggressor,
                              const Scene *scene,
@@ -296,10 +318,15 @@ protected:
 
   ////////////////////////////////////////////////////////////////
 
-  void reportNoiseDelays(Vertex *drvr_vertex,
-                         const RiseFallBoth *drvr_rfs,
+  void reportNoiseDelays(ArcDcalcArgSeq &gates,
+                         const LoadPinIndexMap &load_pin_index_map,
                          const Scene *scene,
-                         const MinMaxAll *min_maxs,
+                         const MinMax *min_max,
+                         int digits);
+  void reportNoiseDelays(Vertex *drvr_vertex,
+                         const RiseFallBoth *drvr_rf,
+                         const Scene *scene,
+                         const MinMaxAll *min_max,
                          DcalcResults &noise_delays,
                          int digits);
 
