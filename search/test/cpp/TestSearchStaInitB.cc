@@ -2353,22 +2353,13 @@ TEST_F(StaInitTest, SearchRequiredIterator) {
   }() ));
 }
 
-// === Search: evalPred and searchAdj ===
+// === Search: evalPred ===
 
 TEST_F(StaInitTest, SearchEvalPred2) {
   ASSERT_NO_THROW(( [&](){
     Search *search = sta_->search();
     EvalPred *pred = search->evalPred();
     EXPECT_NE(pred, nullptr);
-    expectStaCoreState(sta_);
-  }() ));
-}
-
-TEST_F(StaInitTest, SearchSearchAdj2) {
-  ASSERT_NO_THROW(( [&](){
-    Search *search = sta_->search();
-    SearchPred *adj = search->searchAdj();
-    EXPECT_NE(adj, nullptr);
     expectStaCoreState(sta_);
   }() ));
 }

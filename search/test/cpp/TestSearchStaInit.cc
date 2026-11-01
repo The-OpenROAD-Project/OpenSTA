@@ -1489,12 +1489,6 @@ TEST_F(StaInitTest, SearchEvalPred) {
   EXPECT_NE(search->evalPred(), nullptr);
 }
 
-TEST_F(StaInitTest, SearchSearchAdj) {
-  Search *search = sta_->search();
-  ASSERT_NE(search, nullptr);
-  EXPECT_NE(search->searchAdj(), nullptr);
-}
-
 TEST_F(StaInitTest, SearchClear) {
   Search *search = sta_->search();
   search->clear();
@@ -3040,12 +3034,6 @@ TEST_F(StaInitTest, StaSetDriveResistanceNull) {
 }
 
 // --- Sta.cc: borrow limits ---
-TEST_F(StaInitTest, StaSetLatchBorrowLimitPin) {
-  sta_->setLatchBorrowLimit(static_cast<const Pin*>(nullptr), 1.0f, sta_->cmdSdc());
-  // No crash
-
-}
-
 TEST_F(StaInitTest, StaSetLatchBorrowLimitInst) {
   sta_->setLatchBorrowLimit(static_cast<const Instance*>(nullptr), 1.0f, sta_->cmdSdc());
   // No crash

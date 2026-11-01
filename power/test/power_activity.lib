@@ -1,0 +1,128 @@
+library (power_activity) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1,ff);
+  pulling_resistance_unit : "1kohm";
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.1;
+  default_operating_conditions : typical;
+  operating_conditions (typical) {
+    process : 1.0;
+    temperature : 25.0;
+    voltage : 1.1;
+  }
+
+  /* Timing arc without a logic function, like a memory read port. */
+  cell (BLACKBOX) {
+    pin (A) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (Z) {
+      direction : output;
+      timing () {
+        related_pin : "A";
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
+  /* Register with QN written as the inverted state. */
+  cell (DFF_NIQ) {
+    ff (IQ, IQN) {
+      next_state : "D";
+      clocked_on : "CK";
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (CK) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+    pin (QN) {
+      direction : output;
+      function : "!IQ";
+      timing () {
+        related_pin : "CK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
+  /* AND2 with state dependent internal power on the A to Z arc. A only
+     switches Z when B is 1, so the "!B" group should get no weight. */
+  cell (AND2_WHEN) {
+    pin (A) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (B) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (Z) {
+      direction : output;
+      function : "A & B";
+      timing () {
+        related_pin : "A";
+        timing_sense : positive_unate;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+      timing () {
+        related_pin : "B";
+        timing_sense : positive_unate;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+      internal_power () {
+        related_pin : "A";
+        when : "B";
+        rise_power (scalar) { values ("2.0"); }
+        fall_power (scalar) { values ("2.0"); }
+      }
+      internal_power () {
+        related_pin : "A";
+        when : "!B";
+        rise_power (scalar) { values ("1000.0"); }
+        fall_power (scalar) { values ("1000.0"); }
+      }
+    }
+  }
+}

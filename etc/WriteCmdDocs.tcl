@@ -4,7 +4,28 @@ exec sta -no_splash -no_init -exit $0 ${1+"$@"}
 
 # OpenSTA, Static Timing Analyzer
 # Copyright (c) 2026, Parallax Software, Inc.
-#
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+# 
+# The origin of this software must not be misrepresented; you must not
+# claim that you wrote the original software.
+# 
+# Altered source versions must be plainly marked as such, and must not be
+# misrepresented as being the original software.
+# 
+# This notice may not be removed or altered from any source distribution.
+
 # Write doc/Commands.md, doc/Variables.md, and doc/CommandLine.md
 # from the live command/variable help registry. These files are not
 # checked in; CMake and Read the Docs regenerate them.

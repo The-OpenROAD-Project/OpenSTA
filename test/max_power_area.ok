@@ -1,6 +1,14 @@
 max_area 123.5
-max_dynamic_power 1.25
-max_leakage_power 0.75
+max_dynamic_power 1.250e-12
+max_leakage_power 7.500e-07
 set_max_area 123.5000
-set_max_dynamic_power 1.2500
-set_max_leakage_power 0.7500
+set_max_dynamic_power 1.2500e-12 W
+set_max_leakage_power 7.5000e-07 W
+max_dynamic_power 2.000e-03
+max_leakage_power 3.000e+00
+max_dynamic_power 2.000e-03
+max_leakage_power 3.000e+00
+max_dynamic_power 4.000e-18
+max_leakage_power 2.000e+03
+Error 487: max_power_area.tcl line 50, set_max_leakage_power unit 'uA' is not one of GW MW KW kW W mW uW nW pW fW aW.
+Error 565: max_power_area.tcl line 52, set_max_leakage_power requires one positional argument.

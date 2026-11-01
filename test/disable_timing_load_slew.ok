@@ -1,0 +1,60 @@
+--- before set_disable_timing
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Slew    Delay     Time   Description
+-------------------------------------------------------------------
+   0.000    0.000    0.000   clock clk (rise edge)
+            0.000    0.000   clock network delay (ideal)
+   0.000    0.000    0.000 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+   8.957   64.765   64.765 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+   6.921   16.469   81.234 ^ u1/Y (BUFx2_ASAP7_75t_R)
+   8.119   17.814   99.048 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   8.119    0.000   99.048 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+                    99.048   data arrival time
+
+   0.000  500.000  500.000   clock clk (rise edge)
+            0.000  500.000   clock network delay (ideal)
+            0.000  500.000   clock reconvergence pessimism
+                   500.000 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+          -12.787  487.213   library setup time
+                   487.213   data required time
+-------------------------------------------------------------------
+                   487.213   data required time
+                   -99.048   data arrival time
+-------------------------------------------------------------------
+                   388.166   slack (MET)
+
+
+--- after set_disable_timing [get_cells u1]
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Slew    Delay     Time   Description
+-------------------------------------------------------------------
+   0.000    0.000    0.000   clock clk (rise edge)
+            0.000    0.000   clock network delay (ideal)
+   0.000    0.000    0.000 ^ r1/CLK (DFFHQx4_ASAP7_75t_R)
+   8.861   64.686   64.686 ^ r1/Q (DFFHQx4_ASAP7_75t_R)
+   8.135   18.357   83.043 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   8.135    0.000   83.043 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+                    83.043   data arrival time
+
+   0.000  500.000  500.000   clock clk (rise edge)
+            0.000  500.000   clock network delay (ideal)
+            0.000  500.000   clock reconvergence pessimism
+                   500.000 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+          -12.789  487.211   library setup time
+                   487.211   data required time
+-------------------------------------------------------------------
+                   487.211   data required time
+                   -83.043   data arrival time
+-------------------------------------------------------------------
+                   404.168   slack (MET)
+
+
+u2/B ^ 0.00:0.00 v 0.00:0.00

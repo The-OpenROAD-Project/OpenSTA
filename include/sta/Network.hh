@@ -389,9 +389,9 @@ public:
   // Is net1 connected to net2 anywhere in the hierarchy?
   virtual bool isConnected(const Net *net1,
                            const Net *net2) const;
-  virtual Net *highestNetAbove(Net *net) const;
-  virtual const Net *highestConnectedNet(Net *net) const;
-  virtual void connectedNets(Net *net,
+  virtual const Net *highestNetAbove(const Net *net) const;
+  virtual const Net *highestConnectedNet(const Net *net) const;
+  virtual void connectedNets(const Net *net,
                              NetSet *nets) const;
   virtual void connectedNets(const Pin *pin,
                              NetSet *nets) const;

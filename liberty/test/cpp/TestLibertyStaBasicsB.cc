@@ -1041,6 +1041,17 @@ TEST(R6_LibertyAttrValueTest, FloatValueAndQuotedStringParsing) {
   EXPECT_TRUE(quoted_value.isString());
 }
 
+// A float sequence from binary liberty is neither a float nor a string.
+TEST(R6_LibertyAttrValueTest, FloatSeqIsNotAFloat) {
+  LibertyAttrValue seq_value(std::vector<float>{1.0f, 2.0f});
+  EXPECT_TRUE(seq_value.isFloatSeq());
+  EXPECT_FALSE(seq_value.isFloat());
+  EXPECT_FALSE(seq_value.isString());
+  auto [value, valid] = seq_value.floatValue();
+  EXPECT_FALSE(valid);
+  EXPECT_EQ(seq_value.floatSeq().size(), 2u);
+}
+
 TEST(R6_LibertyGroupTest, Construction) {
   LibertyAttrValueSeq params;
   params.push_back(makeStringAttrValue("cell1"));
@@ -1352,7 +1363,6 @@ TEST(R6_LibertyLibraryTest, DefaultBidirectPinResBoth) {
 }
 
 TEST(R6_LibertyLibraryTest, DefaultInoutPinRes) {
-  PortDirection::init();
   LibertyLibrary lib("test_lib", "test.lib");
   float res;
   bool exists;

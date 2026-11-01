@@ -51,3 +51,5 @@ nav:
       - STA API: StaApi.md
       - Coding guidelines: CodingGuidelines.md
       - API changes: ApiChanges.md
+      - Tags and scenes: TagsAndScenes.md
+      - SI delay analysis: SIDelayAnalysis.md

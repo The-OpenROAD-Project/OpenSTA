@@ -66,9 +66,11 @@ extern int LibertyParse_debug;
 
 namespace sta {
 
+// OpenROAD fork: binary liberty support.
 static void
 scaleFloats(FloatSeq &floats,
-            float scale);
+            float scale,
+            size_t first = 0);
 
 LibertyLibrary *
 readLibertyFile(std::string_view filename,
@@ -616,12 +618,14 @@ LibertyReader::makeTableTemplateAxis(const LibertyGroup *template_group,
   return nullptr;
 }
 
+// OpenROAD fork: binary liberty support.
 static void
 scaleFloats(FloatSeq &floats,
-            float scale)
+            float scale,
+            size_t first)
 {
   size_t count = floats.size();
-  for (size_t i = 0; i < count; i++)
+  for (size_t i = first; i < count; i++)
     floats[i] *= scale;
 }
 
@@ -1159,20 +1163,24 @@ LibertyReader::makeBundlePort(LibertyCell *cell,
     debugPrint(debug_, "liberty", 1, " bundle {}", bundle_name);
     
     const LibertyComplexAttr *member_attr = bundle_group->findComplexAttr("members");
-    ConcretePortSeq *members = new ConcretePortSeq;
-    for (const LibertyAttrValue *member_value : member_attr->values()) {
-      if (member_value->isString()) {
-        const std::string &member_name = member_value->stringValue();
-        LibertyPort *member = cell->findLibertyPort(member_name);
-        if (member == nullptr)
-          member = makePort(cell, member_name);
-        members->push_back(member);
+    if (member_attr) {
+      ConcretePortSeq *members = new ConcretePortSeq;
+      for (const LibertyAttrValue *member_value : member_attr->values()) {
+        if (member_value->isString()) {
+          const std::string &member_name = member_value->stringValue();
+          LibertyPort *member = cell->findLibertyPort(member_name);
+          if (member == nullptr)
+            member = makePort(cell, member_name);
+          members->push_back(member);
+        }
       }
+      LibertyPort *bundle_port = builder_.makeBundlePort(cell, bundle_name, members);
+      port_group_map[bundle_group].push_back(bundle_port);
+      // Make ports for pin groups inside the bundle group.
+      makeBundlePinPorts(cell, bundle_group, port_group_map);
     }
-    LibertyPort *bundle_port = builder_.makeBundlePort(cell, bundle_name, members);
-    port_group_map[bundle_group].push_back(bundle_port);
-    // Make ports for pin groups inside the bundle group.
-    makeBundlePinPorts(cell, bundle_group, port_group_map);
+    else
+      warn(1315, bundle_group, "bundle {} missing members.", bundle_name);
   }
   else
     warn(1313, bundle_group, "bundle missing name.");
@@ -1628,7 +1636,7 @@ LibertyReader::makePortFuncs(LibertyCell *cell,
       FuncExpr *func_expr = parseFunc(func, "function", cell, func_attr->line());
       for (LibertyPort *port : ports) {
         port->setFunction(func_expr);
-        if (func_expr->checkSize(port)) {
+        if (func_expr && func_expr->checkSize(port)) {
           warn(1195, func_attr->line(),
                   "port {} function size does not match port size.",
                   port->name());
@@ -1644,11 +1652,13 @@ LibertyReader::makePortFuncs(LibertyCell *cell,
       FuncExpr *tri_disable_expr = parseFunc(tri_disable,
                                              "three_state", cell,
                                              tri_attr->line());
-      FuncExpr *tri_enable_expr = tri_disable_expr->invert();
-      for (LibertyPort *port : ports) {
-        port->setTristateEnable(tri_enable_expr);
-        if (port->direction() == PortDirection::output())
-          port->setDirection(PortDirection::tristate());
+      if (tri_disable_expr) {
+        FuncExpr *tri_enable_expr = tri_disable_expr->invert();
+        for (LibertyPort *port : ports) {
+          port->setTristateEnable(tri_enable_expr);
+          if (port->direction() == PortDirection::output())
+            port->setDirection(PortDirection::tristate());
+        }
       }
     }
   }
@@ -1949,13 +1959,14 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
                          timing_attrs, timing_group->line());
         }
       }
-      else if (!(timing_type == TimingType::min_pulse_width
-                 || timing_type == TimingType::minimum_period
-                 || timing_type == TimingType::min_clock_tree_path
-                 || timing_type == TimingType::max_clock_tree_path))
-        warn(1243, timing_group, "timing group missing related_pin/related_bus_pin.");
-      else
+      // No related_pin/port required.
+      else if (timing_type == TimingType::min_pulse_width
+               || timing_type == TimingType::minimum_period
+               || timing_type == TimingType::min_clock_tree_path
+               || timing_type == TimingType::max_clock_tree_path)
         makeTimingArcs(cell, to_port, related_output_port, timing_attrs);
+      else
+        warn(1243, timing_group, "timing group missing related_pin/related_bus_pin.");
     }
   }
 }
@@ -2640,8 +2651,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   PortNameBitIterator from_port_iter(cell, from_port_name, this, timing_line);
   if (from_port_iter.size() == 1 && !to_port->hasMembers()) {
     // one -> one
-    if (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    if (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1212, timing_line, "timing group from output port.");
       builder_.makeTimingArcs(cell, from_port, to_port, related_out_port,
@@ -2650,8 +2661,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   }
   else if (from_port_iter.size() > 1 && !to_port->hasMembers()) {
     // bus -> one
-    while (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    while (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1213, timing_line, "timing group from output port.");
       builder_.makeTimingArcs(cell, from_port, to_port, related_out_port,
@@ -2660,8 +2671,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   }
   else if (from_port_iter.size() == 1 && to_port->hasMembers()) {
     // one -> bus
-    if (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    if (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1214, timing_line, "timing group from output port.");
       LibertyPortMemberIterator bit_iter(to_port);
@@ -2678,35 +2689,37 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
       int from_size = from_port_iter.size();
       int to_size = to_port->size();
       LibertyPortMemberIterator to_port_iter(to_port);
-      // warn about different sizes
-      if (from_size != to_size)
-        warn(1216, timing_line,
-                "timing port {} and related port {} are different sizes.",
-                from_port_name,
-                to_port->name());
-      // align to/from iterators for one-to-one mapping
-      while (from_size > to_size) {
-        from_size--;
-        from_port_iter.PortNameBitIterator::next();
-      }
-      while (to_size > from_size) {
-        to_size--;
-        to_port_iter.next();
-      }
-      // make timing arcs
-      while (from_port_iter.PortNameBitIterator::hasNext() && to_port_iter.hasNext()) {
-        LibertyPort *from_port_bit = from_port_iter.PortNameBitIterator::next();
-        LibertyPort *to_port_bit = to_port_iter.next();
-        if (from_port_bit->direction()->isOutput())
-          warn(1215, timing_line, "timing group from output port.");
-        builder_.makeTimingArcs(cell, from_port_bit, to_port_bit,
-                                related_out_port, timing_attrs);
+      if (to_port_iter.hasNext()) {
+        // warn about different sizes
+        if (from_size != to_size)
+          warn(1216, timing_line,
+               "timing port {} and related port {} are different sizes.",
+               from_port_name,
+               to_port->name());
+        // align to/from iterators for one-to-one mapping
+        while (from_size > to_size) {
+          from_size--;
+          from_port_iter.next();
+        }
+        while (to_size > from_size) {
+          to_size--;
+          to_port_iter.next();
+        }
+        // make timing arcs
+        while (from_port_iter.hasNext() && to_port_iter.hasNext()) {
+          LibertyPort *from_port_bit = from_port_iter.next();
+          LibertyPort *to_port_bit = to_port_iter.next();
+          if (from_port_bit->direction()->isOutput())
+            warn(1215, timing_line, "timing group from output port.");
+          builder_.makeTimingArcs(cell, from_port_bit, to_port_bit,
+                                  related_out_port, timing_attrs);
+        }
       }
     }
     else {
       // cross product
-      while (from_port_iter.PortNameBitIterator::hasNext()) {
-        LibertyPort *from_port_bit = from_port_iter.PortNameBitIterator::next();
+      while (from_port_iter.hasNext()) {
+        LibertyPort *from_port_bit = from_port_iter.next();
         LibertyPortMemberIterator to_port_iter(to_port);
         while (to_port_iter.hasNext()) {
           LibertyPort *to_port_bit = to_port_iter.next();
@@ -3238,7 +3251,13 @@ LibertyReader::makeFloatTable(const LibertyComplexAttr *values_attr,
   for (const LibertyAttrValue *value : values_attr->values()) {
     FloatSeq row;
     row.reserve(cols);
-    if (value->isString())
+    // ---- OpenROAD fork: binary liberty support (begin) ----
+    if (value->isFloatSeq()) {
+      row = value->floatSeq();
+      scaleFloats(row, scale);
+    }
+    // ---- OpenROAD fork: binary liberty support (end) ----
+    else if (value->isString())
       row = parseFloatList(value->stringValue(), scale, values_attr->line());
     else if (value->isFloat()) {
       auto [entry, valid] = value->floatValue();
@@ -3356,7 +3375,13 @@ LibertyReader::readFloatSeq(const LibertyComplexAttr *attr,
   const LibertyAttrValueSeq &attr_values = attr->values();
   if (attr_values.size() == 1) {
     LibertyAttrValue *value = attr_values[0];
-    if (value->isString())
+    // ---- OpenROAD fork: binary liberty support (begin) ----
+    if (value->isFloatSeq()) {
+      values = value->floatSeq();
+      scaleFloats(values, scale);
+    }
+    // ---- OpenROAD fork: binary liberty support (end) ----
+    else if (value->isString())
       values = parseFloatList(value->stringValue(), scale, attr->line());
     else {
       auto [entry, valid] = value->floatValue();
@@ -3366,7 +3391,15 @@ LibertyReader::readFloatSeq(const LibertyComplexAttr *attr,
   }
   else if (attr_values.size() > 1) {
     for (LibertyAttrValue *value : attr_values) {
-      if (value->isString()) {
+      // ---- OpenROAD fork: binary liberty support (begin) ----
+      if (value->isFloatSeq()) {
+        size_t first = values.size();
+        const FloatSeq &seq = value->floatSeq();
+        values.insert(values.end(), seq.begin(), seq.end());
+        scaleFloats(values, scale, first);
+      }
+      // ---- OpenROAD fork: binary liberty support (end) ----
+      else if (value->isString()) {
         FloatSeq parsed = parseFloatList(value->stringValue(), scale, attr->line());
         values.insert(values.end(), parsed.begin(), parsed.end());
       }

@@ -1484,14 +1484,21 @@ using namespace sta;
   Tcl_Size argc;
   Tcl_Obj **argv;
 
-  Sta *sta = Sta::sta();
   ArcDcalcArgSeq seq;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
-    for (int i = 0; i < argc; i++) {
-      ArcDcalcArg gate = arcDcalcArgTcl(argv[i], interp);
+    if (argc == 5 || argc == 6) {
+      // One driver.
+      ArcDcalcArg gate = arcDcalcArgTcl(source, interp);
       if (gate.drvrPin())
         seq.push_back(gate);
+    }
+    else {
+      for (int i = 0; i < argc; i++) {
+        ArcDcalcArg gate = arcDcalcArgTcl(argv[i], interp);
+        if (gate.drvrPin())
+          seq.push_back(gate);
+      }
     }
   }
   $1 = seq;

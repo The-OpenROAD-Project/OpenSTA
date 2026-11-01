@@ -1,0 +1,60 @@
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+ 157.62  157.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+ 227.27  384.89 ^ u1/Y (BUFx2_ASAP7_75t_R)
+ 241.93  626.82 ^ u2/Y (AND2x2_ASAP7_75t_R)
+   0.00  626.82 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         626.82   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -38.56  461.44   library setup time
+         461.44   data required time
+---------------------------------------------------------
+         461.44   data required time
+        -626.82   data arrival time
+---------------------------------------------------------
+        -165.38   slack (VIOLATED)
+
+
+--- insert buffer u3 on new net n_new
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+ 157.62  157.62 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+ 227.27  384.89 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  58.03  442.92 ^ u2/Y (AND2x2_ASAP7_75t_R)
+ 199.85  642.76 ^ u3/Y (BUFx2_ASAP7_75t_R)
+   0.00  642.76 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+         642.76   data arrival time
+
+ 500.00  500.00   clock clk (rise edge)
+   0.00  500.00   clock network delay (ideal)
+   0.00  500.00   clock reconvergence pessimism
+         500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+ -38.52  461.48   library setup time
+         461.48   data required time
+---------------------------------------------------------
+         461.48   data required time
+        -642.76   data arrival time
+---------------------------------------------------------
+        -181.29   slack (VIOLATED)
+
+

@@ -216,7 +216,7 @@ Found 10 paths
   endpoint: reg1/D
     slack: 8.807621298956292e-9
     arrival: 1.153597661840422e-9
-    required: 0.0
+    required: 1.0000000150474662e+30
     path_pins: 16
     start_pin: in3
 --- worst_slack_vertex ---

@@ -35,7 +35,7 @@ Cell: BUF_X1
 Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Z ^
-delay_calc: find delays to level 50
+delay_calc: find delays to level 16777215
 delay_calc: find delays reg1/Q (DFF_X1)
 delay_calc: find delays out1 (dcalc_test1)
 delay_calc: found 2 delays
@@ -64,7 +64,7 @@ Driver waveform slew = 0.01
 .............................................
 
 A v -> Z v
-delay_calc: find delays to level 50
+delay_calc: find delays to level 16777215
 delay_calc: found 0 delays
 P = 1.00 V = 1.10 T = 25.00
 ------- input_net_transition = 0.00

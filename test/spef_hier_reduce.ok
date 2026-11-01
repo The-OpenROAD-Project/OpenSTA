@@ -1,0 +1,18 @@
+Net n1
+ Pin capacitance: 0.39-0.53
+ Wire capacitance: 0.60-0.47
+ Total capacitance: 0.99-1.00
+ Number of drivers: 1
+ Number of loads: 1
+ Number of pins: 2
+
+Driver pins
+ sub1/u1/Y output (BUFx2_ASAP7_75t_R)
+
+Load pins
+ u2/A input (BUFx2_ASAP7_75t_R) 0.39-0.53
+
+Hierarchical pins
+ sub1/out output
+
+no crash

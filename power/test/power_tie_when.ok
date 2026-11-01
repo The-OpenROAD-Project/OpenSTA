@@ -1,0 +1,21 @@
+tie/Y 0.00000e+00 1.000 constant
+ff_tied/SETN 0.00000e+00 1.000 constant
+tie_lo/Y 0.00000e+00 0.000 constant
+ff_tied_lo/RST 0.00000e+00 0.000 constant
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   1.00e-06   0.00e+00   0.00e+00   1.00e-06 ff_tied
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   1.00e-06   0.00e+00   0.00e+00   1.00e-06 ff_input
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   1.00e-06   0.00e+00   0.00e+00   1.00e-06 ff_tied_lo
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+   1.00e-06   0.00e+00   0.00e+00   1.00e-06 ff_input_lo
+tie/Y 0.00000e+00 1.000 constant

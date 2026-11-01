@@ -28,7 +28,7 @@ in1 liberty_port: none
 out1 direction: output
 --- Port activity ---
 in1 activity: 1.00000e+07 0.500 input
-out1 activity: 1.00000e+07 0.250 propagated
+out1 activity: 9.50000e+06 0.250 propagated
 --- Pin slack (via direct pin property) ---
 reg1/D slack_max: 8.413024
 reg1/D slack_max_rise: 8.423905
@@ -49,7 +49,7 @@ reg1/D arrival_max_fall: 1.548195
 reg1/D arrival_min_rise: 1.044072
 reg1/D arrival_min_fall: 1.045861
 --- Pin activity ---
-reg1/D activity: 1.00000e+07 0.250 propagated
+reg1/D activity: 9.50000e+06 0.250 propagated
 --- Pin clock properties ---
 reg1/CK is_clock: 1
 reg1/CK is_register_clock: 1

@@ -323,6 +323,7 @@ proc set_cmd_units { args } {
   set_unit_values "current" -current "A" keys
   set_unit_values "resistance" -resistance "ohm" keys
   set_unit_values "distance" -distance "m" keys
+  set_unit_values "power" -power "W" keys
 }
 
 proc set_unit_values { unit key suffix key_var } {

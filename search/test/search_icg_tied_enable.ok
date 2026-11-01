@@ -1,0 +1,87 @@
+--- ENA=1 SE=0: r1 clocked through g1/GCLK ---
+Startpoint: d1 (input port clocked by clk)
+Endpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (propagated)
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ d1 (in)
+   0.00    0.00 ^ r1/D (DFFHQNx1_ASAP7_75t_R)
+           0.00   data arrival time
+
+1000.00 1000.00   clock clk (rise edge)
+   0.00 1000.00   clock source latency
+   0.00 1000.00 ^ clk (in)
+   7.52 1007.52 ^ g1/GCLK (ICGx1_ASAP7_75t_R)
+   0.00 1007.52 ^ r1/CLK (DFFHQNx1_ASAP7_75t_R)
+   0.00 1007.52   clock reconvergence pessimism
+  -9.87  997.65   library setup time
+         997.65   data required time
+---------------------------------------------------------
+         997.65   data required time
+          -0.00   data arrival time
+---------------------------------------------------------
+         997.65   slack (MET)
+
+
+CLK -> GCLK combinational
+  ^ -> ^ 7.52:7.84
+  v -> v 7.02:7.32
+CLK -> GCLK combinational
+  Disabled by constant
+  Condition: !ENA*!SE
+  v -> v 7.06:7.36
+CLK -> GCLK combinational
+  Condition: ENA+(!ENA*SE)
+  v -> v 7.02:7.32
+--- ENA=0 SE=0: gate off, r2 unclocked ---
+No paths found.
+CLK -> GCLK combinational
+  Disabled by constant
+  ^ -> ^ 7.52:7.84
+  v -> v 7.02:7.32
+CLK -> GCLK combinational
+  Disabled by constant
+  Condition: !ENA*!SE
+  v -> v 7.06:7.36
+CLK -> GCLK combinational
+  Disabled by constant
+  Condition: ENA+(!ENA*SE)
+  v -> v 7.02:7.32
+--- disabled edges ---
+g1 CLK CLK when: !ENA*!SE constant ENA=1 SE=0
+g1 CLK ENA constant SE=0
+g1 CLK ENA when: !SE constant
+g1 CLK ENA constant SE=0
+g1 CLK ENA when: !SE constant
+g1 CLK GCLK when: !ENA*!SE constant ENA=1 SE=0
+g1 CLK SE constant
+g1 CLK SE when: !ENA constant ENA=1
+g1 CLK SE constant
+g1 CLK SE when: !ENA constant ENA=1
+g2 CLK CLK when: ENA+(!ENA*SE) constant ENA=0 SE=0
+g2 CLK ENA constant SE=0
+g2 CLK ENA when: !SE constant
+g2 CLK ENA constant SE=0
+g2 CLK ENA when: !SE constant
+g2 CLK GCLK constant
+g2 CLK GCLK when: !ENA*!SE constant
+g2 CLK GCLK when: ENA+(!ENA*SE) constant ENA=0 SE=0
+g2 CLK SE constant ENA=0
+g2 CLK SE when: !ENA constant
+g2 CLK SE constant ENA=0
+g2 CLK SE when: !ENA constant
+g2/GCLK r2/CLK constant GCLK=0 CLK=0
+r2 CLK CLK when: !D constant CLK=0
+r2 CLK CLK when: D constant CLK=0
+r2 CLK D constant CLK=0
+r2 CLK D constant CLK=0
+r2 CLK QN constant CLK=0
+th/H g1/ENA constant ENA=1 H=1
+tl/L g1/SE constant SE=0 L=0
+tl/L g2/ENA constant ENA=0 L=0
+tl/L g2/SE constant SE=0 L=0

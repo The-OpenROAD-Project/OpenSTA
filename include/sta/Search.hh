@@ -120,6 +120,7 @@ public:
   // Invalidate vertex arrival time.
   void arrivalInvalid(Vertex *vertex);
   void arrivalInvalid(const Pin *pin);
+  void arrivalInvalid(const Instance *inst);
   // Invalidate all required times.
   void requiredsInvalid();
   // Invalidate vertex required time.
@@ -129,6 +130,7 @@ public:
   // Vertex will be deleted.
   void deleteVertexBefore(Vertex *vertex);
   void deleteEdgeBefore(Edge *edge);
+  void disconnectVertexBefore(Vertex *vertex);
   // Find all arrival times (propatating thru latches).
   void findAllArrivals();
   // Find all arrivals (without latch propagation).
@@ -202,7 +204,6 @@ public:
   // Find arrivals for the clock tree.
   void findClkArrivals();
   EvalPred *evalPred() const { return eval_pred_; }
-  SearchPred *searchAdj() const { return search_thru_; }
   Tag *tag(TagIndex index) const;
   TagIndex tagCount() const;
   TagGroupIndex tagGroupCount() const;
@@ -304,9 +305,7 @@ public:
                          const RiseFall *rf,
                          const MinMax *min_max,
                          const EarlyLate *early_late,
-                         const Mode *mode,
-                         // OpenROAD fork: analysis_corner support.
-                         const Scene *scene = nullptr) const;
+                         const Scene *scene) const;
   [[nodiscard]] bool propagateClkSense(const Pin *from_pin,
                                         Path *from_path,
                                         const RiseFall *to_rf);
@@ -481,6 +480,7 @@ protected:
   void inputDelayClkArrival(InputDelay *input_delay,
                             const ClockEdge *clk_edge,
                             const MinMax *min_max,
+                            const Scene *scene,
                             const Mode *mode,
                             // Return values.
                             float &clk_arrival,
@@ -589,7 +589,6 @@ protected:
   bool crpr_approx_missing_requireds_{true};
 
   // Search predicates.
-  SearchPred *search_thru_;
   SearchPred *search_adj_;
   EvalPred *eval_pred_;
 

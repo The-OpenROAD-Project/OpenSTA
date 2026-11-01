@@ -85,14 +85,6 @@ TEST_F(VerilogNamespaceTest, EscapedNameRoundTrip) {
 ////////////////////////////////////////////////////////////////
 
 class PortDirectionTest : public ::testing::Test {
-protected:
-  void SetUp() override {
-    // PortDirection::init() should have been called by initSta or similar.
-    // If not already initialized, we need to call it.
-    if (PortDirection::input() == nullptr) {
-      PortDirection::init();
-    }
-  }
 };
 
 TEST_F(PortDirectionTest, InputSingleton) {
@@ -425,9 +417,6 @@ TEST(ConcretePortTest, ScalarPortProperties) {
 }
 
 TEST(ConcretePortTest, SetDirection) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("INV", true, "");
   ConcretePort *port = cell->makePort("A");
@@ -755,9 +744,6 @@ TEST(ConcretePortTest, BusBitIndex) {
 }
 
 TEST(ConcretePortTest, SetDirectionOnBus) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("REG", true, "");
@@ -797,9 +783,6 @@ TEST(ConcretePortTest, BusMemberIterator) {
 }
 
 TEST(ConcretePortTest, BundlePortSetDirection) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   ConcreteLibrary lib("test_lib", "test.lib", false);
   ConcreteCell *cell = lib.makeCell("MUX", true, "");
   ConcretePort *a = cell->makePort("A");
@@ -851,9 +834,6 @@ TEST(ConcreteLibraryTest, FilenameAndId) {
 ////////////////////////////////////////////////////////////////
 
 TEST(PortDirectionExtraTest, AllDirections) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   EXPECT_NE(PortDirection::input(), nullptr);
   EXPECT_NE(PortDirection::output(), nullptr);
   EXPECT_NE(PortDirection::bidirect(), nullptr);
@@ -866,9 +846,6 @@ TEST(PortDirectionExtraTest, AllDirections) {
 }
 
 TEST(PortDirectionExtraTest, DirectionProperties) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   EXPECT_TRUE(PortDirection::input()->isInput());
   EXPECT_FALSE(PortDirection::input()->isOutput());
   EXPECT_FALSE(PortDirection::input()->isBidirect());
@@ -888,9 +865,6 @@ TEST(PortDirectionExtraTest, DirectionProperties) {
 }
 
 TEST(PortDirectionExtraTest, DirectionNames) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   EXPECT_EQ(PortDirection::input()->name(), "input");
   EXPECT_EQ(PortDirection::output()->name(), "output");
   EXPECT_EQ(PortDirection::bidirect()->name(), "bidirect");
@@ -903,9 +877,6 @@ TEST(PortDirectionExtraTest, DirectionNames) {
 }
 
 TEST(PortDirectionExtraTest, FindAllByName) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   EXPECT_EQ(PortDirection::find("input"), PortDirection::input());
   EXPECT_EQ(PortDirection::find("output"), PortDirection::output());
   EXPECT_EQ(PortDirection::find("bidirect"), PortDirection::bidirect());
@@ -919,9 +890,6 @@ TEST(PortDirectionExtraTest, FindAllByName) {
 }
 
 TEST(PortDirectionExtraTest, DirectionIndex) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   // Each direction should have a unique index
   EXPECT_NE(PortDirection::input()->index(), PortDirection::output()->index());
   EXPECT_NE(PortDirection::bidirect()->index(), PortDirection::tristate()->index());
@@ -932,9 +900,6 @@ TEST(PortDirectionExtraTest, DirectionIndex) {
 ////////////////////////////////////////////////////////////////
 
 TEST(NetworkCmpTest, PortDirectionCmp) {
-  if (PortDirection::input() == nullptr) {
-    PortDirection::init();
-  }
   // PortDirection comparison is by index
   EXPECT_TRUE(PortDirection::input()->index() != PortDirection::output()->index());
 }
@@ -1254,7 +1219,6 @@ TEST(ConcreteNetworkTest, ConstLibertyCellFromCell) {
 }
 
 TEST(ConcreteNetworkTest, FindCellsMatchingViaNetwork) {
-  PortDirection::init();
   ConcreteNetwork network;
   Library *lib = network.makeLibrary("match_lib", "match.lib");
   network.makeCell(lib, "INV_X1", true, "match.lib");
@@ -1273,7 +1237,6 @@ TEST(ConcreteNetworkTest, FindCellsMatchingViaNetwork) {
 class ConcreteNetworkLinkedTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    PortDirection::init();
     // Build a simple network: top instance with 2 children
     lib_ = network_.makeLibrary("test_lib", "test.lib");
     Cell *inv_cell = network_.makeCell(lib_, "INV", true, "test.lib");
@@ -1847,7 +1810,7 @@ TEST_F(ConcreteNetworkLinkedTest, IsConnectedNetNet) {
 
 // Network: highestNetAbove
 TEST_F(ConcreteNetworkLinkedTest, HighestNetAbove) {
-  Net *highest = network_.highestNetAbove(net1_);
+  const Net *highest = network_.highestNetAbove(net1_);
   EXPECT_EQ(highest, net1_);
 }
 
@@ -1946,7 +1909,6 @@ TEST(ConcreteNetworkExtraTest, SetLinkFunc) {
 
 // Network: setCellNetworkView, cellNetworkView, deleteCellNetworkViews
 TEST(ConcreteNetworkExtraTest, CellNetworkView) {
-  PortDirection::init();
   ConcreteNetwork network;
   Library *lib = network.makeLibrary("view_lib", "view.lib");
   Cell *cell = network.makeCell(lib, "CELL1", true, "view.lib");
@@ -1996,7 +1958,6 @@ TEST(ConcreteNetworkExtraTest, NextObjectId) {
 
 // Network: deleteTopInstance
 TEST(ConcreteNetworkExtraTest, DeleteTopInstance) {
-  PortDirection::init();
   ConcreteNetwork network;
   Library *lib = network.makeLibrary("del_top_lib", "del_top.lib");
   Cell *cell = network.makeCell(lib, "TOP", false, "del_top.lib");
@@ -2719,7 +2680,6 @@ TEST(ConcretePortTest, BusPortDefaultConstructor) {
   ConcreteCell *cell = lib.makeCell("REG", true, "");
   ConcretePort *bus = cell->makeBusPort("D", 1, 0);
   EXPECT_TRUE(bus->isBus());
-  PortDirection::init();
   bus->setDirection(PortDirection::input());
   EXPECT_EQ(bus->direction(), PortDirection::input());
 }

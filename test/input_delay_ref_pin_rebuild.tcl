@@ -1,10 +1,5 @@
-# set_input_delay -reference_pin must survive a graph rebuild that keeps SDC
-# (resizer-like: sta::network_changed_non_sdc deletes the graph but not the
-# constraints). The ref_pin->input graph edge is owned by the graph; its
-# existence flag (PortDelay::ref_pin_edges_exist_) must be reset on graph
-# teardown so ensureInputDelayRefPinEdges() rebuilds the edge. Otherwise in1
-# loses its arrival seeding and reports "No paths found" after the rebuild.
-# in2 is a plain input delay (no ref_pin) used as a control.
+# set_input_delay -reference_pin / sta::network_changed_non_sdc
+# OpenROAD resizer calls sta::network_changed_non_sdc to delete the graph but not SDC.
 read_liberty asap7_small.lib.gz
 read_verilog reg1_asap7.v
 link_design top

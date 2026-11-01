@@ -1,0 +1,5 @@
+Warning 1195: liberty_arcs_one2one_1.lib line 45, port Y function size does not match port size.
+Warning 1216: liberty_arcs_one2one_1.lib line 48, timing port A and related port Y are different sizes.
+Warning 1140: results/liberty_arcs_one2one_1.blib line 1, library liberty_arcs_one2one_1 already exists.
+Warning 1195: results/liberty_arcs_one2one_1.blib line 45, port Y function size does not match port size.
+Warning 1216: results/liberty_arcs_one2one_1.blib line 48, timing port A and related port Y are different sizes.

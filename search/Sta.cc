@@ -103,6 +103,7 @@
 #include "VerilogReader.hh"
 #include "VisitPathEnds.hh"
 #include "Wireload.hh"
+#include "dcalc/DelayNoise.hh"
 #include "liberty/LibertyReader.hh"
 #include "parasitics/ConcreteParasitics.hh"
 #include "parasitics/ReportParasiticAnnotation.hh"
@@ -111,6 +112,9 @@
 #include "sdc/WriteSdc.hh"
 #include "sdf/SdfReader.hh"
 #include "sdf/SdfWriter.hh"
+#include "spice/WriteGateGnuplot.hh"
+#include "spice/WriteGateSpice.hh"
+#include "spice/WritePathGnuplot.hh"
 #include "spice/WritePathSpice.hh"
 
 namespace sta {
@@ -247,7 +251,6 @@ void
 initSta()
 {
   initElapsedTime();
-  PortDirection::init();
   initLiberty();
   initDelayConstants();
   registerDelayCalcs();
@@ -263,7 +266,6 @@ deleteAllMemory()
     Sta::setSta(nullptr);
   }
   deleteDelayCalcs();
-  PortDirection::destroy();
   deleteLiberty();
 }
 
@@ -290,6 +292,7 @@ Sta::makeComponents()
   makeClkSkews();
   makeCheckTiming();
   delay_ops_ = new DelayOpsScalar();
+  makeDelayNoise();
 
   setCmdNamespace1(CmdNamespace::sdc);
   setThreadCount1(defaultThreadCount());
@@ -349,6 +352,7 @@ Sta::updateComponentsState()
   search_->copyState(this);
   latches_->copyState(this);
   graph_delay_calc_->copyState(this);
+  delay_noise_->copyState(this);
   report_path_->copyState(this);
   check_timing_->copyState(this);
   clk_skews_->copyState(this);
@@ -482,6 +486,12 @@ Sta::makeProperties()
 }
 
 void
+Sta::makeDelayNoise()
+{
+  delay_noise_ = new DelayNoise(this);
+}
+
+void
 Sta::setSta(Sta *sta)
 {
   sta_ = sta;
@@ -521,6 +531,7 @@ Sta::~Sta()
   delete units_;
   delete report_;
   delete power_;
+  delete delay_noise_;
   delete equiv_cells_;
   delete dispatch_queue_;
   delete variables_;
@@ -1013,7 +1024,9 @@ Sta::setLatchBorrowLimit(const Pin *pin,
                          Sdc *sdc)
 {
   sdc->setLatchBorrowLimit(pin, limit);
-  search_->requiredInvalid(pin);
+  const Instance *inst = network_->instance(pin);
+  search_->arrivalInvalid(inst);
+  search_->requiredInvalid(inst);
 }
 
 void
@@ -1022,6 +1035,7 @@ Sta::setLatchBorrowLimit(const Instance *inst,
                          Sdc *sdc)
 {
   sdc->setLatchBorrowLimit(inst, limit);
+  search_->arrivalInvalid(inst);
   search_->requiredInvalid(inst);
 }
 
@@ -2026,6 +2040,17 @@ Sta::setInputDelay(const Pin *pin,
                      network_latency_included, min_max, add, delay);
 
   search_->arrivalInvalid(pin);
+  if (ref_pin) {
+    // reference pins make graph edges from the ref pin to the input pin.
+    if (graph_) {
+      Vertex *vertex, *bidirect_vertex;
+      graph_->pinVertices(ref_pin, vertex, bidirect_vertex);
+      if (vertex)
+        levelize_->relevelizeFrom(vertex);
+      if (bidirect_vertex)
+        levelize_->relevelizeFrom(bidirect_vertex);
+    }
+  }
 }
 
 void
@@ -3180,6 +3205,7 @@ Sta::arrival(const Pin *pin,
              const RiseFallBoth *rf,
              const MinMax *min_max)
 {
+  ensureGraph();
   Vertex *vertex, *bidirect_vertex;
   graph_->pinVertices(pin, vertex, bidirect_vertex);
   Arrival worst_arrival = min_max->initValue();
@@ -3648,7 +3674,7 @@ Sta::findRequired(Vertex *vertex)
   search_->findAllArrivals();
   if (search_->isEndpoint(vertex)
       // Need to include downstream required times if there is fanout.
-      && !hasFanout(vertex, search_->searchAdj(), graph_, cmd_mode_))
+      && !hasFanout(vertex, search_->evalPred(), graph_, cmd_mode_))
     search_->seedRequired(vertex);
   else
     search_->findRequireds(vertex->level());
@@ -3734,7 +3760,7 @@ void
 Sta::findDelays()
 {
   delayCalcPreamble();
-  graph_delay_calc_->findDelays(levelize_->maxLevel());
+  graph_delay_calc_->findDelays();
 }
 
 void
@@ -3748,9 +3774,17 @@ void
 Sta::delayCalcPreamble()
 {
   ensureLevelized();
+  bool wireloads_enabled = false;
   for (Mode *mode : modes_) {
     mode->sim()->ensureConstantsPropagated();
     mode->clkNetwork()->ensureClkNetwork();
+    if (mode->sdc()->wireloadModelsEnabled())
+      wireloads_enabled = true;
+  }
+  if (wireloads_enabled) {
+    // Make parasitic maps for wireload parasitics so avoid locking them.
+    for (auto &[name, parasitics] : parasitics_name_map_)
+      parasitics->ensureParasitics();
   }
 }
 
@@ -4625,6 +4659,8 @@ Sta::makeInstanceAfter(const Instance *inst)
             search_->endpointInvalid(vertex);
           if (bidir_drvr_vertex)
             search_->endpointInvalid(bidir_drvr_vertex);
+          for (auto &[name, parasitics] : parasitics_name_map_)
+            parasitics->ensureParasitics(pin);
         }
       }
       graph_->makeInstanceEdges(inst);
@@ -4639,6 +4675,8 @@ Sta::makePortPinAfter(Pin *pin)
   if (graph_) {
     Vertex *vertex, *bidir_drvr_vertex;
     graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
+    for (auto &[name, parasitics] : parasitics_name_map_)
+      parasitics->ensureParasitics(pin);
   }
 }
 
@@ -4925,6 +4963,7 @@ Sta::disconnectPinBefore(const Pin *pin)
       // Delete wire edges to pin.
       Vertex *vertex = graph_->pinLoadVertex(pin);
       if (vertex) {
+        search_->disconnectVertexBefore(vertex);
         VertexInEdgeIterator edge_iter(vertex, graph_);
         while (edge_iter.hasNext()) {
           Edge *edge = edge_iter.next();
@@ -5001,6 +5040,8 @@ Sta::deleteNetBefore(const Net *net)
       corner_sdc->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  for (auto [name, parasitics] : parasitics_name_map_)
+    parasitics->deleteNetBefore(net);
   clk_skews_->clear();
   power_->powerInvalid();
 }
@@ -5124,6 +5165,7 @@ Sta::deletePinBefore(const Pin *pin)
     mode->sim()->deletePinBefore(pin);
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  power_->deletePinBefore(pin);
   // Tags on pins downstream from input delays reference the input delay.
   if (port_delay_deleted)
     search_->arrivalsInvalid();
@@ -5871,6 +5913,7 @@ size_t
 Sta::fanoutViolationCount(const MinMax *min_max,
                           const ModeSeq &modes)
 {
+  checkFanoutPreamble();
   FanoutCheckSeq &checks = check_fanouts_->check(nullptr, 0, true, modes, min_max);
   return checks.size();
 }
@@ -6199,6 +6242,125 @@ Sta::activity(const Pin *pin,
 ////////////////////////////////////////////////////////////////
 
 void
+Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
+                          float min_coupling_ratio,
+                          const Scene *scene,
+                          const MinMaxAll *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
+                                    min_coupling_ratio, scene, min_max);
+}
+
+void
+Sta::reportNoiseDelays(size_t max_count,
+                       float min_coupling_sum_ratio,
+                       float min_coupling_ratio,
+                       const Scene *scene,
+                       const MinMaxAll *min_maxs,
+                       int digits)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportNoiseDelays(max_count, min_coupling_sum_ratio,
+                                  min_coupling_ratio, scene, min_maxs, digits);
+}
+
+void
+Sta::reportNoiseDelays(const Net *net,
+                       const RiseFallBoth *drvr_rfs,
+                       float min_coupling_ratio,
+                       const Scene *scene,
+                       const MinMaxAll *min_maxs,
+                       int digits)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene,
+                                  min_maxs, digits);
+}
+
+void
+Sta::reportNoiseDelays(ArcDcalcArgSeq gates,
+                       const Scene *scene,
+                       const MinMax *min_max,
+                       int digits)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportNoiseDelays(gates, scene, min_max, digits);
+}
+
+void
+Sta::reportVictimNets(float min_coupling_ratio,
+                      const Scene *scene,
+                      const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
+}
+
+void
+Sta::reportAggressors(const Net *victim,
+                      float min_coupling_ratio,
+                      const Scene *scene,
+                      const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->reportAggressors(victim, min_coupling_ratio, scene, min_max);
+}
+
+void
+Sta::writeNoiseDelayCase(const Net *net,
+                         const RiseFall *drvr_rf,
+                         std::string_view file_basename,
+                         float min_coupling_sum_ratio,
+                         float min_coupling_ratio,
+                         bool no_timestamp,
+                         const Scene *scene,
+                         const MinMax *min_max)
+{
+  noiseDelayPreamble();
+  delay_noise_->writeCaseFiles(net, drvr_rf, file_basename,
+                               min_coupling_sum_ratio,
+                               min_coupling_ratio, no_timestamp,
+                               scene, min_max);
+}
+
+void
+Sta::noiseDelayPreamble()
+{
+  checkLibraryCcs();
+  // Arrivals required to filter aggressors.
+  searchPreamble();
+  search_->findArrivals();
+}
+
+void
+Sta::checkLibraryCcs()
+{
+  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
+  while (lib_iter->hasNext()) {
+    LibertyLibrary *lib = lib_iter->next();
+    LibertyCellIterator cell_iter(lib);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      for (const TimingArcSet *arc_set : cell->timingArcSets()) {
+        for (const TimingArc *arc : arc_set->arcs()) {
+          GateTableModel *gate_model = arc->gateTableModel();
+          if (gate_model
+              && gate_model->outputWaveforms() != nullptr) {
+            delete lib_iter;
+            return;
+          }
+        }
+      }
+    }
+  }
+  delete lib_iter;
+  report_->warn(1579, "No liberty CCS models found.");
+}
+
+////////////////////////////////////////////////////////////////
+
+void
 Sta::writePathSpice(const Path *path,
                     std::string_view spice_filename,
                     std::string_view subckt_filename,
@@ -6212,6 +6374,57 @@ Sta::writePathSpice(const Path *path,
   sta::writePathSpice(path, spice_filename, subckt_filename,
                       std::move(lib_subckt_filenames),
                       model_filename, power_name, gnd_name, ckt_sim, this);
+}
+
+void
+Sta::writeGateSpice(ArcDcalcArgSeq &gates,
+                    const char *spice_filename,
+                    const char *subckt_filename,
+                    StringSeq lib_subckt_filenames,
+                    const char *model_filename,
+                    const char *power_name,
+                    const char *gnd_name,
+                    CircuitSim ckt_sim,
+                    const Scene *scene,
+                    const MinMax *min_max)
+{
+  if (!gates.empty()) {
+    ensureGraph();
+    findDelays();
+    sta::writeGateSpice(gates, spice_filename, subckt_filename,
+                        lib_subckt_filenames, model_filename,
+                        power_name, gnd_name, ckt_sim, scene,
+                        min_max, this);
+  }
+}
+
+void
+Sta::writeGateGnuplot(ArcDcalcArgSeq &gates,
+                      const PinSet &plot_pins,
+                      std::string_view spice_waveform_filename,
+                      std::string_view gnuplot_filename,
+                      std::string_view gnuplot_csv_filename,
+                      const Scene *scene,
+                      const MinMax *min_max)
+{
+  ensureGraph();
+  findDelays();
+  sta::writeGateGnuplot(gates, plot_pins, spice_waveform_filename,
+                        gnuplot_filename, gnuplot_csv_filename,
+                        scene, min_max, this);
+}
+
+void
+Sta::writePathGnuplot(const Path *path,
+                      const PinSet &plot_pins,
+                      std::string_view spice_waveform_filename,
+                      std::string_view gnuplot_filename,
+                      std::string_view gnuplot_csv_filename)
+{
+  ensureGraph();
+  findDelays();
+  sta::writePathGnuplot(path, plot_pins, spice_waveform_filename,
+                        gnuplot_filename, gnuplot_csv_filename, this);
 }
 
 ////////////////////////////////////////////////////////////////

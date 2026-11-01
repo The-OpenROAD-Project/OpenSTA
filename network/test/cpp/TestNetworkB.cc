@@ -20,7 +20,6 @@ namespace sta {
 class ConcreteNetworkLinkedTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    PortDirection::init();
     // Build a simple network: top instance with 2 children
     lib_ = network_.makeLibrary("test_lib", "test.lib");
     Cell *inv_cell = network_.makeCell(lib_, "INV", true, "test.lib");
@@ -87,7 +86,6 @@ protected:
 class NetworkAdapterTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    PortDirection::init();
     // Build a simple network
     lib_ = network_.makeLibrary("adapter_lib", "adapter.lib");
     Cell *inv_cell = network_.makeCell(lib_, "BUF", true, "adapter.lib");
@@ -1249,7 +1247,6 @@ TEST(ConcretePortTest, BusPortDefaultCtor) {
 
 // BusPort: setDirection propagates to members
 TEST(ConcretePortTest, BusPortSetDirection) {
-  PortDirection::init();
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("R6_BUSDIR", true, "");
@@ -1768,7 +1765,6 @@ TEST_F(ConcreteNetworkLinkedTest, MergeNets) {
 
 // BusPort: setDirection exercises BusPort::setDirection
 TEST(ConcretePortTest, BusPortSetDirectionInput) {
-  PortDirection::init();
   ConcreteLibrary lib("test_lib", "test.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("R7_BDIR", true, "");
@@ -2396,8 +2392,6 @@ TEST(ConcretePortR8Test, PortMemberIteratorOnScalar) {
 
 // BusPort::setDirection - uncovered
 TEST(ConcretePortR8Test, BusPortSetDirection) {
-  if (PortDirection::input() == nullptr)
-    PortDirection::init();
   ConcreteLibrary lib("r8_lib3", "r8.lib", false);
   lib.setBusBrkts('[', ']');
   ConcreteCell *cell = lib.makeCell("DIR_CELL", true, "");

@@ -58,12 +58,14 @@ public:
   void deleteEdgeBefore(Edge *edge);
   int maxLevel() const { return max_level_; }
   // Vertices with no fanin edges.
-  VertexSet &roots() { return roots_; }
+  void ensureRoots();
+  const VertexSet &roots() const { return roots_; }
   bool isRoot(Vertex *vertex);
   bool hasFanout(Vertex *vertex);
   bool searchThru(Edge *edge);
   // Reset to virgin state.
   void clear();
+  void ensureBackEdges();
   // Edge is disabled to break combinational loops.
   bool isDisabledLoop(Edge *edge) const;
   // Only valid when levels are valid.
@@ -75,15 +77,14 @@ public:
   void findLevels();
 
 protected:
-  void findRoots();
   VertexSeq sortedRootsWithFanout();
   VertexSeq findTopologicalOrder();
   void assignLevels(VertexSeq &topo_sorted);
+  void findBackEdges();
   void recordLoop(Edge *edge,
                   EdgeSeq &path);
   EdgeSeq *loopEdges(EdgeSeq &path,
                      Edge *closing_edge);
-  void findBackEdges();
   EdgeSet findBackEdges(EdgeSeq &path,
                         FindBackEdgesStack &stack);
   void findCycleBackEdges();
@@ -109,6 +110,7 @@ protected:
   Level level_space_{10};
   VertexSet roots_;
   VertexSet relevelize_from_;
+  bool back_edges_valid_{false};
   GraphLoopSeq loops_;
   EdgeSet loop_edges_;
   EdgeSet disabled_loop_edges_;

@@ -814,6 +814,7 @@ public:
   FilterPath *filter() const { return filter_; }
   void deleteFilter();
 
+  bool wireloadModelsEnabled() const;
   Wireload *wireload(const MinMax *min_max) const;
   void setWireload(Wireload *wireload,
                    const MinMaxAll *min_max);
@@ -1358,6 +1359,7 @@ protected:
   InputDelaySet input_delays_;
   InputDelaysPinMap input_delay_pin_map_;
   bool have_input_delay_ref_pins_{false};
+  bool input_ref_pin_edges_valid_{false};
   bool have_output_delay_ref_pins_{false};
   // Input delays on hierarchical pins are indexed by the load pins.
   InputDelaysPinMap input_delay_leaf_pin_map_;

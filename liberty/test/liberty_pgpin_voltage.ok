@@ -228,25 +228,25 @@ Warning 441: liberty_pgpin_voltage.tcl line 1, set_input_delay relative to a clo
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
-Sequential             1.76e-06   6.90e-09   2.36e-07   2.01e-06  86.3%
-Combinational          1.22e-07   7.11e-08   1.25e-07   3.18e-07  13.7%
+Sequential             1.74e-06   6.24e-09   2.36e-07   1.98e-06  86.5%
+Combinational          1.17e-07   6.78e-08   1.25e-07   3.10e-07  13.5%
 Clock                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
-Total                  1.88e-06   7.80e-08   3.61e-07   2.32e-06 100.0%
-                          81.1%       3.4%      15.5%
+Total                  1.85e-06   7.40e-08   3.61e-07   2.29e-06 100.0%
+                          81.0%       3.2%      15.8%
 Group                    Internal    Switching      Leakage        Total
                             Power        Power        Power        Power (Watts)
 ------------------------------------------------------------------------
-Sequential           1.762633e-06 6.898755e-09 2.356813e-07 2.005213e-06  86.3%
-Combinational        1.221472e-07 7.108275e-08 1.250753e-07 3.183053e-07  13.7%
+Sequential           1.735183e-06 6.242511e-09 2.356813e-07 1.977107e-06  86.5%
+Combinational        1.170092e-07 6.776498e-08 1.250753e-07 3.098495e-07  13.5%
 Clock                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 Macro                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 ------------------------------------------------------------------------
-Total                1.884780e-06 7.798150e-08 3.607567e-07 2.323518e-06 100.0%
-                            81.1%         3.4%        15.5%
+Total                1.852192e-06 7.400749e-08 3.607567e-07 2.286956e-06 100.0%
+                            81.0%         3.2%        15.8%
 Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
 Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1 port IQ_N not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_1.
 Warning 1110: cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2 port IQ not found in cell sky130_fd_sc_hd__tt_025C_1v80/sky130_fd_sc_hd__dfbbn_2.

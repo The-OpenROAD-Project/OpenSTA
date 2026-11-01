@@ -51,6 +51,9 @@ logicNot(LogicValue value);
 static const Pin *
 findDrvrPin(const Pin *pin,
             Network *network);
+static bool
+arcEdgesMatch(const TimingArcSet *arc_set,
+              const TimingArcSet *cond_set);
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
@@ -834,13 +837,29 @@ Sim::isDisabledCond(Edge *edge,
     is_disabled = false;
     for (TimingArcSet *cond_set : cell->timingArcSets(from_port, to_port)) {
       FuncExpr *cond = cond_set->cond();
-      if (cond && evalExpr(cond, inst) == LogicValue::one) {
+      if (cond
+          && evalExpr(cond, inst) == LogicValue::one
+          && arcEdgesMatch(arc_set, cond_set)) {
         disable_cond = cond;
         is_disabled = true;
         break;
       }
     }
   }
+}
+
+// asap7 ICG cells like ICGx1_ASAP7_75t_R have broken conditional timing arcs
+// that only have one rise/fall edge. If the condition is true, disabling the
+// default timing arcs blocks a rise/fall edge, breaking downstream timing.
+static bool
+arcEdgesMatch(const TimingArcSet *arc_set,
+              const TimingArcSet *cond_set)
+{
+  for (const RiseFall *rf : RiseFall::range()) {
+    if (arc_set->arcTo(rf) && !cond_set->arcTo(rf))
+      return false;
+  }
+  return true;
 }
 
 bool

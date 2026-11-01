@@ -262,6 +262,29 @@ Graph::makeInstDrvrWireEdges(const Instance *inst,
   delete pin_iter;
 }
 
+// Bidirect pins with no fanin (pads/bumps with no timing arcs) are
+// only loads if the net has another driver. Making wire edges from
+// them is N*M for nets with many pads.
+bool
+Graph::isPassiveBidirectDrvr(const Pin *drvr_pin) const
+{
+  if (!network_->direction(drvr_pin)->isBidirect()
+      || network_->isTopLevelPort(drvr_pin))
+    return false;
+  Vertex *drvr_vertex = pinDrvrVertex(drvr_pin);
+  return drvr_vertex && !drvr_vertex->hasFanin();
+}
+
+bool
+Graph::hasActiveDrvr(const PinSeq &drvrs) const
+{
+  for (const Pin *drvr_pin : drvrs) {
+    if (!isPassiveBidirectDrvr(drvr_pin))
+      return true;
+  }
+  return false;
+}
+
 void
 Graph::makeWireEdgesFromPin(const Pin *drvr_pin)
 {
@@ -270,9 +293,12 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin)
   FindNetDrvrLoads visitor(drvr_pin, visited_drvrs, loads, drvrs, network_);
   network_->visitConnectedPins(drvr_pin, visitor);
 
-  for (auto load_pin : loads) {
-    if (drvr_pin != load_pin)
-      makeWireEdge(drvr_pin, load_pin);
+  if (!(isPassiveBidirectDrvr(drvr_pin)
+        && hasActiveDrvr(drvrs))) {
+    for (auto load_pin : loads) {
+      if (drvr_pin != load_pin)
+        makeWireEdge(drvr_pin, load_pin);
+    }
   }
 }
 
@@ -292,13 +318,17 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin,
       debugPrint(debug_, "graph", 1, "ignoring isolated driver {}",
                  network_->pathName(drvr_pin));
     }
-    return;
   }
-
-  for (auto drvr_pin : drvrs) {
-    for (auto load_pin : loads) {
-      if (drvr_pin != load_pin)
-        makeWireEdge(drvr_pin, load_pin);
+  else {
+    bool has_active_drvr = hasActiveDrvr(drvrs);
+    for (auto drvr_pin : drvrs) {
+      if (!(has_active_drvr
+            && isPassiveBidirectDrvr(drvr_pin))) {
+        for (auto load_pin : loads) {
+          if (drvr_pin != load_pin)
+            makeWireEdge(drvr_pin, load_pin);
+        }
+      }
     }
   }
 }
@@ -337,8 +367,16 @@ Graph::makeWireEdgesToPin(const Pin *to_pin)
 {
   PinSet *drvrs = network_->drivers(to_pin);
   if (drvrs) {
+    bool has_active_drvr = false;
     for (auto drvr : *drvrs) {
-      if (drvr != to_pin)
+      if (!isPassiveBidirectDrvr(drvr)) {
+        has_active_drvr = true;
+        break;
+      }
+    }
+    for (auto drvr : *drvrs) {
+      if (drvr != to_pin
+          && !(has_active_drvr && isPassiveBidirectDrvr(drvr)))
         makeWireEdge(drvr, to_pin);
     }
   }
@@ -1047,6 +1085,8 @@ Vertex::init(Pin *pin,
   tag_group_index_ = tag_group_index_max;
   is_bidirect_drvr_ = is_bidirect_drvr;
   is_reg_clk_ = is_reg_clk;
+  slew_annotated_ = false;
+  has_noise_slew_annotation_ = false;
   has_checks_ = false;
   is_check_clk_ = false;
   has_downstream_clk_pin_ = false;
@@ -1200,6 +1240,12 @@ Vertex::removeSlewAnnotated()
   slew_annotated_ = 0;
 }
 
+void
+Vertex::setHasNoiseSlewAnnotation(bool annotated)
+{
+  has_noise_slew_annotation_ = annotated;
+}
+
 TagGroupIndex
 Vertex::tagGroupIndex() const
 {
@@ -1318,6 +1364,7 @@ Edge::init(VertexId from,
   is_bidirect_inst_path_ = false;
   is_bidirect_net_path_ = false;
   is_bidirect_port_path_ = false;
+  has_noise_delay_annotation_ = false;
   is_disabled_loop_ = false;
   has_sim_sense_ = false;
   has_disabled_cond_ = false;
@@ -1432,6 +1479,12 @@ uintptr_t
 Edge::arcDelayAnnotateBit(size_t index)
 {
   return static_cast<uintptr_t>(1) << index;
+}
+
+void
+Edge::setHasNoiseDelayAnnotation(bool annotated)
+{
+  has_noise_delay_annotation_ = annotated;
 }
 
 const TimingRole *

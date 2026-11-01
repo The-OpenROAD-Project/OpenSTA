@@ -1,0 +1,3 @@
+Warning 1130: liberty_malformed_ports.lib line 7, function references unknown port NOPIN.
+Warning 1130: liberty_malformed_ports.lib line 14, three_state references unknown port BADPIN.
+Warning 1315: liberty_malformed_ports.lib line 20, bundle B missing members.

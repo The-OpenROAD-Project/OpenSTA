@@ -80,14 +80,18 @@ public:
   LibertyGroup *groupEnd();
   LibertyGroup *group();
   void deleteGroups();
+  // OpenROAD fork: binary liberty support.
   LibertySimpleAttr *makeSimpleAttr(std::string &&name,
-                                    const LibertyAttrValue *value,
+                                    LibertyAttrValue *value,
                                     int line);
+  // OpenROAD fork: binary liberty support.
   LibertyComplexAttr *makeComplexAttr(std::string &&name,
-                                     const LibertyAttrValueSeq *values,
+                                     LibertyAttrValueSeq *values,
                                      int line);
   LibertyAttrValue *makeAttrValueString(std::string &&value);
   LibertyAttrValue *makeAttrValueFloat(float value);
+  // OpenROAD fork: binary liberty support.
+  LibertyAttrValue *makeAttrValueFloatSeq(std::vector<float> &&values);
   LibertyVariable *makeVariable(std::string &&var,
                                 float value,
                                 int line);
@@ -99,7 +103,7 @@ private:
   LibertyGroupSeq group_stack_;
 };
 
-// Attribute values are a string or float.
+// Attribute values are a string, float or float sequence.
 class LibertyAttrValue
 {
 public:
@@ -110,10 +114,16 @@ public:
   std::pair<float, bool> floatValue() const;
   const std::string &stringValue() const { return string_value_; }
   std::string &stringValue() { return string_value_; }
+  // ---- OpenROAD fork: binary liberty support (begin) ----
+  LibertyAttrValue(std::vector<float> &&values);
+  bool isFloatSeq() const;
+  const std::vector<float> &floatSeq() const { return float_seq_; }
+  // ---- OpenROAD fork: binary liberty support (end) ----
 
 private:
-  float float_value_;
+  float float_value_ = 0.0f;  // OpenROAD fork: binary liberty support.
   std::string string_value_;
+  std::vector<float> float_seq_;  // OpenROAD fork: binary liberty support.
 };
 
 // Groups are a type keyword with a set of parameters and statements

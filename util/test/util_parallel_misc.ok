@@ -139,7 +139,7 @@ Path Type: max
            9.84   slack (MET)
 
 
-delay_calc: find delays to level 90
+delay_calc: find delays to level 16777215
 delay_calc: found 0 delays
 Startpoint: data_a[6] (input port clocked by clk)
 Endpoint: carry (output port clocked by clk)

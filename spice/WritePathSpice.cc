@@ -50,13 +50,9 @@
 #include "TimingArc.hh"
 #include "Units.hh"
 #include "WriteSpice.hh"
-#include "search/Sim.hh"
+#include "PathStages.hh"
 
 namespace sta {
-
-using Stage = int;
-
-////////////////////////////////////////////////////////////////
 
 class WritePathSpice : public WriteSpice
 {
@@ -97,49 +93,13 @@ private:
   void writeInputWaveform();
   void writeClkWaveform();
 
-  // Stage "accessors".
-  //
-  //           stage
-  //      |---------------|
-  //        |\             |\   .
-  // -------| >---/\/\/----| >---
-  //  gate  |/ drvr    load|/
-  //  input
-  //
-  // A path from an input port has no GateInputPath (the input port is the drvr).
-  // Internally a stage index from stageFirst() to stageLast()
-  // is turned into an index into path_expanded_.
-  //
-  Stage stageFirst();
-  Stage stageLast();
-  std::string stageName(Stage stage);
-  int stageGateInputPathIndex(Stage stage);
-  int stageDrvrPathIndex(Stage stage);
-  int stageLoadPathIndex(Stage stage);
-  const Path *stageGateInputPath(Stage stage);
-  const Path *stageDrvrPath(Stage stage);
-  const Path *stageLoadPath(Stage stage);
-  const TimingArc *stageGateArc(Stage stage);
-  const TimingArc *stageWireArc(Stage stage);
-  const Edge *stageGateEdge(Stage stage);
-  const Edge *stageWireEdge(Stage stage);
-  const Pin *stageGateInputPin(Stage stage);
-  const Pin *stageDrvrPin(Stage stage);
-  const LibertyPort *stageGateInputPort(Stage stage);
-  const LibertyPort *stageDrvrPort(Stage stage);
-  const Pin *stageLoadPin(Stage stage);
-  std::string stageGateInputPinName(Stage stage);
-  std::string stageDrvrPinName(Stage stage);
-  std::string stageLoadPinName(Stage stage);
-  const LibertyCell *stageLibertyCell(Stage stage);
-  const Instance *stageInstance(Stage stage);
-
   float findSlew(const Path *path);
   float findSlew(const Path *path,
                  const RiseFall *rf,
                  const TimingArc *next_arc);
   const Path *path_;
   PathExpanded path_expanded_;
+  PathStages stages_;
   // Input clock waveform cycles.
   int clk_cycle_count_{3};
 
@@ -188,6 +148,7 @@ WritePathSpice::WritePathSpice(const Path *path,
              path->scene(sta), path->minMax(sta), sta),
   path_(path),
   path_expanded_(sta),
+  stages_(path_expanded_, sta),
   written_insts_(network_)
 {
 }
@@ -255,9 +216,9 @@ void
 WritePathSpice::writePrintStmt()
 {
   StringSeq node_names;
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    node_names.push_back(stageDrvrPinName(stage));
-    node_names.push_back(stageLoadPinName(stage));
+  for (Stage stage : stages_) {
+    node_names.push_back(stages_.stageDrvrPinName(stage));
+    node_names.push_back(stages_.stageLoadPinName(stage));
   }
   writePrintStmt(node_names);
 }
@@ -265,8 +226,8 @@ WritePathSpice::writePrintStmt()
 float
 WritePathSpice::maxTime()
 {
-  Stage input_stage = stageFirst();
-  const Path *input_path = stageDrvrPath(input_stage);
+  Stage input_stage = stages_.stageFirst();
+  const Path *input_path = stages_.stageDrvrPath(input_stage);
   if (input_path->isClock(this)) {
     const Clock *clk = input_path->clock(this);
     float period = clk->period();
@@ -310,20 +271,20 @@ WritePathSpice::writeStageInstances()
   sta::print(spice_stream_, "* Stage instances\n");
   sta::print(spice_stream_, "*****************\n\n");
 
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    std::string stage_name = stageName(stage);
-    if (stage == stageFirst())
+  for (Stage stage : stages_) {
+    std::string stage_name = stages_.stageName(stage);
+    if (stage == stages_.stageFirst())
       sta::print(spice_stream_, "x{} {} {} {}\n",
                  stage_name,
-                 stageDrvrPinName(stage),
-                 stageLoadPinName(stage),
+                 stages_.stageDrvrPinName(stage),
+                 stages_.stageLoadPinName(stage),
                  stage_name);
     else {
       sta::print(spice_stream_, "x{} {} {} {} {}\n",
                  stage_name,
-                 stageGateInputPinName(stage),
-                 stageDrvrPinName(stage),
-                 stageLoadPinName(stage),
+                 stages_.stageGateInputPinName(stage),
+                 stages_.stageDrvrPinName(stage),
+                 stages_.stageLoadPinName(stage),
                  stage_name);
     }
   }
@@ -337,8 +298,8 @@ WritePathSpice::writeInputSource()
   sta::print(spice_stream_, "* Input source\n");
   sta::print(spice_stream_, "**************\n\n");
 
-  Stage input_stage = stageFirst();
-  const Path *input_path = stageDrvrPath(input_stage);
+  Stage input_stage = stages_.stageFirst();
+  const Path *input_path = stages_.stageDrvrPath(input_stage);
   if (input_path->isClock(this))
     writeClkWaveform();
   else
@@ -349,18 +310,18 @@ WritePathSpice::writeInputSource()
 void
 WritePathSpice::writeInputWaveform()
 {
-  Stage input_stage = stageFirst();
-  const Path *input_path = stageDrvrPath(input_stage);
+  Stage input_stage = stages_.stageFirst();
+  const Path *input_path = stages_.stageDrvrPath(input_stage);
   const RiseFall *rf = input_path->transition(this);
-  const TimingArc *next_arc = stageGateArc(input_stage + 1);
+  const TimingArc *next_arc = stages_.stageGateArc(input_stage + 1);
   float slew0 = findSlew(input_path, rf, next_arc);
 
   float threshold = threshold_library_->inputThreshold(rf);
   float dt = railToRailSlew(slew0, rf);
   float time0 = dt * threshold;
 
-  const Pin *drvr_pin = stageDrvrPin(input_stage);
-  const Pin *load_pin = stageLoadPin(input_stage);
+  const Pin *drvr_pin = stages_.stageDrvrPin(input_stage);
+  const Pin *load_pin = stages_.stageLoadPin(input_stage);
   const LibertyPort *load_port = network_->libertyPort(load_pin);
   DriverWaveform *drvr_waveform = nullptr;
   if (load_port)
@@ -374,14 +335,14 @@ WritePathSpice::writeInputWaveform()
 void
 WritePathSpice::writeClkWaveform()
 {
-  Stage input_stage = stageFirst();
-  const Path *input_path = stageDrvrPath(input_stage);
-  const TimingArc *next_arc = stageGateArc(input_stage + 1);
+  Stage input_stage = stages_.stageFirst();
+  const Path *input_path = stages_.stageDrvrPath(input_stage);
+  const TimingArc *next_arc = stages_.stageGateArc(input_stage + 1);
   const ClockEdge *clk_edge = input_path->clkEdge(this);
 
   const Clock *clk = clk_edge->clock();
   float period = clk->period();
-  float time_offset = clkWaveformTimeOffset(clk);
+  float time_offset = 0.0;
   const RiseFall *rf0, *rf1;
   float volt0;
   if (clk_edge->time() < period) {
@@ -397,7 +358,7 @@ WritePathSpice::writeClkWaveform()
   float slew0 = findSlew(input_path, rf0, next_arc);
   float slew1 = findSlew(input_path, rf1, next_arc);
   sta::print(spice_stream_, "v1 {} 0 pwl(\n",
-             stageDrvrPinName(input_stage));
+             stages_.stageDrvrPinName(input_stage));
   sta::print(spice_stream_, "+{:.3e} {:.3e}\n", 0.0, volt0);
   for (int cycle = 0; cycle < clk_cycle_count_; cycle++) {
     float time0 = time_offset + cycle * period;
@@ -435,10 +396,10 @@ WritePathSpice::writeMeasureStmts()
   sta::print(spice_stream_, "* Measure statements\n");
   sta::print(spice_stream_, "********************\n\n");
 
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    const Path *gate_input_path = stageGateInputPath(stage);
-    const Path *drvr_path = stageDrvrPath(stage);
-    const Path *load_path = stageLoadPath(stage);
+  for (Stage stage : stages_) {
+    const Path *gate_input_path = stages_.stageGateInputPath(stage);
+    const Path *drvr_path = stages_.stageDrvrPath(stage);
+    const Path *load_path = stages_.stageLoadPath(stage);
     if (gate_input_path) {
       // gate input -> gate output
       writeMeasureSlewStmt(stage, gate_input_path);
@@ -447,7 +408,7 @@ WritePathSpice::writeMeasureStmts()
     writeMeasureSlewStmt(stage, drvr_path);
     // gate output | input port -> load
     writeMeasureDelayStmt(stage, drvr_path, load_path);
-    if (stage == stageLast())
+    if (stage == stages_.stageLast())
       writeMeasureSlewStmt(stage, load_path);
   }
   sta::print(spice_stream_, "\n");
@@ -460,7 +421,7 @@ WritePathSpice::writeMeasureDelayStmt(Stage stage,
 {
   writeMeasureDelayStmt(from_path->pin(this), from_path->transition(this),
                         to_path->pin(this), to_path->transition(this),
-                        stageName(stage));
+                        stages_.stageName(stage));
 }
 
 void
@@ -469,7 +430,7 @@ WritePathSpice::writeMeasureSlewStmt(Stage stage,
 {
   const Pin *pin = path->pin(this);
   const RiseFall *rf = path->transition(this);
-  std::string prefix = stageName(stage);
+  std::string prefix = stages_.stageName(stage);
   writeMeasureSlewStmt(pin, rf, prefix);
 }
 
@@ -480,11 +441,11 @@ WritePathSpice::writeStageSubckts()
   sta::print(spice_stream_, "* Stage subckts\n");
   sta::print(spice_stream_, "***************\n\n");
 
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
+  for (Stage stage : stages_) {
     cap_index_ = 1;
     res_index_ = 1;
     volt_index_ = 1;
-    if (stage == stageFirst())
+    if (stage == stages_.stageFirst())
       writeInputStage(stage);
     else
       writeGateStage(stage);
@@ -497,9 +458,9 @@ WritePathSpice::writeInputStage(Stage stage)
 {
   // Input arc.
   // External driver not handled.
-  std::string drvr_pin_name = stageDrvrPinName(stage);
-  std::string load_pin_name = stageLoadPinName(stage);
-  std::string prefix = stageName(stage);
+  std::string drvr_pin_name = stages_.stageDrvrPinName(stage);
+  std::string load_pin_name = stages_.stageLoadPinName(stage);
+  std::string prefix = stages_.stageName(stage);
   sta::print(spice_stream_, ".subckt {} {} {}\n",
              prefix,
              drvr_pin_name,
@@ -512,17 +473,17 @@ WritePathSpice::writeInputStage(Stage stage)
 void
 WritePathSpice::writeGateStage(Stage stage)
 {
-  const Pin *input_pin = stageGateInputPin(stage);
-  std::string input_pin_name = stageGateInputPinName(stage);
-  const Pin *drvr_pin = stageDrvrPin(stage);
-  std::string drvr_pin_name = stageDrvrPinName(stage);
-  const Pin *load_pin = stageLoadPin(stage);
-  std::string load_pin_name = stageLoadPinName(stage);
+  const Pin *input_pin = stages_.stageGateInputPin(stage);
+  std::string input_pin_name = stages_.stageGateInputPinName(stage);
+  const Pin *drvr_pin = stages_.stageDrvrPin(stage);
+  std::string drvr_pin_name = stages_.stageDrvrPinName(stage);
+  const Pin *load_pin = stages_.stageLoadPin(stage);
+  std::string load_pin_name = stages_.stageLoadPinName(stage);
   std::string subckt_name = "stage" + std::to_string(stage);
 
-  const Instance *inst = stageInstance(stage);
-  const LibertyPort *input_port = stageGateInputPort(stage);
-  const LibertyPort *drvr_port = stageDrvrPort(stage);
+  const Instance *inst = stages_.stageInstance(stage);
+  const LibertyPort *input_port = stages_.stageGateInputPort(stage);
+  const LibertyPort *drvr_port = stages_.stageDrvrPort(stage);
 
   sta::print(spice_stream_, ".subckt {} {} {} {}\n",
              subckt_name,
@@ -537,11 +498,11 @@ WritePathSpice::writeGateStage(Stage stage)
              drvr_port->name());
   writeSubcktInst(inst);
 
-  const Path *drvr_path = stageDrvrPath(stage);
+  const Path *drvr_path = stages_.stageDrvrPath(stage);
   const RiseFall *drvr_rf = drvr_path->transition(this);
-  const Path *gate_input_path = stageGateInputPath(stage);
+  const Path *gate_input_path = stages_.stageGateInputPath(stage);
   const RiseFall *input_rf = gate_input_path->transition(this);
-  const Edge *gate_edge = stageGateEdge(stage);
+  const Edge *gate_edge = stages_.stageGateEdge(stage);
 
   PortLogicValues port_values;
   bool is_clked;
@@ -569,9 +530,9 @@ WritePathSpice::writeGateStage(Stage stage)
 void
 WritePathSpice::writeStageParasitics(Stage stage)
 {
-  const Path *drvr_path = stageDrvrPath(stage);
+  const Path *drvr_path = stages_.stageDrvrPath(stage);
   const MinMax *min_max = drvr_path->minMax(this);
-  const Pin *drvr_pin = stageDrvrPin(stage);
+  const Pin *drvr_pin = stages_.stageDrvrPin(stage);
   const Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin);
   if (parasitic == nullptr) {
     const RiseFall *drvr_rf = drvr_path->transition(this);
@@ -596,8 +557,8 @@ StringSet
 WritePathSpice::findPathCellNames()
 {
   StringSet path_cell_names;
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    const TimingArc *arc = stageGateArc(stage);
+  for (Stage stage : stages_) {
+    const TimingArc *arc = stages_.stageGateArc(stage);
     if (arc) {
       LibertyCell *cell = arc->set()->libertyCell();
       if (cell) {
@@ -605,7 +566,7 @@ WritePathSpice::findPathCellNames()
         path_cell_names.insert(cell->name());
       }
       // Include side receivers.
-      const Pin *drvr_pin = stageDrvrPin(stage);
+      const Pin *drvr_pin = stages_.stageDrvrPin(stage);
       auto pin_iter = network_->connectedPinIterator(drvr_pin);
       while (pin_iter->hasNext()) {
         const Pin *pin = pin_iter->next();
@@ -619,166 +580,6 @@ WritePathSpice::findPathCellNames()
     }
   }
   return path_cell_names;
-}
-
-////////////////////////////////////////////////////////////////
-
-Stage
-WritePathSpice::stageFirst()
-{
-  return 1;
-}
-
-Stage
-WritePathSpice::stageLast()
-{
-  return (path_expanded_.size() + 1) / 2;
-}
-
-std::string
-WritePathSpice::stageName(Stage stage)
-{
-  return sta::format("stage{}", stage);
-}
-
-int
-WritePathSpice::stageGateInputPathIndex(Stage stage)
-{
-  return stage * 2 - 3;
-}
-
-int
-WritePathSpice::stageDrvrPathIndex(Stage stage)
-{
-  return stage * 2 - 2;
-}
-
-int
-WritePathSpice::stageLoadPathIndex(Stage stage)
-{
-  return stage * 2 - 1;
-}
-
-const Path *
-WritePathSpice::stageGateInputPath(Stage stage)
-{
-  int path_index = stageGateInputPathIndex(stage);
-  return path_expanded_.path(path_index);
-}
-
-const Path *
-WritePathSpice::stageDrvrPath(Stage stage)
-{
-  int path_index = stageDrvrPathIndex(stage);
-  return path_expanded_.path(path_index);
-}
-
-const Path *
-WritePathSpice::stageLoadPath(Stage stage)
-{
-  int path_index = stageLoadPathIndex(stage);
-  return path_expanded_.path(path_index);
-}
-
-const TimingArc *
-WritePathSpice::stageGateArc(Stage stage)
-{
-  int path_index = stageDrvrPathIndex(stage);
-  if (path_index >= 0)
-    return path_expanded_.path(path_index)->prevArc(this);
-  else
-    return nullptr;
-}
-
-const TimingArc *
-WritePathSpice::stageWireArc(Stage stage)
-{
-  int path_index = stageLoadPathIndex(stage);
-  return path_expanded_.path(path_index)->prevArc(this);
-}
-
-const Edge *
-WritePathSpice::stageGateEdge(Stage stage)
-{
-  const Path *path = stageDrvrPath(stage);
-  return path->prevEdge(this);
-}
-
-const Edge *
-WritePathSpice::stageWireEdge(Stage stage)
-{
-  const Path *path = stageLoadPath(stage);
-  return path->prevEdge(this);
-}
-
-const Pin *
-WritePathSpice::stageGateInputPin(Stage stage)
-{
-  const Path *path = stageGateInputPath(stage);
-  return path->pin(this);
-}
-
-const LibertyPort *
-WritePathSpice::stageGateInputPort(Stage stage)
-{
-  const Pin *pin = stageGateInputPin(stage);
-  return network_->libertyPort(pin);
-}
-
-const Pin *
-WritePathSpice::stageDrvrPin(Stage stage)
-{
-  const Path *path = stageDrvrPath(stage);
-  return path->pin(this);
-}
-
-const LibertyPort *
-WritePathSpice::stageDrvrPort(Stage stage)
-{
-  const Pin *pin = stageDrvrPin(stage);
-  return network_->libertyPort(pin);
-}
-
-const Pin *
-WritePathSpice::stageLoadPin(Stage stage)
-{
-  const Path *path = stageLoadPath(stage);
-  return path->pin(this);
-}
-
-std::string
-WritePathSpice::stageGateInputPinName(Stage stage)
-{
-  const Pin *pin = stageGateInputPin(stage);
-  return network_->pathName(pin);
-}
-
-std::string
-WritePathSpice::stageDrvrPinName(Stage stage)
-{
-  const Pin *pin = stageDrvrPin(stage);
-  return network_->pathName(pin);
-}
-
-std::string
-WritePathSpice::stageLoadPinName(Stage stage)
-{
-  const Pin *pin = stageLoadPin(stage);
-  return network_->pathName(pin);
-}
-
-const Instance *
-WritePathSpice::stageInstance(Stage stage)
-{
-  const Pin *pin = stageDrvrPin(stage);
-  return network_->instance(pin);
-}
-
-const LibertyCell *
-WritePathSpice::stageLibertyCell(Stage stage)
-{
-  const Pin *pin = stageDrvrPin(stage);
-  return network_->libertyPort(pin)->libertyCell();
 }
 
 } // namespace sta

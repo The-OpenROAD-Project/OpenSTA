@@ -12,6 +12,16 @@ function(sta_tcl_test test_name)
   set_tests_properties(tcl.${test_name} PROPERTIES LABELS "tcl")
 endfunction()
 
+# Like sta_tcl_test, but the output must also match the test's .ok file.
+function(sta_tcl_golden_test test_name)
+  add_test(
+    NAME tcl.${test_name}
+    COMMAND bash ${TEST_DIR}/regression.sh ${STA_EXE} ${test_name}
+    WORKING_DIRECTORY ${TEST_DIR}
+  )
+  set_tests_properties(tcl.${test_name} PROPERTIES LABELS "tcl")
+endfunction()
+
 function(sta_example_test test_name)
   add_test(
     NAME tcl.example.${test_name}
@@ -26,7 +36,11 @@ file(GLOB ok_files "${TEST_DIR}/*.ok")
 foreach(ok_file ${ok_files})
   get_filename_component(test_name ${ok_file} NAME_WE)
   if(EXISTS "${TEST_DIR}/${test_name}.tcl")
-    sta_tcl_test(${test_name})
+    if(test_name MATCHES "^liberty_binary")
+      sta_tcl_golden_test(${test_name})
+    else()
+      sta_tcl_test(${test_name})
+    endif()
   endif()
 endforeach()
 

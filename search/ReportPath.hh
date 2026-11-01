@@ -310,7 +310,7 @@ protected:
                               float time_offset,
                               float path_time_offset,
                               bool clk_used_as_data,
-                              const Mode *mode) const;
+                              const Scene *scene) const;
   bool reportGenClkSrcPath1(const Clock *clk,
                             const Pin *clk_pin,
                             const RiseFall *clk_rf,
@@ -318,7 +318,7 @@ protected:
                             float gclk_time,
                             float time_offset,
                             bool clk_used_as_data,
-                            const Mode *mode) const;
+                            const Scene *scene) const;
   void reportClkSrcLatency(Arrival insertion,
                            float clk_time,
                            const EarlyLate *early_late) const;
@@ -419,6 +419,7 @@ protected:
                   const Path *path,
                   float cap,
                   const Slew &slew,
+                  float noise,
                   float fanout,
                   const Delay &incr,
                   float variation,
@@ -543,6 +544,7 @@ protected:
   ReportField *field_incr_;
   ReportField *field_capacitance_;
   ReportField *field_slew_;
+  ReportField *field_noise_;
   ReportField *field_fanout_;
   ReportField *field_variation_;
   ReportField *field_src_attr_;

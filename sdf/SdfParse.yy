@@ -109,7 +109,7 @@ header:
 |	header header_stmt
 ;
 
-// technically the ordering of these statements is fixed by the spec
+// Technically the ordering of these statements is fixed by the spec.
 header_stmt:
 	'(' SDFVERSION QSTRING ')'
 |	'(' DESIGN QSTRING ')'

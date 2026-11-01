@@ -1328,7 +1328,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkEmptyNodes) {
   // ConcreteParasiticNetwork requires a Network* for its constructor
   // so we need to pass sta_->network()
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ParasiticNodeSeq nodes = pnet.nodes();
   EXPECT_TRUE(nodes.empty());
 }
@@ -1336,7 +1336,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkEmptyNodes) {
 // Test ConcreteParasiticNetwork resistors/capacitors empty
 TEST_F(StaParasiticsTest, ParasiticNetworkEmptyDevices) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_TRUE(pnet.resistors().empty());
   EXPECT_TRUE(pnet.capacitors().empty());
 }
@@ -1344,38 +1344,39 @@ TEST_F(StaParasiticsTest, ParasiticNetworkEmptyDevices) {
 // Test ConcreteParasiticNetwork capacitance with no devices
 TEST_F(StaParasiticsTest, ParasiticNetworkZeroCapacitance) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_FLOAT_EQ(pnet.capacitance(), 0.0f);
 }
 
 // Test ConcreteParasiticNetwork isParasiticNetwork
 TEST_F(StaParasiticsTest, ParasiticNetworkIsNetwork) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_TRUE(pnet.isParasiticNetwork());
 }
 
 // Test ConcreteParasiticNetwork net()
 TEST_F(StaParasiticsTest, ParasiticNetworkNet) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_EQ(pnet.net(), nullptr);
 }
 
 // Test ConcreteParasiticNetwork includesPinCaps
 TEST_F(StaParasiticsTest, ParasiticNetworkIncludesPinCaps) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet1(nullptr, false, network);
+  ConcreteParasiticNetwork pnet1(network);
   EXPECT_FALSE(pnet1.includesPinCaps());
 
-  ConcreteParasiticNetwork pnet2(nullptr, true, network);
+  ConcreteParasiticNetwork pnet2(network);
+  pnet2.init(nullptr, true);
   EXPECT_TRUE(pnet2.includesPinCaps());
 }
 
 // Test ConcreteParasiticNetwork addResistor/addCapacitor
 TEST_F(StaParasiticsTest, ParasiticNetworkAddDevices) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
 
   ConcreteParasiticNode *node1 = new ConcreteParasiticNode(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode *node2 = new ConcreteParasiticNode(static_cast<const Net*>(nullptr), 2, false);
@@ -1404,7 +1405,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkAddDevices) {
 // Test ConcreteParasiticNetwork findParasiticNode for pin (not found)
 TEST_F(StaParasiticsTest, ParasiticNetworkFindPinNodeNotFound) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   int dummy = 1;
   const Pin *pin = reinterpret_cast<const Pin*>(&dummy);
   EXPECT_EQ(pnet.findParasiticNode(pin), nullptr);
@@ -1414,7 +1415,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkFindPinNodeNotFound) {
 TEST_F(StaParasiticsTest, ConcreteParasiticsNetOnNetwork) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   // net() on isParasiticNetwork returns the net
   const Net *net = parasitics->net(static_cast<Parasitic*>(&pnet));
   EXPECT_EQ(net, nullptr);  // our network has nullptr net
@@ -1424,7 +1425,8 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsNetOnNetwork) {
 TEST_F(StaParasiticsTest, ConcreteParasiticsIncludesPinCaps) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, true, network);
+  ConcreteParasiticNetwork pnet(network);
+  pnet.init(nullptr, true);
   EXPECT_TRUE(parasitics->includesPinCaps(static_cast<Parasitic*>(&pnet)));
 }
 
@@ -1432,7 +1434,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsIncludesPinCaps) {
 TEST_F(StaParasiticsTest, ConcreteParasiticsNodes) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ParasiticNodeSeq nodes = parasitics->nodes(static_cast<Parasitic*>(&pnet));
   EXPECT_TRUE(nodes.empty());
 }
@@ -1441,7 +1443,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsNodes) {
 TEST_F(StaParasiticsTest, ConcreteParasiticsResistors) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ParasiticResistorSeq res = parasitics->resistors(static_cast<Parasitic*>(&pnet));
   EXPECT_TRUE(res.empty());
 }
@@ -1450,7 +1452,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsResistors) {
 TEST_F(StaParasiticsTest, ConcreteParasiticsCapacitors) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ParasiticCapacitorSeq caps = parasitics->capacitors(static_cast<Parasitic*>(&pnet));
   EXPECT_TRUE(caps.empty());
 }
@@ -1459,7 +1461,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsCapacitors) {
 TEST_F(StaParasiticsTest, FindParasiticNodeNetId) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   // Nothing in the network, so findParasiticNode should return nullptr
   EXPECT_EQ(parasitics->findParasiticNode(static_cast<Parasitic*>(&pnet),
              static_cast<const Net*>(nullptr), 0, network), nullptr);
@@ -1469,7 +1471,7 @@ TEST_F(StaParasiticsTest, FindParasiticNodeNetId) {
 TEST_F(StaParasiticsTest, FindParasiticNodePin) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_EQ(parasitics->findParasiticNode(static_cast<const Parasitic*>(&pnet),
              static_cast<const Pin*>(nullptr)), nullptr);
 }
@@ -1478,7 +1480,7 @@ TEST_F(StaParasiticsTest, FindParasiticNodePin) {
 TEST_F(StaParasiticsTest, MakeResistorCapacitorApi) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   Parasitic *ppnet = static_cast<Parasitic*>(&pnet);
 
   // Create nodes first using direct construction
@@ -1510,7 +1512,7 @@ TEST_F(StaParasiticsTest, MakeResistorCapacitorApi) {
 TEST_F(StaParasiticsTest, ParasiticNodeResistorMapApi) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   Parasitic *ppnet = static_cast<Parasitic*>(&pnet);
 
   ConcreteParasiticNode *node1 = new ConcreteParasiticNode(static_cast<const Net*>(nullptr), 1, false);
@@ -1537,7 +1539,7 @@ TEST_F(StaParasiticsTest, ParasiticNodeResistorMapApi) {
 TEST_F(StaParasiticsTest, ParasiticNodeCapacitorMapApi) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   Parasitic *ppnet = static_cast<Parasitic*>(&pnet);
 
   ConcreteParasiticNode *node1 = new ConcreteParasiticNode(static_cast<const Net*>(nullptr), 1, false);
@@ -1583,7 +1585,7 @@ TEST_F(StaParasiticsTest, ReportPiElmore) {
 TEST_F(StaParasiticsTest, NetworkDisconnectPin) {
   ASSERT_NO_THROW(( [&](){
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   // disconnectPin with nullptr should not crash
   pnet.disconnectPin(nullptr, nullptr, network);
 
@@ -1627,7 +1629,7 @@ TEST_F(StaParasiticsTest, DeletePinBefore) {
 // Test ConcreteParasiticNetwork capacitance with grounded caps and coupling caps
 TEST_F(StaParasiticsTest, ParasiticNetworkCapacitanceMixed) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
 
   // Create nodes with grounded capacitance
   ConcreteParasiticNode *node1 = new ConcreteParasiticNode(static_cast<const Net*>(nullptr), 1, false);
@@ -1739,7 +1741,7 @@ protected:
 // Test reduceToPiElmore returns nullptr when drvr_node not found
 TEST_F(ReduceParasiticsTest, ReduceNoDrvrNode) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
 
   // No driver node in the network, so reduction returns nullptr
   Parasitic *result = reduceToPiElmore(
@@ -1760,7 +1762,7 @@ TEST_F(ReduceParasiticsTest, ReduceNoDrvrNode) {
 // Test reduceToPiPoleResidue2 returns nullptr when drvr_node not found
 TEST_F(ReduceParasiticsTest, ReducePoleResidue2NoDrvrNode) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
 
   Parasitic *result = reduceToPiPoleResidue2(
     static_cast<const Parasitic*>(&pnet),
@@ -1827,7 +1829,7 @@ TEST_F(ReduceParasiticsTest, DeleteParasiticsPin) {
 TEST_F(ReduceParasiticsTest, FindNodePinBase) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   // findNode with nullptr pin on empty network (suppress deprecation warning)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -2348,7 +2350,7 @@ TEST_F(StaParasiticsTest, ConcretePiPoleResidueD0Destructor) {
 // Covers: ConcreteParasiticNetwork::nodes, resistors, capacitors, capacitance
 TEST_F(StaParasiticsTest, ParasiticNetworkCreation) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_TRUE(pnet.isParasiticNetwork());
   EXPECT_FALSE(pnet.includesPinCaps());
   EXPECT_EQ(pnet.net(), nullptr);
@@ -2362,7 +2364,8 @@ TEST_F(StaParasiticsTest, ParasiticNetworkCreation) {
 // Covers: ConcreteParasiticNetwork constructor with includes_pin_caps=true
 TEST_F(StaParasiticsTest, ParasiticNetworkIncludesPinCaps2) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, true, network);
+  ConcreteParasiticNetwork pnet(network);
+  pnet.init(nullptr, true);
   EXPECT_TRUE(pnet.includesPinCaps());
 }
 
@@ -2370,7 +2373,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkIncludesPinCaps2) {
 // Covers: ConcreteParasiticNetwork::findParasiticNode
 TEST_F(StaParasiticsTest, ParasiticNetworkFindNodeMissing) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ConcreteParasiticNode *node = pnet.findParasiticNode(static_cast<const Pin*>(nullptr));
   EXPECT_EQ(node, nullptr);
 }
@@ -2379,7 +2382,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkFindNodeMissing) {
 // Covers: ConcreteParasiticNetwork::addResistor
 TEST_F(StaParasiticsTest, ParasiticNetworkAddResistorStandalone) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   ConcreteParasiticResistor *res = new ConcreteParasiticResistor(0, 100.0f, &node1, &node2);
@@ -2391,7 +2394,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkAddResistorStandalone) {
 // Covers: ConcreteParasiticNetwork::addCapacitor
 TEST_F(StaParasiticsTest, ParasiticNetworkAddCapacitorStandalone) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   ConcreteParasiticNode node1(static_cast<const Net*>(nullptr), 1, false);
   ConcreteParasiticNode node2(static_cast<const Net*>(nullptr), 2, false);
   ConcreteParasiticCapacitor *cap = new ConcreteParasiticCapacitor(0, 5e-15f, &node1, &node2);
@@ -2411,7 +2414,7 @@ TEST_F(StaParasiticsTest, ParasiticsAndSceneAvailable) {
 // Covers: ConcreteParasiticNetwork::resistors, ConcreteParasiticNetwork::capacitors
 TEST_F(StaParasiticsTest, ParasiticNetworkEmptyLists) {
   const Network *network = sta_->network();
-  ConcreteParasiticNetwork pnet(nullptr, false, network);
+  ConcreteParasiticNetwork pnet(network);
   EXPECT_TRUE(pnet.resistors().empty());
   EXPECT_TRUE(pnet.capacitors().empty());
 }

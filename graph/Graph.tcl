@@ -32,6 +32,8 @@ define_cmd_args "report_edges" {[-from from_pin] [-to to_pin]\
   -arg_help {
     -from {Report edges/timing arcs from pin from_pin.}
     -to {Report edges/timing arcs to pin to_pin.}
+    -digits default
+    -report_variance default
   }
 
 proc report_edges { args } {

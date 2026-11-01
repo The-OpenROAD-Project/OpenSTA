@@ -44,6 +44,7 @@ class Search;
 class Parasitics;
 class ArcDelayCalc;
 class GraphDelayCalc;
+class DelayNoise;
 class Latches;
 class DispatchQueue;
 class Variables;
@@ -97,6 +98,8 @@ public:
   ArcDelayCalc *arcDelayCalc() const { return arc_delay_calc_; }
   GraphDelayCalc *graphDelayCalc() { return graph_delay_calc_; }
   GraphDelayCalc *graphDelayCalc() const { return graph_delay_calc_; }
+  DelayNoise *delayNoise() { return delay_noise_; }
+  DelayNoise *delayNoise() const { return delay_noise_; }
   Search *search() { return search_; }
   Search *search() const { return search_; }
   const DelayOps *delayOps() const { return delay_ops_; }
@@ -141,6 +144,7 @@ protected:
   Levelize *levelize_;
   ArcDelayCalc *arc_delay_calc_;
   GraphDelayCalc *graph_delay_calc_;
+  DelayNoise *delay_noise_;
   Search *search_;
   DelayOps *delay_ops_;
   Latches *latches_;

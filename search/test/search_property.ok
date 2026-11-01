@@ -28,7 +28,7 @@ pin slew_max_fall: 0.005011
 pin slew_min: 0.005010
 pin slew_min_rise: 0.005947
 pin slew_min_fall: 0.005010
-pin activity: 1.00000e+07 0.250 propagated
+pin activity: 9.50000e+06 0.250 propagated
 --- Port properties ---
 port name: in1
 port full_name: in1
@@ -80,8 +80,8 @@ pathend slack: 7.899714
 --- Path properties ---
 path pin: out1
 path arrival: 0.100286
-path required: 0.000000
-path slack: -0.100286
+path required: INF
+path slack: INF
 --- Edge additional properties ---
 edge to_pin: and1/ZN
 --- get_property with -object_type ---
