@@ -113,16 +113,7 @@ WriteGateGnuplot::writeFiles()
   for (const Pin *plot_pin : plot_pins_)
     arc_dcalc_->watchPin(plot_pin);
 
-  size_t prima_order_save = 0;
-  if (prima_dcalc_ && delay_noise_) {
-    prima_order_save = prima_dcalc_->primaReduceOrder();
-    prima_dcalc_->setPrimaReduceOrder(gates_.size()*delay_noise_->primaOrderPerGate());
-  }
-
   arc_delay_calc_->gateDelays(gates_, load_pin_index_map, scene_, min_max_);
-
-  if (prima_dcalc_)
-    prima_dcalc_->setPrimaReduceOrder(prima_order_save);
 
   Gnuplot plot;
   plotWaveforms(plot);
