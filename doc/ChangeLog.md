@@ -30,9 +30,6 @@ Noise delays can be reported in timing reports with the -noise field.
 
 Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.
 
-The read_spef -keep_capacitive_coupling option must be used to retain
-coupling capacitors for noise analysis.
-
 ```tcl
 report_noise_delays
   [-net net]

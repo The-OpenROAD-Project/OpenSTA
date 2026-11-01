@@ -208,13 +208,12 @@ lessor gate and load delays.
 
 The annotate_noise_delays command uses CCS liberty models and the
 Prima delay calculator to simulate simultaneous signal switching and
-annotate gate and wire delays with the resulting increase (maximum
-delays) or decrease (minimum delays) in delays.  This functionaly is
-only available with CCS liberty models because they are they only
-timing models that support waveform simulation. Net are filtered by
-examining their coupling capacitances. This is important because the
-actual noise analysis is computationally expensive (multiple circuit
-simulations).
+annotate gate and wire delays with the resulting increase/decrease in
+delays and slews.  This functionaly is only available with CCS liberty
+models because they are they only timing models that support waveform
+simulation. Nets are filtered by examining their coupling capacitances
+before simulation. This is important because the circuit simulation
+for noise analysis is computationally expensive.
 
 Noise delay analysis uses the following steps.
 
@@ -246,26 +245,37 @@ The noise delays can be reported using the report_noise_delays command.
 The victim gate and wire delays and slews are measured. The delta
 delays and slews are then annotated on the delay calculation results.
 
+Noise delays can be reported in timing reports with the -noise field.
+
+Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.
+
 ```tcl
-# annotate_noise_delays
-include jpeg_noise1.tcl
-include jpeg_noise1.sdc
+# noise delay example
+suppress_msg 1212 1645
+read_liberty ../test/asap7_simple.lib.gz
+read_verilog noise_delay1.v
+link_design top
+read_spef -keep_capacitive_coupling noise_delay1.spef
+sta::set_delay_calculator prima
+include noise_delay1.sdc
 
-report_checks -from in1 -unconstrained -path_delay min -format summary
-report_checks -from in1 -unconstrained -path_delay max -format summary
+report_checks -from in1 -unconstrained \
+  -path_delay min_max \
+  -fields {input_pin noise_delay}
 
-annotate_noise_delays
 report_noise_delays
+annotate_noise_delays
 
-report_checks -from in1 -unconstrained -path_delay min -format summary
-report_checks -from in1 -unconstrained -path_delay max -format summary
+report_checks -from in1 -unconstrained \
+  -path_delay min_max \
+  -fields {input_pin noise_delay}
 ```
 
 This example can be found in `examples/noise_delay1.tcl`.
 
 ## Power analysis
 
-OpenSTA supports static power analysis.  Probabilistic switching
+Static power analysis is supported.  Probabilistic switching
 activities are propagated from the input ports to determine switching
 activities for internal pins.
 
