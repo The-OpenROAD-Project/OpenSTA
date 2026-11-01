@@ -1215,10 +1215,10 @@ DelayNoise::arrivalWindowsOverlap(const DelaysWrtClks &victim_clk_arrivals,
       float aggr_min = aggr_input_min + arc_delay;
       float aggr_max = aggr_input_max + arc_delay;
       if (victim_delays_exist && aggr_input_delays_exist
-          && ((aggr_min >= victim_min
-               && aggr_min <= victim_max)
-              || (aggr_max >= victim_min
-                  && aggr_max <= victim_max))) {
+          && ((delayGreaterEqual(aggr_min, victim_min, this)
+               && delayLessEqual(aggr_min, victim_max, this))
+              || (delayGreaterEqual(aggr_max, victim_min,this)
+                  && delayLessEqual(aggr_max, victim_max, this)))) {
         debugPrint(debug_, "delay_noise", 4, "{} {} {} {} arrival {}-{} overlaps {}-{}.",
                    network_->pathName(network_->instance(edge->from(graph_)->pin())),
                    arc->to_string(),
