@@ -207,6 +207,7 @@ public:
   LibertyLibrary(std::string_view name,
                  std::string_view filename);
   ~LibertyLibrary() override;
+  bool hasCcsModels() const;
   LibertyCell *findLibertyCell(std::string_view name) const;
   LibertyCellSeq findLibertyCellsMatching(PatternMatch *pattern);
   // Liberty cells that are buffers.
@@ -486,6 +487,7 @@ public:
   ModeDef *makeModeDef(std::string_view name);
   const ModeDef *findModeDef(std::string_view name) const;
 
+  bool hasCcsModels() const;
   float area() const { return area_; }
   void setArea(float area);
   bool dontUse() const { return dont_use_; }

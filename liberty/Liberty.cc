@@ -97,6 +97,18 @@ LibertyLibrary::~LibertyLibrary()
   delete inverters_;
 }
 
+bool
+LibertyLibrary::hasCcsModels() const
+{
+  LibertyCellIterator cell_iter(this);
+  while (cell_iter.hasNext()) {
+    LibertyCell *cell = cell_iter.next();
+    if (cell->hasCcsModels())
+      return true;
+  }
+  return false;
+}
+
 LibertyCell *
 LibertyLibrary::findLibertyCell(std::string_view name) const
 {
@@ -1005,6 +1017,20 @@ BusDcl *
 LibertyCell::findBusDcl(std::string_view name)
 {
   return findStringValuePtr(bus_dcls_, name);
+}
+
+bool
+LibertyCell::hasCcsModels() const
+{
+  for (TimingArcSet *arc_set : timingArcSets()) {
+    for (TimingArc *arc : arc_set->arcs()) {
+      GateTableModel *model = arc->gateTableModel();
+      OutputWaveforms *output_waveforms = model->outputWaveforms();
+      if (output_waveforms)
+        return true;
+    }
+  }
+  return false;
 }
 
 void
