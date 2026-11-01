@@ -265,7 +265,7 @@ DelayNoise::checkGates(ArcDcalcArgSeq &gates,
     }
   }
   if (prima_dcalc_->checkArgs(gates, scene, min_max)) {
-    report_->report("prima failed {}", prima_dcalc_->failureReason());
+    report_->warn(2190, "prima failed {}", prima_dcalc_->failureReason());
     return false;
   }
   return true;
