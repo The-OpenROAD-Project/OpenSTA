@@ -1025,9 +1025,11 @@ LibertyCell::hasCcsModels() const
   for (TimingArcSet *arc_set : timingArcSets()) {
     for (TimingArc *arc : arc_set->arcs()) {
       GateTableModel *model = arc->gateTableModel();
-      OutputWaveforms *output_waveforms = model->outputWaveforms();
-      if (output_waveforms)
-        return true;
+      if (model) {
+        OutputWaveforms *output_waveforms = model->outputWaveforms();
+        if (output_waveforms)
+          return true;
+      }
     }
   }
   return false;

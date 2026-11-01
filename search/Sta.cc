@@ -6194,9 +6194,11 @@ Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
                           const Scene *scene,
                           const MinMaxAll *min_max)
 {
-  noiseDelayPreamble();
-  delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
-                                    min_coupling_ratio, scene, min_max);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
+                                      min_coupling_ratio, scene, min_max);
+  }
 }
 
 void
@@ -6208,11 +6210,13 @@ Sta::reportNoiseDelays(size_t max_count,
                        const MinMaxAll *min_max,
                        int digits)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(max_count, drvr_rf, min_coupling_sum_ratio,
-                                  min_coupling_ratio, scene, min_max, digits);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->reportNoiseDelays(max_count, drvr_rf, min_coupling_sum_ratio,
+                                    min_coupling_ratio, scene, min_max, digits);
+  }
 }
-
+ 
 void
 Sta::reportNoiseDelays(const Net *net,
                        const RiseFallBoth *drvr_rf,
@@ -6221,9 +6225,11 @@ Sta::reportNoiseDelays(const Net *net,
                        const MinMaxAll *min_max,
                        int digits)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene,
-                                  min_max, digits);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene,
+                                    min_max, digits);
+  }
 }
 
 void
@@ -6232,8 +6238,10 @@ Sta::reportNoiseDelays(ArcDcalcArgSeq gates,
                        const MinMax *min_max,
                        int digits)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(gates, scene, min_max, digits);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->reportNoiseDelays(gates, scene, min_max, digits);
+  }
 }
 
 void
@@ -6275,35 +6283,23 @@ Sta::writeNoiseDelayCase(const Net *net,
 void
 Sta::noiseDelayPreamble()
 {
-  checkLibraryCcs();
   // Arrivals required to filter aggressors.
   searchPreamble();
   search_->findArrivals();
 }
 
-void
-Sta::checkLibraryCcs()
+bool
+Sta::libraryHasCcsModels() const
 {
   LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
   while (lib_iter->hasNext()) {
     LibertyLibrary *lib = lib_iter->next();
-    LibertyCellIterator cell_iter(lib);
-    while (cell_iter.hasNext()) {
-      LibertyCell *cell = cell_iter.next();
-      for (const TimingArcSet *arc_set : cell->timingArcSets()) {
-        for (const TimingArc *arc : arc_set->arcs()) {
-          GateTableModel *gate_model = arc->gateTableModel();
-          if (gate_model
-              && gate_model->outputWaveforms() != nullptr) {
-            delete lib_iter;
-            return;
-          }
-        }
-      }
-    }
+    if (lib->hasCcsModels())
+      return true;
   }
   delete lib_iter;
   report_->warn(1579, "No liberty CCS models found.");
+  return false;
 }
 
 ArcDcalcArgSeq

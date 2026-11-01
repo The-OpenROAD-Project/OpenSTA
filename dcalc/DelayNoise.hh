@@ -154,7 +154,6 @@ public:
                       bool no_timestamp,
                       const Scene *scene,
                       const MinMax *min_max);
-  size_t primaOrderPerGate() const { return prima_order_per_gate_; }
 
   ////////////////////////////////////////////////////////////////
   // Accessors for tcl debug
@@ -329,6 +328,10 @@ protected:
                          const MinMaxAll *min_max,
                          DcalcResults &noise_delays,
                          int digits);
+  bool checkDriver(const Pin *drvr_pin) const;
+  bool checkGates(ArcDcalcArgSeq &gates,
+                  const Scene *scene,
+                  const MinMax *min_max) const;
 
   ////////////////////////////////////////////////////////////////
 
@@ -381,8 +384,8 @@ protected:
 private:
   PrimaDelayCalc *prima_dcalc_;
   DcalcResults noise_delays_;
-  size_t prima_order_per_gate_{3}; // Poles per victim/aggressor gate and parasitics.
   bool found_coupling_caps_{false};
+  bool reported_warning_{false};
 };
 
 } // namespace sta

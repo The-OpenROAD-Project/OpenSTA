@@ -188,7 +188,8 @@ DelayNoise::findNoiseDelays(const Net *net,
                             DcalcResults &noise_delays)
 {
   const Pin *drvr_pin = netDrvrPin(net);
-  if (drvr_pin) {
+  if (drvr_pin
+      && checkDriver(drvr_pin)) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
       const LoadPinIndexMap load_pin_index_map =
@@ -204,21 +205,54 @@ DelayNoise::findNoiseDelays(const Net *net,
             ArcDcalcArgSeq gates = makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
                                                  parasitic, min_coupling_ratio,
                                                  scene, min_max);
-            if (!gates.empty()) {
-              if (prima_dcalc_->checkArgs(gates, scene, min_max))
-                report_->report("prima failed {}", prima_dcalc_->failureReason());
-              else {
-                alignAggressors(gates, load_pin_index_map, scene, min_max);
-                findNoiseDelays(gates, load_pin_index_map, scene, min_max,
-                                noise_delays);
+            if (!gates.empty()
+                && checkGates(gates, scene, min_max)) {
+              alignAggressors(gates, load_pin_index_map, scene, min_max);
+              findNoiseDelays(gates, load_pin_index_map, scene, min_max,
+                              noise_delays);
 
-              }
             }
           }
         }
       }
     }
   }
+}
+
+bool
+DelayNoise::checkDriver(const Pin *drvr_pin) const
+{
+  const Instance *inst = network_->instance(drvr_pin);
+  const LibertyCell *lib_cell = network_->libertyCell(inst);
+  if (lib_cell == nullptr
+      || !lib_cell->hasCcsModels()) {
+    report_->warn(2187, "Driver {} does not have a CCS timing model.",
+                  sdc_network_->pathName(drvr_pin));
+    return false;
+  }
+  return true;
+}
+
+bool
+DelayNoise::checkGates(ArcDcalcArgSeq &gates,
+                       const Scene *scene,
+                       const MinMax *min_max) const
+
+{
+  for (ArcDcalcArg &gate : gates) {
+    const LibertyCell *lib_cell = gate.drvrCell();
+    if (lib_cell == nullptr
+        || !lib_cell->hasCcsModels()) {
+      report_->warn(2186, "Driver {} does not have a CCS timing model.",
+                    sdc_network_->pathName(gate.drvrPin()));
+      return false;
+    }
+  }
+  if (prima_dcalc_->checkArgs(gates, scene, min_max)) {
+    report_->report("prima failed {}", prima_dcalc_->failureReason());
+    return false;
+  }
+  return true;
 }
 
 void
@@ -228,8 +262,6 @@ DelayNoise::findNoiseDelays(ArcDcalcArgSeq &gates,
                             const MinMax *min_max,
                             DcalcResults &noise_delays)
 {
-  // The default order is too small once aggressors are included.
-  prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
   if (debug_->check("delay_noise", 1))
     debugPrint(debug_, "delay_noise", 1, "{} {}",
                ArcDcalcArg::to_string(gates, this),
@@ -319,7 +351,8 @@ DelayNoise::reportNoiseDelays(size_t max_count,
     for (const Net *net : nets) {
       report_->report("Net {}", sdc_network_->pathName(net));
       const Pin *drvr_pin = netDrvrPin(net);
-      if (drvr_pin) {
+      if (drvr_pin
+          && checkDriver(drvr_pin)) {
         Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
         if (drvr_vertex) {
           reportNoiseDelays(drvr_vertex, drvr_rf, scene, min_max,
@@ -344,7 +377,8 @@ DelayNoise::reportNoiseDelays(const Net *net,
 {
   found_coupling_caps_ = false;
   const Pin *drvr_pin = netDrvrPin(net);
-  if (drvr_pin) {
+  if (drvr_pin
+      && checkDriver(drvr_pin)) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
       const LoadPinIndexMap load_pin_index_map =
@@ -489,7 +523,7 @@ DelayNoise::reportAggressors(const Net *victim,
 
 ////////////////////////////////////////////////////////////////
 
-// Debugging helper.
+// External api for tcl debug.
 void
 DelayNoise::alignAggressorsCmd(ArcDcalcArgSeq &gates,
                                const Scene *scene,
@@ -497,8 +531,6 @@ DelayNoise::alignAggressorsCmd(ArcDcalcArgSeq &gates,
 {
   if (!gates.empty()) {
     prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
-    // Same order as the noise simulation.
-    prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
     ArcDcalcArg &drvr_arg = gates[0];
     Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
     const LoadPinIndexMap load_pin_index_map =
@@ -1054,10 +1086,8 @@ DelayNoise::makeDcalcArgs(const Net *net,
                                            scene, min_max);
     ArcDcalcArgSeq gates = makeDrvrDcalcArgs(drvr, aggressors, scene, min_max);
     prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
-    if (prima_dcalc_->checkArgs(gates, scene, min_max))
-      report_->warn(2181, "prima arg check failed {}.",
-                    prima_dcalc_->failureReason());
-    else if (!gates.empty()) {
+    if (!gates.empty()
+        && checkGates(gates, scene, min_max)) {
       alignAggressors(gates, load_pin_index_map, scene, min_max);
       return gates;
     }
