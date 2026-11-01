@@ -3,7 +3,7 @@
 This file summarizes user visible changes for each release.
 See [API changes](ApiChanges.md) for changes to the STA API.
 
-## 2026/10/15
+## Release 3.2.0 2026/10/15
 
 Noise delay calculation analysis support.
 See the Examples.md section on Noise Delay for details.

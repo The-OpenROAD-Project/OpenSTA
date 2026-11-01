@@ -24,7 +24,7 @@
 
 cmake_minimum_required (VERSION 3.16)
 
-project(STA VERSION 3.1.0
+project(STA VERSION 3.2.0
   LANGUAGES CXX
 )
 
