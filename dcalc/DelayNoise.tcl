@@ -121,8 +121,10 @@ proc report_noise_delays { args } {
 
   if { [info exists keys(-net)] } {
     set net [get_net_arg "net" $keys(-net)]
-    report_net_noise_delays_cmd $net $drvr_rf $min_coupling_ratio \
-      $scene $min_max $digits
+    if { $net != "NULL" } {
+      report_net_noise_delays_cmd $net $drvr_rf $min_coupling_ratio \
+        $scene $min_max $digits
+    }
   } else {
     set max_count 1
     if { [info exists keys(-max_count)] } {
@@ -192,7 +194,6 @@ proc report_aggressors { args } {
 
   check_argc_eq1 "report_aggressors" $args
   set net [get_net_arg "net" [lindex $args 0]]
-
   set min_coupling_ratio $min_coupling_ratio_default
   if { [info exists keys(-min_coupling_ratio)] } {
     set min_coupling_ratio $keys(-min_coupling_ratio)
@@ -201,7 +202,9 @@ proc report_aggressors { args } {
   set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
 
-  report_aggressors_cmd $net $min_coupling_ratio $scene $min_max
+  if { $net != "NULL" } {
+    report_aggressors_cmd $net $min_coupling_ratio $scene $min_max
+  }
 }
 
 ################################################################
@@ -253,8 +256,10 @@ proc write_delay_noise_case { args } {
   set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
   set no_timestamp [info exists flags(-no_timestamp)]
-  write_noise_delay_case_cmd $net $drvr_rf $file_basename \
-    $min_coupling_sum_ratio $min_coupling_ratio $no_timestamp $scene $min_max
+  if { $net != "NULL" } {
+    write_noise_delay_case_cmd $net $drvr_rf $file_basename \
+      $min_coupling_sum_ratio $min_coupling_ratio $no_timestamp $scene $min_max
+  }
 }
 
 ################################################################
