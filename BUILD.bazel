@@ -403,6 +403,9 @@ cc_library(
         "liberty/LibertyBuilder.hh",
         "liberty/LibertyBinaryReader.hh",
         "liberty/LibertyBinaryWriter.hh",
+        # Needed by src/dbSta's DmpCeff-based delay calculator and its
+        # training data generator.
+        "dcalc/DmpCeff.hh",
     ],
     copts = [
         "-Wno-error",
