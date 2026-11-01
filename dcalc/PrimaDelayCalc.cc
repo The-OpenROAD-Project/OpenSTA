@@ -268,7 +268,8 @@ PrimaDelayCalc::checkArgs(ArcDcalcArgSeq &dcalc_args,
 
           // Bounds check because extrapolating waveforms does not work for shit.
           if (output_waveforms->slewAxis()->inBounds(in_slew)) {
-            if (output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
+            float load_cap = dcalc_arg.loadCap();
+            if (output_waveforms->capAxis()->inBounds(load_cap)) {
               output_waveforms_[drvr_idx] = output_waveforms;
               debugPrint(debug_, "prima", 1, "{} {} {}",
                          dcalc_arg.drvrCell()->name(),
@@ -278,12 +279,15 @@ PrimaDelayCalc::checkArgs(ArcDcalcArgSeq &dcalc_args,
               drvr_cell->ensureVoltageWaveforms(scenes_);
             }
             else {
-              failure_reason_ = "load cap out of table axis bounds";
+              failure_reason_ =
+                sta::format("load cap {} out of table axis bounds",
+                            units_->capacitanceUnit()->asString(load_cap));
               failure_arg_ = &dcalc_arg;
             }
           }
           else {
-            failure_reason_ = "input slew out of table axis bounds";
+            failure_reason_ = sta::format("input slew {} out of table axis bounds",
+                                          delayAsString(in_slew, this));
             failure_arg_ = &dcalc_arg;
           }
         }
