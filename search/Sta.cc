@@ -6294,8 +6294,10 @@ Sta::libraryHasCcsModels() const
   LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
   while (lib_iter->hasNext()) {
     LibertyLibrary *lib = lib_iter->next();
-    if (lib->hasCcsModels())
+    if (lib->hasCcsModels()) {
+      delete lib_iter;
       return true;
+    }
   }
   delete lib_iter;
   report_->warn(1579, "No liberty CCS models found.");
