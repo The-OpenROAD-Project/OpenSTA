@@ -185,10 +185,10 @@ protected:
                                  float min_coupling_ratio,
                                  const Scene *scene,
                                  const MinMaxAll *min_max);
-  DcalcResults findNoiseDelays(float min_coupling_sum_ratio,
-                               float min_coupling_ratio,
-                               const Scene *scene,
-                               const MinMaxAll *min_max);
+  DcalcResults findAllNoiseDelays(float min_coupling_sum_ratio,
+                                  float min_coupling_ratio,
+                                  const Scene *scene,
+                                  const MinMaxAll *min_max);
   void findNoiseDelays(const Net *net,
                        float min_coupling_sum_ratio,
                        float min_coupling_ratio,
@@ -328,6 +328,7 @@ protected:
                          const MinMaxAll *min_max,
                          DcalcResults &noise_delays,
                          int digits);
+  const Pin *findDriverCheck(const Net *net) const;
   bool checkDriver(const Pin *drvr_pin) const;
   bool checkGates(ArcDcalcArgSeq &gates,
                   const Scene *scene,

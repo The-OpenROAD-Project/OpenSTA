@@ -153,8 +153,8 @@ DelayNoise::ensureNoiseDelays(float min_coupling_sum_ratio,
   if (noise_delays_.empty()) {
     found_coupling_caps_ = false;
     // Save results in noise_delays_ for reference by path reporting.
-    noise_delays_ = findNoiseDelays(min_coupling_sum_ratio, min_coupling_ratio,
-                                    scene, min_max);
+    noise_delays_ = findAllNoiseDelays(min_coupling_sum_ratio, min_coupling_ratio,
+                                       scene, min_max);
 
     if (!found_coupling_caps_)
       report_->warn(2182, "No coupling capacitors found. Use read_spef -keep_capacitive_coupling.");
@@ -163,10 +163,10 @@ DelayNoise::ensureNoiseDelays(float min_coupling_sum_ratio,
 }
 
 DcalcResults
-DelayNoise::findNoiseDelays(float min_coupling_sum_ratio,
-                            float min_coupling_ratio,
-                            const Scene *scene,
-                            const MinMaxAll *min_max)
+DelayNoise::findAllNoiseDelays(float min_coupling_sum_ratio,
+                               float min_coupling_ratio,
+                               const Scene *scene,
+                               const MinMaxAll *min_max)
 {
   DcalcResults noise_delays(network_, graph_);
   NetIterator *net_iter = network_->netIterator(network_->topInstance());
@@ -188,8 +188,7 @@ DelayNoise::findNoiseDelays(const Net *net,
                             DcalcResults &noise_delays)
 {
   const Pin *drvr_pin = netDrvrPin(net);
-  if (drvr_pin
-      && checkDriver(drvr_pin)) {
+  if (drvr_pin && checkDriver(drvr_pin)) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
       const LoadPinIndexMap load_pin_index_map =
@@ -217,6 +216,17 @@ DelayNoise::findNoiseDelays(const Net *net,
       }
     }
   }
+}
+
+const Pin *
+DelayNoise::findDriverCheck(const Net *net) const
+{
+  const Pin *drvr_pin = netDrvrPin(net);
+  if (drvr_pin && checkDriver(drvr_pin))
+    return drvr_pin;
+  report_->warn(2189, "No driver found for net {}.",
+                sdc_network_->pathName(net));
+  return nullptr;
 }
 
 bool
@@ -350,9 +360,8 @@ DelayNoise::reportNoiseDelays(size_t max_count,
     size_t i = 0;
     for (const Net *net : nets) {
       report_->report("Net {}", sdc_network_->pathName(net));
-      const Pin *drvr_pin = netDrvrPin(net);
-      if (drvr_pin
-          && checkDriver(drvr_pin)) {
+      const Pin *drvr_pin = findDriverCheck(net);
+      if (drvr_pin) {
         Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
         if (drvr_vertex) {
           reportNoiseDelays(drvr_vertex, drvr_rf, scene, min_max,
@@ -376,9 +385,8 @@ DelayNoise::reportNoiseDelays(const Net *net,
                               int digits)
 {
   found_coupling_caps_ = false;
-  const Pin *drvr_pin = netDrvrPin(net);
-  if (drvr_pin
-      && checkDriver(drvr_pin)) {
+  const Pin *drvr_pin = findDriverCheck(net);
+  if (drvr_pin) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
       const LoadPinIndexMap load_pin_index_map =
@@ -1290,6 +1298,9 @@ DelayNoise::writeCaseFiles(const Net *net,
                       sdc_network_->pathName(net));
     }
   }
+  else
+    report_->warn(2188, "No driver found for net {}.",
+                  sdc_network_->pathName(net));
 }
 
 Network *
