@@ -19,7 +19,7 @@ namespace eval sta {
 variable min_coupling_sum_ratio_default .7
 variable min_coupling_ratio_default .1
 
-define_cmd_args "annotate_noise_delays" {[-scene scene]\
+define_cmd_args "annotate_noise_delays" {[-scenes scenes]\
                                            [-min] [-max]\
                                            [-min_coupling_sum_ratio coupling_sum_ratio]\
                                            [-min_coupling_ratio coupling_ratio]} \
@@ -29,7 +29,7 @@ Noise delays can be reported in timing reports with the -noise field.
 
 Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.} \
   -arg_help {
-    -scene {Annotate delay calculation for a scene. Required for multi-scene analysis.}
+    -scenes {List of scenes to annotate.}
     -min {Only annotate minimum delays.}
     -max {Only annotate maximum delays.}
     -min_coupling_sum_ratio default
@@ -41,7 +41,7 @@ proc annotate_noise_delays { args } {
   variable min_coupling_ratio_default
 
   parse_key_args "annotate_noise_delays" args \
-    keys {-min_coupling_sum_ratio -min_coupling_ratio -scene} \
+    keys {-min_coupling_sum_ratio -min_coupling_ratio -scenes} \
     flags {-min -max}
 
   set min_coupling_sum_ratio $min_coupling_sum_ratio_default
@@ -56,12 +56,12 @@ proc annotate_noise_delays { args } {
     check_positive_float "-min_coupling_ratio" $min_coupling_ratio
   }
 
-  set scene [parse_scene keys]
+  set scenes [parse_scenes_or_all keys]
   set min_max [parse_min_max_all_flags flags]
   check_argc_eq0 "annotate_noise_delays" $args
   
   annotate_noise_delays_cmd $min_coupling_sum_ratio \
-    $min_coupling_ratio $scene $min_max
+    $min_coupling_ratio $scenes $min_max
 }
 
 ################################################################

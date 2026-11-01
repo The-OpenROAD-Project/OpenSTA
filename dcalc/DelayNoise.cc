@@ -77,48 +77,52 @@ DelayNoise::clear()
 void
 DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
                                 float min_coupling_ratio,
-                                const Scene *scene,
+                                const SceneSeq scenes,
                                 const MinMaxAll *min_max1)
 {
   DcalcResults noise_delays = ensureNoiseDelays(min_coupling_sum_ratio,
                                                 min_coupling_ratio,
-                                                scene, min_max1);
+                                                scenes, min_max1);
 
   if (!noise_delays.empty()) {
     for (const auto& [load_vertex, load_slews] : noise_delays.vertexSlewMap()) {
-      for (const MinMax *min_max : min_max1->range()) {
-        for (const RiseFall *rf : RiseFall::range()) {
-          const RiseFallMinMax &slews = load_slews[scene->index()];
-          float slew_incr;
-          bool slew_exists;
-          slews.value(rf, min_max, slew_incr, slew_exists);
-          if (slew_exists
-              && !load_vertex->slewAnnotated(rf, min_max)) {
-            DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-            const Slew &slew = graph_->slew(load_vertex, rf, ap_index);
-            graph_->setSlew(load_vertex, rf, ap_index, delaySum(slew, slew_incr, this));
+      for (const Scene *scene : scenes) {
+        for (const MinMax *min_max : min_max1->range()) {
+          for (const RiseFall *rf : RiseFall::range()) {
+            const RiseFallMinMax &slews = load_slews[scene->index()];
+            float slew_incr;
+            bool slew_exists;
+            slews.value(rf, min_max, slew_incr, slew_exists);
+            if (slew_exists
+                && !load_vertex->slewAnnotated(rf, min_max)) {
+              DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
+              const Slew &slew = graph_->slew(load_vertex, rf, ap_index);
+              graph_->setSlew(load_vertex, rf, ap_index, delaySum(slew, slew_incr, this));
+            }
           }
         }
+        load_vertex->setHasNoiseSlewAnnotation(true);
+        graph_delay_calc_->delayInvalid(load_vertex);
       }
-      load_vertex->setHasNoiseSlewAnnotation(true);
-      graph_delay_calc_->delayInvalid(load_vertex);
     }
 
     for (const auto& [wire_edge,  wire_delays] : noise_delays.wireDelayMap()) {
-      for (const MinMax *min_max : min_max1->range()) {
-        DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
-        for (const RiseFall *rf : RiseFall::range()) {
-          float delay_incr = wire_delays[scene->index()].value(rf, min_max);
-          if (!graph_->wireDelayAnnotated(wire_edge, rf, ap_index)) {
-            const ArcDelay &delay = graph_->wireArcDelay(wire_edge, rf, ap_index);
-            graph_->setWireArcDelay(wire_edge, rf, ap_index,
-                                    delaySum(delay, delay_incr, this));
+      for (const Scene *scene : scenes) {
+        for (const MinMax *min_max : min_max1->range()) {
+          DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
+          for (const RiseFall *rf : RiseFall::range()) {
+            float delay_incr = wire_delays[scene->index()].value(rf, min_max);
+            if (!graph_->wireDelayAnnotated(wire_edge, rf, ap_index)) {
+              const ArcDelay &delay = graph_->wireArcDelay(wire_edge, rf, ap_index);
+              graph_->setWireArcDelay(wire_edge, rf, ap_index,
+                                      delaySum(delay, delay_incr, this));
+            }
           }
         }
-      }
 
-      wire_edge->setHasNoiseDelayAnnotation(true);
-      graph_delay_calc_->delayInvalid(wire_edge->to(graph_));
+        wire_edge->setHasNoiseDelayAnnotation(true);
+        graph_delay_calc_->delayInvalid(wire_edge->to(graph_));
+      }
     }
 
     report_->report("Found {} nets with coupling caps over threshold.",
@@ -147,14 +151,14 @@ DelayNoise::wireDelayIncr(Edge *wire_edge,
 DcalcResults
 DelayNoise::ensureNoiseDelays(float min_coupling_sum_ratio,
                               float min_coupling_ratio,
-                              const Scene *scene,
+                              const SceneSeq scenes,
                               const MinMaxAll *min_max)
 {
   if (noise_delays_.empty()) {
     found_coupling_caps_ = false;
     // Save results in noise_delays_ for reference by path reporting.
     noise_delays_ = findAllNoiseDelays(min_coupling_sum_ratio, min_coupling_ratio,
-                                       scene, min_max);
+                                       scenes, min_max);
 
     if (!found_coupling_caps_)
       report_->warn(2182, "No coupling capacitors found. Use read_spef -keep_capacitive_coupling.");
@@ -165,7 +169,7 @@ DelayNoise::ensureNoiseDelays(float min_coupling_sum_ratio,
 DcalcResults
 DelayNoise::findAllNoiseDelays(float min_coupling_sum_ratio,
                                float min_coupling_ratio,
-                               const Scene *scene,
+                               const SceneSeq scenes,
                                const MinMaxAll *min_max)
 {
   DcalcResults noise_delays(network_, graph_);
@@ -173,7 +177,7 @@ DelayNoise::findAllNoiseDelays(float min_coupling_sum_ratio,
   while (net_iter->hasNext()) {
     const Net *net = net_iter->next();
     findNoiseDelays(net, min_coupling_sum_ratio, min_coupling_ratio,
-                    scene, min_max, noise_delays);
+                    scenes, min_max, noise_delays);
   }
   delete net_iter;
   return noise_delays;
@@ -183,7 +187,7 @@ void
 DelayNoise::findNoiseDelays(const Net *net,
                             float min_coupling_sum_ratio,
                             float min_coupling_ratio,
-                            const Scene *scene,
+                            const SceneSeq scenes,
                             const MinMaxAll *min_max1,
                             DcalcResults &noise_delays)
 {
@@ -193,23 +197,25 @@ DelayNoise::findNoiseDelays(const Net *net,
     if (drvr_vertex) {
       const LoadPinIndexMap load_pin_index_map =
         graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
-      const DelaysWrtClks drvr_clk_arrivals =
-        search_->arrivalsWrtClks(drvr_vertex, scene);
-      for (const MinMax *min_max : min_max1->range()) {
-        Parasitics *parasitics = scene->parasitics(min_max);
-        const Parasitic *parasitic = parasitics->findParasiticNetwork(net);
-        if (parasitic
-            && couplingCapRatio(parasitic, scene, min_max) > min_coupling_sum_ratio) {
-          for (const RiseFall *drvr_rf : RiseFall::range()) {
-            ArcDcalcArgSeq gates = makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
-                                                 parasitic, min_coupling_ratio,
-                                                 scene, min_max);
-            if (!gates.empty()
-                && checkGates(gates, scene, min_max)) {
-              alignAggressors(gates, load_pin_index_map, scene, min_max);
-              findNoiseDelays(gates, load_pin_index_map, scene, min_max,
-                              noise_delays);
+      for (const Scene *scene : scenes) {
+        const DelaysWrtClks drvr_clk_arrivals =
+          search_->arrivalsWrtClks(drvr_vertex, scene);
+        for (const MinMax *min_max : min_max1->range()) {
+          Parasitics *parasitics = scene->parasitics(min_max);
+          const Parasitic *parasitic = parasitics->findParasiticNetwork(net);
+          if (parasitic
+              && couplingCapRatio(parasitic, scene, min_max) > min_coupling_sum_ratio) {
+            for (const RiseFall *drvr_rf : RiseFall::range()) {
+              ArcDcalcArgSeq gates = makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
+                                                   parasitic, min_coupling_ratio,
+                                                   scene, min_max);
+              if (!gates.empty()
+                  && checkGates(gates, scene, min_max)) {
+                alignAggressors(gates, load_pin_index_map, scene, min_max);
+                findNoiseDelays(gates, load_pin_index_map, scene, min_max,
+                                noise_delays);
 
+              }
             }
           }
         }
@@ -348,9 +354,11 @@ DelayNoise::reportNoiseDelays(size_t max_count,
                               const MinMaxAll *min_max,
                               int digits)
 {
+  SceneSeq scenes;
+  scenes.push_back(const_cast<Scene*>(scene));
   DcalcResults noise_delays = ensureNoiseDelays(min_coupling_sum_ratio,
                                                 min_coupling_ratio,
-                                                scene, min_max);
+                                                scenes, min_max);
   if (!noise_delays.empty()) {
     NetSeq nets;
     for (const Net *net : noise_delays.nets(network_))

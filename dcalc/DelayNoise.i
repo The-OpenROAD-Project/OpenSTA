@@ -29,12 +29,12 @@
 void
 annotate_noise_delays_cmd(float min_coupling_sum_ratio,
                           float min_coupling_ratio,
-                          const Scene *scene,
+                          const SceneSeq scenes,
                           const MinMaxAll *min_max)
 {
   Sta *sta = Sta::sta();
   sta->annotateNoiseDelays(min_coupling_sum_ratio, min_coupling_ratio,
-                           scene, min_max);
+                           scenes, min_max);
 }
 
 void

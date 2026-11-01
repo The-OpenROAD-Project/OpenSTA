@@ -6191,13 +6191,13 @@ Sta::activity(const Pin *pin,
 void
 Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
                           float min_coupling_ratio,
-                          const Scene *scene,
+                           const SceneSeq scenes,
                           const MinMaxAll *min_max)
 {
   if (libraryHasCcsModels()) {
     noiseDelayPreamble();
     delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
-                                      min_coupling_ratio, scene, min_max);
+                                      min_coupling_ratio, scenes, min_max);
   }
 }
 

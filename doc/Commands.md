@@ -80,7 +80,7 @@ The `all_registers` command returns a list of  register instances or register pi
 ## annotate_noise_delays
 
 <pre><code>annotate_noise_delays
-    [<a href="#opt-annotate_noise_delays-scene">-scene</a> scene]
+    [<a href="#opt-annotate_noise_delays-scenes">-scenes</a> scenes]
     [<a href="#opt-annotate_noise_delays-min">-min</a>]
     [<a href="#opt-annotate_noise_delays-max">-max</a>]
     [<a href="#opt-annotate_noise_delays-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
@@ -94,8 +94,8 @@ Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors
 
 ### Options
 
-`-scene` {: #opt-annotate_noise_delays-scene }
-: Annotate delay calculation for a scene. Required for multi-scene analysis.
+`-scenes` {: #opt-annotate_noise_delays-scenes }
+: List of scenes to annotate.
 
 `-min` {: #opt-annotate_noise_delays-min }
 : Only annotate minimum delays.
