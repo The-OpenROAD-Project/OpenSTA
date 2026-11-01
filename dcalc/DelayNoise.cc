@@ -566,14 +566,16 @@ DelayNoise::alignAggressors(ArcDcalcArgSeq &gates,
   // Use the load with the max/min slew as the alignment canary.
   const Pin *victim_load = findMaxSlewLoad(drvr_vertex, drvr_arg.drvrEdge(),
                                            scene, min_max);
-  size_t victim_idx = load_pin_index_map.at(victim_load);
-  // Find aggressor input delay offsets to make the aggressor outputs cross
-  // Vth at the same time as the victim.
-  auto [aggr_offsets, aggr_offset_min] = findAggressorOffsets(gates, scene, min_max);
+  if (victim_load) {
+    size_t victim_idx = load_pin_index_map.at(victim_load);
+    // Find aggressor input delay offsets to make the aggressor outputs cross
+    // Vth at the same time as the victim.
+    auto [aggr_offsets, aggr_offset_min] = findAggressorOffsets(gates, scene, min_max);
 
-  // Find the driver offset that min/max's the delay at the carnary load.
-  findDrvrOffset(gates, aggr_offsets, aggr_offset_min, victim_idx,
-                 load_pin_index_map, scene, min_max);
+    // Find the driver offset that min/max's the delay at the carnary load.
+    findDrvrOffset(gates, aggr_offsets, aggr_offset_min, victim_idx,
+                   load_pin_index_map, scene, min_max);
+  }
 }
 
 const Pin *
