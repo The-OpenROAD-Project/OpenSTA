@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <vector>
 
 #include "StringUtil.hh"
@@ -35,7 +35,7 @@ namespace sta {
 using WaveformSeq = std::vector<Table>;
 
 void
-readXyceCsv(const char *csv_filename,
+readXyceCsv(std::string_view csv_filename,
             // Return values.
             StringSeq &titles,
             WaveformSeq &waveforms);

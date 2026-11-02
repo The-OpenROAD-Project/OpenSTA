@@ -188,9 +188,9 @@ div_clk                                18.90
       "verilog_src": "",
       "pin": "div_reg/Q",
       "net": "div_clk",
-      "arrival": 0.000e+00,
-      "capacitance": 9.497e-16,
-      "slew": 7.270e-12
+      "arrival": 0.00e+00,
+      "capacitance": 9.50e-16,
+      "slew": 7.27e-12
     },
     {
       "instance": "reg2",
@@ -198,8 +198,8 @@ div_clk                                18.90
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "div_clk",
-      "arrival": 0.000e+00,
-      "slew": 7.270e-12
+      "arrival": 0.00e+00,
+      "slew": 7.27e-12
     }
   ],
   "source_path": [
@@ -209,9 +209,9 @@ div_clk                                18.90
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n4",
-      "arrival": 8.371e-11,
-      "capacitance": 9.747e-16,
-      "slew": 7.314e-12
+      "arrival": 8.37e-11,
+      "capacitance": 9.75e-16,
+      "slew": 7.31e-12
     },
     {
       "instance": "buf3",
@@ -219,8 +219,8 @@ div_clk                                18.90
       "verilog_src": "",
       "pin": "buf3/A",
       "net": "n4",
-      "arrival": 8.371e-11,
-      "slew": 7.314e-12
+      "arrival": 8.37e-11,
+      "slew": 7.31e-12
     },
     {
       "instance": "buf3",
@@ -228,26 +228,26 @@ div_clk                                18.90
       "verilog_src": "",
       "pin": "buf3/Z",
       "net": "out2",
-      "arrival": 1.003e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.638e-12
+      "arrival": 1.00e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.64e-12
     },
     {
       "instance": "",
       "cell": "search_genclk",
       "verilog_src": "",
       "pin": "out2",
-      "arrival": 1.003e-10,
-      "slew": 3.638e-12
+      "arrival": 1.00e-10,
+      "slew": 3.64e-12
     }
   ],
   "target_clock": "div_clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.003e-10,
-  "crpr": 0.000e+00,
-  "margin": 1.000e-09,
-  "required_time": 1.900e-08,
-  "slack": 1.890e-08
+  "data_arrival_time": 1.00e-10,
+  "crpr": 0.00e+00,
+  "margin": 1.00e-09,
+  "required_time": 1.90e-08,
+  "slack": 1.89e-08
 }
 ]
 }

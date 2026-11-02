@@ -282,6 +282,11 @@ public:
                         const RiseFall *rf,
                         DcalcAPIndex ap_index);
   void removeSlewAnnotated();
+  bool hasNoiseSlewAnnotation() const { return has_noise_slew_annotation_; }
+  void setHasNoiseSlewAnnotation(bool annotated);
+  // Constant zero/one from simulation.
+  bool isConstant() const;
+  LogicValue simValue() const;
   // True when vertex has timing check edges that constrain it.
   [[nodiscard]] bool hasChecks() const  { return has_checks_; }
   void setHasChecks(bool has_checks);
@@ -343,6 +348,7 @@ protected:
   unsigned int visited2_:1;
   unsigned int bfs_predecessor_changed_:1;
   unsigned int has_sim_value_:1;
+  unsigned int has_noise_slew_annotation_:1;
   int level_:Graph::vertex_level_bits; // 24
   unsigned int slew_annotated_:slew_annotated_bits;  // 4
 
@@ -375,6 +381,8 @@ public:
   void setArcDelays(float *delays);
   bool delay_Annotation_Is_Incremental() const {return delay_annotation_is_incremental_;};
   void setDelayAnnotationIsIncremental(bool is_incr);
+  bool hasNoiseDelayAnnotation() const { return has_noise_delay_annotation_; }
+  void setHasNoiseDelayAnnotation(bool annotated);
   // Edge is disabled to break combinational loops.
   [[nodiscard]] bool isDisabledLoop() const { return is_disabled_loop_; }
   void setIsDisabledLoop(bool disabled);
@@ -423,6 +431,7 @@ protected:
   EdgeId vertex_out_prev_;
   bool arc_delay_annotated_is_bits_:1;
   bool delay_annotation_is_incremental_:1;
+  bool has_noise_delay_annotation_:1;
   bool is_bidirect_inst_path_:1;
   bool is_bidirect_net_path_:1;
   // Bidirect load -> driver edge.

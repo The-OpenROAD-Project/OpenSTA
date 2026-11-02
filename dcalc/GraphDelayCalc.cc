@@ -818,6 +818,7 @@ GraphDelayCalc::findDriverDelays(Vertex *drvr_vertex,
                         load_slew_set);
     zeroUnsetLoadSlews(load_pin_index_map, load_slew_set);
   }
+  arc_delay_calc->finishDrvrPin();
 }
 
 MultiDrvrNet *
@@ -1110,8 +1111,14 @@ GraphDelayCalc::findDriverArcDelays(Vertex *drvr_vertex,
                                                               load_cap, parasitic,
                                                               load_pin_index_map,
                                                               scene, min_max);
-      delay_changed |= annotateDelaysSlews(edge, arc, dcalc_result,
-                                           load_pin_index_map, scene, min_max);
+      if (multi_drvr) {
+        LockGuard lock(multi_drvr_lock_);
+        delay_changed |= annotateDelaysSlews(edge, arc, dcalc_result,
+                                             load_pin_index_map, scene, min_max);
+      }
+      else
+        delay_changed |= annotateDelaysSlews(edge, arc, dcalc_result,
+                                             load_pin_index_map, scene, min_max);
     }
     arc_delay_calc->finishDrvrPin();
   }

@@ -27,6 +27,7 @@
 %include "tcl/Exception.i"
 %include "tcl/StaTclTypes.i"
 %include "dcalc/DelayCalc.i"
+%include "dcalc/DelayNoise.i"
 %include "graph/Graph.i"
 %include "liberty/Liberty.i"
 %include "network/Network.i"

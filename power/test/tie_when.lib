@@ -1,0 +1,130 @@
+library (tie_when) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  pulling_resistance_unit : "1kohm";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1, ff);
+  nom_process : 1;
+  nom_voltage : 1.0;
+  nom_temperature : 25;
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 20;
+  slew_lower_threshold_pct_fall : 20;
+  slew_upper_threshold_pct_rise : 80;
+  slew_upper_threshold_pct_fall : 80;
+
+  cell (TIEHI) {
+    area : 1;
+    pin (Y) {
+      direction : output;
+      function : "1";
+    }
+  }
+
+  cell (TIELO) {
+    area : 1;
+    pin (Y) {
+      direction : output;
+      function : "0";
+    }
+  }
+
+  /* Flop with an active-low async set, like a set/reset flop whose set is unused.
+     Clock-pin internal energy is characterised for the normal (SETN high) state only. */
+  cell (DFFS) {
+    area : 4;
+    ff (IQ, IQN) {
+      next_state : "D";
+      clocked_on : "CLK";
+      preset : "!SETN";
+    }
+    pin (CLK) {
+      direction : input;
+      clock : true;
+      capacitance : 1.0;
+      internal_power () {
+        when : "SETN";
+        rise_power (scalar) { values ("1.0"); }
+        fall_power (scalar) { values ("0.0"); }
+      }
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (SETN) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (QN) {
+      direction : output;
+      function : "IQN";
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.01"); }
+        fall_transition (scalar) { values ("0.01"); }
+      }
+    }
+  }
+
+  /* Flop with an active-high async reset that is unused (tied low).
+     Clock-pin internal energy is characterised for the normal (RST low) state only. */
+  cell (DFFR) {
+    area : 4;
+    ff (IQ, IQN) {
+      next_state : "D";
+      clocked_on : "CLK";
+      clear : "RST";
+    }
+    pin (CLK) {
+      direction : input;
+      clock : true;
+      capacitance : 1.0;
+      internal_power () {
+        when : "!RST";
+        rise_power (scalar) { values ("1.0"); }
+        fall_power (scalar) { values ("0.0"); }
+      }
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (RST) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (QN) {
+      direction : output;
+      function : "IQN";
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.01"); }
+        fall_transition (scalar) { values ("0.01"); }
+      }
+    }
+  }
+}

@@ -27,6 +27,7 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
 #include <array>
+#include <limits>
 #include <map>
 #include <vector>
 
@@ -46,6 +47,7 @@ using PortIndexMap = std::map<const Pin*, size_t>;
 using MatrixSd = Eigen::SparseMatrix<double>;
 using PinLMap = std::map<const Pin*, Eigen::VectorXd, PinIdLess>;
 using WatchPinValuesMap = std::map<const Pin*, FloatSeq, PinIdLess>;
+using ParasiticNodeSet = std::set<ParasiticNode*>;
 
 using Waveform = Table;
 
@@ -62,6 +64,7 @@ public:
   ArcDelayCalc *copy() override;
   void copyState(const StaState *sta) override;
   std::string_view name() const override { return "prima"; }
+  size_t primaReduceOrder() const { return prima_order_; }
   void setPrimaReduceOrder(size_t order);
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
@@ -111,7 +114,7 @@ public:
   void clearWatchPins() override;
   PinSeq watchPins() const override;
   Waveform watchWaveform(const Pin *pin) override;
-  
+
 protected:
   void delaySlewPocv(ArcDcalcArg &dcalc_arg,
                      size_t drvr_idx,
@@ -125,10 +128,15 @@ protected:
                  const Eigen::VectorXd &x_init,
                  const Eigen::MatrixXd &x_to_v,
                  size_t order);
-  double maxTime();
-  double timeStep();
-  float driverResistance();
-  void updateCeffIdrvr();
+  float maxParasiticPathResistance(const ArcDcalcArg &dcalc_arg);
+  float parasiticDFS(ParasiticNode *node,
+                     const ParasiticResistor *from_res,
+                     ParasiticNodeResistorMap &resistor_map,
+                     ParasiticNodeSet &visited_nodes);
+  float driverResistance(const ArcDcalcArg &dcalc_arg);
+  void updateCeffIdrvr(double time);
+  float holdResistanceBefore(const ArcDcalcArg &dcalc_arg);
+  float holdResistanceAfter(OutputWaveforms *output_waveform);
   void initSim();
   void findLoads();
   void findNodeCount();
@@ -148,6 +156,7 @@ protected:
   float pinCapacitance(const Pin *pin,
                        const RiseFall *rf,
                        bool includes_pin_caps);
+
   void stampConductance(size_t n1,
                         double g);
   void stampConductance(size_t n1,
@@ -158,11 +167,11 @@ protected:
   void stampCapacitance(size_t n1,
                         size_t n2,
                         double cap);
-  void setPortCurrents();
   void measureThresholds(double time);
   double voltage(const Pin *pin);
   double voltage(size_t node_idx);
-  double voltagePrev(size_t node_idx);
+  double voltagePrev1(size_t node_idx);
+  double voltagePrev2(size_t node_idx);
   bool loadWaveformsFinished();
   ArcDcalcResultSeq dcalcResults();
 
@@ -191,6 +200,7 @@ protected:
   void reportVector(std::vector<double> &matrix);
 
   ArcDcalcArgSeq *dcalc_args_{nullptr};
+  ArcDcalcArg *drvr_arg_;
   size_t drvr_count_;
   float load_cap_;
   const Scene *scene_{nullptr};
@@ -229,23 +239,24 @@ protected:
 
   // Node voltages.
   Eigen::VectorXd v_;                  // voltage[node_idx]
-  Eigen::VectorXd v_prev_;
+  Eigen::VectorXd v_prev1_;
+  Eigen::VectorXd v_prev2_;
 
   // Indexed by driver index.
   std::vector<double> ceff_;
   // Ceff at Vth
   std::vector<double> ceff_vth_;
   std::vector<double> drvr_current_;
+  std::vector<double> drvr_current1_;
+  std::vector<double> waveform_begin_;
+  std::vector<double> waveform_end_;
 
+  double time_begin_;
+  double time_end_;
   double time_step_;
   double time_step_prev_;
 
   // Waveform recording.
-  bool make_waveforms_{false};
-  const Pin *waveform_drvr_pin_{nullptr};
-  const Pin *waveform_load_pin_{nullptr};
-  FloatSeq drvr_voltages_;
-  FloatSeq load_voltages_;
   WatchPinValuesMap watch_pin_values_;
   FloatSeq times_;
 
@@ -258,6 +269,8 @@ protected:
   static constexpr size_t threshold_vth = 1;
   static constexpr size_t threshold_vh = 2;
   static constexpr size_t measure_threshold_count_ = 3;
+  // Crossing time recorded when a threshold is not reached.
+  static constexpr double unset_value_ = std::numeric_limits<double>::quiet_NaN();
   using ThresholdTimes = std::array<double, measure_threshold_count_>;
   // Vl Vth Vh
   ThresholdTimes measure_thresholds_;
@@ -267,8 +280,8 @@ protected:
   // Delay calculator to use when ccs waveforms are missing from liberty.
   ArcDelayCalc *table_dcalc_;
 
-  const char *failure_reason_;
-  ArcDcalcArg *failure_arg_;
+  std::string failure_reason_;
+  ArcDcalcArg *failure_arg_{nullptr};
 
   using ArcDelayCalc::reduceParasitic;
 };

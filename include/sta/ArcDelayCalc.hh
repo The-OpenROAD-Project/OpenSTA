@@ -58,7 +58,6 @@ class ArcDcalcArg
 {
 public:
   ArcDcalcArg();
-  ArcDcalcArg(const ArcDcalcArg &arg);
   ArcDcalcArg(const Pin *in_pin,
               const Pin *drvr_pin,
               Edge *edge,
@@ -92,6 +91,11 @@ public:
   void setLoadCap(float load_cap);
   float inputDelay() const { return input_delay_; }
   void setInputDelay(float input_delay);
+
+  static void sort(ArcDcalcArgSeq &gates,
+                   const Network *network);
+  static std::string to_string(ArcDcalcArgSeq &gates,
+                               const StaState *sta);
 
 protected:
   const Pin *in_pin_;
@@ -154,7 +158,7 @@ using ArcDcalcResultSeq = std::vector<ArcDcalcResult>;
 //      ArnoldiDelayCalc
 //    CcsCeffDelayCalc
 //    CcsSimfDelayCalc
-//    PrimafDelayCalc
+//    PrimaDelayCalc
 
 // Abstract class for the graph delay calculator traversal to interface
 // to a delay calculator primitive.

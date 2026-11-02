@@ -241,7 +241,7 @@ puts "partial output left behind: [file exists $out_file]"
 
 # A syntax error in the input leaves no partial output behind either.
 set bad_lib [make_result_file liberty_binary_errors_truncated.lib]
-file copy -force liberty_float_as_str.lib $bad_lib
+copy_file_contents liberty_float_as_str.lib $bad_lib
 set stream [open $bad_lib r+]
 chan truncate $stream [expr { [file size $bad_lib] / 2 }]
 close $stream
@@ -253,7 +253,7 @@ puts "partial output left behind: [file exists $out_file]"
 # Writing over the input, by any spelling of its path, is refused.
 set same_lib [make_result_file liberty_binary_errors_same.lib]
 set same_lib_alias [make_result_file ./liberty_binary_errors_same.lib]
-file copy -force liberty_float_as_str.lib $same_lib
+copy_file_contents liberty_float_as_str.lib $same_lib
 catch { write_liberty_binary $same_lib $same_lib } result
 puts_error $result
 catch { write_liberty_binary $same_lib $same_lib_alias } result

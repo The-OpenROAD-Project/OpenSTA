@@ -151,6 +151,8 @@ define_cmd_args "report_net" {[-scene scene] [-digits digits]\
   -help {Report the connections and capacitance of a net.} \
   -arg_help {
     net_path {Hierarchical path to a net.}
+    -scene default
+    -digits default
   }
 
 # -hpins to show hierarchical pins

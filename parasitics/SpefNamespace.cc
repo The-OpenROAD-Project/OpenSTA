@@ -102,6 +102,8 @@ staToSpef(std::string_view sta_name,
     else if (ch == path_divider)
       // Translate network divider to spef divider.
       spef_name += spef_divider;
+    else if (ch == '[' || ch == ']')
+      spef_name += ch;
     else if (!(isdigit(ch) || isalpha(ch) || ch == '_')) {
       // Escape non-alphanum characters.
       spef_name += spef_escape;

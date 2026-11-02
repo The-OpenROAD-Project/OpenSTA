@@ -428,7 +428,8 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
     const Pin *output_pin = end->pin();
     if (network_->isTopLevelPort(output_pin)
         && network_->direction(output_pin)->isOutput()) {
-      VertexPathIterator path_iter(end, this);
+      // Only the paths of the model's scene.
+      VertexPathIterator path_iter(end, scene_, nullptr, nullptr, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
         if (search_->matchesFilter(path, nullptr)) {
@@ -533,7 +534,8 @@ MakeTimingModel::findClkedOutputPaths()
       ClockEdgeDelays clk_delays;
       LibertyPort *output_port = modelPort(output_pin);
       Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
-      VertexPathIterator path_iter(output_vertex, this);
+      // Only the paths of the model's scene.
+      VertexPathIterator path_iter(output_vertex, scene_, nullptr, nullptr, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
         const ClockEdge *clk_edge = path->clkEdge(sta_);
@@ -552,12 +554,14 @@ MakeTimingModel::findClkedOutputPaths()
             const RiseFall *clk_rf = clk_edge->transition();
             TimingArcAttrsPtr attrs = nullptr;
             for (const RiseFall *output_rf : RiseFall::range()) {
-              float delay = delays.value(output_rf, min_max_) - clk_edge->time();
-              TimingModel *gate_model =
-                  makeGateModelTable(output_pin, delay, output_rf);
-              if (attrs == nullptr)
-                attrs = std::make_shared<TimingArcAttrs>();
-              attrs->setModel(output_rf, gate_model);
+              if (delays.hasValue(output_rf, min_max_)) {
+                float delay = delays.value(output_rf, min_max_) - clk_edge->time();
+                TimingModel *gate_model =
+                    makeGateModelTable(output_pin, delay, output_rf);
+                if (attrs == nullptr)
+                  attrs = std::make_shared<TimingArcAttrs>();
+                attrs->setModel(output_rf, gate_model);
+              }
             }
             if (attrs) {
               lib_builder_->makeFromTransitionArcs(cell_, clk_port, output_port,
