@@ -21,6 +21,7 @@ variable hidden_cmds {
   show_copying
   show_splash
   show_warranty
+  write_delay_noise_case
   write_gate_gnuplot
   write_gate_spice
 }
@@ -67,12 +68,11 @@ proc check_cmd_arg_help {} {
 
   set missing_pairs {}
   foreach cmd [lsort [array names cmd_args]] {
-    if { ![info exists cmd_help($cmd)] || $cmd_help($cmd) == "" } {
-      continue
-    }
-    foreach opt [cmd_synopsis_options $cmd_args($cmd)] {
-      if { [cmd_arg_help_text $cmd $opt] == "" } {
-        lappend missing_pairs [list $cmd $opt]
+    if { [info exists cmd_help($cmd)] && $cmd_help($cmd) != "" } {
+      foreach opt [cmd_synopsis_options $cmd_args($cmd)] {
+        if { [cmd_arg_help_text $cmd $opt] == "" } {
+          lappend missing_pairs [list $cmd $opt]
+        }
       }
     }
   }

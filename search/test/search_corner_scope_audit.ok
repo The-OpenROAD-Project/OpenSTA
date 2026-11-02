@@ -5,6 +5,7 @@ corner-neutral commands:
   all_inputs
   all_outputs
   all_registers
+  annotate_noise_delays
   check_setup
   connect_pin
   current_design
@@ -55,6 +56,7 @@ corner-neutral commands:
   read_verilog
   replace_cell
   report_activity_annotation
+  report_aggressors
   report_annotated_check
   report_annotated_delay
   report_arrival
@@ -71,6 +73,7 @@ corner-neutral commands:
   report_instance
   report_lib_cell
   report_net
+  report_noise_delays
   report_object_full_names
   report_object_names
   report_parasitic_annotation
@@ -81,6 +84,7 @@ corner-neutral commands:
   report_slews
   report_tns
   report_units
+  report_victim_nets
   report_wns
   report_worst_slack
   set_assigned_check
@@ -108,6 +112,7 @@ corner-neutral commands:
   unsuppress_msg
   user_run_time
   with_output_to_variable
+  write_delay_noise_case
   write_gate_gnuplot
   write_gate_spice
   write_liberty_binary

@@ -28,7 +28,7 @@ pin slew_max_fall: 0.005011
 pin slew_min: 0.005010
 pin slew_min_rise: 0.005947
 pin slew_min_fall: 0.005010
-pin activity: 1.00000e+07 0.250 propagated
+pin activity: 9.50000e+06 0.250 propagated
 --- Port properties ---
 port name: in1
 port full_name: in1

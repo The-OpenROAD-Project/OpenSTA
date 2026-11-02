@@ -1394,7 +1394,7 @@ TEST_F(StaDesignTest, ClockInsertion) {
     const size_t path_idx = corner->pathIndex(MinMax::max());
     (void)path_idx;
     Arrival ins = search->clockInsertion(clk, pin, RiseFall::rise(),
-      MinMax::max(), EarlyLate::late(), sta_->cmdMode());
+      MinMax::max(), EarlyLate::late(), corner);
     EXPECT_FALSE(std::isinf(ins));
   }
 }

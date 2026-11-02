@@ -1085,6 +1085,8 @@ Vertex::init(Pin *pin,
   tag_group_index_ = tag_group_index_max;
   is_bidirect_drvr_ = is_bidirect_drvr;
   is_reg_clk_ = is_reg_clk;
+  slew_annotated_ = false;
+  has_noise_slew_annotation_ = false;
   has_checks_ = false;
   is_check_clk_ = false;
   has_downstream_clk_pin_ = false;
@@ -1238,6 +1240,12 @@ Vertex::removeSlewAnnotated()
   slew_annotated_ = 0;
 }
 
+void
+Vertex::setHasNoiseSlewAnnotation(bool annotated)
+{
+  has_noise_slew_annotation_ = annotated;
+}
+
 TagGroupIndex
 Vertex::tagGroupIndex() const
 {
@@ -1356,6 +1364,7 @@ Edge::init(VertexId from,
   is_bidirect_inst_path_ = false;
   is_bidirect_net_path_ = false;
   is_bidirect_port_path_ = false;
+  has_noise_delay_annotation_ = false;
   is_disabled_loop_ = false;
   has_sim_sense_ = false;
   has_disabled_cond_ = false;
@@ -1470,6 +1479,12 @@ uintptr_t
 Edge::arcDelayAnnotateBit(size_t index)
 {
   return static_cast<uintptr_t>(1) << index;
+}
+
+void
+Edge::setHasNoiseDelayAnnotation(bool annotated)
+{
+  has_noise_delay_annotation_ = annotated;
 }
 
 const TimingRole *

@@ -34,4 +34,7 @@ writeVerilog(const char *filename,
              CellSeq *remove_cells,
              Network *network);
 
+std::string_view
+verilogPortDir(PortDirection *dir);
+
 } // namespace sta

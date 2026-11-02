@@ -134,6 +134,7 @@ output { return token::OUTPUT; }
 parameter { return token::PARAMETER; }
 defparam { return token::DEFPARAM; }
 reg { return token::REG; }
+signed { return token::SIGNED; }
 specify { return token::SPECIFY; }
 endspecify { return token::ENDSPECIFY; }
 specparam { return token::SPECPARAM; }

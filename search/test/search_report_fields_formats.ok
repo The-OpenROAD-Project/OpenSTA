@@ -1427,9 +1427,9 @@ Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoin
     "verilog_src": "",
     "pin": "reg2/Q",
     "net": "n5",
-    "arrival": 1.406e-10,
-    "capacitance": 2.115e-15,
-    "slew": 9.341e-12
+    "arrival": 1.41e-10,
+    "capacitance": 2.11e-15,
+    "slew": 9.34e-12
   },
   {
     "instance": "buf3",
@@ -1437,8 +1437,8 @@ Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoin
     "verilog_src": "",
     "pin": "buf3/A",
     "net": "n5",
-    "arrival": 1.406e-10,
-    "slew": 9.341e-12
+    "arrival": 1.41e-10,
+    "slew": 9.34e-12
   },
   {
     "instance": "buf3",
@@ -1446,17 +1446,17 @@ Warning 502: search_report_fields_formats.tcl line 1, find_timing_paths -endpoin
     "verilog_src": "",
     "pin": "buf3/Z",
     "net": "out1",
-    "arrival": 1.580e-10,
-    "capacitance": 0.000e+00,
-    "slew": 3.695e-12
+    "arrival": 1.58e-10,
+    "capacitance": 0.00e+00,
+    "slew": 3.70e-12
   },
   {
     "instance": "",
     "cell": "search_crpr_data_checks",
     "verilog_src": "",
     "pin": "out1",
-    "arrival": 1.580e-10,
-    "slew": 3.695e-12
+    "arrival": 1.58e-10,
+    "slew": 3.70e-12
   }
 ]
 }
@@ -2132,9 +2132,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2142,8 +2142,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2151,9 +2151,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2161,8 +2161,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2170,9 +2170,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -2180,8 +2180,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
   "source_path": [
@@ -2191,9 +2191,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n5",
-      "arrival": 1.406e-10,
-      "capacitance": 2.115e-15,
-      "slew": 9.341e-12
+      "arrival": 1.41e-10,
+      "capacitance": 2.11e-15,
+      "slew": 9.34e-12
     },
     {
       "instance": "buf3",
@@ -2201,8 +2201,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf3/A",
       "net": "n5",
-      "arrival": 1.406e-10,
-      "slew": 9.341e-12
+      "arrival": 1.41e-10,
+      "slew": 9.34e-12
     },
     {
       "instance": "buf3",
@@ -2210,26 +2210,26 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf3/Z",
       "net": "out1",
-      "arrival": 1.580e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.695e-12
+      "arrival": 1.58e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.70e-12
     },
     {
       "instance": "",
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.580e-10,
-      "slew": 3.695e-12
+      "arrival": 1.58e-10,
+      "slew": 3.70e-12
     }
   ],
   "target_clock": "clk1",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.580e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.842e-09
+  "data_arrival_time": 1.58e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.84e-09
 },
 {
   "type": "output_delay",
@@ -2245,9 +2245,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2255,8 +2255,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2264,9 +2264,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2274,8 +2274,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2283,9 +2283,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -2293,8 +2293,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
   "source_path": [
@@ -2304,9 +2304,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n5",
-      "arrival": 1.338e-10,
-      "capacitance": 1.938e-15,
-      "slew": 6.717e-12
+      "arrival": 1.34e-10,
+      "capacitance": 1.94e-15,
+      "slew": 6.72e-12
     },
     {
       "instance": "buf3",
@@ -2314,8 +2314,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf3/A",
       "net": "n5",
-      "arrival": 1.338e-10,
-      "slew": 6.717e-12
+      "arrival": 1.34e-10,
+      "slew": 6.72e-12
     },
     {
       "instance": "buf3",
@@ -2323,26 +2323,26 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf3/Z",
       "net": "out1",
-      "arrival": 1.557e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.908e-12
+      "arrival": 1.56e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.91e-12
     },
     {
       "instance": "",
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.557e-10,
-      "slew": 3.908e-12
+      "arrival": 1.56e-10,
+      "slew": 3.91e-12
     }
   ],
   "target_clock": "clk1",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.557e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.844e-09
+  "data_arrival_time": 1.56e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.84e-09
 },
 {
   "type": "check",
@@ -2358,9 +2358,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "in2",
-      "arrival": 1.000e-09,
-      "capacitance": 8.941e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 8.94e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -2368,8 +2368,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/A2",
       "net": "in2",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -2377,9 +2377,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.025e-09,
-      "capacitance": 8.752e-16,
-      "slew": 5.258e-12
+      "arrival": 1.02e-09,
+      "capacitance": 8.75e-16,
+      "slew": 5.26e-12
     },
     {
       "instance": "buf1",
@@ -2387,8 +2387,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.025e-09,
-      "slew": 5.258e-12
+      "arrival": 1.02e-09,
+      "slew": 5.26e-12
     },
     {
       "instance": "buf1",
@@ -2396,9 +2396,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.048e-09,
-      "capacitance": 1.062e-15,
-      "slew": 5.011e-12
+      "arrival": 1.05e-09,
+      "capacitance": 1.06e-15,
+      "slew": 5.01e-12
     },
     {
       "instance": "reg1",
@@ -2406,8 +2406,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.048e-09,
-      "slew": 5.011e-12
+      "arrival": 1.05e-09,
+      "slew": 5.01e-12
     }
   ],
   "target_clock": "clk1",
@@ -2418,9 +2418,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2428,8 +2428,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2437,9 +2437,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -2447,15 +2447,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
-  "data_arrival_time": 1.048e-09,
-  "crpr": 0.000e+00,
-  "margin": 3.608e-11,
-  "required_time": 9.989e-09,
-  "slack": 8.941e-09
+  "data_arrival_time": 1.05e-09,
+  "crpr": 0.00e+00,
+  "margin": 3.61e-11,
+  "required_time": 9.99e-09,
+  "slack": 8.94e-09
 },
 {
   "type": "check",
@@ -2471,9 +2471,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "in1",
-      "arrival": 1.000e-09,
-      "capacitance": 8.748e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 8.75e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -2481,8 +2481,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/A1",
       "net": "in1",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -2490,9 +2490,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.022e-09,
-      "capacitance": 8.752e-16,
-      "slew": 5.258e-12
+      "arrival": 1.02e-09,
+      "capacitance": 8.75e-16,
+      "slew": 5.26e-12
     },
     {
       "instance": "buf1",
@@ -2500,8 +2500,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.022e-09,
-      "slew": 5.258e-12
+      "arrival": 1.02e-09,
+      "slew": 5.26e-12
     },
     {
       "instance": "buf1",
@@ -2509,9 +2509,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.046e-09,
-      "capacitance": 1.062e-15,
-      "slew": 5.011e-12
+      "arrival": 1.05e-09,
+      "capacitance": 1.06e-15,
+      "slew": 5.01e-12
     },
     {
       "instance": "reg1",
@@ -2519,8 +2519,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.046e-09,
-      "slew": 5.011e-12
+      "arrival": 1.05e-09,
+      "slew": 5.01e-12
     }
   ],
   "target_clock": "clk1",
@@ -2531,9 +2531,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2541,8 +2541,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2550,9 +2550,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -2560,15 +2560,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
-  "data_arrival_time": 1.046e-09,
-  "crpr": 0.000e+00,
-  "margin": 3.608e-11,
-  "required_time": 9.989e-09,
-  "slack": 8.943e-09
+  "data_arrival_time": 1.05e-09,
+  "crpr": 0.00e+00,
+  "margin": 3.61e-11,
+  "required_time": 9.99e-09,
+  "slack": 8.94e-09
 },
 {
   "type": "check",
@@ -2584,9 +2584,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "in2",
-      "arrival": 1.000e-09,
-      "capacitance": 9.746e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 9.75e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -2594,8 +2594,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/A2",
       "net": "in2",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -2603,9 +2603,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.026e-09,
-      "capacitance": 9.747e-16,
-      "slew": 7.001e-12
+      "arrival": 1.03e-09,
+      "capacitance": 9.75e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -2613,8 +2613,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.026e-09,
-      "slew": 7.001e-12
+      "arrival": 1.03e-09,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -2622,9 +2622,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.045e-09,
-      "capacitance": 1.140e-15,
-      "slew": 5.947e-12
+      "arrival": 1.05e-09,
+      "capacitance": 1.14e-15,
+      "slew": 5.95e-12
     },
     {
       "instance": "reg1",
@@ -2632,8 +2632,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.045e-09,
-      "slew": 5.947e-12
+      "arrival": 1.05e-09,
+      "slew": 5.95e-12
     }
   ],
   "target_clock": "clk1",
@@ -2644,9 +2644,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2654,8 +2654,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2663,9 +2663,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -2673,15 +2673,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
-  "data_arrival_time": 1.045e-09,
-  "crpr": 0.000e+00,
-  "margin": 2.980e-11,
-  "required_time": 9.996e-09,
-  "slack": 8.950e-09
+  "data_arrival_time": 1.05e-09,
+  "crpr": 0.00e+00,
+  "margin": 2.98e-11,
+  "required_time": 1.00e-08,
+  "slack": 8.95e-09
 },
 {
   "type": "check",
@@ -2697,9 +2697,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2707,8 +2707,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2716,9 +2716,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2726,8 +2726,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2735,9 +2735,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -2745,8 +2745,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
   "source_path": [
@@ -2756,9 +2756,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n5",
-      "arrival": 1.406e-10,
-      "capacitance": 2.115e-15,
-      "slew": 9.341e-12
+      "arrival": 1.41e-10,
+      "capacitance": 2.11e-15,
+      "slew": 9.34e-12
     },
     {
       "instance": "reg3",
@@ -2766,8 +2766,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/D",
       "net": "n5",
-      "arrival": 1.406e-10,
-      "slew": 9.341e-12
+      "arrival": 1.41e-10,
+      "slew": 9.34e-12
     }
   ],
   "target_clock": "clk2",
@@ -2778,9 +2778,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -2788,8 +2788,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -2797,9 +2797,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -2807,15 +2807,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
-  "data_arrival_time": 3.014e-08,
-  "crpr": 0.000e+00,
-  "margin": 3.088e-11,
-  "required_time": 3.199e-08,
-  "slack": 1.851e-09
+  "data_arrival_time": 3.01e-08,
+  "crpr": 0.00e+00,
+  "margin": 3.09e-11,
+  "required_time": 3.20e-08,
+  "slack": 1.85e-09
 },
 {
   "type": "check",
@@ -2831,9 +2831,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2841,8 +2841,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -2850,9 +2850,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2860,8 +2860,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -2869,9 +2869,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -2879,8 +2879,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
   "source_path": [
@@ -2890,9 +2890,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n5",
-      "arrival": 1.338e-10,
-      "capacitance": 1.938e-15,
-      "slew": 6.717e-12
+      "arrival": 1.34e-10,
+      "capacitance": 1.94e-15,
+      "slew": 6.72e-12
     },
     {
       "instance": "reg3",
@@ -2900,8 +2900,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/D",
       "net": "n5",
-      "arrival": 1.338e-10,
-      "slew": 6.717e-12
+      "arrival": 1.34e-10,
+      "slew": 6.72e-12
     }
   ],
   "target_clock": "clk2",
@@ -2912,9 +2912,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -2922,8 +2922,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -2931,9 +2931,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -2941,15 +2941,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
-  "data_arrival_time": 3.013e-08,
-  "crpr": 0.000e+00,
-  "margin": 3.728e-11,
-  "required_time": 3.199e-08,
-  "slack": 1.852e-09
+  "data_arrival_time": 3.01e-08,
+  "crpr": 0.00e+00,
+  "margin": 3.73e-11,
+  "required_time": 3.20e-08,
+  "slack": 1.85e-09
 },
 {
   "type": "output_delay",
@@ -2965,9 +2965,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -2975,8 +2975,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -2984,9 +2984,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -2994,8 +2994,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
   "source_path": [
@@ -3005,9 +3005,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/Q",
       "net": "n6",
-      "arrival": 1.093e-10,
-      "capacitance": 9.747e-16,
-      "slew": 7.316e-12
+      "arrival": 1.09e-10,
+      "capacitance": 9.75e-16,
+      "slew": 7.32e-12
     },
     {
       "instance": "buf4",
@@ -3015,8 +3015,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/A",
       "net": "n6",
-      "arrival": 1.093e-10,
-      "slew": 7.316e-12
+      "arrival": 1.09e-10,
+      "slew": 7.32e-12
     },
     {
       "instance": "buf4",
@@ -3024,26 +3024,26 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/Z",
       "net": "out2",
-      "arrival": 1.259e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.638e-12
+      "arrival": 1.26e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.64e-12
     },
     {
       "instance": "",
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "out2",
-      "arrival": 1.259e-10,
-      "slew": 3.638e-12
+      "arrival": 1.26e-10,
+      "slew": 3.64e-12
     }
   ],
   "target_clock": "clk2",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.259e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 6.000e-09,
-  "slack": 5.874e-09
+  "data_arrival_time": 1.26e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 6.00e-09,
+  "slack": 5.87e-09
 },
 {
   "type": "output_delay",
@@ -3059,9 +3059,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -3069,8 +3069,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -3078,9 +3078,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -3088,8 +3088,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
   "source_path": [
@@ -3099,9 +3099,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/Q",
       "net": "n6",
-      "arrival": 1.029e-10,
-      "capacitance": 8.752e-16,
-      "slew": 5.625e-12
+      "arrival": 1.03e-10,
+      "capacitance": 8.75e-16,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf4",
@@ -3109,8 +3109,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/A",
       "net": "n6",
-      "arrival": 1.029e-10,
-      "slew": 5.625e-12
+      "arrival": 1.03e-10,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf4",
@@ -3118,26 +3118,26 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/Z",
       "net": "out2",
-      "arrival": 1.242e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.903e-12
+      "arrival": 1.24e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.90e-12
     },
     {
       "instance": "",
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "out2",
-      "arrival": 1.242e-10,
-      "slew": 3.903e-12
+      "arrival": 1.24e-10,
+      "slew": 3.90e-12
     }
   ],
   "target_clock": "clk2",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.242e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 6.000e-09,
-  "slack": 5.876e-09
+  "data_arrival_time": 1.24e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 6.00e-09,
+  "slack": 5.88e-09
 }
 ]
 }
@@ -3157,9 +3157,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3167,8 +3167,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3176,9 +3176,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -3186,8 +3186,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
   "source_path": [
@@ -3197,9 +3197,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 1.126e-10,
-      "capacitance": 9.747e-16,
-      "slew": 7.316e-12
+      "arrival": 1.13e-10,
+      "capacitance": 9.75e-16,
+      "slew": 7.32e-12
     },
     {
       "instance": "buf2",
@@ -3207,8 +3207,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n3",
-      "arrival": 1.126e-10,
-      "slew": 7.316e-12
+      "arrival": 1.13e-10,
+      "slew": 7.32e-12
     },
     {
       "instance": "buf2",
@@ -3216,9 +3216,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "n4",
-      "arrival": 1.323e-10,
-      "capacitance": 1.140e-15,
-      "slew": 5.953e-12
+      "arrival": 1.32e-10,
+      "capacitance": 1.14e-15,
+      "slew": 5.95e-12
     },
     {
       "instance": "reg2",
@@ -3226,8 +3226,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/D",
       "net": "n4",
-      "arrival": 1.323e-10,
-      "slew": 5.953e-12
+      "arrival": 1.32e-10,
+      "slew": 5.95e-12
     }
   ],
   "target_clock": "clk1",
@@ -3238,9 +3238,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3248,8 +3248,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3257,9 +3257,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3267,8 +3267,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3276,9 +3276,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -3286,15 +3286,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
-  "data_arrival_time": 1.323e-10,
-  "crpr": 0.000e+00,
-  "margin": 6.736e-12,
-  "required_time": 5.834e-11,
-  "slack": 7.392e-11
+  "data_arrival_time": 1.32e-10,
+  "crpr": 0.00e+00,
+  "margin": 6.74e-12,
+  "required_time": 5.83e-11,
+  "slack": 7.39e-11
 },
 {
   "type": "check",
@@ -3310,9 +3310,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3320,8 +3320,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3329,9 +3329,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -3339,8 +3339,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
   "source_path": [
@@ -3350,9 +3350,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 1.061e-10,
-      "capacitance": 8.752e-16,
-      "slew": 5.625e-12
+      "arrival": 1.06e-10,
+      "capacitance": 8.75e-16,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf2",
@@ -3360,8 +3360,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n3",
-      "arrival": 1.061e-10,
-      "slew": 5.625e-12
+      "arrival": 1.06e-10,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf2",
@@ -3369,9 +3369,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "n4",
-      "arrival": 1.298e-10,
-      "capacitance": 1.062e-15,
-      "slew": 5.013e-12
+      "arrival": 1.30e-10,
+      "capacitance": 1.06e-15,
+      "slew": 5.01e-12
     },
     {
       "instance": "reg2",
@@ -3379,8 +3379,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/D",
       "net": "n4",
-      "arrival": 1.298e-10,
-      "slew": 5.013e-12
+      "arrival": 1.30e-10,
+      "slew": 5.01e-12
     }
   ],
   "target_clock": "clk1",
@@ -3391,9 +3391,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3401,8 +3401,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3410,9 +3410,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3420,8 +3420,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3429,9 +3429,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -3439,15 +3439,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
-  "data_arrival_time": 1.298e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.987e-12,
-  "required_time": 5.459e-11,
-  "slack": 7.521e-11
+  "data_arrival_time": 1.30e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.99e-12,
+  "required_time": 5.46e-11,
+  "slack": 7.52e-11
 },
 {
   "type": "check",
@@ -3463,9 +3463,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "in1",
-      "arrival": 1.000e-09,
-      "capacitance": 9.181e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 9.18e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -3473,8 +3473,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/A1",
       "net": "in1",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -3482,9 +3482,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.024e-09,
-      "capacitance": 9.747e-16,
-      "slew": 7.000e-12
+      "arrival": 1.02e-09,
+      "capacitance": 9.75e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -3492,8 +3492,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.024e-09,
-      "slew": 7.000e-12
+      "arrival": 1.02e-09,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -3501,9 +3501,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.044e-09,
-      "capacitance": 1.140e-15,
-      "slew": 5.947e-12
+      "arrival": 1.04e-09,
+      "capacitance": 1.14e-15,
+      "slew": 5.95e-12
     },
     {
       "instance": "reg1",
@@ -3511,8 +3511,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.044e-09,
-      "slew": 5.947e-12
+      "arrival": 1.04e-09,
+      "slew": 5.95e-12
     }
   ],
   "target_clock": "clk1",
@@ -3523,9 +3523,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3533,8 +3533,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3542,9 +3542,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -3552,15 +3552,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
-  "data_arrival_time": 1.044e-09,
-  "crpr": 0.000e+00,
-  "margin": 7.159e-12,
-  "required_time": 3.264e-11,
-  "slack": 1.011e-09
+  "data_arrival_time": 1.04e-09,
+  "crpr": 0.00e+00,
+  "margin": 7.16e-12,
+  "required_time": 3.26e-11,
+  "slack": 1.01e-09
 },
 {
   "type": "check",
@@ -3576,9 +3576,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "in2",
-      "arrival": 1.000e-09,
-      "capacitance": 9.746e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 9.75e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -3586,8 +3586,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/A2",
       "net": "in2",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -3595,9 +3595,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.026e-09,
-      "capacitance": 9.747e-16,
-      "slew": 7.000e-12
+      "arrival": 1.03e-09,
+      "capacitance": 9.75e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -3605,8 +3605,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.026e-09,
-      "slew": 7.000e-12
+      "arrival": 1.03e-09,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -3614,9 +3614,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.045e-09,
-      "capacitance": 1.140e-15,
-      "slew": 5.947e-12
+      "arrival": 1.05e-09,
+      "capacitance": 1.14e-15,
+      "slew": 5.95e-12
     },
     {
       "instance": "reg1",
@@ -3624,8 +3624,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.045e-09,
-      "slew": 5.947e-12
+      "arrival": 1.05e-09,
+      "slew": 5.95e-12
     }
   ],
   "target_clock": "clk1",
@@ -3636,9 +3636,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3646,8 +3646,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3655,9 +3655,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -3665,15 +3665,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
-  "data_arrival_time": 1.045e-09,
-  "crpr": 0.000e+00,
-  "margin": 7.159e-12,
-  "required_time": 3.264e-11,
-  "slack": 1.013e-09
+  "data_arrival_time": 1.05e-09,
+  "crpr": 0.00e+00,
+  "margin": 7.16e-12,
+  "required_time": 3.26e-11,
+  "slack": 1.01e-09
 },
 {
   "type": "check",
@@ -3689,9 +3689,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "in1",
-      "arrival": 1.000e-09,
-      "capacitance": 8.748e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 8.75e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -3699,8 +3699,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/A1",
       "net": "in1",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -3708,9 +3708,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.022e-09,
-      "capacitance": 8.752e-16,
-      "slew": 5.043e-12
+      "arrival": 1.02e-09,
+      "capacitance": 8.75e-16,
+      "slew": 5.04e-12
     },
     {
       "instance": "buf1",
@@ -3718,8 +3718,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.022e-09,
-      "slew": 5.043e-12
+      "arrival": 1.02e-09,
+      "slew": 5.04e-12
     },
     {
       "instance": "buf1",
@@ -3727,9 +3727,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.046e-09,
-      "capacitance": 1.062e-15,
-      "slew": 5.010e-12
+      "arrival": 1.05e-09,
+      "capacitance": 1.06e-15,
+      "slew": 5.01e-12
     },
     {
       "instance": "reg1",
@@ -3737,8 +3737,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.046e-09,
-      "slew": 5.010e-12
+      "arrival": 1.05e-09,
+      "slew": 5.01e-12
     }
   ],
   "target_clock": "clk1",
@@ -3749,9 +3749,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3759,8 +3759,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3768,9 +3768,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "reg1",
@@ -3778,15 +3778,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     }
   ],
-  "data_arrival_time": 1.046e-09,
-  "crpr": 0.000e+00,
-  "margin": 3.301e-12,
-  "required_time": 2.878e-11,
-  "slack": 1.017e-09
+  "data_arrival_time": 1.05e-09,
+  "crpr": 0.00e+00,
+  "margin": 3.30e-12,
+  "required_time": 2.88e-11,
+  "slack": 1.02e-09
 },
 {
   "type": "check",
@@ -3802,9 +3802,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3812,8 +3812,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3821,9 +3821,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3831,8 +3831,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3840,9 +3840,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -3850,8 +3850,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
   "source_path": [
@@ -3861,9 +3861,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n5",
-      "arrival": 1.338e-10,
-      "capacitance": 1.938e-15,
-      "slew": 6.717e-12
+      "arrival": 1.34e-10,
+      "capacitance": 1.94e-15,
+      "slew": 6.72e-12
     },
     {
       "instance": "reg3",
@@ -3871,8 +3871,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/D",
       "net": "n5",
-      "arrival": 1.338e-10,
-      "slew": 6.717e-12
+      "arrival": 1.34e-10,
+      "slew": 6.72e-12
     }
   ],
   "target_clock": "clk2",
@@ -3883,9 +3883,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -3893,8 +3893,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -3902,9 +3902,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -3912,15 +3912,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
-  "data_arrival_time": 1.338e-10,
-  "crpr": 0.000e+00,
-  "margin": 3.068e-12,
-  "required_time": 2.597e-11,
-  "slack": 1.078e-10
+  "data_arrival_time": 1.34e-10,
+  "crpr": 0.00e+00,
+  "margin": 3.07e-12,
+  "required_time": 2.60e-11,
+  "slack": 1.08e-10
 },
 {
   "type": "check",
@@ -3936,9 +3936,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk1",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3946,8 +3946,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/A",
       "net": "clk1",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck1buf1",
@@ -3955,9 +3955,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf1/Z",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "capacitance": 1.729e-15,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "capacitance": 1.73e-15,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3965,8 +3965,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/A",
       "net": "clk1_buf1",
-      "arrival": 2.548e-11,
-      "slew": 8.079e-12
+      "arrival": 2.55e-11,
+      "slew": 8.08e-12
     },
     {
       "instance": "ck1buf2",
@@ -3974,9 +3974,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck1buf2/Z",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.57e-12
     },
     {
       "instance": "reg2",
@@ -3984,8 +3984,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "clk1_buf2",
-      "arrival": 5.161e-11,
-      "slew": 6.565e-12
+      "arrival": 5.16e-11,
+      "slew": 6.57e-12
     }
   ],
   "source_path": [
@@ -3995,9 +3995,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg2/Q",
       "net": "n5",
-      "arrival": 1.406e-10,
-      "capacitance": 2.115e-15,
-      "slew": 9.341e-12
+      "arrival": 1.41e-10,
+      "capacitance": 2.11e-15,
+      "slew": 9.34e-12
     },
     {
       "instance": "reg3",
@@ -4005,8 +4005,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/D",
       "net": "n5",
-      "arrival": 1.406e-10,
-      "slew": 9.341e-12
+      "arrival": 1.41e-10,
+      "slew": 9.34e-12
     }
   ],
   "target_clock": "clk2",
@@ -4017,9 +4017,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -4027,8 +4027,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -4036,9 +4036,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -4046,15 +4046,15 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
-  "data_arrival_time": 1.406e-10,
-  "crpr": 0.000e+00,
-  "margin": 7.747e-12,
-  "required_time": 3.065e-11,
-  "slack": 1.099e-10
+  "data_arrival_time": 1.41e-10,
+  "crpr": 0.00e+00,
+  "margin": 7.75e-12,
+  "required_time": 3.06e-11,
+  "slack": 1.10e-10
 },
 {
   "type": "output_delay",
@@ -4070,9 +4070,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -4080,8 +4080,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -4089,9 +4089,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -4099,8 +4099,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
   "source_path": [
@@ -4110,9 +4110,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/Q",
       "net": "n6",
-      "arrival": 1.029e-10,
-      "capacitance": 8.752e-16,
-      "slew": 5.625e-12
+      "arrival": 1.03e-10,
+      "capacitance": 8.75e-16,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf4",
@@ -4120,8 +4120,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/A",
       "net": "n6",
-      "arrival": 1.029e-10,
-      "slew": 5.625e-12
+      "arrival": 1.03e-10,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf4",
@@ -4129,26 +4129,26 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/Z",
       "net": "out2",
-      "arrival": 1.242e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.903e-12
+      "arrival": 1.24e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.90e-12
     },
     {
       "instance": "",
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "out2",
-      "arrival": 1.242e-10,
-      "slew": 3.903e-12
+      "arrival": 1.24e-10,
+      "slew": 3.90e-12
     }
   ],
   "target_clock": "clk2",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.242e-10,
-  "crpr": 0.000e+00,
-  "margin": -2.000e-09,
-  "required_time": -2.000e-09,
-  "slack": 2.124e-09
+  "data_arrival_time": 1.24e-10,
+  "crpr": 0.00e+00,
+  "margin": -2.00e-09,
+  "required_time": -2.00e-09,
+  "slack": 2.12e-09
 },
 {
   "type": "output_delay",
@@ -4164,9 +4164,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "clk2",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -4174,8 +4174,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/A",
       "net": "clk2",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "ck2buf",
@@ -4183,9 +4183,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "ck2buf/Z",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "capacitance": 9.497e-16,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "capacitance": 9.50e-16,
+      "slew": 6.55e-12
     },
     {
       "instance": "reg3",
@@ -4193,8 +4193,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/CK",
       "net": "clk2_buf",
-      "arrival": 2.290e-11,
-      "slew": 6.551e-12
+      "arrival": 2.29e-11,
+      "slew": 6.55e-12
     }
   ],
   "source_path": [
@@ -4204,9 +4204,9 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "reg3/Q",
       "net": "n6",
-      "arrival": 1.093e-10,
-      "capacitance": 9.747e-16,
-      "slew": 7.316e-12
+      "arrival": 1.09e-10,
+      "capacitance": 9.75e-16,
+      "slew": 7.32e-12
     },
     {
       "instance": "buf4",
@@ -4214,8 +4214,8 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/A",
       "net": "n6",
-      "arrival": 1.093e-10,
-      "slew": 7.316e-12
+      "arrival": 1.09e-10,
+      "slew": 7.32e-12
     },
     {
       "instance": "buf4",
@@ -4223,26 +4223,26 @@ Warning 502: search_report_fields_formats.tcl line 1, report_checks -endpoint_co
       "verilog_src": "",
       "pin": "buf4/Z",
       "net": "out2",
-      "arrival": 1.259e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.638e-12
+      "arrival": 1.26e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.64e-12
     },
     {
       "instance": "",
       "cell": "search_crpr_data_checks",
       "verilog_src": "",
       "pin": "out2",
-      "arrival": 1.259e-10,
-      "slew": 3.638e-12
+      "arrival": 1.26e-10,
+      "slew": 3.64e-12
     }
   ],
   "target_clock": "clk2",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.259e-10,
-  "crpr": 0.000e+00,
-  "margin": -2.000e-09,
-  "required_time": -2.000e-09,
-  "slack": 2.126e-09
+  "data_arrival_time": 1.26e-10,
+  "crpr": 0.00e+00,
+  "margin": -2.00e-09,
+  "required_time": -2.00e-09,
+  "slack": 2.13e-09
 }
 ]
 }

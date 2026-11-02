@@ -9,26 +9,26 @@ Path Type: max
            0.00    0.00   clock source latency
   10.00    0.00    0.00 ^ clk2 (in)
   48.15   12.04   12.04 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
-  38.97   90.82  102.86 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
-  59.28   16.50  119.36 ^ u1/A (BUFx2_ASAP7_75t_R)
-  70.25   51.69  171.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
-  83.74   18.32  189.37 ^ u2/B (AND2x2_ASAP7_75t_R)
-  72.19   60.76  250.13 ^ u2/Y (AND2x2_ASAP7_75t_R)
-  85.61   18.34  268.46 ^ r3/D (DFFHQx4_ASAP7_75t_R)
-                 268.46   data arrival time
+  40.66   89.99  102.03 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  61.38   16.57  118.60 ^ u1/A (BUFx2_ASAP7_75t_R)
+  71.15   51.12  169.72 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  85.40   18.29  188.01 ^ u2/B (AND2x2_ASAP7_75t_R)
+  73.02   57.41  245.42 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  87.19   18.30  263.73 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+                 263.73   data arrival time
 
    0.00  500.00  500.00   clock clk (rise edge)
            0.00  500.00   clock source latency
   10.00    0.00  500.00 ^ clk3 (in)
   47.52   11.84  511.84 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
            0.00  511.84   clock reconvergence pessimism
-         -14.89  496.95   library setup time
-                 496.95   data required time
+         -14.96  496.88   library setup time
+                 496.88   data required time
 ----------------------------------------------------------------
-                 496.95   data required time
-                -268.46   data arrival time
+                 496.88   data required time
+                -263.73   data arrival time
 ----------------------------------------------------------------
-                 228.48   slack (MET)
+                 233.15   slack (MET)
 
 
 Library: asap7_small
@@ -37,49 +37,49 @@ Arc sense: positive_unate
 Arc type: combinational
 A ^ -> Y ^
 P = 1.00 V = 0.70 T = 25.00
-------- input_net_transition = 59.28
-|       total_output_net_capacitance = 13.54
+------- input_net_transition = 61.38
+|       total_output_net_capacitance = 13.62
 |        11.52     23.04
 v      --------------------
 40.00 | 48.68     71.50
 80.00 | 56.23     79.10
-Table value = 56.33
+Table value = 56.87
 PVT scale factor = 1.00
-Delay = 56.33
+Delay = 56.87
 
-------- input_net_transition = 59.28
-|       total_output_net_capacitance = 13.54
+------- input_net_transition = 61.38
+|       total_output_net_capacitance = 13.62
 |        11.52     23.04
 v      --------------------
 40.00 | 53.99     104.08
 80.00 | 54.58     104.40
-Table value = 63.04
+Table value = 63.39
 PVT scale factor = 1.00
-Slew = 63.04
+Slew = 63.39
 
 .............................................
 
 A v -> Y v
 P = 1.00 V = 0.70 T = 25.00
-------- input_net_transition = 52.93
-|       total_output_net_capacitance = 12.09
+------- input_net_transition = 54.77
+|       total_output_net_capacitance = 12.33
 |        11.52     23.04
 v      --------------------
 40.00 | 48.42     67.20
 80.00 | 57.92     76.86
-Table value = 52.43
+Table value = 53.26
 PVT scale factor = 1.00
-Delay = 52.43
+Delay = 53.26
 
-------- input_net_transition = 52.93
-|       total_output_net_capacitance = 12.09
+------- input_net_transition = 54.77
+|       total_output_net_capacitance = 12.33
 |        11.52     23.04
 v      --------------------
 40.00 | 42.77     80.89
 80.00 | 43.84     81.48
-Table value = 45.00
+Table value = 45.85
 PVT scale factor = 1.00
-Slew = 45.00
+Slew = 45.85
 
 .............................................
 

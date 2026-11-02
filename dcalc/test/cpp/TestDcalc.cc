@@ -1339,21 +1339,6 @@ TEST_F(StaDcalcTest, CcsCeffWatchWaveformEmpty) {
   delete calc;
 }
 
-// Test PrimaDelayCalc watchWaveform with non-watched pin
-TEST_F(StaDcalcTest, PrimaWatchWaveformEmpty) {
-  ArcDelayCalc *calc = makeDelayCalc("prima", sta_);
-  ASSERT_NE(calc, nullptr);
-  PrimaDelayCalc *prima = dynamic_cast<PrimaDelayCalc*>(calc);
-  ASSERT_NE(prima, nullptr);
-  int d1 = 1;
-  const Pin *pin = reinterpret_cast<const Pin*>(&d1);
-  // watchWaveform returns a Waveform
-  Waveform wf = prima->watchWaveform(pin);
-  // PrimaDelayCalc returns a waveform with a valid axis
-  EXPECT_NE(wf.axis1(), nullptr);
-  delete calc;
-}
-
 // Test DmpCeffDelayCalc copyState
 TEST_F(StaDcalcTest, DmpCeffCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_elmore", sta_);

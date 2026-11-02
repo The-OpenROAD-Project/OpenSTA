@@ -176,9 +176,8 @@ RiseFallMinMax::value(const RiseFall *rf,
 float
 RiseFallMinMax::value(const MinMax *min_max) const
 {
-  int mm_index = min_max->index();
-  float rise = values_[RiseFall::riseIndex()][mm_index];
-  float fall = values_[RiseFall::fallIndex()][mm_index];
+  float rise = value(RiseFall::rise(), min_max);
+  float fall = value(RiseFall::fall(), min_max);
   if (min_max->compare(rise, fall))
     return rise;
   else
@@ -189,7 +188,12 @@ float
 RiseFallMinMax::value(const RiseFall *rf,
                       const MinMax *min_max) const
 {
-  return values_[rf->index()][min_max->index()];
+  size_t rf_index = rf->index();
+  size_t mm_index = min_max->index();
+  if (exists_[rf_index][mm_index])
+    return values_[rf->index()][mm_index];
+  else
+    return 0.0;
 }
 
 bool

@@ -1,0 +1,120 @@
+library (power_enable_flop) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1,ff);
+  pulling_resistance_unit : "1kohm";
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.1;
+  default_operating_conditions : typical;
+  operating_conditions (typical) {
+    process : 1.0;
+    temperature : 25.0;
+    voltage : 1.1;
+  }
+
+  /* Enable flop whose next_state holds the state when DE is 0. */
+  cell (EDFF) {
+    ff (IQ, IQ_N) {
+      next_state : "(D&DE) | (IQ&!DE)";
+      clocked_on : "CLK";
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (DE) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (CLK) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
+  /* Enable flop with both state outputs. */
+  cell (EDFF_QN) {
+    ff (IQ, IQ_N) {
+      next_state : "(D&DE) | (IQ&!DE)";
+      clocked_on : "CLK";
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (DE) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (CLK) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+    pin (Q_N) {
+      direction : output;
+      function : "IQ_N";
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+}

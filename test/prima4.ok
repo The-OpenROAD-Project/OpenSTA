@@ -1,0 +1,26 @@
+Startpoint: r1 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: q (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Slew    Delay     Time   Description
+-------------------------------------------------------------------
+  10.000    0.000    0.000   clock clk (rise edge)
+            0.000    0.000   clock network delay (ideal)
+  10.000    0.000    0.000 ^ r1/CLK (DFFASRHQNx1_ASAP7_75t_R)
+  24.835   56.373   56.373 v r1/QN (DFFASRHQNx1_ASAP7_75t_R)
+  24.836    0.100   56.473 v q (out)
+                    56.473   data arrival time
+
+  10.000  500.000  500.000   clock clk (rise edge)
+            0.000  500.000   clock network delay (ideal)
+            0.000  500.000   clock reconvergence pessimism
+            0.000  500.000   output external delay
+                   500.000   data required time
+-------------------------------------------------------------------
+                   500.000   data required time
+                   -56.473   data arrival time
+-------------------------------------------------------------------
+                   443.527   slack (MET)
+
+

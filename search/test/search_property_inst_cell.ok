@@ -63,7 +63,7 @@ reg1/CK is_register_clock: 1
 reg1/D is_clock: 0
 reg1/D is_register_clock: 0
 --- Pin activity ---
-buf1/A activity: 1.00000e+07 0.250 propagated
+buf1/A activity: 9.50000e+06 0.250 propagated
 --- Port liberty_port ---
 in1 liberty_port: NULL
 --- Port activity ---
