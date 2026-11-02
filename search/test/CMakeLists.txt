@@ -5,6 +5,7 @@ sta_module_tests("search"
     analysis_corner_props
     annotated_write_verilog
     assigned_delays
+    check_setup_max_delay
     check_timing
     check_types_deep
     clk_skew_interclk
