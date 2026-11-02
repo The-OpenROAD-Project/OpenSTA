@@ -1,0 +1,8 @@
+max capacitance
+
+Pin u1/Y ^
+max capacitance    0.05
+capacitance        0.08
+-----------------------
+Slack             -0.03 (VIOLATED)
+
