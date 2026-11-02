@@ -319,6 +319,17 @@ Sim::findLogicConstants()
 }
 
 void
+Sim::findNetlistConstants()
+{
+  clear();
+  ensureConstantFuncPins();
+  setConstFuncPins();
+  enqueueConstantPinInputs();
+  propagateConstants(false);
+  valid_ = true;
+}
+
+void
 Sim::seedInvalidConstants()
 {
   for (const Instance *inst : invalid_insts_)
