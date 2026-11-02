@@ -102,6 +102,7 @@ DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
           }
         }
         load_vertex->setHasNoiseSlewAnnotation(true);
+        // Slew changes invalidate downstream delays.
         graph_delay_calc_->delayInvalid(load_vertex);
       }
     }
@@ -121,6 +122,7 @@ DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
         }
 
         wire_edge->setHasNoiseDelayAnnotation(true);
+        // Slew changes invalidate downstream delays.
         graph_delay_calc_->delayInvalid(wire_edge->to(graph_));
       }
     }
@@ -403,6 +405,11 @@ DelayNoise::reportNoiseDelays(const Net *net,
         search_->arrivalsWrtClks(drvr_vertex, scene);
       for (const RiseFall *drvr_rf : drvr_rfs->range()) {
         for (const MinMax *min_max : min_maxs->range()) {
+          debugPrint(debug_, "delay_noise", 3, "{} {} {} {}",
+                     network_->pathName(net),
+                     drvr_rf->to_string(),
+                     scene->name(),
+                     min_max->to_string());
           ArcDcalcArgSeq gates = makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
                                                min_coupling_ratio,
                                                scene, min_max,
