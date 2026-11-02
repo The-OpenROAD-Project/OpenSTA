@@ -110,26 +110,28 @@ proc report_noise_delays { args } {
     check_positive_float "-min_coupling_ratio" $min_coupling_ratio
   }
   set scene [parse_scene keys]
-  set min_maxs [parse_min_max_all_flags flags]
+  set min_max [parse_min_max_all_flags flags]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
   }
 
+  set drvr_rf [parse_rise_fall_flags flags]
+
   if { [info exists keys(-net)] } {
     set net [get_net_arg "net" $keys(-net)]
-    set drvr_rfs [parse_rise_fall_flags flags]
-    report_net_noise_delays_cmd $net $drvr_rfs $min_coupling_ratio $scene \
-      $min_maxs $digits
+    report_net_noise_delays_cmd $net $drvr_rf $min_coupling_ratio \
+      $scene $min_max $digits
   } else {
     set max_count 1
     if { [info exists keys(-max_count)] } {
       set max_count $keys(-max_count)
       check_positive_integer "-max_count" $max_count
     }
-    report_noise_delays_cmd $max_count $min_coupling_sum_ratio $min_coupling_ratio\
-      $scene $min_maxs $digits
+    report_noise_delays_cmd $max_count $drvr_rf \
+      $min_coupling_sum_ratio $min_coupling_ratio\
+      $scene $min_max $digits
   }
 }
 
@@ -258,19 +260,27 @@ proc write_delay_noise_case { args } {
 ################################################################
 
 # debugging command
-define_hidden_cmd_args "report_gate_noise_delays" {gates [-scene scene] [-min] [-max]}
+define_hidden_cmd_args "report_gate_noise_delays" {gates\
+                                                     [-scene scene]\
+                                                     [-min] [-max]\
+                                                     [-digits digits]}
 
 proc report_gate_noise_delays { args } {
   global sta_report_default_digits
 
   parse_key_args "report_gate_noise_delays" args \
-    keys {-scene} \
+    keys {-scene -digits} \
     flags {-min -max}
   check_argc_eq1 "report_gate_noise_delays" $args
   set gates [lindex $args 0]
   set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
-  report_gate_noise_delays_cmd $gates $scene $min_max $sta_report_default_digits
+  set digits $sta_report_default_digits
+  if { [info exists keys(-digits)] } {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  }
+  report_gate_noise_delays_cmd $gates $scene $min_max $digits
 }
 
 # sta namespace end

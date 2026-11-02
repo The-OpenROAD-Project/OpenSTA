@@ -45,7 +45,7 @@
 
 namespace sta {
 
-using AggressorCapMap = std::map<const Net*, float>;
+using AggressorCapMap = std::map<const Net*, float, NetIdLess>;
 
 
 DelayNoise::DelayNoise(StaState *sta) :
@@ -66,6 +66,12 @@ DelayNoise::copyState(const StaState *sta)
 {
   StaState::copyState(sta);
   prima_dcalc_->copyState(sta);
+}
+
+void
+DelayNoise::clear()
+{
+  prima_dcalc_->clear();
 }
 
 void
@@ -185,7 +191,7 @@ DelayNoise::findNoiseDelays(const Net *net,
   if (drvr_pin) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
-      LoadPinIndexMap load_pin_index_map =
+      const LoadPinIndexMap load_pin_index_map =
         graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
       const DelaysWrtClks drvr_clk_arrivals =
         search_->arrivalsWrtClks(drvr_vertex, scene);
@@ -195,16 +201,18 @@ DelayNoise::findNoiseDelays(const Net *net,
         if (parasitic
             && couplingCapRatio(parasitic, scene, min_max) > min_coupling_sum_ratio) {
           for (const RiseFall *drvr_rf : RiseFall::range()) {
-            ArcDcalcArgSeq gates = makeArcDcalcArgs(net, drvr_vertex, drvr_rf,
-                                                    parasitic,
-                                                    min_coupling_ratio,
-                                                    scene, min_max,
-                                                    drvr_clk_arrivals);
-            if (!gates.empty()
-                && !prima_dcalc_->checkArgs(gates, scene, min_max)) {
-              alignAggressors(gates, load_pin_index_map, scene, min_max);
-              findNoiseDelays(gates, load_pin_index_map, scene, min_max,
-                              noise_delays);
+            ArcDcalcArgSeq gates = makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
+                                                 parasitic, min_coupling_ratio,
+                                                 scene, min_max);
+            if (!gates.empty()) {
+              if (prima_dcalc_->checkArgs(gates, scene, min_max))
+                report_->report("prima failed {}", prima_dcalc_->failureReason());
+              else {
+                alignAggressors(gates, load_pin_index_map, scene, min_max);
+                findNoiseDelays(gates, load_pin_index_map, scene, min_max,
+                                noise_delays);
+
+              }
             }
           }
         }
@@ -213,40 +221,9 @@ DelayNoise::findNoiseDelays(const Net *net,
   }
 }
 
-ArcDcalcArgSeq
-DelayNoise::makeArcDcalcArgs(const Net *net,
-                             Vertex *drvr_vertex,
-                             const RiseFall *drvr_rf,
-                             const Parasitic *parasitic,
-                             float min_coupling_ratio,
-                             const Scene *scene,
-                             const MinMax *min_max,
-                             const DelaysWrtClks &drvr_clk_arrivals)
-{
-  Edge *edge;
-  const TimingArc *arc;
-  findDrvrEdgeArc(drvr_vertex, drvr_rf, drvr_clk_arrivals,
-                  scene, min_max, edge, arc);
-  if (arc) {
-    const Pin *in_pin = edge->from(graph_)->pin();
-    ArcDcalcArg drvr(in_pin, drvr_vertex->pin(), edge, arc, 0.0);
-    prima_dcalc_->setDcalcArgParasiticSlew(drvr, scene, min_max);
-    float cap_gnd = capGnd(parasitic, scene, min_max);
-    float min_coupling_cap = cap_gnd * min_coupling_ratio;
-    ConstNetSeq aggressors = aggressorNets(net, parasitic, min_coupling_cap,
-                                           scene, min_max);
-    if (!aggressors.empty()) {
-      ArcDcalcArgSeq gates = makeArcDcalcArgs(drvr, aggressors, scene, min_max);
-      prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
-      return gates;
-    }
-  }
-  return ArcDcalcArgSeq();
-}
-
 void
 DelayNoise::findNoiseDelays(ArcDcalcArgSeq &gates,
-                            LoadPinIndexMap &load_pin_index_map,
+                            const LoadPinIndexMap &load_pin_index_map,
                             const Scene *scene,
                             const MinMax *min_max,
                             DcalcResults &noise_delays)
@@ -272,7 +249,7 @@ void
 DelayNoise::findLoadDelays(Vertex *drvr_vertex,
                            const RiseFall *drvr_rf,
                            ArcDcalcResult &dcalc_result,
-                           LoadPinIndexMap &load_pin_index_map,
+                           const LoadPinIndexMap &load_pin_index_map,
                            const Scene *scene,
                            const MinMax *min_max,
                            DcalcResults &noise_delays)
@@ -284,7 +261,7 @@ DelayNoise::findLoadDelays(Vertex *drvr_vertex,
     if (wire_edge->isWire()) {
       Vertex *load_vertex = wire_edge->to(graph_);
       Pin *load_pin = load_vertex->pin();
-      size_t load_idx = load_pin_index_map[load_pin];
+      size_t load_idx = load_pin_index_map.at(load_pin);
       const ArcDelay &delay_dcalc = graph_->wireArcDelay(wire_edge, drvr_rf, ap_index);
       const Slew &slew_dcalc = graph_->slew(load_vertex, drvr_rf, ap_index);
       ArcDelay delay_noise = dcalc_result.wireDelay(load_idx);
@@ -319,17 +296,19 @@ DelayNoise::findLoadDelays(Vertex *drvr_vertex,
 
 ////////////////////////////////////////////////////////////////
 
+// report_noise_delays -max_count command.
 void
 DelayNoise::reportNoiseDelays(size_t max_count,
+                              const RiseFallBoth *drvr_rf,
                               float min_coupling_sum_ratio,
                               float min_coupling_ratio,
                               const Scene *scene,
-                              const MinMaxAll *min_maxs,
+                              const MinMaxAll *min_max,
                               int digits)
 {
   DcalcResults noise_delays = ensureNoiseDelays(min_coupling_sum_ratio,
                                                 min_coupling_ratio,
-                                                scene, min_maxs);
+                                                scene, min_max);
   if (!noise_delays.empty()) {
     NetSeq nets;
     for (const Net *net : noise_delays.nets(network_))
@@ -337,14 +316,14 @@ DelayNoise::reportNoiseDelays(size_t max_count,
     sort(nets, NetPathNameLess(network_));
 
     size_t i = 0;
-    report_->report("  delay             slew");
     for (const Net *net : nets) {
+      report_->report("Net {}", sdc_network_->pathName(net));
       const Pin *drvr_pin = netDrvrPin(net);
       if (drvr_pin) {
         Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
         if (drvr_vertex) {
-          reportNoiseDelays(drvr_vertex, RiseFallBoth::riseFall(), scene,
-                            MinMaxAll::minMax(), noise_delays, digits);
+          reportNoiseDelays(drvr_vertex, drvr_rf, scene, min_max,
+                            noise_delays, digits);
           i++;
         }
       }
@@ -354,6 +333,7 @@ DelayNoise::reportNoiseDelays(size_t max_count,
   }
 }
 
+// report_noise_delays -net command.
 void
 DelayNoise::reportNoiseDelays(const Net *net,
                               const RiseFallBoth *drvr_rfs,
@@ -363,20 +343,47 @@ DelayNoise::reportNoiseDelays(const Net *net,
                               int digits)
 {
   found_coupling_caps_ = false;
-  report_->report("  delay             slew");
-  for (const RiseFall *drvr_rf : drvr_rfs->range()) {
-    for (const MinMax *min_max : min_maxs->range()) {
-      ArcDcalcArgSeq gates = makeArcDcalcArgs(net, drvr_rf, min_coupling_ratio,
-                                              scene, min_max);
-      reportNoiseDelays(gates, scene, min_max, digits);
+  const Pin *drvr_pin = netDrvrPin(net);
+  if (drvr_pin) {
+    Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
+    if (drvr_vertex) {
+      const LoadPinIndexMap load_pin_index_map =
+        graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
+      const DelaysWrtClks drvr_clk_arrivals =
+        search_->arrivalsWrtClks(drvr_vertex, scene);
+      for (const RiseFall *drvr_rf : drvr_rfs->range()) {
+        for (const MinMax *min_max : min_maxs->range()) {
+          ArcDcalcArgSeq gates = makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
+                                               min_coupling_ratio,
+                                               scene, min_max,
+                                               load_pin_index_map);
+          if (!gates.empty())
+            reportNoiseDelays(gates, load_pin_index_map, scene, min_max, digits);
+        }
+      }
     }
   }
   if (!found_coupling_caps_)
     report_->warn(2183, "No coupling capacitors found. Use read_spef -keep_capacitive_coupling.");
 }
 
+// report_gate_noise_delays hidden command.
 void
 DelayNoise::reportNoiseDelays(ArcDcalcArgSeq &gates,
+                              const Scene *scene,
+                              const MinMax *min_max,
+                              int digits)
+{
+  ArcDcalcArg &drvr_arg = gates[0];
+  Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
+  const LoadPinIndexMap load_pin_index_map =
+    graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
+  reportNoiseDelays(gates, load_pin_index_map, scene, min_max, digits);
+}
+
+void
+DelayNoise::reportNoiseDelays(ArcDcalcArgSeq &gates,
+                              const LoadPinIndexMap &load_pin_index_map,
                               const Scene *scene,
                               const MinMax *min_max,
                               int digits)
@@ -386,8 +393,6 @@ DelayNoise::reportNoiseDelays(ArcDcalcArgSeq &gates,
   DcalcResults noise_delays(network_, graph_);
   ArcDcalcArg &drvr_arg = gates[0];
   Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
-  LoadPinIndexMap load_pin_index_map =
-    graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
   findNoiseDelays(gates, load_pin_index_map, scene, min_max, noise_delays);
   reportNoiseDelays(drvr_vertex, drvr_arg.drvrEdge()->asRiseFallBoth(),
                     scene, min_max->asMinMaxAll(), noise_delays, digits);
@@ -401,6 +406,10 @@ DelayNoise::reportNoiseDelays(Vertex *drvr_vertex,
                               DcalcResults &noise_delays,
                               int digits)
 {
+  int field_width = digits + 6;
+  // " -> " + second delay column + ' ' + first slew column.
+  int slew_header_width = 4 + field_width + 1 + field_width;
+  report_->report("{:>{}}{:>{}}", "delay", field_width, "slew", slew_header_width);
   VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *wire_edge = edge_iter.next();
@@ -414,13 +423,17 @@ DelayNoise::reportNoiseDelays(Vertex *drvr_vertex,
           const Slew &slew = graph_->slew(load_vertex, drvr_rf, ap_index);
           ArcDelay delay_incr = noise_delays.wireDelay(wire_edge,scene,drvr_rf,min_max);
           Slew slew_incr = noise_delays.loadSlew(load_vertex,scene,drvr_rf,min_max);
-          report_->report("{:>7} -> {:>7} {:>7} -> {:>7} {} {} {}",
+          report_->report("{:>{}} -> {:>{}} {:>{}} -> {:>{}} {} {} {}",
                           delayAsString(delay, min_max, digits, this),
+                          field_width,
                           delayAsString(delaySum(delay, delay_incr, this),
                                         min_max, digits, this),
+                          field_width,
                           delayAsString(slew, min_max, digits, this),
+                          field_width,
                           delayAsString(delaySum(slew, slew_incr, this),
                                         min_max, digits, this),
+                          field_width,
                           drvr_rf->to_string(true),
                           min_max->to_string(),
                           network_->pathName(load_pin));
@@ -484,9 +497,11 @@ DelayNoise::alignAggressorsCmd(ArcDcalcArgSeq &gates,
 {
   if (!gates.empty()) {
     prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
+    // Same order as the noise simulation.
+    prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
     ArcDcalcArg &drvr_arg = gates[0];
     Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
-    LoadPinIndexMap load_pin_index_map =
+    const LoadPinIndexMap load_pin_index_map =
       graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
     alignAggressors(gates, load_pin_index_map, scene, min_max);
   }
@@ -494,37 +509,23 @@ DelayNoise::alignAggressorsCmd(ArcDcalcArgSeq &gates,
 
 void
 DelayNoise::alignAggressors(ArcDcalcArgSeq &gates,
-                            LoadPinIndexMap &load_pin_index_map,
+                            const LoadPinIndexMap &load_pin_index_map,
                             const Scene *scene,
                             const MinMax *min_max)
 {
-  // Same order as the noise simulation.
-  prima_dcalc_->setPrimaReduceOrder(gates.size() * prima_order_per_gate_);
   ArcDcalcArg &drvr_arg = gates[0];
   Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_arg.drvrPin());
-  // Use load with max/min slew for alignment canary.
+  // Use the load with the max/min slew as the alignment canary.
   const Pin *victim_load = findMaxSlewLoad(drvr_vertex, drvr_arg.drvrEdge(),
                                            scene, min_max);
-  size_t victim_idx = load_pin_index_map[victim_load];
-  FloatSeq initial_offsets = findAggressorInitialOffsets(gates, scene, min_max);
-  double offset = findDeltaDelayOffset(gates, load_pin_index_map, scene, min_max,
-                                       initial_offsets, victim_idx);
+  size_t victim_idx = load_pin_index_map.at(victim_load);
+  // Find aggressor input delay offsets to make the aggressor outputs cross
+  // Vth at the same time as the victim.
+  auto [aggr_offsets, aggr_offset_min] = findAggressorOffsets(gates, scene, min_max);
 
-  // Make sure all aggressor input delays are positive.
-  float min_input_delay = *std::min_element(initial_offsets.begin() + 1,
-                                            initial_offsets.end());
-  offset -= min_input_delay;
-
-  drvr_arg.setInputDelay(-min_input_delay);
-  size_t drvr_count = gates.size();
-  for (size_t drvr_idx = 1; drvr_idx < drvr_count; drvr_idx++) {
-    ArcDcalcArg &gate = gates[drvr_idx];
-    float input_delay = initial_offsets[drvr_idx] + offset;
-    gate.setInputDelay(input_delay);
-    debugPrint(debug_, "delay_noise", 2, "{} input delay {}",
-               network_->pathName(gate.drvrPin()),
-               delayAsString(input_delay, min_max, 3, this));
-  }
+  // Find the driver offset that min/max's the delay at the carnary load.
+  findDrvrOffset(gates, aggr_offsets, aggr_offset_min, victim_idx,
+                 load_pin_index_map, scene, min_max);
 }
 
 const Pin *
@@ -553,24 +554,24 @@ DelayNoise::findMaxSlewLoad(Vertex *drvr_vertex,
   return pin_max;
 }
 
-// Find aggressor input delay offsets to make the gate outputs cross
-// Vth at the same time as the victim.
-FloatSeq
-DelayNoise::findAggressorInitialOffsets(ArcDcalcArgSeq &gates,
-                                        const Scene *scene,
-                                        const MinMax *min_max)
+std::pair<FloatSeq, float>
+DelayNoise:: findAggressorOffsets(ArcDcalcArgSeq &gates,
+                                  const Scene *scene,
+                                  const MinMax *min_max)
 {
   size_t drvr_count = gates.size();
-  FloatSeq initial_offsets(drvr_count);
+  FloatSeq aggr_offsets(drvr_count);
   DcalcAPIndex ap_index = scene->dcalcAnalysisPtIndex(min_max);
   ArcDelay drvr_delay = 0.0;
+  float min_offset = MinMax::min()->initValue();
   for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
     ArcDcalcArg &gate = gates[drvr_idx];
     GateTableModel *table_model = gate.arc()->gateTableModel(scene, min_max);
     OutputWaveforms *output_waveforms = table_model->outputWaveforms();
     float ref_time = output_waveforms->referenceTime(delayAsFloat(gate.inSlew()));
     // Time the input ramp starts to rise/fall.
-    float input_delay = ref_time - gate.inSlew() / 2.0;
+    float in_slew = railToRailSlew(gate.inSlew(), gate.inEdge(), gate.drvrLibrary());
+    float input_delay = ref_time - in_slew / 2.0;
 
     ArcDelay delay = graph_->arcDelay(gate.edge(), gate.arc(), ap_index);
     // Time gate driver output crosses Vth (includes time for input to cross Vth).
@@ -579,33 +580,47 @@ DelayNoise::findAggressorInitialOffsets(ArcDcalcArgSeq &gates,
       drvr_delay = gate_delay;
     else {
       float offset = delayAsFloat(delayDiff(drvr_delay, gate_delay, this));
-      initial_offsets[drvr_idx] = offset;
+      aggr_offsets[drvr_idx] = offset;
+      min_offset = std::min(min_offset, offset);
       debugPrint(debug_, "delay_noise", 3, "{} initial offset {}",
                  network_->pathName(gate.drvrPin()),
                  delayAsString(offset, min_max, 3, this));
     }
   }
-  return initial_offsets;
+  return {aggr_offsets, min_offset};
 }
 
 float
-DelayNoise::findDeltaDelayOffset(ArcDcalcArgSeq &gates,
-                                 LoadPinIndexMap &load_pin_index_map,
-                                 const Scene *scene,
-                                 const MinMax *min_max,
-                                 FloatSeq &initial_offsets,
-                                 size_t load_idx)
+DelayNoise::railToRailSlew(float slew,
+                           const RiseFall *rf,
+                           const LibertyLibrary *lib)
+{
+  float lower = lib->slewLowerThreshold(rf);
+  float upper = lib->slewUpperThreshold(rf);
+  return slew / (upper - lower);
+}
+
+// Find a time offset between the driver and the aggressorts
+// (each shifted by initial offsets) that min/max's the canary load delay.
+void
+DelayNoise::findDrvrOffset(ArcDcalcArgSeq &gates,
+                           FloatSeq &aggr_offsets,
+                           float aggr_offset_min,
+                           size_t load_idx,
+                           const LoadPinIndexMap &load_pin_index_map,
+                           const Scene *scene,
+                           const MinMax *min_max)
 {
   // offset1 lower bound
   // offset2 upper bound
   float offset1 = 0.0;
-  float delta = 4e-12;          // 4ps
+  float delta = 0.0 + 4e-12;          // 4ps
   float offset2 = offset1 + delta;
   float offset_tol = .05;            // 5%
-  float delay1 = loadDelay(gates, load_pin_index_map, scene, min_max, load_idx,
-                           initial_offsets, offset1);
-  float delay2 = loadDelay(gates, load_pin_index_map, scene, min_max, load_idx,
-                           initial_offsets, offset2);
+  float delay1 = loadDelay(gates, offset1, aggr_offsets, aggr_offset_min,
+                           load_idx, load_pin_index_map, scene, min_max);
+  float delay2 = loadDelay(gates, offset2, aggr_offsets, aggr_offset_min,
+                           load_idx, load_pin_index_map, scene, min_max);
   bool forward = min_max->compare(delay2, delay1);
   if (!forward) {
     std::swap(offset1, offset2);
@@ -616,8 +631,8 @@ DelayNoise::findDeltaDelayOffset(ArcDcalcArgSeq &gates,
   // Push offset3 out until it is on the other side of the peak.
   while (true) {
     float offset3 = offset2 + delta;
-    float delay3 = loadDelay(gates, load_pin_index_map, scene, min_max,
-                             load_idx, initial_offsets, offset3);
+    float delay3 = loadDelay(gates, offset3, aggr_offsets, aggr_offset_min,
+                             load_idx, load_pin_index_map, scene, min_max);
     debugPrint(debug_, "delay_noise", 3, "offset {}:{}:{} delay {}:{}:{}",
                delayAsString(offset1, min_max, 6, this),
                delayAsString(offset2, min_max, 6, this),
@@ -648,10 +663,10 @@ DelayNoise::findDeltaDelayOffset(ArcDcalcArgSeq &gates,
                delayAsString(delay1, min_max, 3, this),
                delayAsString(delay2, min_max, 3, this));
     float offset3 = (offset1 + offset2) / 2.0;
-    float delay3 = loadDelay(gates, load_pin_index_map, scene, min_max,
-                             load_idx, initial_offsets, offset3);
-    float delay4 = loadDelay(gates, load_pin_index_map, scene, min_max,
-                             load_idx, initial_offsets, offset3 + 1e-12);
+    float delay3 = loadDelay(gates, offset3, aggr_offsets, aggr_offset_min,
+                            load_idx, load_pin_index_map, scene, min_max);
+    float delay4 = loadDelay(gates, offset3 + 1e-12, aggr_offsets, aggr_offset_min,
+                             load_idx, load_pin_index_map, scene, min_max);
     if (min_max->compare(delay4, delay3)) {
       offset1 = offset3;
       delay1 = delay3;
@@ -661,29 +676,53 @@ DelayNoise::findDeltaDelayOffset(ArcDcalcArgSeq &gates,
       delay2 = delay3;
     }
   }
-  return offset1;
+
+  // offset1 is the final result.
+  ensurePositiveWaveforms(gates, offset1, aggr_offsets, aggr_offset_min);
 }
 
 // objective function
 float
 DelayNoise::loadDelay(ArcDcalcArgSeq &gates,
-                      LoadPinIndexMap &load_pin_index_map,
-                      const Scene *scene,
-                      const MinMax *min_max,
+                      float offset,
+                      FloatSeq &aggr_offsets,
+                      float aggr_offset_min,
                       size_t load_idx,
-                      FloatSeq &initial_offsets,
-                      float offset)
+                      const LoadPinIndexMap &load_pin_index_map,
+                      const Scene *scene,
+                      const MinMax *min_max)
 {
-  size_t drvr_count = gates.size();
-  for (size_t drvr_idx = 1; drvr_idx < drvr_count; drvr_idx++) {
-    ArcDcalcArg &gate = gates[drvr_idx];
-    gate.setInputDelay(initial_offsets[drvr_idx] + offset);
-  }
-
+  ensurePositiveWaveforms(gates, offset, aggr_offsets, aggr_offset_min);
   ArcDcalcResultSeq dcalc_results =
     prima_dcalc_->gateDelays(gates, load_pin_index_map, scene, min_max);
   ArcDelay load_delay = dcalc_results[0].wireDelay(load_idx);
   return delayAsFloat(load_delay);
+}
+
+// Logically the offset moves the aggressor input waveforms as a group
+// to find the min/max load delay.
+// If any of the gate input waveforms begin before t=0 they all have to be
+// shifted later.
+void
+DelayNoise::ensurePositiveWaveforms(ArcDcalcArgSeq &gates,
+                                    float offset,
+                                    FloatSeq &aggr_offsets,
+                                    float aggr_offset_min)
+{
+  float drvr_offset = 0.0;
+  float aggr_offset = offset;
+  if ((offset + aggr_offset_min) < 0.0) {
+    float shift = -(offset + aggr_offset_min);
+    drvr_offset += shift;
+    aggr_offset += shift;
+  }
+
+  size_t drvr_count = gates.size();
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
+    ArcDcalcArg &gate = gates[drvr_idx];
+    float gate_offset = (drvr_idx == 0) ? drvr_offset : aggr_offset;
+    gate.setInputDelay(aggr_offsets[drvr_idx] + gate_offset);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -721,11 +760,12 @@ DelayNoise::aggressorNets(const Net *net,
                           const MinMax *min_max)
 {
   Parasitics *parasitics = scene->parasitics(min_max);
-  AggressorCapMap aggr_caps;
-  for (ParasiticCapacitor *pcap : parasitics->capacitors(parasitic)) {
-    float cap = parasitics->value(pcap);
-    const ParasiticNode *node1 = parasitics->node1(pcap);
-    const ParasiticNode *node2 = parasitics->node2(pcap);
+  AggressorCapMap aggr_caps(network_);
+  const ParasiticCapacitorSeq &coupling_caps = parasitics->capacitors(parasitic);
+  for (ParasiticCapacitor *coupling_cap : coupling_caps) {
+    float cap = parasitics->value(coupling_cap);
+    const ParasiticNode *node1 = parasitics->node1(coupling_cap);
+    const ParasiticNode *node2 = parasitics->node2(coupling_cap);
     if (node1 && node2) {
       const Net *net1 = parasitics->net(node1, network_);
       const Net *net2 = parasitics->net(node2, network_);
@@ -739,9 +779,11 @@ DelayNoise::aggressorNets(const Net *net,
           && net1 != net
           && parasitics->isExternal(node1))
         aggr_caps[net1] += cap;
-      found_coupling_caps_ = true;
     }
   }
+  if (!coupling_caps.empty())
+    found_coupling_caps_ = true;
+
   NetSeq aggressors;
   for (const auto [net, cap] : aggr_caps) {
     if (cap > min_coupling_cap)
@@ -787,7 +829,7 @@ DelayNoise::findVictimNetsSorted(float min_coupling_sum_ratio,
 float
 DelayNoise::couplingCapRatio(const Net *net,
                              const Scene *scene,
-                             const MinMax *min_max) const
+                             const MinMax *min_max)
 {
   Parasitics *parasitics = scene->parasitics(min_max);
   const Parasitic *parasitic = parasitics->findParasiticNetwork(net);
@@ -800,7 +842,7 @@ DelayNoise::couplingCapRatio(const Net *net,
 float
 DelayNoise::couplingCapRatio(const Parasitic *parasitic,
                              const Scene *scene,
-                             const MinMax *min_max) const
+                             const MinMax *min_max)
 {
   float coupling_cap, cap_gnd;
   capacitances(parasitic, scene, min_max, coupling_cap, cap_gnd);
@@ -813,7 +855,7 @@ DelayNoise::couplingCapRatio(const Parasitic *parasitic,
 float
 DelayNoise::capGnd(const Net *net,
                    const Scene *scene,
-                   const MinMax *min_max) const
+                   const MinMax *min_max)
 {
   Parasitics *parasitics = scene->parasitics(min_max);
   const Parasitic *parasitic = parasitics->findParasiticNetwork(net);
@@ -825,7 +867,7 @@ DelayNoise::capGnd(const Net *net,
 float
 DelayNoise::capGnd(const Parasitic *parasitic,
                    const Scene *scene,
-                   const MinMax *min_max) const
+                   const MinMax *min_max)
 {
   float coupling_cap, cap_gnd;
   capacitances(parasitic, scene, min_max, coupling_cap, cap_gnd);
@@ -838,7 +880,7 @@ DelayNoise::capacitances(const Parasitic *parasitic,
                          const MinMax *min_max,
                          // Return values.
                          float &coupling_cap,
-                         float &cap_gnd) const
+                         float &cap_gnd)
 {
   Parasitics *parasitics = scene->parasitics(min_max);
   cap_gnd = 0.0;
@@ -851,8 +893,11 @@ DelayNoise::capacitances(const Parasitic *parasitic,
     }
   }
   coupling_cap = 0.0;
-  for (ParasiticCapacitor *cap : parasitics->capacitors(parasitic))
+  const ParasiticCapacitorSeq &coupling_caps = parasitics->capacitors(parasitic);
+  for (ParasiticCapacitor *cap : coupling_caps)
     coupling_cap += parasitics->value(cap);
+  if (!coupling_caps.empty())
+    found_coupling_caps_ = true;
 }
 
 float
@@ -918,32 +963,49 @@ DelayNoise::victimCapToAggressor(const Net *victim,
 ////////////////////////////////////////////////////////////////
 
 ArcDcalcArgSeq
-DelayNoise::makeArcDcalcArgs(const Net *net,
-                             const RiseFall *drvr_rf,
-                             float min_coupling_ratio,
-                             const Scene *scene,
-                             const MinMax *min_max)
+DelayNoise::makeDcalcArgs(const Net *net,
+                          const RiseFall *drvr_rf,
+                          const DelaysWrtClks &drvr_clk_arrivals,
+                          const Parasitic *parasitic,
+                          float min_coupling_ratio,
+                          const Scene *scene,
+                          const MinMax *min_max)
 {
-  ArcDcalcArg drvr = makeNetGateDrvr(net, drvr_rf);
-  prima_dcalc_->setDcalcArgParasiticSlew(drvr, scene, min_max);
-  const Parasitic *parasitic = drvr.parasitic();
-  if (parasitic) {
-    float min_coupling_cap = drvr.loadCap() * min_coupling_ratio;
+  ArcDcalcArg drvr = makeNetGateDrvr(net, drvr_rf, drvr_clk_arrivals, scene, min_max);
+  if (!drvr.isNull()) {
+    prima_dcalc_->setDcalcArgParasiticSlew(drvr, scene, min_max);
+    float cap_gnd = capGnd(parasitic, scene, min_max);
+    float min_coupling_cap = cap_gnd * min_coupling_ratio;
     ConstNetSeq aggressors = aggressorNets(net, parasitic, min_coupling_cap,
                                            scene, min_max);
-    ArcDcalcArgSeq gates = makeArcDcalcArgs(drvr, aggressors, scene, min_max);
-    prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
-    if (prima_dcalc_->checkArgs(gates, scene, min_max)) {
-      std::string reason = prima_dcalc_->failureReason();
-      report_->warn(2181, "prima arg check failed {}.", reason);
-    }
-    else {
-      ArcDcalcArg &drvr_arg = gates[0];
-      Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
-      LoadPinIndexMap load_pin_index_map =
-        graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
-      alignAggressors(gates, load_pin_index_map, scene, min_max);
+    if (!aggressors.empty()) {
+      ArcDcalcArgSeq gates = makeDrvrDcalcArgs(drvr, aggressors, scene, min_max);
+      prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
       return gates;
+    }
+  }
+  return ArcDcalcArgSeq();
+}
+
+// External api for tcl debug.
+ArcDcalcArgSeq
+DelayNoise::makeDcalcArgs(const Net *net,
+                          const RiseFall *drvr_rf,
+                          float min_coupling_ratio,
+                          const Scene *scene,
+                          const MinMax *min_max)
+{
+  const Pin *drvr_pin = netDrvrPin(net);
+  if (drvr_pin) {
+    Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
+    if (drvr_vertex) {
+      const LoadPinIndexMap load_pin_index_map =
+        graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
+      const DelaysWrtClks drvr_clk_arrivals =
+        search_->arrivalsWrtClks(drvr_vertex, scene);
+      return makeDcalcArgs(net, drvr_rf, drvr_clk_arrivals,
+                           min_coupling_ratio, scene, min_max,
+                           load_pin_index_map);
     }
   }
   return ArcDcalcArgSeq();
@@ -951,16 +1013,16 @@ DelayNoise::makeArcDcalcArgs(const Net *net,
 
 ArcDcalcArg
 DelayNoise::makeNetGateDrvr(const Net *net,
-                            const RiseFall *drvr_rf)
+                            const RiseFall *drvr_rf,
+                            const DelaysWrtClks &drvr_clk_arrivals,
+                            const Scene *scene,
+                            const MinMax *min_max)
+
 {
-  const Scene *scene = scenes_[0];
-  const MinMax *min_max = MinMax::max();
   const Pin *drvr_pin = netDrvrPin(net);
   if (drvr_pin) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
-      const DelaysWrtClks drvr_clk_arrivals =
-        search_->arrivalsWrtClks(drvr_vertex, scene);
       Edge *edge = nullptr;
       const TimingArc *arc = nullptr;
       findDrvrEdgeArc(drvr_vertex, drvr_rf, drvr_clk_arrivals,
@@ -975,10 +1037,39 @@ DelayNoise::makeNetGateDrvr(const Net *net,
 }
 
 ArcDcalcArgSeq
-DelayNoise::makeArcDcalcArgs(ArcDcalcArg &drvr,
-                             ConstNetSeq &aggressors,
-                             const Scene *scene,
-                             const MinMax *min_max)
+DelayNoise::makeDcalcArgs(const Net *net,
+                          const RiseFall *drvr_rf,
+                          const DelaysWrtClks &drvr_clk_arrivals,
+                          float min_coupling_ratio,
+                          const Scene *scene,
+                          const MinMax *min_max,
+                          const LoadPinIndexMap &load_pin_index_map)
+{
+  ArcDcalcArg drvr = makeNetGateDrvr(net, drvr_rf, drvr_clk_arrivals, scene, min_max);
+  prima_dcalc_->setDcalcArgParasiticSlew(drvr, scene, min_max);
+  const Parasitic *parasitic = drvr.parasitic();
+  if (parasitic) {
+    float min_coupling_cap = drvr.loadCap() * min_coupling_ratio;
+    ConstNetSeq aggressors = aggressorNets(net, parasitic, min_coupling_cap,
+                                           scene, min_max);
+    ArcDcalcArgSeq gates = makeDrvrDcalcArgs(drvr, aggressors, scene, min_max);
+    prima_dcalc_->setDcalcArgParasiticSlew(gates, scene, min_max);
+    if (prima_dcalc_->checkArgs(gates, scene, min_max))
+      report_->warn(2181, "prima arg check failed {}.",
+                    prima_dcalc_->failureReason());
+    else if (!gates.empty()) {
+      alignAggressors(gates, load_pin_index_map, scene, min_max);
+      return gates;
+    }
+  }
+  return ArcDcalcArgSeq();
+}
+
+ArcDcalcArgSeq
+DelayNoise::makeDrvrDcalcArgs(ArcDcalcArg &drvr,
+                              ConstNetSeq &aggressors,
+                              const Scene *scene,
+                              const MinMax *min_max)
 {
   ArcDcalcArgSeq gates;
   if (drvr.drvrPin()) {
@@ -1010,6 +1101,8 @@ DelayNoise::makeArcDcalcArgs(ArcDcalcArg &drvr,
     // None of the aggressors have an overlapping arrival window.
     return ArcDcalcArgSeq();
 }
+
+////////////////////////////////////////////////////////////////
 
 void
 DelayNoise::findDrvrEdgeArc(Vertex *drvr_vertex,
@@ -1133,31 +1226,38 @@ DelayNoise::writeCaseFiles(const Net *net,
   if (drvr_pin) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
-      LoadPinIndexMap load_pin_index_map =
-        graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
-      const DelaysWrtClks drvr_clk_arrivals =
-        search_->arrivalsWrtClks(drvr_vertex, scene);
       Parasitics *parasitics = scene->parasitics(min_max);
       const Parasitic *parasitic = parasitics->findParasiticNetwork(net);
-      if (parasitic
-          && couplingCapRatio(parasitic, scene, min_max) > min_coupling_sum_ratio) {
-        ArcDcalcArgSeq gates = delay_noise_->makeArcDcalcArgs(net, drvr_vertex, drvr_rf,
-                                                              parasitic,
-                                                              min_coupling_ratio,
-                                                              scene, min_max,
-                                                              drvr_clk_arrivals);
-        if (!gates.empty()) {
-          std::string verilog_file = std::string(file_basename) + ".v";
-          Network *case_network = makeCaseNetwork(gates);
-          writeVerilog(verilog_file.c_str(), false, nullptr, case_network);
+      if (parasitic) {
+        if (couplingCapRatio(parasitic, scene, min_max) > min_coupling_sum_ratio) {
+          const LoadPinIndexMap load_pin_index_map =
+            graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
+          const DelaysWrtClks drvr_clk_arrivals =
+            search_->arrivalsWrtClks(drvr_vertex, scene);
+          ArcDcalcArgSeq gates = delay_noise_->makeDcalcArgs(net, drvr_rf,
+                                                             drvr_clk_arrivals,
+                                                             parasitic,
+                                                             min_coupling_ratio,
+                                                             scene, min_max);
+          if (!gates.empty()) {
+            std::string verilog_file = std::string(file_basename) + ".v";
+            Network *case_network = makeCaseNetwork(gates);
+            writeVerilog(verilog_file.c_str(), false, nullptr, case_network);
 
-          std::string spef_file = std::string(file_basename) + ".spef";
-          writeCaseSpef(gates, spef_file, case_network, min_coupling_ratio,
-                        no_timestamp, scene, min_max);
+            std::string spef_file = std::string(file_basename) + ".spef";
+            writeCaseSpef(gates, spef_file, case_network, min_coupling_ratio,
+                          no_timestamp, scene, min_max);
 
-          delete case_network;
+            delete case_network;
+          }
         }
+        else
+          report_->warn(2184, "Net {} coupling capacitance < min_coupling_sum_ratio.",
+                        sdc_network_->pathName(net));
       }
+      else
+        report_->warn(2185, "Net {} has not parastiic network.",
+                      sdc_network_->pathName(net));
     }
   }
 }

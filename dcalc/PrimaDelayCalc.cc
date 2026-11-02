@@ -70,15 +70,17 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
+  clear();
 }
 
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   DelayCalcBase(dcalc),
   pin_node_map_(network_),
-  prima_order_(dcalc.prima_order_),
+  prima_gate_order_(dcalc.prima_gate_order_),
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
 {
+  clear();
 }
 
 PrimaDelayCalc::~PrimaDelayCalc()
@@ -98,6 +100,12 @@ PrimaDelayCalc::copyState(const StaState *sta)
 {
   StaState::copyState(sta);
   table_dcalc_->copyState(sta);
+}
+
+void
+PrimaDelayCalc::clear()
+{
+  prima_gate_order_ = 3;
 }
 
 Parasitic *
@@ -201,6 +209,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   drvr_arg_ = &dcalc_args.front();
   load_pin_index_map_ = &load_pin_index_map;
   drvr_count_ = dcalc_args.size();
+  prima_order_ = prima_gate_order_ * drvr_count_;
   scene_ = scene;
   min_max_ = min_max;
   drvr_rf_ = drvr_arg_->arc()->toEdge()->asRiseFall();
@@ -268,12 +277,12 @@ PrimaDelayCalc::checkArgs(ArcDcalcArgSeq &dcalc_args,
               drvr_cell->ensureVoltageWaveforms(scenes_);
             }
             else {
-              failure_reason_ = "load cap out of bounds";
+              failure_reason_ = "load cap out of table axis bounds";
               failure_arg_ = &dcalc_arg;
             }
           }
           else {
-            failure_reason_ = "input slew out of bounds";
+            failure_reason_ = "input slew out of table axis bounds";
             failure_arg_ = &dcalc_arg;
           }
         }
@@ -453,7 +462,6 @@ PrimaDelayCalc::parasiticDFS(ParasiticNode *node,
                                                    resistor_map, visited_nodes));
     }
   }
-  visited_nodes.erase(node);
   return max_res;
 }
 
@@ -770,9 +778,11 @@ PrimaDelayCalc::stampCapacitors(const Parasitic *parasitic,
         if (exists2)
           // Stamp half the capacitance because the coupled net will do the same.
           stampCapacitance(node_idx1, node_idx2, cap * .5);
+        else
+          stampCapacitance(node_idx1, cap * coupling_cap_multiplier_);
       }
       else
-        stampCapacitance(node_idx1, cap);
+        stampCapacitance(node_idx1, cap * coupling_cap_multiplier_);
     }
   }
 }
@@ -1139,7 +1149,7 @@ PrimaDelayCalc::delaySlewPocv(ArcDcalcArg &dcalc_arg,
 void
 PrimaDelayCalc::setPrimaReduceOrder(size_t order)
 {
-  prima_order_ = order;
+  prima_gate_order_ = order;
 }
 
 // This version fills in one column of the orthonomal matrix
