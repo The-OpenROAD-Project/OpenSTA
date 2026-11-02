@@ -2348,8 +2348,9 @@ Sta::checkTiming(const Mode *mode,
                  bool loops,
                  bool generated_clks)
 {
-  if (unconstrained_endpoints) {
-    // Only need non-clock arrivals to find unconstrained_endpoints.
+  if (unconstrained_endpoints || reg_no_clks) {
+    // unconstrained_endpoints needs the arrivals, and an unclocked
+    // register is one no clock arrival reaches on its launch edge.
     searchPreamble();
     search_->findAllArrivals();
   }
