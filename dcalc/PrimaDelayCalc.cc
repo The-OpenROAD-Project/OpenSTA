@@ -37,6 +37,7 @@
 #include "Format.hh"
 #include "Graph.hh"
 #include "GraphDelayCalc.hh"
+#include "InputDrive.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Parasitics.hh"
@@ -469,18 +470,37 @@ float
 PrimaDelayCalc::driverResistance(const ArcDcalcArg &dcalc_arg)
 {
   const Pin *drvr_pin = dcalc_arg.drvrPin();
-  LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
-  LibertyPort *scene_port = drvr_port->scenePort(scene_, min_max_);
-  if (scene_port == nullptr) {
-    report_->warn(1754, "Port {}/{}/{} has no equivalent in scene {}.",
-                  drvr_port->libertyLibrary()->name(),
-                  drvr_port->libertyCell()->name(),
-                  drvr_port->name(),
-                  scene_->name());
-    scene_port = drvr_port;
-  }
   const RiseFall *drvr_rf = drvr_arg_->drvrEdge();
-  return scene_port->driveResistance(drvr_rf, min_max_);
+  const LibertyPort *drvr_port = nullptr;
+  if (network_->isTopLevelPort(drvr_pin)) {
+    InputDrive *drive = nullptr;
+    Port *port = network_->port(drvr_pin);
+    const Sdc *sdc = scene_->sdc();
+    drive = sdc->findInputDrive(port);
+    if (drive) {
+      const LibertyCell *drvr_cell;
+      const LibertyPort *from_port;
+      const DriveCellSlews *from_slews;
+      drive->driveCell(drvr_rf, min_max_, drvr_cell, from_port,
+                       from_slews, drvr_port);
+    }
+  }
+  else
+    drvr_port = network_->libertyPort(drvr_pin);
+
+  if (drvr_port) {
+    const LibertyPort *scene_port = drvr_port->scenePort(scene_, min_max_);
+    if (scene_port == nullptr) {
+      report_->warn(1754, "Port {}/{}/{} has no equivalent in scene {}.",
+                    drvr_port->libertyLibrary()->name(),
+                    drvr_port->libertyCell()->name(),
+                    drvr_port->name(),
+                    scene_->name());
+      scene_port = drvr_port;
+    }
+    return scene_port->driveResistance(drvr_rf, min_max_);
+  }
+  return 0.0;
 }
 
 void
