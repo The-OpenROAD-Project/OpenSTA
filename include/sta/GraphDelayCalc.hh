@@ -191,7 +191,7 @@ protected:
                          ArcDelayCalc *arc_delay_calc);
   void findDriverDelays(Vertex *drvr_vertex,
                         ArcDelayCalc *arc_delay_calc,
-                        const LoadPinIndexMap &load_pin_index_map);
+                        LoadPinIndexMap &load_pin_index_map);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_vertex);
   MultiDrvrNet *makeMultiDrvrNet(Vertex *drvr_vertex);
