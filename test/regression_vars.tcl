@@ -143,6 +143,7 @@ record_example_tests {
 record_public_tests {
   bidirect_pad_fanout
   clock_delete_inst
+  dcalc_incr_out_to_out_arc
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst
@@ -161,7 +162,6 @@ record_public_tests {
   get_scenes
   get_objrefs
   include_error_line
-  incr_dcalc_out_to_out_arc
   input_delay_ref_pin_rebuild
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
