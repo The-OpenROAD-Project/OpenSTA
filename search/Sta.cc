@@ -6249,8 +6249,8 @@ Sta::reportVictimNets(float min_coupling_ratio,
                       const Scene *scene,
                       const MinMax *min_max)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
+  if (libraryHasCcsModels())
+    delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
 }
 
 void

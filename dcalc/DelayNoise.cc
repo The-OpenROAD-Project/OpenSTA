@@ -101,10 +101,10 @@ DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
             }
           }
         }
-        load_vertex->setHasNoiseSlewAnnotation(true);
-        // Slew changes invalidate downstream delays.
-        graph_delay_calc_->delayInvalid(load_vertex);
       }
+      load_vertex->setHasNoiseSlewAnnotation(true);
+      // Slew changes invalidate downstream delays.
+      graph_delay_calc_->delayInvalid(load_vertex);
     }
 
     for (const auto& [wire_edge,  wire_delays] : noise_delays.wireDelayMap()) {
@@ -120,11 +120,10 @@ DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
             }
           }
         }
-
-        wire_edge->setHasNoiseDelayAnnotation(true);
-        // Slew changes invalidate downstream delays.
-        graph_delay_calc_->delayInvalid(wire_edge->to(graph_));
       }
+      wire_edge->setHasNoiseDelayAnnotation(true);
+      // Slew changes invalidate downstream delays.
+      graph_delay_calc_->delayInvalid(wire_edge->to(graph_));
     }
 
     report_->report("Found {} nets with coupling caps over threshold.",
@@ -507,20 +506,25 @@ DelayNoise::reportVictimNets(float min_coupling_ratio,
                              const Scene *scene,
                              const MinMax *min_max)
 {
+  found_coupling_caps_ = false;
   NetSeq victims = findVictimNetsSorted(min_coupling_ratio, scene, min_max);
-  report_->report("Found {} nets with coupling caps over threshold.", victims.size());
-  report_->report("Net sum(coupling_caps)/gnd_cap cap_ratio");
-  for (const Net *victim :victims) {
-    float coupling_cap = couplingCap(victim, scene, min_max);
-    float cap_gnd = capGnd(victim, scene, min_max);
-    float cap_ratio = couplingCapRatio(victim, scene, min_max);
-    Unit *cap_unit = units_->capacitanceUnit();
-    report_->report("{} {}/{} {:.2f}",
-                    network_->pathName(victim),
-                    cap_unit->asString(coupling_cap, 3),
-                    cap_unit->asString(cap_gnd, 3),
-                    cap_ratio);
+  if (found_coupling_caps_) {
+    report_->report("Found {} nets with coupling caps over threshold.", victims.size());
+    report_->report("Net sum(coupling_caps)/gnd_cap cap_ratio");
+    for (const Net *victim :victims) {
+      float coupling_cap = couplingCap(victim, scene, min_max);
+      float cap_gnd = capGnd(victim, scene, min_max);
+      float cap_ratio = couplingCapRatio(victim, scene, min_max);
+      Unit *cap_unit = units_->capacitanceUnit();
+      report_->report("{} {}/{} {:.2f}",
+                      network_->pathName(victim),
+                      cap_unit->asString(coupling_cap, 3),
+                      cap_unit->asString(cap_gnd, 3),
+                      cap_ratio);
+    }
   }
+  else
+    report_->warn(2191, "No coupling capacitors found. Use read_spef -keep_capacitive_coupling.");
 }
 
 void
@@ -529,10 +533,9 @@ DelayNoise::reportAggressors(const Net *victim,
                              const Scene *scene,
                              const MinMax *min_max)
 {
+  found_coupling_caps_ = false;
   NetSeq aggressors = aggressorNetsSorted(victim, min_coupling_ratio, scene, min_max);
-  if (aggressors.empty())
-    report_->warn(2180, "No aggressors with coupling cap ratio > min_coupling_ratio found.");
-  else {
+  if (found_coupling_caps_ && !aggressors.empty()) {
     Unit *cap_unit = units_->capacitanceUnit();
     report_->report("Aggressor coupling_cap");
     for (const Net *aggressor : aggressors) {
@@ -542,6 +545,10 @@ DelayNoise::reportAggressors(const Net *victim,
                       cap_unit->asString(cap, 3));
     }
   }
+  else if (!found_coupling_caps_)
+    report_->warn(2192, "No coupling capacitors found. Use read_spef -keep_capacitive_coupling.");
+  else if (aggressors.empty())
+    report_->warn(2180, "No aggressors with coupling cap ratio > min_coupling_ratio found.");
 }
 
 ////////////////////////////////////////////////////////////////
