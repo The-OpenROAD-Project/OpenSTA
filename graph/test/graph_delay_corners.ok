@@ -956,9 +956,9 @@ No paths found.
 No paths found.
 No paths found.
 --- timing edges multi-corner ---
-and1 edges: 1
-or1 edges: 1
-reg1 edges: 1
+and1 edges: 2
+or1 edges: 2
+reg1 edges: 5
 A1 -> ZN combinational
   ^ -> ^ 0.02:0.02:0.09:0.09
   v -> v 0.02:0.02:0.09:0.09

@@ -373,7 +373,7 @@ proc get_timing_edges_cmd { cmd cmd_args } {
   set arcs {}
   if { [info exists keys(-of_objects)] } {
     if { [info exists keys(-from)] \
-           || [info exists keys(-from)] } {
+           || [info exists keys(-to)] } {
       sta_error 540 "-from/-to arguments not supported with -of_objects."
     }
     set arcs [get_timing_arcs_objects $keys(-of_objects)]
@@ -400,13 +400,13 @@ proc get_timing_arcs_objects { object_arg } {
   if { $insts != {} } {
     set edges {}
     foreach inst $insts {
-      lappend edges [instance_edges $inst]
+      set edges [concat $edges [instance_edges $inst]]
     }
     return $edges
   } elseif { $libcells != {} } {
     set arc_sets {}
     foreach libcell $libcells {
-      lappend arc_sets [$libcell timing_arc_sets]
+      set arc_sets [concat $arc_sets [$libcell timing_arc_sets]]
     }
     return $arc_sets
   }

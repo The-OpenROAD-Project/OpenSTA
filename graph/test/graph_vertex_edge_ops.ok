@@ -32,10 +32,10 @@ Path Type: max
 buf1 edges: 1
 buf2 edges: 1
 inv1 edges: 1
-and1 edges: 1
-or1 edges: 1
-nand1 edges: 1
-nor1 edges: 1
+and1 edges: 2
+or1 edges: 2
+nand1 edges: 2
+nor1 edges: 2
 --- Test 2: chain add/delete ---
 Startpoint: d2 (input port clocked by clk)
 Endpoint: reg2 (rising edge-triggered flip-flop clocked by clk)
