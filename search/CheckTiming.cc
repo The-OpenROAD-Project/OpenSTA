@@ -365,14 +365,14 @@ CheckTiming::hasClkArrivalOnLaunchEdge(Vertex *clk_vertex)
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     const TimingRole *role = edge->role();
-    if (role != TimingRole::regClkToQ() && role != TimingRole::latchEnToQ())
-      continue;
-    for (const TimingArc *arc : edge->timingArcSet()->arcs()) {
-      const RiseFall *launch_rf = arc->fromEdge()->asRiseFall();
-      if (launch_rf == RiseFall::rise())
-        launches_rise = true;
-      else if (launch_rf == RiseFall::fall())
-        launches_fall = true;
+    if (role == TimingRole::regClkToQ() || role == TimingRole::latchEnToQ()) {
+      for (const TimingArc *arc : edge->timingArcSet()->arcs()) {
+        const RiseFall *launch_rf = arc->fromEdge()->asRiseFall();
+        if (launch_rf == RiseFall::rise())
+          launches_rise = true;
+        else if (launch_rf == RiseFall::fall())
+          launches_fall = true;
+      }
     }
   }
   if (!launches_rise && !launches_fall)
