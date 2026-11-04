@@ -380,7 +380,7 @@ CheckTiming::hasClkArrivalOnLaunchEdge(Vertex *clk_vertex)
   VertexPathIterator path_iter(clk_vertex, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
-    if (path->isClock(this)) {
+    if (path->isClock(this) && path->mode(this) == mode_) {
       const RiseFall *rf = path->transition(this);
       if ((rf == RiseFall::rise() && launches_rise)
           || (rf == RiseFall::fall() && launches_fall))

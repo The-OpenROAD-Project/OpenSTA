@@ -492,6 +492,10 @@ STA_TESTS = [
         "test/check_setup_launch_edge",
         False,
     ),
+    (
+        "test/check_setup_launch_edge_modes",
+        False,
+    ),
 ] + [
     (
         ok.removesuffix(".ok"),
