@@ -586,6 +586,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
       sta::print(spice_stream_, "C{} {} {} {:.3e}\n", cap_index_++,
                  parasitics_->name(node1), parasitics_->name(node2), cap * .5);
     else
+      // coupling_cap_multiplier_ ??
       sta::print(spice_stream_, "C{} {} 0 {:.3e}\n", cap_index_++,
                  parasitics_->name(node1), cap);
   }

@@ -119,7 +119,7 @@ protected:
   TimingArcSet *makeLatchDtoQArcs(LibertyCell *cell,
                                   LibertyPort *from_port,
                                   LibertyPort *to_port,
-                                  TimingSense sense,
+                                  const Sequential *seq,
                                   const TimingArcAttrsPtr &attrs);
   TimingArcSet *makeRegLatchArcs(LibertyCell *cell,
                                  LibertyPort *from_port,

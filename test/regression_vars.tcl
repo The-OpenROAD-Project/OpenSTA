@@ -143,6 +143,7 @@ record_example_tests {
 record_public_tests {
   bidirect_pad_fanout
   clock_delete_inst
+  dcalc_incr_out_to_out_arc
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst
@@ -159,10 +160,12 @@ record_public_tests {
   get_lib_pins_of_objects
   get_noargs
   get_property_arrival_first
+  get_property_is_clock
   get_scenes
   get_objrefs
   include_error_line
   input_delay_ref_pin_rebuild
+  levelize_loop_cut_move
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol
@@ -193,7 +196,7 @@ record_public_tests {
   power_enable_flop
   power_pin_delete
   prima3
-  prima4
+  prima10
   prima_singular
   read_saif_escaped_divider
   read_saif_null_instance

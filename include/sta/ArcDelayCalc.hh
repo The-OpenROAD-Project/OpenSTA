@@ -70,6 +70,7 @@ public:
               Edge *edge,
               const TimingArc *arc,
               float input_delay);
+  bool isNull() const { return drvr_pin_ == nullptr; }
   const Pin *inPin() const { return in_pin_; }
   const RiseFall *inEdge() const;
   const Pin *drvrPin() const { return drvr_pin_; }
@@ -167,6 +168,7 @@ class ArcDelayCalc : public StaState
 public:
   ArcDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy() = 0;
+  virtual void clear() {};
   virtual std::string_view name() const = 0;
 
   // Find the parasitic for drvr_pin that is acceptable to the delay

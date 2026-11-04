@@ -159,7 +159,10 @@ const Pin *
 PathStages::stageLoadPin(Stage stage) const
 {
   const Path *path = stageLoadPath(stage);
-  return path->pin(this);
+  if (path)
+    return path->pin(this);
+  else
+    return nullptr;
 }
 
 std::string
@@ -180,7 +183,10 @@ std::string
 PathStages::stageLoadPinName(Stage stage) const
 {
   const Pin *pin = stageLoadPin(stage);
-  return network_->pathName(pin);
+  if (pin)
+    return network_->pathName(pin);
+  else
+    return "";
 }
 
 const Instance *

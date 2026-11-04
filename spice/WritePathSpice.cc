@@ -218,7 +218,9 @@ WritePathSpice::writePrintStmt()
   StringSeq node_names;
   for (Stage stage : stages_) {
     node_names.push_back(stages_.stageDrvrPinName(stage));
-    node_names.push_back(stages_.stageLoadPinName(stage));
+    std::string load_pin_name = stages_.stageLoadPinName(stage);
+    if (!load_pin_name.empty())
+      node_names.push_back(load_pin_name);
   }
   writePrintStmt(node_names);
 }

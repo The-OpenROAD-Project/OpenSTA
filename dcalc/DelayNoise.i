@@ -30,37 +30,38 @@ void
 annotate_noise_delays_cmd(float min_coupling_sum_ratio,
                           float min_coupling_ratio,
                           const Scene *scene,
-                          const MinMaxAll *min_maxs)
+                          const MinMaxAll *min_max)
 {
   Sta *sta = Sta::sta();
   sta->annotateNoiseDelays(min_coupling_sum_ratio, min_coupling_ratio,
-                           scene, min_maxs);
+                           scene, min_max);
 }
 
 void
 report_noise_delays_cmd(size_t max_count,
+                        const RiseFallBoth *drvr_rf,
                         float min_coupling_sum_ratio,
                         float min_coupling_ratio,
                         const Scene *scene,
-                        const MinMaxAll *min_maxs,
+                        const MinMaxAll *min_max,
                         int digits)
 {
   Sta *sta = Sta::sta();
-  sta->reportNoiseDelays(max_count, min_coupling_sum_ratio,
+  sta->reportNoiseDelays(max_count, drvr_rf, min_coupling_sum_ratio,
                          min_coupling_ratio,
-                         scene, min_maxs, digits);
+                         scene, min_max, digits);
 }
 
 void
 report_net_noise_delays_cmd(const Net *net,
-                            const RiseFallBoth *drvr_rfs,
+                            const RiseFallBoth *drvr_rf,
                             float min_coupling_ratio,
                             const Scene *scene,
-                            const MinMaxAll *min_maxs,
+                            const MinMaxAll *min_max,
                             int digits)
 {
   Sta *sta = Sta::sta();
-  sta->reportNoiseDelays(net, drvr_rfs, min_coupling_ratio, scene, min_maxs,
+  sta->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene, min_max,
                          digits);
 }
 
@@ -147,10 +148,9 @@ make_gate_args(const Net *net,
                const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  DelayNoise *delay_noise = sta->delayNoise();
-  ArcDcalcArgSeq gates = delay_noise->makeArcDcalcArgs(net, drvr_rf,
-                                                       min_coupling_ratio,
-                                                       scene, min_max);
+  ArcDcalcArgSeq gates = sta->makeDcalcArgs(net, drvr_rf,
+                                            min_coupling_ratio,
+                                            scene, min_max);
   if (!gates.empty())
     ArcDcalcArg::sort(gates, sta->network());
   return gates;
@@ -164,22 +164,11 @@ make_drvr_gate_args(ArcDcalcArg drvr,
 {
   Sta *sta = Sta::sta();
   DelayNoise *delay_noise = sta->delayNoise();
-  ArcDcalcArgSeq gates = delay_noise->makeArcDcalcArgs(drvr, aggressors,
-                                                       scene, min_max);
+  ArcDcalcArgSeq gates = delay_noise->makeDrvrDcalcArgs(drvr, aggressors,
+                                                        scene, min_max);
   if (!gates.empty())
     ArcDcalcArg::sort(gates, sta->network());
   return gates;
-}
-
-ArcDcalcArg
-make_net_gate_drvr(const Net *net,
-                   const RiseFall *drvr_rf)
-{
-  Sta *sta = Sta::sta();
-  DelayNoise *delay_noise = sta->delayNoise();
-  sta->ensureGraph();
-  ArcDcalcArg gate = delay_noise->makeNetGateDrvr(net, drvr_rf);
-  return gate;
 }
 
 %} // inline
