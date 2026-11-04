@@ -978,7 +978,7 @@ Properties::getProperty(const Pin *pin,
     return PropertyValue(network->isTopLevelPort(pin));
   else if (property == "is_clock") {
     const LibertyPort *port = network->libertyPort(pin);
-    return PropertyValue(port->isClock());
+    return PropertyValue(port && port->isClock());
   }
   else if (property == "is_register_clock") {
     const LibertyPort *port = network->libertyPort(pin);
