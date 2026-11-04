@@ -108,7 +108,7 @@ WritePathGnuplot::writeFiles()
     arc_dcalc_->clearWatchPins();
     if (plot_pins_.contains(drvr_pin))
       arc_dcalc_->watchPin(drvr_pin);
-    if (plot_pins_.contains(load_pin))
+    if (load_pin && plot_pins_.contains(load_pin))
       arc_dcalc_->watchPin(load_pin);
 
     const TimingArc *arc = stages_.stageGateArc(stage);
@@ -169,7 +169,7 @@ WritePathGnuplot::spiceWaveformOffset()
   float slew = delayAsFloat(graph_->slew(input_vertex, input_rf, ap_index));
   if (slew == 0.0)
     slew = units_->timeUnit()->scale();
-  return slew * 0.5;
+  return slew * 0.5 - input_path->arrival();
 }
 
 void

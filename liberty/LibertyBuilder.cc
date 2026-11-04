@@ -194,8 +194,7 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
         && seq->data()
         && seq->data()->hasPort(from_port))
       // Latch D->Q timing arcs.
-      return makeLatchDtoQArcs(cell, from_port, to_port,
-                               seq->data()->portTimingSense(from_port), attrs);
+      return makeLatchDtoQArcs(cell, from_port, to_port, seq, attrs);
     else
       return makeCombinationalArcs(cell, from_port, to_port, true, true, attrs);
   case TimingType::combinational_fall:
@@ -389,9 +388,25 @@ TimingArcSet *
 LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
                                   LibertyPort *from_port,
                                   LibertyPort *to_port,
-                                  TimingSense sense,
+                                  const Sequential *seq,
                                   const TimingArcAttrsPtr &attrs)
 {
+  TimingSense sense = attrs->timingSense();
+  if (sense == TimingSense::unknown) {
+    // Infer timing sense from latch sequntial.
+    FuncExpr *q_func = to_port->function();
+    if (q_func) {
+      TimingSense q_sense = seq->data()->portTimingSense(from_port);
+      if (q_func->port() == seq->output())
+        sense = q_sense;
+      else if (q_func->port() == seq->outputInv())
+        sense = timingSenseOpposite(q_sense);
+      else
+        report_->warn(1320, "latch {}->{} timing sense cannot be determined.",
+                      from_port->name(),
+                      to_port->name());
+    }
+  }
   TimingArcSet *arc_set = cell->makeTimingArcSet(from_port, to_port, nullptr,
                                                  TimingRole::latchDtoQ(),
                                                  attrs);

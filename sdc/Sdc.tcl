@@ -2858,7 +2858,7 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
   set delay_arg [lindex $cmd_args 0]
   check_float "delay" $delay_arg
   set delay [time_ui_sta $delay_arg]
-  set pins [get_port_pins_error "pins" [lindex $cmd_args 1]]
+  set pins [get_port_pins_warn "pins" [lindex $cmd_args 1]]
   
   set clk "NULL"
   if [info exists keys(-clock)] {

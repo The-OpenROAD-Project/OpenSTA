@@ -639,7 +639,7 @@ CcsCeffDelayCalc::makeWaveformPreamble(const Pin *in_pin,
       parasitic_ = arc_delay_calc_->findParasitic(drvr_pin, drvr_rf, scene, min_max);
       if (parasitic_) {
         parasitics_->piModel(parasitic_, c2_, rpi_, c1_);
-        LoadPinIndexMap load_pin_index_map =
+        const LoadPinIndexMap load_pin_index_map =
             graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
         gateDelay(drvr_pin, arc, in_slew, load_cap_, parasitic_, load_pin_index_map,
                   scene, min_max);
