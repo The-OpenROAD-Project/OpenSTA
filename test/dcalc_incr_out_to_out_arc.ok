@@ -1,0 +1,32 @@
+Startpoint: b (input port)
+Endpoint: fa/SN (internal pin)
+Path Group: unconstrained
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00 v input external delay
+   0.00    0.00 v b (in)
+  13.66   13.66 ^ fa/CON (FAx1_ASAP7_75t_R)
+  10.96   24.62 v fa/SN (FAx1_ASAP7_75t_R)
+          24.62   data arrival time
+---------------------------------------------------------
+(Path is unconstrained)
+
+
+Startpoint: b (input port)
+Endpoint: fa/SN (internal pin)
+Path Group: unconstrained
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00 v input external delay
+   0.00    0.00 v b (in)
+  52.91   52.91 ^ fa/CON (FAx1_ASAP7_75t_R)
+  18.48   71.39 v fa/SN (FAx1_ASAP7_75t_R)
+          71.39   data arrival time
+---------------------------------------------------------
+(Path is unconstrained)
+
+

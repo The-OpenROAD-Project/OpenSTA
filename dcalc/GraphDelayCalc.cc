@@ -700,7 +700,7 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
     seedRootSlew(vertex, arc_delay_calc);
   else if (network_->isLeaf(pin)
            && vertex->isDriver(network_)) {
-    const LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(vertex);
+    LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(vertex);
     DrvrLoadSlews load_slew_prev;
     if (delays_exist_)
       load_slew_prev = loadSlews(load_pin_index_map);
@@ -753,15 +753,22 @@ GraphDelayCalc::loadSlewChanged(Vertex *load_vertex,
 {
   if (load_slews_prev.empty())
     return true;
-  size_t index = load_pin_index_map.at(load_vertex->pin());
-  SlewSeq &slews_prev = load_slews_prev[index];;
-  size_t slew_count = graph_->slewCount();
-  for (size_t i = 0; i < slew_count; i++) {
-    const Slew slew = graph_->slew(load_vertex, i);
-    if (!delayEqual(slew, slews_prev[i], this))
-      return true;
+  size_t index;
+  bool exists;
+  findKeyValue(load_pin_index_map, load_vertex->pin(), index, exists);
+  if (exists) {
+    SlewSeq &slews_prev = load_slews_prev[index];;
+    size_t slew_count = graph_->slewCount();
+    for (size_t i = 0; i < slew_count; i++) {
+      const Slew slew = graph_->slew(load_vertex, i);
+      if (!delayEqual(slew, slews_prev[i], this))
+        return true;
+    }
+    return false;
   }
-  return false;
+  else
+    // Fanout thru a non-wire edge (output->output timing arc) is not a load.
+    return true;
 }
 
 void
@@ -801,7 +808,7 @@ GraphDelayCalc::enqueueCheckEdges(Vertex *vertex)
 void
 GraphDelayCalc::findDriverDelays(Vertex *drvr_vertex,
                                  ArcDelayCalc *arc_delay_calc,
-                                 const LoadPinIndexMap &load_pin_index_map)
+                                 LoadPinIndexMap &load_pin_index_map)
 {
   MultiDrvrNet *multi_drvr = findMultiDrvrNet(drvr_vertex);
   RiseFallExists load_slew_set = {false, false};
@@ -813,9 +820,15 @@ GraphDelayCalc::findDriverDelays(Vertex *drvr_vertex,
   }
   else if (drvr_vertex == multi_drvr->dcalcDrvr()) {
     initLoadSlews(drvr_vertex);
-    for (Vertex *drvr : multi_drvr->drvrs())
+    const LoadPinIndexMap load_pin_index_map1 = makeLoadPinIndexMap(drvr_vertex);
+    // load_pin_index_map is built wrt to the dcalc driver, so if it has no
+    // fanin the bidir load vertex has no wire edge and is not in the map.
+    // Add it for the sake of the other drivers on the net.
+    load_pin_index_map[drvr_vertex->pin()] = load_pin_index_map.size();
+    for (Vertex *drvr : multi_drvr->drvrs()) {
       findDriverDelays1(drvr, multi_drvr, arc_delay_calc, load_pin_index_map,
                         load_slew_set);
+    }
     zeroUnsetLoadSlews(load_pin_index_map, load_slew_set);
   }
   arc_delay_calc->finishDrvrPin();
