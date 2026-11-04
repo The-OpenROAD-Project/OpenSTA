@@ -753,15 +753,22 @@ GraphDelayCalc::loadSlewChanged(Vertex *load_vertex,
 {
   if (load_slews_prev.empty())
     return true;
-  size_t index = load_pin_index_map.at(load_vertex->pin());
-  SlewSeq &slews_prev = load_slews_prev[index];;
-  size_t slew_count = graph_->slewCount();
-  for (size_t i = 0; i < slew_count; i++) {
-    const Slew slew = graph_->slew(load_vertex, i);
-    if (!delayEqual(slew, slews_prev[i], this))
-      return true;
+  size_t index;
+  bool exists;
+  findKeyValue(load_pin_index_map, load_vertex->pin(), index, exists);
+  if (exists) {
+    SlewSeq &slews_prev = load_slews_prev[index];;
+    size_t slew_count = graph_->slewCount();
+    for (size_t i = 0; i < slew_count; i++) {
+      const Slew slew = graph_->slew(load_vertex, i);
+      if (!delayEqual(slew, slews_prev[i], this))
+        return true;
+    }
+    return false;
   }
-  return false;
+  else
+    // Fanout thru a non-wire edge (output->output timing arc) is not a load.
+    return true;
 }
 
 void

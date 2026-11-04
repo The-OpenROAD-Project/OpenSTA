@@ -161,6 +161,7 @@ record_public_tests {
   get_scenes
   get_objrefs
   include_error_line
+  incr_dcalc_out_to_out_arc
   input_delay_ref_pin_rebuild
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
