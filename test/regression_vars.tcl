@@ -164,6 +164,7 @@ record_public_tests {
   get_objrefs
   include_error_line
   input_delay_ref_pin_rebuild
+  levelize_loop_cut_move
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol

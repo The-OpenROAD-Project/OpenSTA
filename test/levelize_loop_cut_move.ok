@@ -1,0 +1,30 @@
+max_delay/setup group unconstrained
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+n6 (output)                              INF   34.85     INF (MET)
+
+max_delay/setup group unconstrained
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+n6 (output)                              INF   34.85     INF (MET)
+
+Startpoint: in1 (input port)
+Endpoint: n6 (output port)
+Path Group: unconstrained
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00 ^ input external delay
+   0.00    0.00 ^ in1 (in)
+  15.44   15.44 ^ g6/Y (AND2x2_ASAP7_75t_R)
+   0.00   15.44 ^ n6 (out)
+          15.44   data arrival time
+---------------------------------------------------------
+(Path is unconstrained)
+
+

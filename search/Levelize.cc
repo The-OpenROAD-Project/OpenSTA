@@ -115,6 +115,8 @@ Levelize::findLevels()
 {
   Stats stats(debug_, report_);
   debugPrint(debug_, "levelize", 1, "levelize");
+  for (Edge *edge : disabled_loop_edges_)
+    loopEdgeChanged(edge);
   clear();
   if (observer_)
     observer_->levelsChangedBefore();
@@ -438,6 +440,16 @@ Levelize::recordLoop(Edge *edge,
   // traversing the entire graph to find them.
   disabled_loop_edges_.insert(edge);
   edge->setIsDisabledLoop(true);
+  loopEdgeChanged(edge);
+}
+
+void
+Levelize::loopEdgeChanged(Edge *edge)
+{
+  if (observer_) {
+    observer_->levelChangedBefore(edge->from(graph_));
+    observer_->levelChangedBefore(edge->to(graph_));
+  }
 }
 
 EdgeSeq *
@@ -553,10 +565,12 @@ Levelize::relevelizeFrom(Vertex *vertex)
 void
 Levelize::deleteEdgeBefore(Edge *edge)
 {
+  // Erase even if levels are already invalid so findLevels does not
+  // touch a deleted edge.
+  disabled_loop_edges_.erase(edge);
   if (levelized_ && loop_edges_.contains(edge)) {
     debugPrint(debug_, "levelize", 2, "delete loop edge {}",
                edge->to_string(this));
-    disabled_loop_edges_.erase(edge);
     // Relevelize if a loop edge is removed. Incremental levelization
     // fails because the DFS path will be missing.
     levelized_ = false;
