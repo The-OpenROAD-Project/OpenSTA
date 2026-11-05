@@ -344,6 +344,7 @@ PrimaDelayCalc::simulate()
   initSim();
   stampEqns();
   setXinit();
+  findDriverNodeCaps();
 
   if (prima_order_ > 0
       && node_count_ > prima_order_) {
@@ -376,19 +377,10 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   x = x_prev1 = x_prev2 = x_init;
   v_ = v_prev1_ = v_prev2_ = x_to_v * x_init;
 
-  MatrixSd A(order, order);
-  Eigen::SparseLU<MatrixSd> A_solver;
-
   // Backward Euler bootstrap (initial ceff).
   double boot_coeff = 1.0 / time_step_;
-  A = G + boot_coeff * C;
-  A.makeCompressed();
-  A_solver.compute(A);
-
-  Eigen::VectorXd rhs(order);
-  rhs = B * u_ + boot_coeff * C * x_prev1;
-  x = A_solver.solve(rhs);
-  v_ = x_to_v * x;
+  Eigen::VectorXd hist = boot_coeff * C * x_prev1;
+  integrateStep(G, C, B, x_to_v, time_begin_, boot_coeff, hist, x);
 
   updateCeffIdrvr(time_begin_);
   x = x_prev1 = x_prev2 = x_init;
@@ -396,27 +388,24 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
 
   recordWaveformStep(time_begin_ - time_step_);
 
-  // Fixed step: BE for first march step; uniform BDF2 thereafter (stable vs
-  // uneven-grid BDF2 with per-step dt, which rings on stiff CCS).
+  // Fixed step: BE for the first march step; uniform BDF2 thereafter (stable
+  // vs uneven-grid BDF2 with per-step dt, which rings on stiff CCS).
   // BDF2: (G + 3*C/(2*h))*x_{n+1} = B*u + C/(2*h)*(4*x_n - x_{n-1}).
+  // Voltage-controlled driver current is linearized into that Jacobian.
   for (int march_step = 0; ; march_step++) {
     double time = time_begin_ + time_step_ * march_step;
     if (time > time_end_)
       break;
     debugPrint(debug_, "prima", 3, "{}", delayAsString(time, this));
 
+    double c_coeff = 1.0 / time_step_;
     if (march_step == 0)
-      rhs = B * u_ + (1.0 / time_step_) * C * x_prev1;
+      hist = c_coeff * C * x_prev1;
     else {
-      if (march_step == 1) {
-        A = G + (3.0 / (2.0 * time_step_)) * C;
-        A.makeCompressed();
-        A_solver.compute(A);
-      }
-      rhs = B * u_ + (1.0 / (2.0 * time_step_)) * C * (4.0 * x_prev1 - x_prev2);
+      c_coeff = 3.0 / (2.0 * time_step_);
+      hist = (1.0 / (2.0 * time_step_)) * C * (4.0 * x_prev1 - x_prev2);
     }
-    x = A_solver.solve(rhs);
-    v_ = x_to_v * x;
+    integrateStep(G, C, B, x_to_v, time, c_coeff, hist, x);
 
     updateCeffIdrvr(time);
 
@@ -509,7 +498,6 @@ PrimaDelayCalc::initSim()
   ceff_.resize(drvr_count_);
   ceff_vth_.assign(drvr_count_, 0.0);
   drvr_current_.resize(drvr_count_);
-  drvr_current1_.resize(drvr_count_);
   waveform_begin_.resize(drvr_count_);
   waveform_end_.resize(drvr_count_);
 
@@ -631,7 +619,6 @@ PrimaDelayCalc::initCeffIdrvr()
                delayAsString(waveform_end, this));
 
     double drvr_current = output_waveforms_[drvr_idx]->voltageCurrent(in_slew, ceff, 0.0);
-    drvr_current1_[drvr_idx] = drvr_current;
     drvr_current_[drvr_idx] = drvr_current;
     // Set port current.
     u_[drvr_idx] = drvr_current;
@@ -868,105 +855,188 @@ PrimaDelayCalc::stampCapacitance(size_t n1,
 ////////////////////////////////////////////////////////////////
 
 void
+PrimaDelayCalc::findDriverNodeCaps()
+{
+  drvr_node_cap_.resize(drvr_count_);
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+    const Pin *drvr_pin = (*dcalc_args_)[drvr_idx].drvrPin();
+    size_t node_idx = pin_node_map_[drvr_pin];
+    drvr_node_cap_[drvr_idx] = C_.coeff(node_idx, node_idx);
+  }
+}
+
+PrimaDelayCalc::DrvrIv
+PrimaDelayCalc::driverCurrent(size_t drvr_idx,
+                              double time,
+                              double v)
+{
+  const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
+  const RiseFall *drvr_rf = dcalc_arg.drvrEdge();
+  OutputWaveforms *output_waveform = output_waveforms_[drvr_idx];
+  float in_slew = delayAsFloat(dcalc_arg.inSlew());
+  double vdd = vdd_;
+  DrvrIv iv{0.0, 0.0, DrvrRegion::time_current};
+
+  if (time < waveform_begin_[drvr_idx]
+      || time > waveform_end_[drvr_idx]) {
+    bool before = time < waveform_begin_[drvr_idx];
+    float hold_r = before ? holdResistanceBefore(dcalc_arg)
+                          : holdResistanceAfter(output_waveform);
+    iv.region = before ? DrvrRegion::hold_before : DrvrRegion::hold_after;
+    if (hold_r > 0.0) {
+      iv.gm = -1.0 / hold_r;
+      bool pull_down = (before && drvr_rf == RiseFall::rise())
+        || (!before && drvr_rf == RiseFall::fall());
+      iv.i = pull_down ? -v / hold_r : (vdd - v) / hold_r;
+    }
+  }
+  else if ((drvr_rf == RiseFall::rise() && v < vdd * .25)
+           || (drvr_rf == RiseFall::fall() && v > vdd * .75)) {
+    iv.i = output_waveform->timeCurrent(in_slew, ceff_[drvr_idx],
+                                        time - dcalc_arg.inputDelay());
+    iv.region = DrvrRegion::time_current;
+  }
+  else {
+    iv.region = DrvrRegion::volt_current;
+    auto current_at = [&](double volt) {
+      double v_table = (drvr_rf == RiseFall::rise()) ? volt : vdd - volt;
+      return static_cast<double>(output_waveform->voltageCurrent(in_slew,
+                                                                  ceff_[drvr_idx],
+                                                                  v_table));
+    };
+    iv.i = current_at(v);
+    double probe = std::max(vdd * 1e-3, 1e-6);
+    double v_lo = std::clamp(v - probe, 0.0, vdd);
+    double v_hi = std::clamp(v + probe, 0.0, vdd);
+    if (v_hi > v_lo)
+      iv.gm = (current_at(v_hi) - current_at(v_lo)) / (v_hi - v_lo);
+  }
+  return iv;
+}
+
+// I(V) = I(V*) + gm*(V - V*). gm*V moves onto A; u_ keeps I(V*) - gm*V*.
+bool
+PrimaDelayCalc::linearizeDrivers(double time,
+                                 const Eigen::VectorXd &v_lin,
+                                 const Eigen::MatrixXd &x_to_v,
+                                 MatrixSd &A)
+{
+  bool voltage_controlled = false;
+  A.uncompress();
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+    const Pin *drvr_pin = (*dcalc_args_)[drvr_idx].drvrPin();
+    size_t node_idx = pin_node_map_[drvr_pin];
+    double v = v_lin[node_idx];
+    DrvrIv iv = driverCurrent(drvr_idx, time, v);
+    u_[drvr_idx] = iv.i - iv.gm * v;
+    if (iv.gm != 0.0) {
+      voltage_controlled = true;
+      Eigen::RowVectorXd w = x_to_v.row(node_idx);
+      Eigen::Index cols = w.cols();
+      for (Eigen::Index col = 0; col < cols; col++) {
+        double w_col = w[col];
+        if (w_col != 0.0) {
+          for (Eigen::Index row = 0; row < cols; row++) {
+            double w_row = w[row];
+            if (w_row != 0.0)
+              A.coeffRef(row, col) -= iv.gm * w_row * w_col;
+          }
+        }
+      }
+    }
+  }
+  return voltage_controlled;
+}
+
+void
+PrimaDelayCalc::integrateStep(const MatrixSd &G,
+                              const MatrixSd &C,
+                              const Eigen::MatrixXd &B,
+                              const Eigen::MatrixXd &x_to_v,
+                              double time,
+                              double c_coeff,
+                              const Eigen::VectorXd &hist,
+                              Eigen::VectorXd &x)
+{
+  MatrixSd A_base = G + c_coeff * C;
+  Eigen::VectorXd v_lin = v_prev1_;
+  // Two Newton steps: the CCS voltage/current table is curved.
+  constexpr int newton_steps = 2;
+  for (int iter = 0; iter < newton_steps; iter++) {
+    MatrixSd A = A_base;
+    bool voltage_controlled = linearizeDrivers(time, v_lin, x_to_v, A);
+    A.makeCompressed();
+    Eigen::SparseLU<MatrixSd> solver;
+    solver.compute(A);
+    x = solver.solve(B * u_ + hist);
+    v_lin = x_to_v * x;
+    if (!voltage_controlled)
+      break;
+  }
+  v_ = v_lin;
+}
+
+void
 PrimaDelayCalc::updateCeffIdrvr(double time)
 {
+  // Move a fraction of the way to the new Ceff so a resistive voltage step
+  // cannot slam the table lookup from one cap-axis end to the other.
+  constexpr double ceff_relax = 0.3;
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
     const Pin *drvr_pin = dcalc_arg.drvrPin();
-    const RiseFall *drvr_rf = dcalc_arg.drvrEdge();
     size_t node_idx = pin_node_map_[drvr_pin];
     double v1 = voltage(node_idx);
-    double vdd = vdd_;
     float in_slew = delayAsFloat(dcalc_arg.inSlew());
-    OutputWaveforms *output_waveform = output_waveforms_[drvr_idx];
-    double drvr_current;
-    if (time < waveform_begin_[drvr_idx]) {
-      float hold_resistance = holdResistanceBefore(dcalc_arg);
-      if (drvr_rf == RiseFall::rise())
-        drvr_current = -v1 / hold_resistance;
-      else
-        drvr_current = (vdd_-v1) / hold_resistance;
+    DrvrIv iv = driverCurrent(drvr_idx, time, v1);
+    if (iv.region == DrvrRegion::hold_before
+        || iv.region == DrvrRegion::hold_after) {
+      float hold_resistance = (iv.region == DrvrRegion::hold_before)
+        ? holdResistanceBefore(dcalc_arg)
+        : holdResistanceAfter(output_waveforms_[drvr_idx]);
+      const char *when = (iv.region == DrvrRegion::hold_before) ? "before" : "after";
       debugPrint(debug_, "prima", 3,
-                 " {} ceff {} VDrvr {:.3f} Idrvr {} hold_r {} before",
+                 " {} ceff {} VDrvr {:.3f} Idrvr {} hold_r {} {}",
                  drvr_idx,
                  units_->capacitanceUnit()->asString(ceff_[drvr_idx]),
                  v1,
-                 units_->currentUnit()->asString(drvr_current, 4),
-                 units_->resistanceUnit()->asString(hold_resistance));
-    }
-    else if (time > waveform_end_[drvr_idx]) {
-      float hold_resistance = holdResistanceAfter(output_waveform);
-      if (drvr_rf == RiseFall::rise())
-        drvr_current = (vdd_-v1) / hold_resistance;
-      else
-        drvr_current = -v1 / hold_resistance;
-      debugPrint(debug_, "prima", 3,
-                 " {} ceff {} VDrvr {:.3f} Idrvr {} hold_r {} hold after",
-                 drvr_idx,
-                 units_->capacitanceUnit()->asString(ceff_[drvr_idx]),
-                 v1,
-                 units_->currentUnit()->asString(drvr_current, 4),
-                 units_->resistanceUnit()->asString(hold_resistance));
+                 units_->currentUnit()->asString(iv.i, 4),
+                 units_->resistanceUnit()->asString(hold_resistance),
+                 when);
     }
     else {
       float input_delay = dcalc_arg.inputDelay();
-      double Icap = drvr_current_[drvr_idx] + drvr_current1_[drvr_idx];
-      double v2 = voltagePrev2(node_idx);
-      double dv = v1 - v2;
-      if ((dv > 0.0 && Icap > 0.0)
-          || (dv < 0.0 && Icap < 0.0)) {
-        float ceff = Icap * time_step_ / dv;
-        ceff = std::min(dcalc_arg.loadCap(), ceff);
+      // One step of trapezoidal charge. A two-step ΔV cancels on a period-2
+      // wiggle and drives Ceff to the load-cap rail.
+      double i_avg = 0.5 * (iv.i + drvr_current_[drvr_idx]);
+      double v_prev = voltagePrev1(node_idx);
+      double dv = v1 - v_prev;
+      bool ramp = (dv > 0.0 && i_avg > 0.0) || (dv < 0.0 && i_avg < 0.0);
+      if (ramp && std::abs(dv) > vdd_ * 1e-4) {
+        double c_ceil = dcalc_arg.loadCap();
+        double c_floor = std::min(drvr_node_cap_[drvr_idx], c_ceil);
+        double c_raw = i_avg * time_step_ / dv;
+        double c_new = std::min(std::max(c_raw, c_floor), c_ceil);
+        double ceff = ceff_[drvr_idx] + ceff_relax * (c_new - ceff_[drvr_idx]);
         ceff_[drvr_idx] = ceff;
         waveform_end_[drvr_idx] = input_delay
           + output_waveforms_[drvr_idx]->endTime(in_slew, ceff);
-        // Record the Ceff at Vth.
-        if ((v1 <= vth_ && v2 > vth_)
-            || (v1 >= vth_ && v2 < vth_))
-          ceff_vth_[drvr_idx] = ceff;
       }
-      std::string region;
-      if (drvr_rf == RiseFall::rise()) {
-        // Rising edge.
-        if (v1 < vdd_ * .25) {
-          drvr_current =
-            output_waveforms_[drvr_idx]->timeCurrent(in_slew,
-                                                     ceff_[drvr_idx],
-                                                     time - input_delay);
-          region = "time_current";
-        }
-        else {
-          drvr_current = output_waveform->voltageCurrent(in_slew, ceff_[drvr_idx], v1);
-          region = "volt_current";
-        }
-      }
-      else {
-        // Falling edge.
-        if (v1 > vdd_ * .75) {
-          drvr_current =
-            output_waveforms_[drvr_idx]->timeCurrent(in_slew,
-                                                     ceff_[drvr_idx],
-                                                     time - input_delay);
-          region = "time_current";
-        }
-        else {
-          drvr_current = output_waveform->voltageCurrent(in_slew, ceff_[drvr_idx],
-                                                         vdd - v1);
-          region = "volt_current";
-        }
-      }
+      if ((v1 <= vth_ && v_prev > vth_)
+          || (v1 >= vth_ && v_prev < vth_))
+        ceff_vth_[drvr_idx] = ceff_[drvr_idx];
+      const char *region = (iv.region == DrvrRegion::time_current)
+        ? "time_current" : "volt_current";
       debugPrint(debug_, "prima", 3, " {} ceff {} end {} VDrvr {:.3f} Idrvr {} {}",
                  drvr_idx,
                  units_->capacitanceUnit()->asString(ceff_[drvr_idx]),
                  delayAsString(waveform_end_[drvr_idx], this),
                  v1,
-                 units_->currentUnit()->asString(drvr_current, 4),
+                 units_->currentUnit()->asString(iv.i, 4),
                  region);
     }
-    drvr_current1_[drvr_idx] = drvr_current_[drvr_idx];
-    drvr_current_[drvr_idx] = drvr_current;
-    // Set port current.
-    u_[drvr_idx] = drvr_current;
+    drvr_current_[drvr_idx] = iv.i;
+    u_[drvr_idx] = iv.i;
   }
 }
 

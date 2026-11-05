@@ -137,7 +137,36 @@ protected:
                      ParasiticNodeResistorMap &resistor_map,
                      ParasiticNodeSet &visited_nodes);
   float driverResistance(const ArcDcalcArg &dcalc_arg);
+  enum class DrvrRegion {
+    hold_before,
+    hold_after,
+    time_current,
+    volt_current
+  };
+  struct DrvrIv {
+    double i;
+    double gm;
+    DrvrRegion region;
+  };
+  DrvrIv driverCurrent(size_t drvr_idx,
+                       double time,
+                       double v);
+  // Stamp dI/dV for voltage-controlled driver current into A.
+  // u_ is the Norton constant I(V*) - gm*V*.
+  bool linearizeDrivers(double time,
+                        const Eigen::VectorXd &v_lin,
+                        const Eigen::MatrixXd &x_to_v,
+                        MatrixSd &A);
+  void integrateStep(const MatrixSd &G,
+                     const MatrixSd &C,
+                     const Eigen::MatrixXd &B,
+                     const Eigen::MatrixXd &x_to_v,
+                     double time,
+                     double c_coeff,
+                     const Eigen::VectorXd &hist,
+                     Eigen::VectorXd &x);
   void updateCeffIdrvr(double time);
+  void findDriverNodeCaps();
   float holdResistanceBefore(const ArcDcalcArg &dcalc_arg);
   float holdResistanceAfter(OutputWaveforms *output_waveform);
   void initSim();
@@ -249,10 +278,11 @@ protected:
 
   // Indexed by driver index.
   std::vector<double> ceff_;
+  // Grounded capacitance on the driver node. Floor for the Ceff update.
+  std::vector<double> drvr_node_cap_;
   // Ceff at Vth
   std::vector<double> ceff_vth_;
   std::vector<double> drvr_current_;
-  std::vector<double> drvr_current1_;
   std::vector<double> waveform_begin_;
   std::vector<double> waveform_end_;
 
