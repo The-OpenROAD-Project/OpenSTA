@@ -44,6 +44,11 @@ foreach(ok_file ${ok_files})
   endif()
 endforeach()
 
+# Tests that check their own result and pass by exit code alone,
+# with no .ok.
+sta_tcl_test(check_setup_launch_edge)
+sta_tcl_test(check_setup_launch_edge_modes)
+
 # Auto-detect example tests: register all *.tcl files in examples/
 file(GLOB example_tcl_files "${EXAMPLES_DIR}/*.tcl")
 foreach(tcl_file ${example_tcl_files})

@@ -64,6 +64,7 @@ protected:
                     bool reg_no_clks);
   void checkUnconstrainedEndpoints();
   bool hasClkedArrival(Vertex *vertex);
+  bool hasClkArrivalOnLaunchEdge(Vertex *clk_vertex);
   void checkNoOutputDelay(PinSet &no_departure);
   void checkUnconstrainedOutputs(PinSet &unconstrained_ends);
   void checkUnconstrainedSetups(PinSet &unconstrained_ends);

@@ -45,6 +45,7 @@
 #include "Sim.hh"
 #include "StaState.hh"
 #include "Tag.hh"
+#include "TimingArc.hh"
 #include "TimingRole.hh"
 
 namespace sta {
@@ -179,7 +180,7 @@ CheckTiming::checkRegClks(bool reg_multiple_clks,
   for (Vertex *vertex : graph_->regClkVertices()) {
     const Pin *pin = vertex->pin();
     const ClockSet *clks = clk_network_->clocks(pin);
-    if (reg_no_clks && clks == nullptr)
+    if (reg_no_clks && (clks == nullptr || !hasClkArrivalOnLaunchEdge(vertex)))
       no_clk_pins.insert(pin);
     if (reg_multiple_clks && clks && clks->size() > 1)
       multiple_clk_pins.insert(pin);
@@ -347,6 +348,46 @@ CheckTiming::checkUnconstrainedSetups(PinSet &unconstrained_ends)
       }
     }
   }
+}
+
+// The clock network is found without regard to transitions, so a
+// register can be in it while the edge it launches on never arrives:
+// a cell whose only arc carries the falling edge in front of a
+// rising-edge flop. The search then times nothing at the register.
+// True when a clock path arrives on an edge one of the register's
+// clock-to-output arcs starts from, or when it has no such arc.
+bool
+CheckTiming::hasClkArrivalOnLaunchEdge(Vertex *clk_vertex)
+{
+  bool launches_rise = false;
+  bool launches_fall = false;
+  VertexOutEdgeIterator edge_iter(clk_vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    const TimingRole *role = edge->role();
+    if (role == TimingRole::regClkToQ() || role == TimingRole::latchEnToQ()) {
+      for (const TimingArc *arc : edge->timingArcSet()->arcs()) {
+        const RiseFall *launch_rf = arc->fromEdge()->asRiseFall();
+        if (launch_rf == RiseFall::rise())
+          launches_rise = true;
+        else if (launch_rf == RiseFall::fall())
+          launches_fall = true;
+      }
+    }
+  }
+  if (!launches_rise && !launches_fall)
+    return true;
+  VertexPathIterator path_iter(clk_vertex, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    if (path->isClock(this) && path->mode(this) == mode_) {
+      const RiseFall *rf = path->transition(this);
+      if ((rf == RiseFall::rise() && launches_rise)
+          || (rf == RiseFall::fall() && launches_fall))
+        return true;
+    }
+  }
+  return false;
 }
 
 bool

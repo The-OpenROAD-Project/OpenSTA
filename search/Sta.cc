@@ -2355,6 +2355,10 @@ Sta::checkTiming(const Mode *mode,
     searchPreamble();
     search_->findAllArrivals();
   }
+  else if (reg_no_clks)
+    // An unclocked register is one no clock arrival reaches on its
+    // launch edge.
+    ensureClkArrivals();
   else {
     ensureGraph();
     ensureLevelized();

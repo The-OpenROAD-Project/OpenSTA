@@ -486,6 +486,17 @@ STA_TESTS = [
     for ok in glob(["test/*.ok"])
     if ok.removesuffix(".ok") + ".tcl" in STA_TEST_TCLS
 ] + [
+    # test/ tests that check their own result and pass by exit code
+    # alone, with no .ok.
+    (
+        "test/check_setup_launch_edge",
+        False,
+    ),
+    (
+        "test/check_setup_launch_edge_modes",
+        False,
+    ),
+] + [
     (
         ok.removesuffix(".ok"),
         True,
