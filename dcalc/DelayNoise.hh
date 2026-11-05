@@ -48,6 +48,7 @@ public:
   DcalcResults &operator=(DcalcResults &&rhs) noexcept;
   bool empty() const;
   NetSet nets(const Network *network) const;
+  void clear();
   WireDelayMap &wireDelayMap() { return wire_delay_map_; }
   VertexSlewMap &vertexSlewMap() {return vertex_slew_map_; }
   float wireDelay(Edge *wire_edge,
@@ -184,6 +185,7 @@ protected:
                                  float min_coupling_ratio,
                                  const SceneSeq scenes,
                                  const MinMaxAll *min_max);
+  void removeNoiseAnnotations();
   DcalcResults findAllNoiseDelays(float min_coupling_sum_ratio,
                                   float min_coupling_ratio,
                                   const SceneSeq scenes,

@@ -6249,6 +6249,7 @@ Sta::reportVictimNets(float min_coupling_ratio,
                       const Scene *scene,
                       const MinMax *min_max)
 {
+  // No delay calc or arrival dependence.
   if (libraryHasCcsModels())
     delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
 }
@@ -6283,6 +6284,8 @@ Sta::writeNoiseDelayCase(const Net *net,
 void
 Sta::noiseDelayPreamble()
 {
+  // This is overkill and not incremental.
+  delay_noise_->clear();
   // Arrivals required to filter aggressors.
   searchPreamble();
   search_->findArrivals();

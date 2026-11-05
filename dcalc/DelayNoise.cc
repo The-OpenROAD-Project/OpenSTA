@@ -71,6 +71,8 @@ DelayNoise::copyState(const StaState *sta)
 void
 DelayNoise::clear()
 {
+  removeNoiseAnnotations();
+  noise_delays_.clear();
   prima_dcalc_->clear();
 }
 
@@ -133,7 +135,32 @@ DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
   }
 }
 
-// For path reporting.
+void
+DelayNoise::removeNoiseAnnotations()
+{
+  if (graph_) {
+    VertexIterator vertex_iter(graph_);
+    while (vertex_iter.hasNext()) {
+      Vertex *vertex = vertex_iter.next();
+      if (vertex->hasNoiseSlewAnnotation()) {
+        vertex->setHasNoiseSlewAnnotation(false);
+        graph_delay_calc_->delayInvalid(vertex);
+      }
+      VertexOutEdgeIterator edge_iter(vertex, graph_);
+      while (edge_iter.hasNext()) {
+        Edge *edge = edge_iter.next();
+        if (edge->hasNoiseDelayAnnotation()) {
+          edge->setHasNoiseDelayAnnotation(false);
+          graph_delay_calc_->delayInvalid(edge->to(graph_));
+          if (edge->isWire())
+            graph_delay_calc_->delayInvalid(edge->from(graph_));
+        }
+      }
+    }
+  }
+}
+
+// For report path noise field.
 void
 DelayNoise::wireDelayIncr(Edge *wire_edge,
                           const Scene *scene,
@@ -1761,6 +1788,13 @@ DcalcResults::empty() const
 {
   return vertex_slew_map_.empty()
     && wire_delay_map_.empty();
+}
+
+void
+DcalcResults::clear()
+{
+  wire_delay_map_.clear();
+  vertex_slew_map_.clear();
 }
 
 NetSet
