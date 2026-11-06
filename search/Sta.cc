@@ -6226,6 +6226,7 @@ Sta::reportNoiseDelays(const Net *net,
                        int digits)
 {
   if (libraryHasCcsModels()) {
+    delay_noise_->removeNoiseAnnotations();
     noiseDelayPreamble();
     delay_noise_->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene,
                                     min_max, digits);
@@ -6260,6 +6261,8 @@ Sta::reportAggressors(const Net *victim,
                       const Scene *scene,
                       const MinMax *min_max)
 {
+  // Non-noise delays necessary for arrivals to find timing window overlap.
+  delay_noise_->removeNoiseAnnotations();
   noiseDelayPreamble();
   delay_noise_->reportAggressors(victim, min_coupling_ratio, scene, min_max);
 }

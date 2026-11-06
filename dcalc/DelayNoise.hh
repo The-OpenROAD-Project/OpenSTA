@@ -54,14 +54,14 @@ public:
   float wireDelay(Edge *wire_edge,
                   const Scene *scene,
                   const RiseFall *rf,
-                  const MinMax *min_max);
+                  const MinMax *min_max) const;
   void wireDelay(Edge *wire_edge,
                  const Scene *scene,
                  const RiseFall *rf,
                  const MinMax *min_max,
                  // Return values.
                  float &wire_delay,
-                 bool &exists);
+                 bool &exists) const;
   void setWireDelay(Edge *wire_edge,
                     const Scene *scene,
                     const RiseFall *rf,
@@ -70,14 +70,14 @@ public:
   float loadSlew(Vertex *load_vertex,
                  const Scene *scene,
                  const RiseFall *rf,
-                 const MinMax *min_max);
+                 const MinMax *min_max) const;
   void loadSlew(Vertex *load_vertex,
                 const Scene *scene,
                 const RiseFall *rf,
                 const MinMax *min_max,
                 // Return values.
                 float &slew,
-                bool &exists);
+                bool &exists) const;
   void setLoadSlew(Vertex *load_vertex,
                    const Scene *scene,
                    const RiseFall *rf,
@@ -97,6 +97,7 @@ public:
   ~DelayNoise() override;
   void copyState(const StaState *sta) override;
   void clear();
+  void removeNoiseAnnotations();
 
   // Annotate noise delays and slews for all design nets.
   void annotateNoiseDelays(float min_coupling_sum_ratio,
@@ -154,6 +155,11 @@ public:
                       bool no_timestamp,
                       const Scene *scene,
                       const MinMax *min_max);
+  float worstNoiseDelay(const Net *net,
+                        const DcalcResults &noise_delays,
+                        const RiseFallBoth *drvr_rf,
+                        const Scene *scene,
+                        const MinMax *min_max) const;
 
   ////////////////////////////////////////////////////////////////
   // Accessors for tcl debug
@@ -185,7 +191,6 @@ protected:
                                  float min_coupling_ratio,
                                  const SceneSeq scenes,
                                  const MinMaxAll *min_max);
-  void removeNoiseAnnotations();
   DcalcResults findAllNoiseDelays(float min_coupling_sum_ratio,
                                   float min_coupling_ratio,
                                   const SceneSeq scenes,
