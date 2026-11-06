@@ -3919,6 +3919,13 @@ set_power_activity -input -activity 0.1 -duty 0.5
 `-clock` {: #opt-set_power_activity-clock }
 : `clock`: The clock to use for the period with `-activity`. This option is ignored if `-density` is used.
 
+## set_power_activity_mode
+
+<pre><code>set_power_activity_mode
+    simulation|vectorless</code></pre>
+
+Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the netlist before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. Designs whose clocks have different periods, or no clock, use the formulas. "vectorless" (the default) propagates activities through each cell with formulas.
+
 ## set_propagated_clock
 
 <pre><code>set_propagated_clock
@@ -4212,6 +4219,16 @@ The `set_wire_load_selection_group` command is parsed but not supported.
 
 `-max` {: #opt-set_wire_load_selection_group-max }
 : Apply to maximum (setup) analysis.
+
+## simulate_power_activity
+
+<pre><code>simulate_power_activity
+    [-cycles cycles]
+    [-warmup cycles]
+    [-lanes lanes]
+    [-seed seed]</code></pre>
+
+Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and outputs of cells without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. Every pin of each simulated net is annotated, as with read_saif.
 
 ## suppress_msg
 
