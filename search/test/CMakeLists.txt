@@ -8,6 +8,7 @@ sta_module_tests("search"
     check_setup_max_delay
     check_timing
     check_types_deep
+    clk_arrivals_threads
     clk_skew_interclk
     clk_skew_multiclock
     corner_io_gates
