@@ -22,6 +22,7 @@ library (sg13g2_stdcell_typ_1p20V_25C) {
 
   default_max_fanout             : 1;
   default_max_transition         : 2.507;
+  default_max_capacitance         : 0.300;
   default_fanout_load            : 1.00;
 
   nom_process                    : 1.0;

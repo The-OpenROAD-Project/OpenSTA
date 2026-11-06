@@ -178,6 +178,7 @@ record_public_tests {
   liberty_binary_source
   liberty_binary_timing
   liberty_ccsn
+  liberty_default_max_cap
   liberty_float_as_str
   liberty_latch3
   liberty_malformed_ports
