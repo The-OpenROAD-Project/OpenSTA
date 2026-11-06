@@ -1089,7 +1089,9 @@ ArrivalVisitor::ArrivalVisitor(const ArrivalVisitor &arrival_visitor) :
   PathVisitor(arrival_visitor.pred_, true, &arrival_visitor)
 {
   init0();
-  init(arrival_visitor.always_to_endpoints_, false, arrival_visitor.pred_);
+  init(arrival_visitor.always_to_endpoints_,
+       arrival_visitor.clks_only_,
+       arrival_visitor.pred_);
 }
 
 void
