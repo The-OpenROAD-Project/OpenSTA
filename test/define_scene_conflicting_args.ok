@@ -1,0 +1,2 @@
+Error 485: define_scene_conflicting_args.tcl line 6, -liberty and -liberty_min/-liberty_max are mutually exclusive.
+Error 488: define_scene_conflicting_args.tcl line 8, -spef and -spef_min/-spef_max are mutually exclusive.
