@@ -39,6 +39,7 @@ enum class PwrActivityOrigin
  user,
  vcd,
  saif,
+ simulation,  // OpenROAD fork: power activity simulation
  propagated,
  clock,
  constant,

@@ -101,6 +101,8 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map = {
     {PwrActivityOrigin::user, "user"},
     {PwrActivityOrigin::vcd, "vcd"},
     {PwrActivityOrigin::saif, "saif"},
+    // OpenROAD fork: power activity simulation
+    {PwrActivityOrigin::simulation, "simulation"},
     {PwrActivityOrigin::propagated, "propagated"},
     {PwrActivityOrigin::clock, "clock"},
     {PwrActivityOrigin::constant, "constant"},
@@ -118,6 +120,9 @@ Power::clear()
   global_activity_.init();
   input_activity_.init();
   user_activity_map_.clear();
+  // OpenROAD fork: power activity simulation.
+  activity_sim_valid_ = false;
+  activity_sim_mode_ = nullptr;
   clearNonSdc();
 }
 
@@ -134,12 +139,25 @@ Power::clearNonSdc()
 void
 Power::deletePinBefore(const Pin *pin)
 {
-  unsetUserActivity(pin);
+  // OpenROAD fork: power activity simulation. A netlist edit does not
+  // make the simulation stale.
+  user_activity_map_.erase(pin);
+  propagationInvalid();
   activity_map_.erase(pin);
 }
 
 void
 Power::activitiesInvalid()
+{
+  activities_valid_ = false;
+  instance_powers_valid_ = false;
+  // OpenROAD fork: power activity simulation. Inputs or SDC changed.
+  activity_sim_valid_ = false;
+}
+
+// OpenROAD fork: power activity simulation
+void
+Power::propagationInvalid()
 {
   activities_valid_ = false;
   instance_powers_valid_ = false;
@@ -206,7 +224,12 @@ Power::setUserActivity(const Pin *pin,
                        PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {density, duty, origin};
-  activitiesInvalid();
+  // OpenROAD fork: power activity simulation. Its own annotations do not
+  // make the simulation stale.
+  if (origin == PwrActivityOrigin::simulation)
+    propagationInvalid();
+  else
+    activitiesInvalid();
 }
 
 void
@@ -258,7 +281,9 @@ Power::setSeqActivity(const Instance *reg,
                       PwrActivity &activity)
 {
   seq_activity_map_[SeqPin(reg, output)] = activity;
-  activitiesInvalid();
+  // OpenROAD fork: power activity simulation. Propagation bookkeeping, not
+  // an input change.
+  propagationInvalid();
 }
 
 bool
@@ -1033,6 +1058,14 @@ Power::ensureActivities(const Scene *scene)
   }
 
   if (!activities_valid_) {
+    // ---- OpenROAD fork: power activity simulation (begin) ----
+    // In simulation mode, vectorless activities come from a simulation run
+    // when inputs, SDC or the mode changed. Netlist edits keep its
+    // annotations; new pins are propagated from them below.
+    if (simulate_activities_ && !global_activity_.isSet()
+        && (!activity_sim_valid_ || activity_sim_mode_ != scene->mode()))
+      simulateActivities(scene, 300, 1300, 64, 1, false);
+    // ---- OpenROAD fork: power activity simulation (end) ----
     // No need to propagate activites if global activity is set.
     if (!global_activity_.isSet()) {
       // Clear existing activities.
@@ -1939,6 +1972,7 @@ Power::reportActivityAnnotation(bool report_unannotated,
 {
   size_t vcd_count = 0;
   size_t saif_count = 0;
+  size_t simulation_count = 0;  // OpenROAD fork: power activity simulation
   size_t input_count = 0;
   for (auto const &[pin, activity] : user_activity_map_) {
     PwrActivityOrigin origin = activity.origin();
@@ -1948,6 +1982,10 @@ Power::reportActivityAnnotation(bool report_unannotated,
         break;
       case PwrActivityOrigin::saif:
         saif_count++;
+        break;
+      // OpenROAD fork: power activity simulation
+      case PwrActivityOrigin::simulation:
+        simulation_count++;
         break;
       case PwrActivityOrigin::user:
         input_count++;
@@ -1960,6 +1998,9 @@ Power::reportActivityAnnotation(bool report_unannotated,
     report_->report("vcd         {:>5}", vcd_count);
   if (saif_count > 0)
     report_->report("saif        {:>5}", saif_count);
+  // OpenROAD fork: power activity simulation
+  if (simulation_count > 0)
+    report_->report("simulation  {:>5}", simulation_count);
   if (input_count > 0)
     report_->report("input       {:>5}", input_count);
   size_t pin_count = pinCount();
