@@ -3,8 +3,8 @@
 # r1, r2 and r3 share a level, which is visited in parallel, and the
 # search must not carry on from them into the data network.
 sta::set_thread_count 2
-read_liberty ../examples/nangate45_slow.lib.gz
-read_verilog ../examples/example1.v
+read_liberty ../../examples/nangate45_slow.lib.gz
+read_verilog ../../examples/example1.v
 link_design top
 create_clock -name clk -period 10 {clk1 clk2 clk3}
 
