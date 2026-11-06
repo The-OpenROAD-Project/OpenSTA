@@ -3,6 +3,7 @@ sta_module_tests("util"
     commands
     log_redirect
     msg_suppress
+    output_to_variable
     parallel_misc
     pattern_string
     report_debug
