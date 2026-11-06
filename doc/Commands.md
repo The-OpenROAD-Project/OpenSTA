@@ -4223,12 +4223,26 @@ The `set_wire_load_selection_group` command is parsed but not supported.
 ## simulate_power_activity
 
 <pre><code>simulate_power_activity
-    [-cycles cycles]
-    [-warmup cycles]
-    [-lanes lanes]
-    [-seed seed]</code></pre>
+    [<a href="#opt-simulate_power_activity-cycles">-cycles</a> cycles]
+    [<a href="#opt-simulate_power_activity-warmup">-warmup</a> cycles]
+    [<a href="#opt-simulate_power_activity-lanes">-lanes</a> lanes]
+    [<a href="#opt-simulate_power_activity-seed">-seed</a> seed]</code></pre>
 
 Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and outputs of cells without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. Every pin of each simulated net is annotated, as with read_saif.
+
+### Options
+
+`-cycles` {: #opt-simulate_power_activity-cycles }
+: `cycles`: Number of measured clock cycles. Defaults to 2000.
+
+`-warmup` {: #opt-simulate_power_activity-warmup }
+: `cycles`: Number of clock cycles simulated before counting starts, so the random initial state settles. Defaults to 500.
+
+`-lanes` {: #opt-simulate_power_activity-lanes }
+: `lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.
+
+`-seed` {: #opt-simulate_power_activity-seed }
+: `seed`: Random number generator seed. Defaults to 1.
 
 ## suppress_msg
 
