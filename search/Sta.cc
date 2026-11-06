@@ -6284,8 +6284,6 @@ Sta::writeNoiseDelayCase(const Net *net,
 void
 Sta::noiseDelayPreamble()
 {
-  // This is overkill and not incremental.
-  delay_noise_->clear();
   // Arrivals required to filter aggressors.
   searchPreamble();
   search_->findArrivals();
@@ -6307,6 +6305,7 @@ Sta::libraryHasCcsModels() const
   return false;
 }
 
+// External api for tcl debug.
 ArcDcalcArgSeq
 Sta::makeDcalcArgs(const Net *net,
                    const RiseFall *drvr_rf,

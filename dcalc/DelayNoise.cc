@@ -72,7 +72,6 @@ void
 DelayNoise::clear()
 {
   removeNoiseAnnotations();
-  noise_delays_.clear();
   prima_dcalc_->clear();
 }
 
@@ -138,7 +137,8 @@ DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
 void
 DelayNoise::removeNoiseAnnotations()
 {
-  if (graph_) {
+  if (graph_
+      && !noise_delays_.empty()) {
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
@@ -157,6 +157,7 @@ DelayNoise::removeNoiseAnnotations()
         }
       }
     }
+    noise_delays_.clear();
   }
 }
 
@@ -382,11 +383,9 @@ DelayNoise::reportNoiseDelays(size_t max_count,
                               const MinMaxAll *min_max,
                               int digits)
 {
-  SceneSeq scenes;
-  scenes.push_back(const_cast<Scene*>(scene));
   DcalcResults noise_delays = ensureNoiseDelays(min_coupling_sum_ratio,
                                                 min_coupling_ratio,
-                                                scenes, min_max);
+                                                scenes_, min_max);
   if (!noise_delays.empty()) {
     NetSeq nets;
     for (const Net *net : noise_delays.nets(network_))
@@ -425,6 +424,7 @@ DelayNoise::reportNoiseDelays(const Net *net,
   if (drvr_pin) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     if (drvr_vertex) {
+      removeNoiseAnnotations();
       const LoadPinIndexMap load_pin_index_map =
         graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
       const DelaysWrtClks drvr_clk_arrivals =
@@ -450,13 +450,14 @@ DelayNoise::reportNoiseDelays(const Net *net,
     report_->warn(2183, "No coupling capacitors found. Use read_spef -keep_capacitive_coupling.");
 }
 
-// report_gate_noise_delays hidden command.
+// report_gate_noise_delays hidden command for tcl debug.
 void
 DelayNoise::reportNoiseDelays(ArcDcalcArgSeq &gates,
                               const Scene *scene,
                               const MinMax *min_max,
                               int digits)
 {
+  removeNoiseAnnotations();
   ArcDcalcArg &drvr_arg = gates[0];
   Vertex *drvr_vertex = drvr_arg.drvrVertex(graph_);
   const LoadPinIndexMap load_pin_index_map =
@@ -560,6 +561,7 @@ DelayNoise::reportAggressors(const Net *victim,
                              const Scene *scene,
                              const MinMax *min_max)
 {
+  removeNoiseAnnotations();
   found_coupling_caps_ = false;
   NetSeq aggressors = aggressorNetsSorted(victim, min_coupling_ratio, scene, min_max);
   if (found_coupling_caps_ && !aggressors.empty()) {
