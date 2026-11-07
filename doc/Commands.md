@@ -1235,23 +1235,6 @@ Files compressed with gzip are automatically uncompressed.
 `-infer_latches` {: #opt-read_liberty-infer_latches }
 : Infer latches from timing arcs when the Liberty file has no latch groups.
 
-## read_power_activities
-
-<pre><code>read_power_activities
-    [<a href="#opt-read_power_activities-scope">-scope</a> scope]
-    <a href="#opt-read_power_activities-vcd">-vcd</a>
-    filename</code></pre>
-
-The `read_power_activities` command is deprecated. Use `read_vcd` instead.
-
-### Options
-
-`-scope` {: #opt-read_power_activities-scope }
-: The VCD scope of the current design. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.
-
-`-vcd` {: #opt-read_power_activities-vcd }
-: VCD file to read. Use `read_vcd` instead.
-
 ## read_saif
 
 <pre><code>read_saif
