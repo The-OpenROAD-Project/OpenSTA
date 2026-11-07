@@ -918,7 +918,7 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
   else {
     // Only visit -to filter pins.
     ModeSeq modes = Scene::modes(scenes);
-    VertexSet endpoints = makeVertexSet(this);
+    VertexSet endpoints(graph_);
     PinSet pins = to->allPins(network_);
     for (const Pin *pin : pins) {
       Vertex *vertex, *bidirect_drvr_vertex;

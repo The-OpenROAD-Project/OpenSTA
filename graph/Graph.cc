@@ -51,7 +51,7 @@ Graph::Graph(StaState *sta,
              DcalcAPIndex ap_count) :
   StaState(sta),
   period_check_annotations_(network_),
-  reg_clk_vertices_(makeVertexSet(this)),
+  reg_clk_vertices_(graph_),
   ap_count_(ap_count)
 {
   // For the benifit of reg_clk_vertices_ that references graph_.

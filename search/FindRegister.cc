@@ -143,7 +143,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
     // Use DFS search to find all registers downstream of the clocks.
     for (Clock *clk : *clks) {
       FindRegClkPred clk_pred(clk, this);
-      VertexSet visited_vertices = makeVertexSet(this);
+      VertexSet visited_vertices(graph_);
       for (const Pin *pin : clk->leafPins()) {
         Vertex *vertex, *bidirect_drvr_vertex;
         graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);

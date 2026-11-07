@@ -5470,7 +5470,7 @@ Sta::findFaninPins(Vertex *vertex,
                    SearchPred &pred,
                    const Mode *mode)
 {
-  VertexSet visited = makeVertexSet(this);
+  VertexSet visited(graph_);
   findFaninPins(vertex, flat, inst_levels, pin_levels, visited, &pred, 0, 0, mode);
   for (Vertex *visited_vertex : visited) {
     Pin *visited_pin = visited_vertex->pin();
@@ -5571,7 +5571,7 @@ Sta::findFanoutPins(Vertex *vertex,
                     SearchPred &pred,
                     const Mode *mode)
 {
-  VertexSet visited = makeVertexSet(this);
+  VertexSet visited(graph_);
   findFanoutPins(vertex, flat, inst_levels, pin_levels, visited, &pred, 0, 0, mode);
   for (Vertex *visited_vertex : visited) {
     Pin *visited_pin = visited_vertex->pin();

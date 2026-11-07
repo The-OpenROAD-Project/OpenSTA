@@ -334,7 +334,7 @@ CheckTiming::checkGeneratedClocks()
     if (clk->isGenerated()) {
       mode_->genclks()->checkMaster(clk, sdc_);
       bool found_clk = false;
-      VertexSet src_vertices = makeVertexSet(this);
+      VertexSet src_vertices(graph_);
       clk->srcPinVertices(src_vertices, network_, graph_);
       for (Vertex *vertex : src_vertices) {
         if (clk_network_->isClock(vertex)) {

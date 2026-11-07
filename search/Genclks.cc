@@ -52,7 +52,7 @@ class GenclkInfo
 public:
   GenclkInfo(Clock *gclk,
              FilterPath *src_filter,
-             const StaState *sta);
+             Graph *&graph);
   ~GenclkInfo();
   EdgeSet &fdbkEdges() { return fdbk_edges_; }
   VertexSet &fanins() { return fanins_; }
@@ -70,9 +70,9 @@ protected:
 
 GenclkInfo::GenclkInfo(Clock *gclk,
                        FilterPath *src_filter,
-                       const StaState *sta) :
+                       Graph *&graph) :
   gclk_(gclk),
-  fanins_(makeVertexSet(sta->graph())),
+  fanins_(graph),
   src_filter_(src_filter)
 {
 }
@@ -227,7 +227,7 @@ Genclks::ensureMaster(Clock *gclk,
       // Search backward from generated clock source pin to a clock pin.
       GenClkMasterSearchPred srch_pred(this);
       VertexQueue master_queue;
-      VertexSet src_vertices = makeVertexSet(this);
+      VertexSet src_vertices(graph_);
       gclk->srcPinVertices(src_vertices, network_, graph_);
       for (Vertex *vertex : src_vertices)
         master_queue.push(vertex);
@@ -423,7 +423,7 @@ GenclkInfo *
 Genclks::makeGenclkInfo(Clock *gclk)
 {
   FilterPath *src_filter = makeSrcFilter(gclk, mode_->sdc());
-  GenclkInfo *genclk_info = new GenclkInfo(gclk, src_filter, this);
+  GenclkInfo *genclk_info = new GenclkInfo(gclk, src_filter, graph_);
   findFanin(gclk, genclk_info->fanins());
   genclk_info_map_[gclk] = genclk_info;
   return genclk_info;
@@ -475,8 +475,8 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
   EdgeSet &fdbk_edges = genclk_info->fdbkEdges();
   for (const Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
-    VertexSet path_vertices = makeVertexSet(this);
-    VertexSet visited_vertices = makeVertexSet(this);
+    VertexSet path_vertices(graph_);
+    VertexSet visited_vertices(graph_);
     SearchPred1 srch_pred(this);
     findLatchFdbkEdges(vertex, srch_pred, path_vertices,
                        visited_vertices, fdbk_edges);

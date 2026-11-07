@@ -46,8 +46,8 @@ namespace sta {
 
 Levelize::Levelize(StaState *sta) :
   StaState(sta),
-  roots_(makeVertexSet(sta)),
-  relevelize_from_(makeVertexSet(sta))
+  roots_(graph_),
+  relevelize_from_(graph_)
 {
 }
 
@@ -318,10 +318,10 @@ Levelize::findCycleBackEdges()
   if (unvisited.size() < 100)
     sort(unvisited, VertexNameLess(network_));
   size_t back_edge_count = 0;
-  VertexSet visited = makeVertexSet(this);
+  VertexSet visited(graph_);
   for (Vertex *vertex : unvisited) {
     if (!visited.contains(vertex)) {
-      VertexSet path_vertices = makeVertexSet(this);
+      VertexSet path_vertices(graph_);
       EdgeSeq path;
       FindBackEdgesStack stack;
       visited.insert(vertex);
@@ -596,7 +596,7 @@ Levelize::relevelize()
                vertex->to_string(this));
     if (isRoot(vertex))
       roots_.insert(vertex);
-    VertexSet path_vertices = makeVertexSet(this);
+    VertexSet path_vertices(graph_);
     EdgeSeq path;
     visit(vertex, nullptr, vertex->level(), 1, path_vertices, path);
   }

@@ -351,7 +351,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 VertexSet
 ClkSkews::findFanout(Vertex *from)
 {
-  VertexSet endpoints = makeVertexSet(this);
+  VertexSet endpoints(graph_);
   std::unordered_set<Vertex *> visited;
   findFanout1(from, visited, endpoints);
   return endpoints;

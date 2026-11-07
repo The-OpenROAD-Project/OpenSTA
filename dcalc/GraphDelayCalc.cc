@@ -145,7 +145,7 @@ DcalcNonLatchPred::searchThru(Edge *edge,
 
 GraphDelayCalc::GraphDelayCalc(StaState *sta) :
   StaState(sta),
-  invalid_delays_(makeVertexSet(this)),
+  invalid_delays_(graph_),
   search_pred_(new DcalcPred(sta)),
   search_non_latch_pred_(new DcalcNonLatchPred(sta)),
   iter_(new BfsFwdIterator(BfsIndex::dcalc, search_non_latch_pred_, sta))

@@ -137,7 +137,7 @@ ClkNetwork::findClkPins(bool ideal_only,
         clk_pins_map_[clk] = clk_pins;
       }
       std::queue<Vertex *> queue;
-      VertexSet visited = makeVertexSet(this);
+      VertexSet visited(graph_);
       auto enqueue = [&queue, &visited] (Vertex *vertex) {
         if (vertex && !visited.contains(vertex)) {
           visited.insert(vertex);

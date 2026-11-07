@@ -515,11 +515,4 @@ private:
   EdgeSet::iterator edge_iter_;
 };
 
-// Helper function to create a VertexSet with the comparator initialized
-inline VertexSet
-makeVertexSet(StaState *sta)
-{
-  return VertexSet(VertexIdLess(sta->graphRef()));
-}
-
 } // namespace sta

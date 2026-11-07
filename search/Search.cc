@@ -222,16 +222,16 @@ Search::Search(StaState *sta) :
   search_adj_(new SearchAdj(this)),
   eval_pred_(new EvalPred(this)),
 
-  invalid_arrivals_(makeVertexSet(this)),
+  invalid_arrivals_(graph_),
   arrival_iter_(new BfsFwdIterator(BfsIndex::arrival,
                                    nullptr,
                                    this)),
   arrival_visitor_(new ArrivalVisitor(this)),
 
-  invalid_requireds_(makeVertexSet(this)),
+  invalid_requireds_(graph_),
   required_iter_(new BfsBkwdIterator(BfsIndex::required, search_adj_, this)),
 
-  invalid_tns_(makeVertexSet(this)),
+  invalid_tns_(graph_),
   clk_info_set_(new ClkInfoSet(ClkInfoLess(this))),
 
   tags_(new Tag *[tag_capacity_]),
@@ -241,11 +241,11 @@ Search::Search(StaState *sta) :
   tag_group_capacity_(tag_capacity_),
   tag_groups_(new TagGroup *[tag_group_capacity_]),
   tag_group_set_(new TagGroupSet(tag_group_capacity_)),
-  pending_arrivals_(makeVertexSet(this)),
-  endpoints_(makeVertexSet(this)),
-  invalid_endpoints_(makeVertexSet(this)),
+  pending_arrivals_(graph_),
+  endpoints_(graph_),
+  invalid_endpoints_(graph_),
 
-  filtered_arrivals_(makeVertexSet(this)),
+  filtered_arrivals_(graph_),
 
   visit_path_ends_(new VisitPathEnds(this)),
   gated_clk_(new GatedClk(this)),
@@ -1445,7 +1445,7 @@ Search::postponeArrivals(Vertex *vertex)
 void
 Search::seedArrivals()
 {
-  VertexSet vertices = makeVertexSet(this);
+  VertexSet vertices(graph_);
   findClockVertices(vertices);
   findRootVertices(vertices);
   findInputDrvrVertices(vertices);
