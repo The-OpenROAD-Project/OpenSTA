@@ -3824,21 +3824,21 @@ void
 Search::tnsDecr(Vertex *vertex,
                 PathAPIndex path_ap_index)
 {
-  Slack slack;
-  bool found;
-  findKeyValue(tns_slacks_[path_ap_index], vertex, slack, found);
-  if (found
-      && delayLess(slack, 0.0, this)) {
-    debugPrint(debug_, "tns", 3, "tns- {} {} {}",
-               delayAsString(slack, this),
-               vertex->to_string(this),
-               path_ap_index);
-    delayDecr(tns_[path_ap_index], slack, this);
-    tns_slacks_[path_ap_index].erase(vertex);
+  VertexSlackMap &slacks = tns_slacks_[path_ap_index];
+  auto itr = slacks.find(vertex);
+  if (itr != slacks.end()) {
+    Slack slack = itr->second;
+    if (delayLess(slack, 0.0, this)) {
+      debugPrint(debug_, "tns", 3, "tns- {} {} {}",
+                 delayAsString(slack, this),
+                 vertex->to_string(this),
+                 path_ap_index);
+      delayDecr(tns_[path_ap_index], slack, this);
+      slacks.erase(itr);
+    }
   }
 }
 
-// Notify tns before updating/deleting slack (arrival/required).
 void
 Search::tnsNotifyBefore(Vertex *vertex)
 {
