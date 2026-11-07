@@ -180,6 +180,7 @@ record_public_tests {
   package_require
   path_group_names
   port_delay_delete_inst
+  port_delay_hier_pin
   power_network_changed
   power_json
   power_activity_cases

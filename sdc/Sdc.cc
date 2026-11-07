@@ -2732,7 +2732,7 @@ Sdc::makeInputDelay(const Pin *pin,
       InputDelaySet *internal_inputs = input_delay_internal_pin_map_[lpin];
       if (internal_inputs == nullptr) {
         internal_inputs = new InputDelaySet;
-        input_delay_internal_pin_map_[pin] = internal_inputs;
+        input_delay_internal_pin_map_[lpin] = internal_inputs;
       }
       internal_inputs->insert(input_delay);
     }
@@ -2827,7 +2827,7 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
     inputs->erase(input_delay);
     if (inputs->empty()) {
       delete inputs;
-      input_delay_leaf_pin_map_.erase(pin);
+      input_delay_leaf_pin_map_.erase(lpin);
     }
   }
 
@@ -3021,7 +3021,7 @@ Sdc::deleteOutputDelay(OutputDelay *output_delay)
     outputs->erase(output_delay);
     if (outputs->empty()) {
       delete outputs;
-      output_delay_leaf_pin_map_.erase(pin);
+      output_delay_leaf_pin_map_.erase(lpin);
     }
   }
 
@@ -5871,6 +5871,7 @@ Sdc::deletePortDelayReferences(const Pin *pin)
   }
   while (InputDelaySet *pin_input_delays = findKey(input_delay_pin_map_, pin))
     deleteInputDelay(*pin_input_delays->begin());
+  deletePinMapKey(input_delay_leaf_pin_map_, pin);
   deletePinMapKey(input_delay_internal_pin_map_, pin);
 
   OutputDelaySet *leaf_output_delays = outputDelaysLeafPin(pin);
@@ -5888,6 +5889,7 @@ Sdc::deletePortDelayReferences(const Pin *pin)
   }
   while (OutputDelaySet *pin_output_delays = findKey(output_delay_pin_map_, pin))
     deleteOutputDelay(*pin_output_delays->begin());
+  deletePinMapKey(output_delay_leaf_pin_map_, pin);
 }
 
 void
