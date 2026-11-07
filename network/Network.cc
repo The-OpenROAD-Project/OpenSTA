@@ -593,7 +593,7 @@ Network::hierarchyLevel(const Net *net) const
 bool
 Network::isDriver(const Pin *pin) const
 {
-  PortDirection *dir = direction(pin);
+  const PortDirection *dir = direction(pin);
   const Instance *inst = instance(pin);
   return (isLeaf(inst) && dir->isAnyOutput())
     // isTopLevelPort(pin)
@@ -603,7 +603,7 @@ Network::isDriver(const Pin *pin) const
 bool
 Network::isLoad(const Pin *pin) const
 {
-  PortDirection *dir = direction(pin);
+  const PortDirection *dir = direction(pin);
   const Instance *inst = instance(pin);
   return (isLeaf(inst) && dir->isAnyInput())
     // isTopLevelPort(pin)

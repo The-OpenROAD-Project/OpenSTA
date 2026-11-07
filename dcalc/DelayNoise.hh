@@ -352,7 +352,7 @@ protected:
                      Net *case_net);
   void ensureCasePort(NetworkReader *case_network,
                       Net *case_net,
-                      PortDirection *dir);
+                      const PortDirection *dir);
   bool hasTopLevelPortPin(const Net *net);
 
   void writeCaseSpef(const ArcDcalcArgSeq &gates,

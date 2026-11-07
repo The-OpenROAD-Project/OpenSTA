@@ -1191,7 +1191,7 @@ LibertyCell::bufferPorts(// Return values.
   output = nullptr;
   for (ConcretePort *cport : ports_) {
     LibertyPort *port = static_cast<LibertyPort*>(cport);
-    PortDirection *dir = port->direction();
+    const PortDirection *dir = port->direction();
     if (dir->isInput()) {
       if (input) {
         // More than one input.

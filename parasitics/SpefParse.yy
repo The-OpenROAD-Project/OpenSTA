@@ -111,7 +111,7 @@ class SpefTriple;
 %type <char> hchar suffix_bus_delim prefix_bus_delim
 
 %type <sta::StringSeq *> qstrings
-%type <sta::PortDirection *> direction
+%type <const sta::PortDirection *> direction
 
 %type <sta::SpefTriple *> par_value total_cap
 

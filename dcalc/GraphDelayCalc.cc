@@ -875,7 +875,7 @@ static bool
 isLeafBidirectLoad(const Pin *pin,
                    const Network *network)
 {
-  PortDirection *dir = network->direction(pin);
+  const PortDirection *dir = network->direction(pin);
   const Instance *inst = network->instance(pin);
   return network->isLeaf(inst) && dir->isBidirect();
 }
@@ -898,7 +898,7 @@ static bool
 isLeafDriver(const Pin *pin,
              const Network *network)
 {
-  PortDirection *dir = network->direction(pin);
+  const PortDirection *dir = network->direction(pin);
   const Instance *inst = network->instance(pin);
   return network->isLeaf(inst) && dir->isAnyOutput();
 }

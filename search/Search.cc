@@ -1692,7 +1692,7 @@ bool
 Search::isInputArrivalSrchStart(Vertex *vertex)
 {
   const Pin *pin = vertex->pin();
-  PortDirection *dir = network_->direction(pin);
+  const PortDirection *dir = network_->direction(pin);
   bool is_top_level_port = network_->isTopLevelPort(pin);
   return (is_top_level_port
           && (dir->isInput() || (dir->isBidirect() && vertex->isBidirectDriver())));

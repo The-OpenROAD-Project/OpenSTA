@@ -431,7 +431,7 @@ Sdc::allInputs(bool no_clks) const
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const Port *port = network_->port(pin);
-    PortDirection *dir = network_->direction(port);
+    const PortDirection *dir = network_->direction(port);
     if (dir->isAnyInput()
         && !(no_clks && isClock(pin)))
       portMembers(port, ports);
@@ -449,7 +449,7 @@ Sdc::allOutputs() const
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const Port *port = network_->port(pin);
-    PortDirection *dir = network_->direction(port);
+    const PortDirection *dir = network_->direction(port);
     if (dir->isAnyOutput())
       portMembers(port, ports);
   }
@@ -5911,7 +5911,7 @@ findLeafLoadPins(const Pin *pin,
                  PinSet *leaf_pins)
 {
   if (network->isHierarchical(pin)) {
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     bool is_input = dir->isAnyInput();
     bool is_output = dir->isAnyOutput();
     const Instance *hinst = network->instance(pin);
@@ -5940,7 +5940,7 @@ findLeafDriverPins(const Pin *pin,
                    PinSet *leaf_pins)
 {
   if (network->isHierarchical(pin)) {
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     bool is_input = dir->isAnyInput();
     bool is_output = dir->isAnyOutput();
     const Instance *hinst = network->instance(pin);

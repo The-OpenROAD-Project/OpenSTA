@@ -76,7 +76,7 @@ public:
   ObjectId id(const Port *port) const override;
   Cell *cell(const Port *port) const override;
   LibertyPort *libertyPort(const Port *port) const override;
-  PortDirection *direction(const Port *port) const override;
+  const PortDirection *direction(const Port *port) const override;
   bool isBundle(const Port *port) const override;
   bool isBus(const Port *port) const override;
   int size(const Port *port) const override;
@@ -114,7 +114,7 @@ public:
   Instance *instance(const Pin *pin) const override;
   Net *net(const Pin *pin) const override;
   Term *term(const Pin *pin) const override;
-  PortDirection *direction(const Pin *pin) const override;
+  const PortDirection *direction(const Pin *pin) const override;
   VertexId vertexId(const Pin *pin) const override;
   void setVertexId(Pin *pin,
                    VertexId id) override;

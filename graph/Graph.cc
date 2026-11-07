@@ -458,7 +458,7 @@ Graph::makePinVertices(Pin *pin,
 {
   vertex = nullptr;
   bidir_drvr_vertex = nullptr;
-  PortDirection *dir = network_->direction(pin);
+  const PortDirection *dir = network_->direction(pin);
   if (!dir->isPowerGround()) {
     bool is_reg_clk = network_->isRegClkPin(pin);
     vertex = makeVertex(pin, false, is_reg_clk);
@@ -1142,7 +1142,7 @@ Vertex::name(const Network *network) const
 bool
 Vertex::isDriver(const Network *network) const
 {
-  PortDirection *dir = network->direction(pin_);
+  const PortDirection *dir = network->direction(pin_);
   bool top_level_port = network->isTopLevelPort(pin_);
   return ((top_level_port
            && (dir->isInput()
@@ -1159,7 +1159,7 @@ Vertex::isDriver(const Network *network) const
 bool
 Vertex::isLoad(const Network *network) const
 {
-  PortDirection *dir = network->direction(pin_);
+  const PortDirection *dir = network->direction(pin_);
   bool top_level_port = network->isTopLevelPort(pin_);
   return ((top_level_port
            && (dir->isOutput()

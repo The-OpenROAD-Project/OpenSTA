@@ -4580,7 +4580,7 @@ Sta::disconnectPin(Pin *pin)
 
 void
 Sta::makePortPin(const char *port_name,
-                 PortDirection *dir)
+                 const PortDirection *dir)
 {
   ensureLinked();
   NetworkReader *network = dynamic_cast<NetworkReader *>(network_);

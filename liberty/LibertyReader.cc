@@ -1214,7 +1214,7 @@ LibertyReader::makePgPinPort(LibertyCell *cell,
     const std::string &type_name = pg_pin_group->findAttrString("pg_type");
     if (!type_name.empty()) {
       PwrGndType type = findPwrGndType(type_name);
-      PortDirection *dir = PortDirection::unknown();
+      const PortDirection *dir = PortDirection::unknown();
       switch (type) {
       case PwrGndType::primary_ground:
       case PwrGndType::backup_ground:
@@ -1482,7 +1482,7 @@ LibertyReader::readPortDir(const LibertyPortSeq &ports,
   if (dir_attr) {
     const std::string &dir = dir_attr->stringValue();
     if (!dir.empty()) {
-      PortDirection *port_dir = PortDirection::unknown();
+      const PortDirection *port_dir = PortDirection::unknown();
       if (dir == "input")
         port_dir = PortDirection::input();
       else if (dir == "output")
@@ -3161,7 +3161,7 @@ LibertyReader::findPort(LibertyCell *cell,
 float
 LibertyReader::defaultCap(LibertyPort *port)
 {
-  PortDirection *dir = port->direction();
+  const PortDirection *dir = port->direction();
   float cap = 0.0;
   if (dir->isInput())
     cap = library_->defaultInputPinCap();

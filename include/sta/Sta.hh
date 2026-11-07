@@ -1299,7 +1299,7 @@ public:
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
   virtual void makePortPin(const char *port_name,
-                           PortDirection *dir);
+                           const PortDirection *dir);
   // Notify STA that the network has changed without using the network
   // editing API. For example, reading a netlist without using the
   // builtin network readers.

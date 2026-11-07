@@ -1537,7 +1537,7 @@ DelayNoise::ensureCasePin(NetworkReader *case_network,
 void
 DelayNoise::ensureCasePort(NetworkReader *case_network,
                            Net *case_net,
-                           PortDirection *dir)
+                           const PortDirection *dir)
 {
   Instance *case_top_inst = case_network->topInstance();
   Cell *case_top_cell = case_network->cell(case_top_inst);
@@ -1663,7 +1663,7 @@ DelayNoise::writeCaseSpePorts(Network *case_network,
   while (port_iter->hasNext()) {
     const Port *port = port_iter->next();
     std::string spef_dir = "I";
-    PortDirection *dir = case_network->direction(port);
+    const PortDirection *dir = case_network->direction(port);
     if (dir == PortDirection::input())
       spef_dir = "I";
     else if (dir->isAnyOutput())
@@ -1713,7 +1713,7 @@ DelayNoise::writeCaseSpefNetCaps(const ArcDcalcArgSeq &gates,
   NetPinIterator *net_pin_iter = network_->pinIterator(gate_net);
   while (net_pin_iter->hasNext()) {
     const Pin *load_pin = net_pin_iter->next();
-    PortDirection *dir = network_->direction(load_pin);
+    const PortDirection *dir = network_->direction(load_pin);
     std::string dir_name = dir->isAnyInput() ? "I" : "O";
     sta::print(stream, "*I {} {}\n",
                spefNodeName(load_pin),

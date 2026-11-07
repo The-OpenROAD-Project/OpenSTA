@@ -35,6 +35,6 @@ writeVerilog(const char *filename,
              Network *network);
 
 std::string_view
-verilogPortDir(PortDirection *dir);
+verilogPortDir(const PortDirection *dir);
 
 } // namespace sta
