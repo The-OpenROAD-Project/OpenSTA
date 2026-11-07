@@ -1950,13 +1950,13 @@ proc set_sense { args } {
   set type "clock"
   if { [info exists keys(-type)] } {
     set type $keys(-type)
-    if { $type == "data" } {
-      sta_warn 413 "set_sense -type data not supported."
-    } elseif { $type == "clock" } {
-      set_clock_sense_cmd1 "set_sense" $args
-    } else {
-      sta_error 414 "set_sense -type clock|data"
-    }
+  }
+  if { $type == "data" } {
+    sta_warn 413 "set_sense -type data not supported."
+  } elseif { $type == "clock" } {
+    set_clock_sense_cmd1 "set_sense" $args
+  } else {
+    sta_error 414 "set_sense -type clock|data"
   }
 }
 
