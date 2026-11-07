@@ -172,6 +172,7 @@ record_public_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  liberty_write_escaped_names
   liberty_malformed_ports
   liberty_retain
   make_concrete_parasitics_leak
