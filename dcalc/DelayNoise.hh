@@ -97,6 +97,7 @@ public:
   ~DelayNoise() override;
   void copyState(const StaState *sta) override;
   void clear();
+  void noiseDelaysInvalid();
   void removeNoiseAnnotations();
 
   // Annotate noise delays and slews for all design nets.

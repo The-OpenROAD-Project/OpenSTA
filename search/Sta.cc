@@ -3046,12 +3046,14 @@ Sta::delaysInvalid() const
 {
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  delay_noise_->noiseDelaysInvalid();
 }
 
 void
 Sta::arrivalsInvalid()
 {
   search_->arrivalsInvalid();
+  delay_noise_->noiseDelaysInvalid();
 }
 
 void

@@ -76,6 +76,12 @@ DelayNoise::clear()
 }
 
 void
+DelayNoise::noiseDelaysInvalid()
+{
+  clear();
+}
+
+void
 DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
                                 float min_coupling_ratio,
                                 const SceneSeq scenes,
