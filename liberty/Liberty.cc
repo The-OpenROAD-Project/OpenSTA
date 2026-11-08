@@ -41,6 +41,7 @@
 #include "FuncExpr.hh"
 #include "InternalPower.hh"
 #include "LibertyClass.hh"
+#include "LibertyGenClk.hh"
 #include "MinMax.hh"
 #include "Mutex.hh"
 #include "Network.hh"
@@ -937,6 +938,7 @@ LibertyCell::~LibertyCell()
 
   delete statetable_;
   deleteContents(scaled_cells_);
+  deleteContents(liberty_gen_clks_);
 
   delete test_cell_;
 }
@@ -1410,6 +1412,35 @@ LibertyCell::hasTimingArcs(LibertyPort *port) const
 {
   return port_timing_arc_set_map_.contains({port, nullptr})
     || port_timing_arc_set_map_.contains({nullptr, port});
+}
+
+void
+LibertyCell::makeLibertyGenClk(const char *name,
+                               const char *clock_pin,
+                               const char *master_pin,
+                               int divided_by,
+                               int multiplied_by,
+                               float duty_cycle,
+                               bool invert,
+                               IntSeq *edges,
+                               FloatSeq *edge_shifts)
+{
+  IntSeq *edges_copy = nullptr;
+  if (edges)
+    edges_copy = new IntSeq(*edges);
+  FloatSeq *edge_shifts_copy = nullptr;
+  if (edge_shifts)
+    edge_shifts_copy = new FloatSeq(*edge_shifts);
+  LibertyGenClk *gen_clk = new LibertyGenClk(name,
+                                             clock_pin,
+                                             master_pin,
+                                             divided_by,
+                                             multiplied_by,
+                                             duty_cycle,
+                                             invert,
+                                             edges_copy,
+                                             edge_shifts_copy);
+  liberty_gen_clks_.push_back(gen_clk);
 }
 
 void

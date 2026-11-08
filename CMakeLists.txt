@@ -108,6 +108,7 @@ set(STA_SOURCE
   liberty/LeakagePower.cc
   liberty/Liberty.cc
   liberty/LibertyBuilder.cc
+  liberty/LibertyGenClk.cc
   liberty/LibExprReader.cc
   liberty/LibertyParser.cc
   liberty/LibertyReader.cc

@@ -45,6 +45,7 @@
 #include "InternalPower.hh"
 #include "LeakagePower.hh"
 #include "LibertyClass.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 
@@ -544,6 +545,8 @@ public:
   const SequentialSeq &sequentials() const { return sequentials_; }
   // Find the sequential with the output connected to an (internal) port.
   Sequential *outputPortSequential(LibertyPort *port);
+  // Liberty-defined generated clocks.
+  const LibertyGenClkSeq &libertyGenClks() const { return liberty_gen_clks_; }
   const Statetable *statetable() const { return statetable_; }
 
   // Find bus declaration local to this cell.
@@ -572,6 +575,15 @@ public:
   OcvDerate *findOcvDerate(std::string_view derate_name);
 
   // Build helpers.
+  void makeLibertyGenClk(const char *name,
+                         const char *clock_pin,
+                         const char *master_pin,
+                         int divided_by,
+                         int multiplied_by,
+                         float duty_cycle,
+                         bool invert,
+                         IntSeq *edges,
+                         FloatSeq *edge_shifts);
   void makeSequential(int size,
                       bool is_register,
                       FuncExpr *clk,
@@ -687,6 +699,7 @@ protected:
   LeakagePowerSeq leakage_powers_;
   SequentialSeq sequentials_;
   PortToSequentialMap port_to_seq_map_;
+  LibertyGenClkSeq liberty_gen_clks_;
   Statetable *statetable_{nullptr};
   BusDclMap bus_dcls_;
   ModeDefMap mode_defs_;

@@ -1295,7 +1295,7 @@ The `-multiply_by` option is used to generate a higher frequency clock from the 
 
 The `-divide_by` option is used to generate a lower frequency clock from the source clock. The clock divisor must be a positive integer. If the clock divisor is a power of two the source clock period is multiplied by divisor, the clock rise time is the same as the source clock, and the clock fall edge is one half period later. If the clock divisor is not a power of two the source clock waveform edge times are multiplied by divisor.
 
-The `-edges` option forms the generated clock waveform by selecting edges from the source clock waveform.
+The `-edges` option forms the generated clock waveform by selecting edges from the source clock waveform. `edge_list` must have an odd number of edges and at least three.
 
 If the `-invert` option is specified the waveform derived above is inverted.
 
@@ -1334,8 +1334,8 @@ The generated clock has a period of 20, rises at time 1 and falls at time 11.} \
     -multiply_by {`multiplier`: Multiply the master clock period by multiplier.}
     -duty_cycle {`duty_cycle`: The percent of the period that the generated clock is high (between 0 and 100).}
     -invert {Invert the master clock.}
-    -edges {`edge_list`: List of master clock edges to use in the generated clock. Edges are numbered from 1. edge_list must be 3 edges long.}
-    -edge_shift {`shift_list`: Not supported.}
+    -edges {`edge_list`: List of master clock edges to use in the generated clock. Edges are numbered from 1. `edge_list` must have an odd number of edges and at least three.}
+    -edge_shift {`shift_list`: Shift each selected master-clock edge by this many time units. The list length must match `-edges`.}
     -add {Add this clock to the existing clocks on pin_list.}
     -combinational {The generated clock is combinational, equivalent to `-divide_by 1`.}
     pin_list {A list of pins driven by the generated clock.}
@@ -1423,9 +1423,9 @@ proc create_generated_clock { args } {
     }
   } elseif {[info exists keys(-edges)]} {
     set edges $keys(-edges)
-    if { [llength $edges] != 3 } {
-      sta_error 385 "-edges only supported for three edges."
-    }
+    set edge_count [llength $edges]
+    if { $edge_count < 3 } { sta_error 385 "-edges requires at least three edges." }
+    if { [expr $edge_count % 2] == 0 } { sta_error 3850 "-edges requires an odd number of edges." }
     set prev_edge [expr [lindex $edges 0] - 1]
     foreach edge $edges {
       check_cardinal "-edges" $edge

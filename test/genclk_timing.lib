@@ -1,0 +1,29 @@
+library (generated_clock) {
+  delay_model : "table_lookup";
+  time_unit : "1ns";
+  voltage_unit : "1v";
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 30;
+  slew_lower_threshold_pct_fall : 30;
+  slew_upper_threshold_pct_rise : 70;
+  slew_upper_threshold_pct_fall : 70;
+  cell (CLK_GEN) {
+    area : 10.0;
+    pin (CLK_IN) {
+      direction : input;
+      clock : true;
+    }
+    pin (CLK_OUT) {
+      direction : output;
+    }
+    generated_clock (output) {
+      clock_pin : CLK_OUT    ;
+      master_pin : CLK_IN;
+      edges(1, 3, 5);
+      shifts(3, -1, 0);
+    }
+  }
+}

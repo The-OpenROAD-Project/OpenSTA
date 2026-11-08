@@ -66,6 +66,7 @@
 #include "Levelize.hh"
 #include "Liberty.hh"
 #include "LibertyClass.hh"
+#include "LibertyGenClk.hh"
 #include "LibertyWriter.hh"
 #include "Machine.hh"
 #include "MakeConcreteNetwork.hh"
@@ -125,6 +126,8 @@ libertyPortCapsEqual(const LibertyPort *port1,
 static bool
 hasDisabledArcs(Edge *edge,
                 const Mode *mode);
+static bool
+hasLibertyGenClks(Network *network);
 static InstanceSet
 pinInstances(PinSet &pins,
              const Network *network);
@@ -1216,11 +1219,13 @@ Sta::makeClock(std::string_view name,
                std::string_view comment,
                const Mode *mode)
 {
-  mode->sdc()->makeClock(name, pins, add_to_pins, period, waveform, comment);
+  Clock *clk = mode->sdc()->makeClock(name, pins, add_to_pins, period,
+                                      waveform, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
   power_->activitiesInvalid();
   mode->clkNetwork()->clkPinsInvalid();
+  makeLibertyGeneratedClocks(clk, mode);
 }
 
 void
@@ -1239,13 +1244,16 @@ Sta::makeGeneratedClock(std::string_view name,
                         std::string_view comment,
                         const Mode *mode)
 {
-  mode->sdc()->makeGeneratedClock(name, pins, add_to_pins, src_pin, master_clk,
-                                  divide_by, multiply_by, duty_cycle, invert,
-                                  combinational, edges, edge_shifts, comment);
+  Clock *clk = mode->sdc()->makeGeneratedClock(name, pins, add_to_pins, src_pin,
+                                               master_clk, divide_by,
+                                               multiply_by, duty_cycle, invert,
+                                               combinational, edges,
+                                               edge_shifts, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
   power_->activitiesInvalid();
   mode->clkNetwork()->clkPinsInvalid();
+  makeLibertyGeneratedClocks(clk, mode);
 }
 
 void
@@ -3893,6 +3901,103 @@ Sta::updateGeneratedClks()
     }
   }
   update_genclks_ = false;
+}
+
+static bool
+hasLibertyGenClks(Network *network)
+{
+  LibertyLibraryIterator *lib_iter = network->libertyLibraryIterator();
+  while (lib_iter->hasNext()) {
+    LibertyLibrary *lib = lib_iter->next();
+    LibertyCellIterator cell_iter(lib);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      if (!cell->libertyGenClks().empty()) {
+        delete lib_iter;
+        return true;
+      }
+    }
+  }
+  delete lib_iter;
+  return false;
+}
+
+void
+Sta::makeLibertyGeneratedClocks(Clock *clk,
+                                const Mode *mode)
+{
+  Network *network = network_;
+  // ensureClkNetwork() levelizes. Skip that when no Liberty generated
+  // clocks exist so create_clock does not build the graph before
+  // set_input_delay -reference_pin can add ref_pin edges.
+  if (network->defaultLibertyLibrary() && hasLibertyGenClks(network)) {
+    Sdc *sdc = mode->sdc();
+    clkPinsInvalid(mode);
+    ensureClkNetwork(mode);
+    const PinSet *clk_pins = pins(clk, mode);
+    if (clk_pins) {
+      // Copy before makeGeneratedClock invalidates the clock-network pin set.
+      PinSet clk_network_pins(*clk_pins);
+
+      LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+      while (inst_iter->hasNext()) {
+        Instance *inst = inst_iter->next();
+        LibertyCell *cell = network->libertyCell(inst);
+        if (cell && !cell->libertyGenClks().empty()) {
+          for (LibertyGenClk *gen_clk : cell->libertyGenClks()) {
+            Pin *master_pin = network->findPin(inst, gen_clk->masterPin());
+            if (master_pin && clk_network_pins.count(master_pin) != 0) {
+              std::string inst_path = network->pathName(inst);
+              std::string gen_clk_name = sta::format("{}/{}", inst_path,
+                                                    gen_clk->clockPin());
+              debugPrint(debug_, "libgenclk", 1,
+                         "Creating generated clock {} from clock {} in instance {}",
+                         gen_clk_name, clk->name(), inst_path);
+
+              Pin *clk_out_pin = network->findPin(inst, gen_clk->clockPin());
+              PinSet clk_pins_out(network);
+              if (clk_out_pin)
+                clk_pins_out.insert(clk_out_pin);
+
+              IntSeq edges_copy;
+              if (gen_clk->edges())
+                edges_copy = *gen_clk->edges();
+              FloatSeq edge_shifts_copy;
+              if (gen_clk->edgeShifts())
+                edge_shifts_copy = *gen_clk->edgeShifts();
+
+              int divide_by = edges_copy.empty() ? gen_clk->dividedBy() : 0;
+              int multiply_by = edges_copy.empty() ? gen_clk->multipliedBy() : 0;
+              if (divide_by == 1 && multiply_by > 1)
+                divide_by = 0;
+
+              Clock *lib_gen_clk = sdc->makeGeneratedClock(gen_clk_name,
+                                                          clk_pins_out,
+                                                          true,
+                                                          master_pin,
+                                                          clk,
+                                                          divide_by,
+                                                          multiply_by,
+                                                          gen_clk->dutyCycle(),
+                                                          gen_clk->invert(),
+                                                          false,
+                                                          edges_copy,
+                                                          edge_shifts_copy,
+                                                          "");
+              update_genclks_ = true;
+              search_->arrivalsInvalid();
+              power_->activitiesInvalid();
+              mode->clkNetwork()->clkPinsInvalid();
+              // Nested Liberty generated clocks may hang off this new clock.
+              makeLibertyGeneratedClocks(lib_gen_clk, mode);
+            }
+          }
+        }
+      }
+      delete inst_iter;
+      updateGeneratedClks();
+    }
+  }
 }
 
 Level

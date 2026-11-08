@@ -30,6 +30,8 @@ define_cmd_args "read_liberty" \
   {[-corner corner] [-min] [-max] [-infer_latches] filename} \
   -help {The `read_liberty` command reads a Liberty format library file. The first library that is read sets the units used by SDC/Tcl commands and reporting. The include_file attribute is supported.
 
+Liberty `generated_clock` groups are installed as generated clocks when the design is linked with `link_design`.
+
 Some Liberty libraries do not include latch groups for cells that describe transparent latches. In that situation the `-infer_latches` command flag can be used to infer the latches. The timing arcs required for a latch to be inferred should look like the following:
 
 ```

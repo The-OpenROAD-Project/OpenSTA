@@ -380,6 +380,10 @@ public:
                    Sdc *sdc);
   // Update period/waveform for generated clocks from source pin clock.
   void updateGeneratedClks();
+  // Make SDC generated clocks defined by Liberty generated_clock groups
+  // whose master pin is in clk's clock network.
+  void makeLibertyGeneratedClocks(Clock *clk,
+                                  const Mode *mode);
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClockSrc(const Pin *pin,
                   const Sdc *sdc) const;
