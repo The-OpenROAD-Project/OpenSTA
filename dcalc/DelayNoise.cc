@@ -502,6 +502,7 @@ DelayNoise::reportNoiseDelays(const Net *net,
         graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
       const DelaysWrtClks drvr_clk_arrivals =
         search_->arrivalsWrtClks(drvr_vertex, scene);
+      DcalcResults noise_delays(network_, graph_);
       for (const RiseFall *drvr_rf : drvr_rfs->range()) {
         for (const MinMax *min_max : min_maxs->range()) {
           debugPrint(debug_, "delay_noise", 3, "{} {} {} {}",
@@ -514,9 +515,11 @@ DelayNoise::reportNoiseDelays(const Net *net,
                                                scene, min_max,
                                                load_pin_index_map);
           if (!gates.empty())
-            reportNoiseDelays(gates, load_pin_index_map, scene, min_max, digits);
+            findNoiseDelays(gates, load_pin_index_map, scene, min_max, noise_delays);
         }
       }
+      if (!noise_delays.empty())
+        reportNoiseDelays(drvr_vertex, drvr_rfs, scene, min_maxs, noise_delays, digits);
     }
   }
   if (!found_coupling_caps_)
