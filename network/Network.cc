@@ -1264,6 +1264,81 @@ Network::leafInstanceIterator(const Instance *hier_inst) const
 
 ////////////////////////////////////////////////////////////////
 
+class PinIterator1 : public PinIterator
+{
+public:
+  PinIterator1(const Network *network);
+  ~PinIterator1() override;
+  bool hasNext() override { return pin_iter_ != nullptr; }
+  Pin *next() override;
+
+private:
+  void findNext();
+
+  const Network *network_;
+  LeafInstanceIterator *leaf_iter_;
+  InstancePinIterator *pin_iter_{nullptr};
+  bool visited_top_{false};
+};
+
+PinIterator1::PinIterator1(const Network *network) :
+  network_(network),
+  leaf_iter_(network->leafInstanceIterator())
+{
+  findNext();
+}
+
+PinIterator1::~PinIterator1()
+{
+  delete leaf_iter_;
+  delete pin_iter_;
+}
+
+Pin *
+PinIterator1::next()
+{
+  Pin *pin = pin_iter_->next();
+  if (!pin_iter_->hasNext()) {
+    delete pin_iter_;
+    pin_iter_ = nullptr;
+    findNext();
+  }
+  return pin;
+}
+
+void
+PinIterator1::findNext()
+{
+  if (!visited_top_) {
+    visited_top_ = true;
+    pin_iter_ = network_->pinIterator(network_->topInstance());
+    if (pin_iter_->hasNext())
+      return;
+    delete pin_iter_;
+    pin_iter_ = nullptr;
+  }
+  if (leaf_iter_) {
+    while (leaf_iter_->hasNext()) {
+      Instance *leaf = leaf_iter_->next();
+      pin_iter_ = network_->pinIterator(leaf);
+      if (pin_iter_->hasNext())
+        return;
+      delete pin_iter_;
+      pin_iter_ = nullptr;
+    }
+    delete leaf_iter_;
+    leaf_iter_ = nullptr;
+  }
+}
+
+PinIterator *
+Network::pinIterator() const
+{
+  return new PinIterator1(this);
+}
+
+////////////////////////////////////////////////////////////////
+
 void
 Network::visitConnectedPins(const Pin *pin,
                             PinVisitor &visitor) const

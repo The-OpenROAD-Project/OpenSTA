@@ -253,6 +253,9 @@ public:
   // Iterate over the pins on an instance.
   virtual InstancePinIterator *
   pinIterator(const Instance *instance) const = 0;
+  // Iterate over top level port pins and then leaf instance pins.
+  // Not virtual because it is written in terms of the other primitives.
+  PinIterator *pinIterator() const;
   // Iterate over the nets in an instance.
   // This should include nets that are connected to the
   // instance parent thru pins.

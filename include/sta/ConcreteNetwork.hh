@@ -242,6 +242,7 @@ public:
   void deleteTopInstance();
 
   using Network::netIterator;
+  using Network::pinIterator;
   using Network::findPin;
   using Network::findNet;
   using Network::findNetsMatching;

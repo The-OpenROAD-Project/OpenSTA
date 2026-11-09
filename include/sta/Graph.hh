@@ -203,7 +203,6 @@ protected:
                      bool is_bidirect_drvr,
                      bool is_reg_clk);
   void makeEdgeArcDelays(Edge *edge);
-  void makePinVertices(const Instance *inst);
   void makeWireEdgesFromPin(const Pin *drvr_pin,
                             PinSet &visited_drvrs);
   bool isIsolatedNet(PinSeq &drvrs,
@@ -211,8 +210,6 @@ protected:
   bool isPassiveBidirectDrvr(const Pin *drvr_pin) const;
   bool hasActiveDrvr(const PinSeq &drvrs) const;
   void makeWireEdges();
-  void makeInstDrvrWireEdges(const Instance *inst,
-                             PinSet &visited_drvrs);
   void makePortInstanceEdges(const Instance *inst,
                              LibertyCell *cell,
                              LibertyPort *from_to_port);
@@ -459,18 +456,16 @@ class VertexIterator : public Iterator<Vertex*>
 {
 public:
   VertexIterator(Graph *graph);
+  ~VertexIterator() override;
   bool hasNext() override { return vertex_ || bidir_vertex_; }
   Vertex *next() override;
 
 private:
-  bool findNextPin();
   void findNext();
 
   Graph *graph_;
   Network *network_;
-  Instance *top_inst_;
-  LeafInstanceIterator *inst_iter_;
-  InstancePinIterator *pin_iter_{nullptr};
+  PinIterator *pin_iter_;
   Vertex *vertex_{nullptr};
   Vertex *bidir_vertex_{nullptr};
 };

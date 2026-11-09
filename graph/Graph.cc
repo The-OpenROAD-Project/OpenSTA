@@ -77,7 +77,7 @@ Graph::makeGraph()
 }
 
 // Make vertices for each pin.
-// Iterate over instances and top level port pins rather than nets
+// Iterate over top level port pins and leaf instance pins rather than nets
 // because network may not connect floating pins to a net
 // (ie, Intime occurence tree bleachery).
 void
@@ -86,14 +86,19 @@ Graph::makeVerticesAndEdges()
   vertices_ = new VertexTable;
   edges_ = new EdgeTable;
 
+  PinIterator *pin_iter = network_->pinIterator();
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    makePinVertices(pin);
+  }
+  delete pin_iter;
+
   LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
   while (leaf_iter->hasNext()) {
     const Instance *inst = leaf_iter->next();
-    makePinVertices(inst);
     makeInstanceEdges(inst);
   }
   delete leaf_iter;
-  makePinVertices(network_->topInstance());
 }
 
 class FindNetDrvrLoadCounts : public PinVisitor
@@ -144,17 +149,6 @@ FindNetDrvrLoadCounts::operator()(const Pin *pin)
   }
   if (network_->isLoad(pin))
     load_count_++;
-}
-
-void
-Graph::makePinVertices(const Instance *inst)
-{
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    makePinVertices(pin);
-  }
-  delete pin_iter;
 }
 
 // Make edges corresponding to library timing arcs.
@@ -232,30 +226,18 @@ void
 Graph::makeWireEdges()
 {
   PinSet visited_drvrs(network_);
-  LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    makeInstDrvrWireEdges(inst, visited_drvrs);
-  }
-  delete inst_iter;
-  makeInstDrvrWireEdges(network_->topInstance(), visited_drvrs);
-}
-
-void
-Graph::makeInstDrvrWireEdges(const Instance *inst,
-                             PinSet &visited_drvrs)
-{
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  PinIterator *pin_iter = network_->pinIterator();
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     if (network_->isDriver(pin)
         && !visited_drvrs.contains(pin))
       makeWireEdgesFromPin(pin, visited_drvrs);
-    if (network_->isTopInstance(inst)
+    if (network_->isTopLevelPort(pin)
         && network_->direction(pin)->isBidirect()) {
       Vertex *bidir_load, *bidir_drvr;
       pinVertices(pin, bidir_load, bidir_drvr);
-      Edge *edge = makeEdge(bidir_load, bidir_drvr, TimingArcSet::wireTimingArcSet());
+      Edge *edge = makeEdge(bidir_load, bidir_drvr,
+                            TimingArcSet::wireTimingArcSet());
       edge->setIsBidirectPortPath(true);
     }
   }
@@ -1561,11 +1543,14 @@ Edge::setHasDisabledCond(bool has_disabled)
 VertexIterator::VertexIterator(Graph *graph) :
   graph_(graph),
   network_(graph->network()),
-  top_inst_(network_->topInstance()),
-  inst_iter_(network_->leafInstanceIterator())
+  pin_iter_(network_->pinIterator())
 {
-  if (inst_iter_)
-    findNext();
+  findNext();
+}
+
+VertexIterator::~VertexIterator()
+{
+  delete pin_iter_;
 }
 
 Vertex *
@@ -1585,45 +1570,18 @@ VertexIterator::next()
   return next;
 }
 
-bool
-VertexIterator::findNextPin()
+void
+VertexIterator::findNext()
 {
-  while (pin_iter_->hasNext()) {
+  while (pin_iter_ && pin_iter_->hasNext()) {
     Pin *pin = pin_iter_->next();
     vertex_ = graph_->vertex(network_->vertexId(pin));
-    bidir_vertex_ = network_->direction(pin)->isBidirect() 
+    bidir_vertex_ = network_->direction(pin)->isBidirect()
       ? findKey(graph_->pin_bidirect_drvr_vertex_map_, pin)
       : nullptr;
     if (vertex_ || bidir_vertex_)
-      return true;
-  }
-  delete pin_iter_;
-  pin_iter_ = nullptr;
-  return false;
-}
-
-void 
-VertexIterator::findNext()
-{
-  while (inst_iter_) {
-    if (pin_iter_
-        && findNextPin())
       return;
-    
-    if (inst_iter_->hasNext()) {
-      Instance *inst = inst_iter_->next();
-      pin_iter_ = network_->pinIterator(inst);
-    } else {
-      delete inst_iter_;
-      inst_iter_ = nullptr;
-      if (top_inst_) {
-        pin_iter_ = network_->pinIterator(top_inst_);
-        top_inst_ = nullptr;
-      }
-    }
   }
-  if (pin_iter_)
-    findNextPin();
 }
 
 ////////////////////////////////////////////////////////////////

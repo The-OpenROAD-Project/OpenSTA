@@ -106,24 +106,7 @@ CheckSlews::checkAll(bool violators,
                      const MinMax *min_max)
 {
   const Network *network = sta_->network();
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    const Instance *inst = inst_iter->next();
-    checkInst(inst, violators, scenes, min_max);
-  }
-  delete inst_iter;
-  // Check top level ports.
-  checkInst(network->topInstance(), violators, scenes, min_max);
-}
-
-void
-CheckSlews::checkInst(const Instance *inst,
-                      bool violators,
-                      const SceneSeq &scenes,
-                      const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  InstancePinIterator *pin_iter = network->pinIterator(inst);
+  PinIterator *pin_iter = network->pinIterator();
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     checkPin(pin, violators, scenes, min_max);

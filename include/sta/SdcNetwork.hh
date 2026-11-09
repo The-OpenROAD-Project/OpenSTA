@@ -173,6 +173,7 @@ public:
   using Network::id;
   using Network::isLeaf;
   using Network::netIterator;
+  using Network::pinIterator;
   using Network::findPin;
   using Network::libertyLibrary;
   using Network::libertyCell;

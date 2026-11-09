@@ -100,14 +100,6 @@ protected:
                  // Return values.
                  float &limit,
                  bool &limit_exists) const;
-  void checkCapLimits(const Instance *inst,
-                      bool violators,
-                      const SceneSeq &scenes,
-                      const MinMax *min_max);
-  void checkCapLimits(const Instance *inst,
-                      const SceneSeq &scenes,
-                      const MinMax *min_max,
-                      CapacitanceCheckHeap &heap);
   void check(const Pin *pin,
              const SceneSeq &scenes,
              const MinMax *min_max,
