@@ -1,0 +1,9 @@
+No paths found.
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+r2/D (DFFHQx4_ASAP7_75t_R)             87.39   81.31    6.08 (MET)
+

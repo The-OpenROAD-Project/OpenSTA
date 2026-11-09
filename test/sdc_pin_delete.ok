@@ -1,0 +1,60 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design power_pin_delete
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 10.0000 [get_ports {clk}]
+create_generated_clock -name div -source [get_ports {clk}] -divide_by 2 \
+    [list [get_pins {buf1/Y}]\
+          [get_pins {reg1/Q}]]
+create_generated_clock -name div_ck -source [get_pins {reg1/CLK}] -divide_by 2 [get_ports {out1}]
+set_propagated_clock [get_pins {reg1/D}]
+set_clock_uncertainty 0.0500 [get_pins {reg1/CLK}]
+set_clock_latency 0.1000 [get_pins {reg1/CLK}]
+set_clock_latency -source 0.2000 [get_pins {reg1/Q}]
+set_sense -type clock -stop_propagation -clock [get_clocks {clk}] [get_pins {reg1/CLK}]
+set_disable_timing -from {CLK} -to {Q} [get_cells {reg1}]
+set_disable_timing [get_pins {reg1/Q}]
+set_disable_timing [get_timing_edges -from [get_pins {reg1/CLK}] -to [get_pins {reg1/Q}]]
+set_disable_clock_gating_check [get_cells {reg1}]
+set_disable_clock_gating_check [get_pins {reg1/CLK}]
+set_multicycle_path -setup\
+    -from [get_cells {reg1}] 2
+set_false_path\
+    -to [get_pins {reg1/D}]
+set_false_path\
+    -through [list [get_pins {buf1/Y}]\
+           [get_pins {reg1/Q}]]
+set_data_check -from [get_pins {reg1/CLK}] -to [get_pins {reg1/D}] -setup 0.2000
+###############################################################################
+# Environment
+###############################################################################
+set_case_analysis 0 [get_pins {reg1/D}]
+set_timing_derate -cell_delay -late 1.1000 [get_cells {reg1}]
+###############################################################################
+# Design Rules
+###############################################################################
+set_min_pulse_width 0.3000 [get_pins {reg1/CLK}]
+set_max_time_borrow 0.4000 [get_pins {reg1/D}]
+set_max_time_borrow 0.5000 [get_cells {reg1}]
+set_max_capacitance 0.1000 [get_pins {reg1/Q}]
+No paths found.
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design power_pin_delete
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 10.0000 [get_ports {clk}]
+create_generated_clock -name div -source [get_ports {clk}] -divide_by 2 [get_pins {buf1/Y}]
+set_false_path\
+    -through [get_pins {buf1/Y}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################

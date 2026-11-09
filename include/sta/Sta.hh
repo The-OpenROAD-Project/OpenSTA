@@ -35,6 +35,7 @@
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
+#include "PinPair.hh"
 #include "PowerClass.hh"
 #include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
@@ -1290,6 +1291,12 @@ public:
                            Cell *to_cell);
   virtual void replaceCell(Instance *inst,
                            LibertyCell *to_lib_cell);
+  // Move the SDC constraints on the pins, instances and nets being
+  // replaced to the ones that replace them, before the replaced ones
+  // are deleted. Constraints already on the replacing ones are replaced.
+  void moveConstraints(const PinPairSeq &pins,
+                       const InstancePairSeq &insts,
+                       const NetPairSeq &nets);
   virtual Net *makeNet(const char *name,
                        Instance *parent);
   virtual void deleteNet(Net *net);

@@ -25,6 +25,7 @@
 #pragma once
 
 #include <set>
+#include <vector>
 
 #include "Hash.hh"
 #include "NetworkClass.hh"
@@ -32,6 +33,7 @@
 namespace sta {
 
 using PinPair = std::pair<const Pin*, const Pin*>;
+using PinPairSeq = std::vector<PinPair>;
 
 class PinPairLess
 {

@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <functional>
 #include <map>
 #include <mutex>
 #include <string_view>
@@ -181,6 +182,8 @@ using ClockGroupsSet = std::set<ClockGroups*>;
 using ClockGroupsClkMap = std::map<const Clock*, ClockGroupsSet*>;
 using ClockGroupsNameMap = std::map<std::string, ClockGroups*, std::less<>>;
 using ClockSenseMap = std::map<PinClockPair, ClockSense, PinClockPairLess>;
+using LibertyPortMap = std::map<const LibertyPort*, LibertyPort*>;
+using ExceptionPtEdit = std::function<void (ExceptionPt *pt)>;
 using ClkHpinDisables = std::set<ClkHpinDisable*, ClkHpinDisableLess>;
 using GroupPathSet = std::set<GroupPath*, ExceptionPathLess>;
 using GroupPathMap = std::map<std::string, GroupPathSet*, std::less<>>;
@@ -216,8 +219,10 @@ public:
   bool isConstrained(const Net *net) const;
   // Build data structures for search.
   void searchPreamble();
-  void deleteNetBefore(const Net *net);
-  void deleteInstanceBefore(const Instance *inst);
+  // Return true if exceptions were deleted.
+  bool deleteNetBefore(const Net *net);
+  // Return true if exceptions were deleted.
+  bool deleteInstanceBefore(const Instance *inst);
 
   // SWIG sdc interface.
   PortSeq allInputs(bool no_clks) const;
@@ -1063,8 +1068,20 @@ public:
   void unrecordException(ExceptionPath *exception);
 
   // Network edit before/after methods.
-  void deletePinBefore(const Pin *pin);
+  // Return true if exceptions or clocks were deleted.
+  bool deletePinBefore(const Pin *pin);
   void connectPinAfter(const Pin *pin);
+  // Move the constraints on a pin, instance or net being replaced to
+  // the one that replaces it. Constraints already on to are replaced.
+  // Return true if any constraint moved.
+  bool moveConstraints(const Pin *from,
+                       const Pin *to);
+  // port_map maps the liberty ports of from to the ports of to.
+  bool moveConstraints(const Instance *from,
+                       const Instance *to,
+                       const LibertyPortMap &port_map);
+  bool moveConstraints(const Net *from,
+                       const Net *to);
   void clkHpinDisablesChanged(const Pin *pin);
   void makeClkHpinDisable(const Clock *clk,
                           const Pin *drvr,
@@ -1240,6 +1257,23 @@ protected:
   void deleteInputDelaysReferencing(const Clock *clk);
   void deleteInputDelay(InputDelay *input_delay);
   void deletePortDelayReferences(const Pin *pin);
+  void deleteClockPinConstraints(const Pin *pin);
+  DataCheckSet pinDataChecks(const Pin *pin) const;
+  bool moveNetWireCaps(const Net *from,
+                       const Net *to);
+  bool moveDisabledInstPorts(const Instance *from,
+                             const Instance *to,
+                             const LibertyPortMap &port_map);
+  void deleteDataChecks(const Pin *pin);
+  void deleteDataCheck(DataCheck *check);
+  bool editExceptions(const ExceptionPathSeq &exceptions,
+                      const ExceptionPtEdit &edit);
+  bool moveClockConstraints(const Pin *from,
+                            const Pin *to);
+  bool movePortDelays(const Pin *from,
+                      const Pin *to);
+  bool moveDataChecks(const Pin *from,
+                      const Pin *to);
 
   OutputDelay *findOutputDelay(const Pin *pin,
                                const ClockEdge *clk_edge);
@@ -1250,6 +1284,10 @@ protected:
   void deleteOutputDelaysReferencing(const Clock *clk);
   void deleteOutputDelay(OutputDelay *output_delay);
 
+  ClockLatency *findOrMakeClockLatency(const Clock *clk,
+                                      const Pin *pin);
+  ClockInsertion *findOrMakeClockInsertion(const Clock *clk,
+                                           const Pin *pin);
   void deleteClockInsertion(ClockInsertion *insertion);
   void deleteClockInsertionsReferencing(Clock *clk);
   void deleteInterClockUncertainty(InterClockUncertainty *uncertainties);

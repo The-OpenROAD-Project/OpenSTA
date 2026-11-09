@@ -125,8 +125,6 @@ public:
                                ExceptionThruSeq *thrus,
                                ExceptionTo *to,
                                bool own_pts) = 0;
-  void deleteInstance(const Instance *inst,
-                      const Network *network);
 
   // Default handlers.
   virtual bool useEndClk() const { return false; }
@@ -391,6 +389,16 @@ public:
 			       Network *network) = 0;
   virtual void deletePinBefore(const Pin *pin,
                                Network *network) = 0;
+  virtual void deleteInstance(const Instance *inst,
+                              const Network *network) = 0;
+  // Replace pin with to_pin.
+  virtual void replacePin(const Pin *pin,
+                          const Pin *to_pin,
+                          Network *network);
+  // Replace net with to_net, or delete net if to_net is null.
+  virtual void replaceNet(const Net *,
+                          const Net *,
+                          const Network *) {}
 
 protected:
   const RiseFallBoth *rf_;
@@ -452,7 +460,7 @@ public:
   void deletePinBefore(const Pin *,
                        Network *) override;
   void deleteInstance(const Instance *inst,
-                      const Network *network);
+                      const Network *network) override;
 
 protected:
   virtual void findHash(const Network *network);
@@ -583,7 +591,13 @@ public:
   void deletePinBefore(const Pin *pin,
                        Network *network) override;
   void deleteInstance(const Instance *inst,
-                      const Network *network);
+                      const Network *network) override;
+  void replacePin(const Pin *pin,
+                  const Pin *to_pin,
+                  Network *network) override;
+  void replaceNet(const Net *net,
+                  const Net *to_net,
+                  const Network *network) override;
 
 protected:
   void findHash(const Network *network);
@@ -592,6 +606,7 @@ protected:
   void deleteEdge(const EdgePins &edge);
   void deleteNet(const Net *net,
                  const Network *network);
+  void remakeEdges(const Network *network);
   void makeAllEdges(const Network *network);
   void makePinEdges(const Network *network);
   void makeNetEdges(const Network *network);

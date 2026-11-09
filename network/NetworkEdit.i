@@ -61,6 +61,35 @@ replace_cell_cmd(Instance *inst,
   Sta::sta()->replaceCell(inst, to_cell);
 }
 
+// Move the SDC constraints of from_pins[i] to to_pins[i],
+// from_insts[i] to to_insts[i] and from_nets[i] to to_nets[i].
+void
+move_constraints_cmd(PinSeq *from_pins,
+                     PinSeq *to_pins,
+                     InstanceSeq *from_insts,
+                     InstanceSeq *to_insts,
+                     NetSeq *from_nets,
+                     NetSeq *to_nets)
+{
+  // Empty lists are passed as nullptr.
+  auto zip = [](const auto *from, const auto *to, auto &pairs) {
+    size_t from_size = from ? from->size() : 0;
+    size_t to_size = to ? to->size() : 0;
+    if (from_size != to_size)
+      Sta::sta()->report()->error(2124, "move_constraints from and to lists "
+                                  "have different lengths.");
+    for (size_t i = 0; i < from_size; i++)
+      pairs.emplace_back((*from)[i], (*to)[i]);
+  };
+  PinPairSeq pins;
+  zip(from_pins, to_pins, pins);
+  InstancePairSeq insts;
+  zip(from_insts, to_insts, insts);
+  NetPairSeq nets;
+  zip(from_nets, to_nets, nets);
+  Sta::sta()->moveConstraints(pins, insts, nets);
+}
+
 Net *
 make_net_cmd(const char *name,
              Instance *parent)
