@@ -143,6 +143,7 @@ record_example_tests {
 record_public_tests {
   bidirect_pad_fanout
   clock_delete_inst
+  dcalc_cond_disabled_slew
   dcalc_incr_out_to_out_arc
   define_scene_conflicting_args
   disable_clock_gating_check_cell

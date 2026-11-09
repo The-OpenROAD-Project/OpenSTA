@@ -1,0 +1,48 @@
+Startpoint: in (input port)
+Endpoint: out (output port)
+Path Group: unconstrained
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+           0.00    0.00 ^ input external delay
+   0.00    0.00    0.00 ^ in (in)
+   9.00    5.00    5.00 ^ u1/Z (COND_BUF)
+   9.00    0.00    5.00 ^ out (out)
+                   5.00   data arrival time
+----------------------------------------------------------------
+(Path is unconstrained)
+
+
+Startpoint: in (input port)
+Endpoint: out (output port)
+Path Group: unconstrained
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+           0.00    0.00 ^ input external delay
+   0.00    0.00    0.00 ^ in (in)
+   0.02    0.01    0.01 ^ u1/Z (COND_BUF)
+   0.02    0.00    0.01 ^ out (out)
+                   0.01   data arrival time
+----------------------------------------------------------------
+(Path is unconstrained)
+
+
+Startpoint: in (input port)
+Endpoint: out (output port)
+Path Group: unconstrained
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+           0.00    0.00 ^ input external delay
+   0.00    0.00    0.00 ^ in (in)
+   9.00    5.00    5.00 ^ u1/Z (COND_BUF)
+   9.00    0.00    5.00 ^ out (out)
+                   5.00   data arrival time
+----------------------------------------------------------------
+(Path is unconstrained)
+
+
