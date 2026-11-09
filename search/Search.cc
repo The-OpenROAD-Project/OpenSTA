@@ -703,11 +703,9 @@ void
 SeedFaninsThruHierPin::visit(const Pin *drvr,
                              const Pin *)
 {
-  Vertex *vertex, *bidirect_drvr_vertex;
-  graph_->pinVertices(drvr, vertex, bidirect_drvr_vertex);
-  search_->arrivalIterator()->enqueue(vertex);
-  if (bidirect_drvr_vertex)
-    search_->arrivalIterator()->enqueue(bidirect_drvr_vertex);
+  graph_->verticesApply(drvr, [this] (Vertex *vertex) {
+    search_->arrivalIterator()->enqueue(vertex);
+  });
 }
 
 void
@@ -726,12 +724,9 @@ Search::seedFilterStarts()
         visitDrvrLoadsThruHierPin(pin, network_, &visitor);
       }
       else {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        if (vertex)
+        graph_->verticesApply(pin, [this] (Vertex *vertex) {
           arrival_iter_->enqueue(vertex);
-        if (bidirect_drvr_vertex)
-          arrival_iter_->enqueue(bidirect_drvr_vertex);
+        });
       }
     }
   }
@@ -863,12 +858,9 @@ void
 Search::arrivalInvalid(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
       arrivalInvalid(vertex);
-    if (bidirect_drvr_vertex)
-      arrivalInvalid(bidirect_drvr_vertex);
+    });
   }
 }
 
@@ -902,12 +894,9 @@ void
 Search::requiredInvalid(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
       requiredInvalid(vertex);
-    if (bidirect_drvr_vertex)
-      requiredInvalid(bidirect_drvr_vertex);
+    });
   }
 }
 
@@ -945,11 +934,9 @@ Search::enqueueClkRoots()
   PinSet clk_pins(network_);
   findClkVertexPins(clk_pins);
   for (const Pin *pin : clk_pins) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    arrival_iter_->enqueue(vertex);
-    if (bidirect_drvr_vertex)
-      arrival_iter_->enqueue(bidirect_drvr_vertex);
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
+      arrival_iter_->enqueue(vertex);
+    });
   }
   arrivals_exist_ = true;
 }
@@ -1462,11 +1449,9 @@ Search::findClockVertices(VertexSet &vertices)
     const Sdc *sdc = mode->sdc();
     for (const Clock *clk : sdc->clocks()) {
       for (const Pin *pin : clk->leafPins()) {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        vertices.insert(vertex);
-        if (bidirect_drvr_vertex)
-          vertices.insert(bidirect_drvr_vertex);
+        graph_->verticesApply(pin, [&vertices] (Vertex *vertex) {
+          vertices.insert(vertex);
+        });
       }
     }
   }
@@ -3062,6 +3047,19 @@ Search::timingDerate(const Vertex *from_vertex,
   }
 }
 
+////////////////////////////////////////////////////////////////
+
+ClockSet
+Search::clockDomains(const Pin *pin,
+                     const Mode *mode) const
+{
+  ClockSet clks;
+  graph_->verticesApply(pin, [this, mode, &clks] (Vertex *vertex) {
+    clockDomains(vertex, mode, clks);
+  });
+  return clks;
+}
+
 ClockSet
 Search::clockDomains(const Vertex *vertex,
                      const Mode *mode) const
@@ -3088,32 +3086,13 @@ Search::clockDomains(const Vertex *vertex,
 }
 
 ClockSet
-Search::clockDomains(const Pin *pin,
-                     const Mode *mode) const
-{
-  ClockSet clks;
-  Vertex *vertex;
-  Vertex *bidirect_drvr_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  if (vertex)
-    clockDomains(vertex, mode, clks);
-  if (bidirect_drvr_vertex)
-    clockDomains(bidirect_drvr_vertex, mode, clks);
-  return clks;
-}
-
-ClockSet
 Search::clocks(const Pin *pin,
                const Mode *mode) const
 {
   ClockSet clks;
-  Vertex *vertex;
-  Vertex *bidirect_drvr_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  if (vertex)
+  graph_->verticesApply(pin, [this, mode, &clks] (Vertex *vertex) {
     clocks(vertex, mode, clks);
-  if (bidirect_drvr_vertex)
-    clocks(bidirect_drvr_vertex, mode, clks);
+  });
   return clks;
 }
 

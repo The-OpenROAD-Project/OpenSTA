@@ -707,12 +707,9 @@ Sim::setSimValue(const Pin *pin,
       sim_value_map_.erase(pin);
     else {
       sim_value_map_[pin] = value;
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
+      graph_->verticesApply(pin, [] (Vertex *vertex) {
         vertex->setHasSimValue(true);
-      if (bidirect_drvr_vertex)
-        bidirect_drvr_vertex->setHasSimValue(true);
+      });
     }
     if (observer_)
       observer_->valueChangeAfter(pin);

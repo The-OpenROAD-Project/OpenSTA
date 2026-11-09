@@ -171,14 +171,11 @@ CheckSlews::check(const Pin *pin,
   slack = MinMax::min()->initValue();
 
   for (const Scene *scene1 : scenes) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    sta_->graph()->verticesApply(pin, [this, scene1, min_max, check_clks, &scene,
+                                       &rf, &slew, &limit, &slack] (Vertex *vertex) {
       check2(vertex, scene1, min_max, check_clks,
              scene, rf, slew, limit, slack);
-    if (bidirect_drvr_vertex)
-      check2(bidirect_drvr_vertex, scene1, min_max, check_clks,
-             scene, rf, slew, limit, slack);
+    });
   }
 }
 

@@ -496,6 +496,21 @@ Graph::pinVertices(const Pin *pin,
     bidirect_drvr_vertex = nullptr;
 }
 
+void
+Graph::verticesApply(const Pin *pin,
+                     const std::function<void(Vertex*)> func) const
+{
+  Vertex *vertex = Graph::vertex(network_->vertexId(pin));
+  if (vertex) {
+    func(vertex);
+    if (network_->direction(pin)->isBidirect()) {
+      Vertex *bidirect_vertex = findKey(pin_bidirect_drvr_vertex_map_, pin);
+      if (bidirect_vertex)
+        func(bidirect_vertex);
+    }
+  }
+}
+
 Vertex *
 Graph::pinDrvrVertex(const Pin *pin) const
 {

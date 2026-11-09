@@ -319,14 +319,11 @@ Genclks::seedClkVertices(Clock *clk,
                          SearchPred &srch_pred)
 {
   for (const Pin *pin : clk->leafPins()) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    fanins.insert(vertex);
-    enqueueFanin(vertex, fanin_queue, srch_pred);
-    if (bidirect_drvr_vertex) {
-      fanins.insert(bidirect_drvr_vertex);
-      enqueueFanin(bidirect_drvr_vertex, fanin_queue, srch_pred);
-    }
+    graph_->verticesApply(pin, [this, &fanins, &fanin_queue,
+                                &srch_pred] (Vertex *vertex) {
+      fanins.insert(vertex);
+      enqueueFanin(vertex, fanin_queue, srch_pred);
+    });
   }
 }
 

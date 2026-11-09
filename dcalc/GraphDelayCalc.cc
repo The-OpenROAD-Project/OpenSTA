@@ -233,14 +233,10 @@ GraphDelayCalc::delayInvalid(const Pin *pin)
         delayInvalid(edge->from(graph_));
       }
     }
-    else {
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
+    else
+      graph_->verticesApply(pin, [this] (Vertex *vertex) {
         delayInvalid(vertex);
-      if (bidirect_drvr_vertex)
-        delayInvalid(bidirect_drvr_vertex);
-    }
+      });
   }
 }
 

@@ -443,12 +443,9 @@ Clock::srcPinVertices(VertexSet &src_vertices,
     PinSet leaf_pins(network);
     findLeafDriverPins(src_pin_, network, &leaf_pins);
     for (const Pin *pin : leaf_pins) {
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
+      graph->verticesApply(pin, [&src_vertices] (Vertex *vertex) {
         src_vertices.insert(vertex);
-      if (bidirect_drvr_vertex)
-        src_vertices.insert(bidirect_drvr_vertex);
+      });
     }
   }
   else {

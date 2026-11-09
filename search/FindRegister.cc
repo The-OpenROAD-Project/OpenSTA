@@ -145,19 +145,13 @@ FindRegVisitor::visitRegs(ClockSet *clks,
       FindRegClkPred clk_pred(clk, this);
       VertexSet visited_vertices(graph_);
       for (const Pin *pin : clk->leafPins()) {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        visitFanoutRegs(vertex, TimingSense::positive_unate,
-                        clk_rf, registers,
-                        latches, clk_pred,
-                        visited_vertices, mode);
-        // Clocks defined on bidirect pins blow it out both ends.
-        if (bidirect_drvr_vertex)
-          visitFanoutRegs(bidirect_drvr_vertex,
-                          TimingSense::positive_unate,
+        graph_->verticesApply(pin, [this, clk_rf, &registers, &latches, &clk_pred,
+                                    &visited_vertices, mode] (Vertex *vertex) {
+          visitFanoutRegs(vertex, TimingSense::positive_unate,
                           clk_rf, registers,
                           latches, clk_pred,
                           visited_vertices, mode);
+        });
       }
     }
   }

@@ -1070,20 +1070,12 @@ Properties::pinSlew(const Pin *pin,
                     const MinMax *min_max)
 {
   Graph *graph = sta_->ensureGraph();
-  Vertex *vertex, *bidirect_drvr_vertex;
-  graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slew slew = min_max->initValue();
-  if (vertex) {
+  graph->verticesApply(pin, [this, rf, min_max, &slew] (Vertex *vertex) {
     Slew vertex_slew = sta_->slew(vertex, rf, sta_->scenes(), min_max);
     if (delayGreater(vertex_slew, slew, min_max, sta_))
       slew = vertex_slew;
-  }
-  if (bidirect_drvr_vertex) {
-    Slew vertex_slew = sta_->slew(bidirect_drvr_vertex, rf,
-                                  sta_->scenes(), min_max);
-    if (delayGreater(vertex_slew, slew, min_max, sta_))
-      slew = vertex_slew;
-  }
+  });
   return delayPropertyValue(slew);
 }
 

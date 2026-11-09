@@ -1500,8 +1500,7 @@ Power::getSlew(Vertex *vertex,
 float
 Power::getMinRfSlew(const Pin *pin)
 {
-  Vertex *vertex, *bidir_vertex;
-  graph_->pinVertices(pin, vertex, bidir_vertex);
+  Vertex *vertex = graph_->pinLoadVertex(pin);
   if (vertex) {
     const MinMax *min_max = MinMax::min();
     float mm_slew = min_max->initValue();

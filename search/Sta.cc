@@ -2035,14 +2035,10 @@ Sta::setInputDelay(const Pin *pin,
   search_->arrivalInvalid(pin);
   if (ref_pin) {
     // reference pins make graph edges from the ref pin to the input pin.
-    if (graph_) {
-      Vertex *vertex, *bidirect_vertex;
-      graph_->pinVertices(ref_pin, vertex, bidirect_vertex);
-      if (vertex)
+    if (graph_)
+      graph_->verticesApply(ref_pin, [this] (Vertex *vertex) {
         levelize_->relevelizeFrom(vertex);
-      if (bidirect_vertex)
-        levelize_->relevelizeFrom(bidirect_vertex);
-    }
+      });
   }
 }
 
@@ -3201,16 +3197,12 @@ Sta::arrival(const Pin *pin,
              const MinMax *min_max)
 {
   ensureGraph();
-  Vertex *vertex, *bidirect_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_vertex);
   Arrival worst_arrival = min_max->initValue();
-  if (vertex)
-    worst_arrival = arrival(vertex, rf, scenes_, min_max);
-  if (bidirect_vertex) {
-    Arrival arrival2 = arrival(bidirect_vertex, rf, scenes_, min_max);
-    if (delayGreater(arrival2, worst_arrival, min_max, this))
-      worst_arrival = arrival2;
-  }
+  graph_->verticesApply(pin, [this, rf, min_max, &worst_arrival] (Vertex *vertex) {
+    Arrival arrival1 = arrival(vertex, rf, scenes_, min_max);
+    if (delayGreater(arrival1, worst_arrival, min_max, this))
+      worst_arrival = arrival1;
+  });
   return worst_arrival;
 }
 
@@ -3291,16 +3283,12 @@ Sta::slack(const Pin *pin,
            const MinMax *min_max)
 {
   ensureGraph();
-  Vertex *vertex, *bidirect_drvr_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slack min_slack = MinMax::min()->initValue();
-  if (vertex)
-    min_slack = slack(vertex, rf, scenes, min_max);
-  if (bidirect_drvr_vertex) {
-    Slack slack1 = slack(bidirect_drvr_vertex, rf, scenes, min_max);
+  graph_->verticesApply(pin, [this, rf, &scenes, min_max, &min_slack] (Vertex *vertex) {
+    Slack slack1 = slack(vertex, rf, scenes, min_max);
     if (delayLess(slack1, min_slack, this))
       min_slack = slack1;
-  }
+  });
   return min_slack;
 }
 
@@ -3475,14 +3463,11 @@ Sta::reportDelaysWrtClks(const Pin *pin,
                          const PathDelayFunc &get_path_delay)
 {
   ensureGraph();
-  Vertex *vertex, *bidir_vertex;
-  graph_->pinVertices(pin, vertex, bidir_vertex);
-  if (vertex)
+  graph_->verticesApply(pin, [this, scene, report_variance, digits, find_required,
+                              &get_path_delay] (Vertex *vertex) {
     reportDelaysWrtClks(vertex, scene, report_variance, digits,
                         find_required, get_path_delay);
-  if (bidir_vertex)
-    reportDelaysWrtClks(vertex, scene, report_variance, digits,
-                        find_required, get_path_delay);
+  });
 }
 
 void
@@ -5252,11 +5237,9 @@ void
 Sta::delaysInvalidFrom(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    delaysInvalidFrom(vertex);
-    if (bidirect_drvr_vertex)
-      delaysInvalidFrom(bidirect_drvr_vertex);
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
+      delaysInvalidFrom(vertex);
+    });
   }
 }
 
@@ -5274,11 +5257,9 @@ Sta::delaysInvalidFromFanin(const Port *port)
   if (graph_) {
     Instance *top_inst = network_->topInstance();
     Pin *pin = network_->findPin(top_inst, port);
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    delaysInvalidFromFanin(vertex);
-    if (bidirect_drvr_vertex)
-      delaysInvalidFromFanin(bidirect_drvr_vertex);
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
+      delaysInvalidFromFanin(vertex);
+    });
   }
 }
 
@@ -5286,12 +5267,9 @@ void
 Sta::delaysInvalidFromFanin(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
       delaysInvalidFromFanin(vertex);
-    if (bidirect_drvr_vertex)
-      delaysInvalidFromFanin(bidirect_drvr_vertex);
+    });
   }
 }
 
@@ -5303,12 +5281,9 @@ Sta::delaysInvalidFromFanin(const Net *net)
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
       if (!network_->isHierarchical(pin)) {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        if (vertex)
+        graph_->verticesApply(pin, [this] (Vertex *vertex) {
           delaysInvalidFrom(vertex);
-        if (bidirect_drvr_vertex)
-          delaysInvalidFrom(bidirect_drvr_vertex);
+        });
       }
     }
     delete pin_iter;
