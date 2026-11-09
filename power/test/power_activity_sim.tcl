@@ -71,3 +71,32 @@ set_power_activity_mode simulation
 show en_r/Q
 set_power_activity_mode vectorless
 show en_r/Q
+
+puts "Pin tied high in the netlist, and a latch + AND clock gate."
+# sy_r is a reset synchronizer flop with D tied to 1'b1; its duty is near
+# rb's. The latch + AND gated clock dg_and/X toggles 2 x 0.2 = 0.4 per cycle
+# like icg/GCLK, not the 0.45 of the AND formula.
+set verilog2 [make_result_file power_activity_sim2.v]
+set stream [open $verilog2 w]
+puts $stream {module top2 (clk, x, g, rb, sy_q, dg_q, gf_q);
+  input clk, x, g, rb;
+  output sy_q, dg_q, gf_q;
+  wire g_l, dgclk, gclk;
+  sky130_fd_sc_hd__dfrtp_1 sy_r (.CLK(clk), .D(1'b1), .RESET_B(rb), .Q(sy_q));
+  sky130_fd_sc_hd__dlxtn_1 dg_lat (.GATE_N(clk), .D(g), .Q(g_l));
+  sky130_fd_sc_hd__and2_1 dg_and (.A(clk), .B(g_l), .X(dgclk));
+  sky130_fd_sc_hd__dfxtp_1 dg_r (.CLK(dgclk), .D(x), .Q(dg_q));
+  sky130_fd_sc_hd__dlclkp_1 icg (.CLK(clk), .GATE(g), .GCLK(gclk));
+  sky130_fd_sc_hd__dfxtp_1 gf_r (.CLK(gclk), .D(x), .Q(gf_q));
+endmodule}
+close $stream
+read_verilog $verilog2
+link_design top2
+create_clock -name clk -period 6 [get_ports clk]
+set_input x 0.5 0.5
+set_input g 0.2 0.1
+set_input rb 0.9 0.05
+simulate_power_activity -cycles 4000 -warmup 500 -lanes 256 -seed 1
+foreach pin {sy_r/Q dg_and/X icg/GCLK dg_r/Q gf_r/Q} {
+  show $pin
+}

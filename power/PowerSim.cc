@@ -164,6 +164,8 @@ public:
     if (prob >= 1.0)
       return ~Word(0);
     unsigned bits = static_cast<unsigned>(prob * 65536.0F + 0.5F);
+    if (bits >= 65536)
+      return ~Word(0);
     Word word = 0;
     for (int i = 0; i < 16; i++)
       word = ((bits >> i) & 1) ? (word | next()) : (word & next());
@@ -229,6 +231,8 @@ private:
   // clocks defined on cell pins. Their drivers are not evaluated.
   std::vector<bool> pinned_;
   int clock_gate_other_ = 0;
+  // Constant 1 for undriven pins tied high, created on first use.
+  int const_one_ = -1;
   std::vector<const Pin *> signal_drvr_;
   std::vector<std::vector<const Pin *>> signal_loads_;
   std::vector<int8_t> forced_;  // -1 free, 0/1 forced constant
@@ -305,6 +309,18 @@ ActivitySim::loadSignal(const Pin *load)
   if (drvrs && !drvrs->empty()) {
     sig = signal(*drvrs->begin());
     signal_loads_[sig].push_back(load);
+  }
+  else if (sim_->simValue(load) == LogicValue::one) {
+    // Tied high without a driver cell (Verilog 1'b1).
+    if (const_one_ < 0) {
+      const_one_ = signal_drvr_.size();
+      signal_drvr_.push_back(nullptr);
+      signal_loads_.emplace_back();
+      forced_.push_back(1);
+      pinned_.push_back(true);
+      sources_.push_back({const_one_, 1.0F, 0.0F, 0.0F});
+    }
+    sig = const_one_;
   }
   load_signal_[load] = sig;
   return sig;
@@ -973,9 +989,13 @@ ActivitySim::annotate(int cycles,
     pin_count += 1 + loads.size();
   user_activity.reserve(user_activity.size() + pin_count);
   size_t annotated = 0;
+  // A clock net that toggles every phase is the clock itself and keeps the
+  // SDC waveform; gated clock nets are annotated.
+  uint64_t clock_toggles = 2 * static_cast<uint64_t>(cycles) * words_ * 64;
   for (size_t s = 1; s < signal_drvr_.size(); s++) {
     const Pin *drvr = signal_drvr_[s];
-    if (!clk_network->isClock(drvr)) {
+    if (drvr
+        && !(clk_network->isClock(drvr) && toggles_[s] == clock_toggles)) {
       PwrActivity activity(toggles_[s] / samples / period,
                            ones_[s] / (2.0 * samples),
                            PwrActivityOrigin::simulation);

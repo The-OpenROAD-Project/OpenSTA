@@ -1,5 +1,5 @@
 Simulation: 13 cells 9 sequential states 6 sources 0 macros 21 signals, 256 lanes.
-Simulation annotated 34 pins.
+Simulation annotated 36 pins.
 en_r/Q toggles/cycle 0.045 duty 0.512 simulation
 tg_r/Q toggles/cycle 0.050 duty 0.502 simulation
 hq_r/Q toggles/cycle 0.000 duty 0.000 unknown
@@ -7,7 +7,7 @@ p1_r/Q toggles/cycle 0.045 duty 0.497 simulation
 gf_r/Q toggles/cycle 0.100 duty 0.502 simulation
 lt/Q   toggles/cycle 0.250 duty 0.501 simulation
 ar_r/Q toggles/cycle 0.462 duty 0.451 simulation
-simulation     34
+simulation     36
 input           6
 unannotated    51
 Group                  Internal  Switching    Leakage      Total
@@ -23,13 +23,21 @@ Total                  5.24e-05   4.31e-07   9.69e-11   5.28e-05 100.0%
                           99.2%       0.8%       0.0%
 Rerun with tg_r/Q set by set_power_activity: it keeps its activity.
 Simulation: 13 cells 9 sequential states 7 sources 0 macros 21 signals, 256 lanes.
-Simulation annotated 33 pins.
+Simulation annotated 35 pins.
 en_r/Q toggles/cycle 0.045 duty 0.502 simulation
 tg_r/Q toggles/cycle 0.200 duty 0.500 user
 tg_xor/A toggles/cycle 0.200 duty 0.502 simulation
-simulation     33
+simulation     35
 input           7
 unannotated    50
 Simulation mode, then formulas (the default).
 en_r/Q toggles/cycle 0.047 duty 0.430 simulation
 en_r/Q toggles/cycle 0.465 duty 0.453 propagated
+Pin tied high in the netlist, and a latch + AND clock gate.
+Simulation: 6 cells 5 sequential states 4 sources 0 macros 12 signals, 256 lanes.
+Simulation annotated 14 pins.
+sy_r/Q toggles/cycle 0.050 duty 0.900 simulation
+dg_and/X toggles/cycle 0.401 duty 0.100 simulation
+icg/GCLK toggles/cycle 0.401 duty 0.100 simulation
+dg_r/Q toggles/cycle 0.100 duty 0.497 simulation
+gf_r/Q toggles/cycle 0.100 duty 0.497 simulation
