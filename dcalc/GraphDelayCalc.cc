@@ -1046,7 +1046,9 @@ GraphDelayCalc::findDriverEdgeDelays(Vertex *drvr_vertex,
         && search_pred_->searchThru(edge, mode)) {
       for (const MinMax *min_max : MinMax::range()) {
         for (const TimingArc *arc : arc_set->arcs()) {
-          if (searchThru(edge, arc, mode)) {
+          if (searchThru(edge, arc, mode)
+              // Constants disable edge cond expression.
+              && !mode->sim()->isDisabledCond(edge)) {
             delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
                                                  scene, min_max, arc_delay_calc,
                                                  load_pin_index_map);
@@ -1269,7 +1271,9 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
   if (delayGreater(gate_slew, drvr_slew, min_max, this)
       && !drvr_vertex->slewAnnotated(drvr_rf, min_max)
       && !edge->role()->isLatchDtoQ()
-      && searchThru(edge, arc, scene->sdc()->mode()))
+      && searchThru(edge, arc, scene->sdc()->mode())
+      // Constants disable edge cond expression.
+      && !scene->sdc()->mode()->sim()->isDisabledCond(edge))
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
   if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
     const ArcDelay prev_gate_delay = graph_->arcDelay(edge,arc,ap_index);
