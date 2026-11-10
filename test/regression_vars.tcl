@@ -181,6 +181,7 @@ record_public_tests {
   liberty_retain
   make_concrete_parasitics_leak
   max_power_area
+  multicycle_path_through_list
   non_seq_timing
   package_require
   path_group_names
