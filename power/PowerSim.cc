@@ -35,14 +35,15 @@
 // their own clock function and latches are transparent while enabled.
 // Clock gate cells are a latch on the enable, transparent while the clock
 // is low (high for negative edge gates). Toggles and ones
-// counted over the measured cycles annotate every pin of each net like
-// read_saif, so report_power uses them unchanged.
+// counted over the measured cycles annotate the driver of each net; activity
+// propagation copies them to the loads, so report_power uses them unchanged.
 
 #include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "ClkNetwork.hh"
@@ -198,6 +199,10 @@ public:
 private:
   int signal(const Pin *drvr);
   int loadSignal(const Pin *load);
+  int sourceSignal(const PwrActivity &activity);
+  int constOneSignal();
+  bool sameActivity(const PwrActivity &activity,
+                    const Pin *drvr) const;
   SimProgram compile(const FuncExpr *expr,
                      const Instance *inst,
                      const std::map<const LibertyPort *, int> &states,
@@ -207,6 +212,7 @@ private:
                  const PwrActivity &activity,
                  float period);
   void sortNodes();
+  std::vector<int> loopNodes(const std::vector<std::vector<int>> &fanout);
   void lower();
   template <int W>
   void runTape(const std::vector<TapeInstr> &tape);
@@ -231,10 +237,14 @@ private:
   // clocks defined on cell pins. Their drivers are not evaluated.
   std::vector<bool> pinned_;
   int clock_gate_other_ = 0;
+  int clock_gate_count_ = 0;
   // Constant 1 for undriven pins tied high, created on first use.
   int const_one_ = -1;
+  // Sources for loads without a driver (floating or black box nets).
+  std::unordered_map<const Net *, int> undriven_signal_;
+  PwrActivity input_activity_;
+  float period_ = 0.0;
   std::vector<const Pin *> signal_drvr_;
-  std::vector<std::vector<const Pin *>> signal_loads_;
   std::vector<int8_t> forced_;  // -1 free, 0/1 forced constant
   std::vector<SimNode> nodes_;
   std::vector<int> order_;
@@ -276,7 +286,6 @@ ActivitySim::ActivitySim(Power *power,
 {
   // Signal 0 is the constant 0 for undriven pins.
   signal_drvr_.push_back(nullptr);
-  signal_loads_.emplace_back();
   forced_.push_back(0);
   pinned_.push_back(false);
 }
@@ -290,7 +299,6 @@ ActivitySim::signal(const Pin *drvr)
   int index = signal_drvr_.size();
   drvr_signal_[drvr] = index;
   signal_drvr_.push_back(drvr);
-  signal_loads_.emplace_back();
   LogicValue value = sim_->simValue(drvr);
   forced_.push_back(value == LogicValue::zero ? 0
                     : value == LogicValue::one ? 1 : -1);
@@ -305,25 +313,76 @@ ActivitySim::loadSignal(const Pin *load)
   if (itr != load_signal_.end())
     return itr->second;
   PinSet *drvrs = network_->drivers(load);
+  const Pin *drvr = (drvrs && !drvrs->empty()) ? *drvrs->begin() : nullptr;
+  const PwrActivityMap &user_activity = power_->user_activity_map_;
+  auto user = user_activity.find(load);
+  // Constants on the load itself (case analysis, set_logic, tie cells
+  // without a driver cell such as Verilog 1'b1).
+  LogicValue value = sim_->simValue(load);
   int sig = 0;
-  if (drvrs && !drvrs->empty()) {
-    sig = signal(*drvrs->begin());
-    signal_loads_[sig].push_back(load);
-  }
-  else if (sim_->simValue(load) == LogicValue::one) {
-    // Tied high without a driver cell (Verilog 1'b1).
-    if (const_one_ < 0) {
-      const_one_ = signal_drvr_.size();
-      signal_drvr_.push_back(nullptr);
-      signal_loads_.emplace_back();
-      forced_.push_back(1);
-      pinned_.push_back(true);
-      sources_.push_back({const_one_, 1.0F, 0.0F, 0.0F});
+  if (value == LogicValue::zero)
+    sig = 0;
+  else if (value == LogicValue::one)
+    sig = constOneSignal();
+  else if (user != user_activity.end() && !sameActivity(user->second, drvr))
+    // Annotated apart from its driver (set_power_activity -pins on a load).
+    // read_vcd and read_saif annotate a whole net alike.
+    sig = sourceSignal(user->second);
+  else if (drvr)
+    sig = signal(drvr);
+  else {
+    // Floating or driven by a black box: the default input activity, as
+    // the formulas seed it.
+    const Net *net = network_->net(load);
+    if (net) {
+      // One source for the whole flat net across hierarchy.
+      net = network_->highestConnectedNet(net);
+      auto itr = undriven_signal_.find(net);
+      if (itr == undriven_signal_.end())
+        itr = undriven_signal_.emplace(net, sourceSignal(input_activity_)).first;
+      sig = itr->second;
     }
-    sig = const_one_;
+    else
+      sig = sourceSignal(input_activity_);
   }
   load_signal_[load] = sig;
   return sig;
+}
+
+bool
+ActivitySim::sameActivity(const PwrActivity &activity,
+                          const Pin *drvr) const
+{
+  if (drvr == nullptr)
+    return false;
+  const PwrActivityMap &user_activity = power_->user_activity_map_;
+  auto itr = user_activity.find(drvr);
+  return itr != user_activity.end()
+    && itr->second.density() == activity.density()
+    && itr->second.duty() == activity.duty();
+}
+
+// A signal without a driver pin, driven as a source with activity.
+int
+ActivitySim::sourceSignal(const PwrActivity &activity)
+{
+  int sig = signal_drvr_.size();
+  signal_drvr_.push_back(nullptr);
+  forced_.push_back(-1);
+  pinned_.push_back(true);
+  addSource(sig, activity, period_);
+  return sig;
+}
+
+int
+ActivitySim::constOneSignal()
+{
+  if (const_one_ < 0) {
+    const_one_ = sourceSignal(PwrActivity(0.0, 1.0,
+                                          PwrActivityOrigin::constant));
+    forced_[const_one_] = 1;
+  }
+  return const_one_;
 }
 
 SimProgram
@@ -435,20 +494,30 @@ ActivitySim::addInstance(const Instance *inst)
       if (!negedge)
         node.clock.push_back({TapeOp::not_, 0});
       node.deps.push_back(clk_sig);
-      if (enable)
-        node.next = {{TapeOp::sig,
-                      static_cast<uint32_t>(loadSignal(enable))}};
+      if (enable) {
+        int enable_sig = loadSignal(enable);
+        node.next = {{TapeOp::sig, static_cast<uint32_t>(enable_sig)}};
+        node.deps.push_back(enable_sig);
+      }
       else
         node.next = {{TapeOp::one, 0}};
       // Positive edge: GCLK = CLK & latched enable. Negative edge:
-      // GCLK = CLK | !latched enable.
+      // GCLK = CLK | !latched enable. GCLK is a separate node that reads
+      // the latch without depending on its update: while the latch is
+      // transparent the clock alone sets GCLK, so enable logic fed by
+      // registers on GCLK is not a loop.
       uint32_t st = node.state;
-      node.outputs.push_back({signal(gclk),
+      SimNode gate;
+      gate.kind = SimNodeKind::comb;
+      gate.deps.push_back(clk_sig);
+      gate.outputs.push_back({signal(gclk),
                               {{TapeOp::sig, static_cast<uint32_t>(clk_sig)},
                                {negedge ? TapeOp::state_inv : TapeOp::state,
                                 st},
                                {negedge ? TapeOp::or_ : TapeOp::and_, 0}}});
       nodes_.push_back(std::move(node));
+      nodes_.push_back(std::move(gate));
+      clock_gate_count_++;
       return;
     }
   }
@@ -545,6 +614,8 @@ ActivitySim::build(const PwrActivity &input_activity,
                    float period,
                    const std::vector<const Clock *> &clocks)
 {
+  input_activity_ = input_activity;
+  period_ = period;
   LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
   while (inst_iter->hasNext())
     addInstance(inst_iter->next());
@@ -600,15 +671,18 @@ ActivitySim::build(const PwrActivity &input_activity,
   for (Word &word : states_)
     word = rng_.next();
   next_states_.assign(state_count_ * words_, 0);
-  prev_clocks_.assign(state_count_ * words_, 0);
+  // No flop sees a clock edge in the settle before the first cycle.
+  prev_clocks_.assign(state_count_ * words_, ~Word(0));
   // Two programs can be stacked (clock and data of a latch).
   stack_.assign((max_stack_ + 2) * words_, 0);
   toggles_.assign(signal_count, 0);
   ones_.assign(signal_count, 0);
   for (const SimSource &source : sources_) {
     Word *value = sig(source.signal);
+    int8_t forced = forced_[source.signal];
     for (int w = 0; w < words_; w++)
-      value[w] = rng_.bernoulli(source.duty);
+      value[w] = forced >= 0 ? (forced ? ~Word(0) : Word(0))
+                             : rng_.bernoulli(source.duty);
   }
   if (verbose_)
     report_->report("Simulation: {} cells {} sequential states {} sources "
@@ -645,6 +719,7 @@ ActivitySim::sortNodes()
       }
     }
   }
+  std::vector<int> loop_nodes = loopNodes(fanout);
   order_.clear();
   std::vector<bool> placed(nodes_.size(), false);
   for (size_t i = 0; i < nodes_.size(); i++)
@@ -662,14 +737,83 @@ ActivitySim::sortNodes()
           placed[to] = true;
         }
     if (order_.size() < nodes_.size()) {
-      // Break a combinational loop at one cell and continue the sort.
-      while (placed[next_loop])
+      // Break the first unsorted combinational loop at one of its cells and
+      // continue the sort.
+      while (placed[loop_nodes[next_loop]])
         next_loop++;
-      order_.push_back(next_loop);
-      placed[next_loop] = true;
+      int node = loop_nodes[next_loop];
+      order_.push_back(node);
+      placed[node] = true;
       loop_count_++;
     }
   }
+}
+
+// Cells on combinational loops (strongly connected components with more
+// than one cell, Tarjan), loops upstream first.
+std::vector<int>
+ActivitySim::loopNodes(const std::vector<std::vector<int>> &fanout)
+{
+  size_t node_count = fanout.size();
+  std::vector<int> index(node_count, -1);
+  std::vector<int> low(node_count, 0);
+  std::vector<int> comp(node_count, -1);
+  std::vector<int> comp_size;
+  std::vector<bool> on_stack(node_count, false);
+  std::vector<int> stack;
+  std::vector<std::pair<int, size_t>> calls;  // node, next fanout
+  int next_index = 0;
+  for (size_t root = 0; root < node_count; root++) {
+    if (index[root] >= 0)
+      continue;
+    index[root] = low[root] = next_index++;
+    stack.push_back(root);
+    on_stack[root] = true;
+    calls.emplace_back(root, 0);
+    while (!calls.empty()) {
+      int v = calls.back().first;
+      size_t &edge = calls.back().second;
+      if (edge < fanout[v].size()) {
+        int w = fanout[v][edge++];
+        if (index[w] < 0) {
+          index[w] = low[w] = next_index++;
+          stack.push_back(w);
+          on_stack[w] = true;
+          calls.emplace_back(w, 0);
+        }
+        else if (on_stack[w])
+          low[v] = std::min(low[v], index[w]);
+      }
+      else {
+        calls.pop_back();
+        if (!calls.empty()) {
+          int u = calls.back().first;
+          low[u] = std::min(low[u], low[v]);
+        }
+        if (low[v] == index[v]) {
+          int c = comp_size.size();
+          int size = 0;
+          int w;
+          do {
+            w = stack.back();
+            stack.pop_back();
+            on_stack[w] = false;
+            comp[w] = c;
+            size++;
+          } while (w != v);
+          comp_size.push_back(size);
+        }
+      }
+    }
+  }
+  // Tarjan finds downstream components first.
+  std::vector<int> loop_nodes;
+  for (size_t i = 0; i < node_count; i++)
+    if (comp_size[comp[i]] > 1)
+      loop_nodes.push_back(i);
+  std::stable_sort(loop_nodes.begin(), loop_nodes.end(),
+                   [&](int a, int b) { return comp[a] > comp[b]; });
+  return loop_nodes;
 }
 
 // Lower the sorted nodes to two flat instruction tapes with signals and
@@ -753,24 +897,22 @@ ActivitySim::lower()
 
   // Renumber the per-signal tables.
   std::vector<const Pin *> drvrs(signal_count);
-  std::vector<std::vector<const Pin *>> loads(signal_count);
   std::vector<int8_t> forced(signal_count);
   std::vector<bool> pinned(signal_count);
   for (size_t old = 0; old < signal_count; old++) {
     drvrs[sperm[old]] = signal_drvr_[old];
-    loads[sperm[old]] = std::move(signal_loads_[old]);
     forced[sperm[old]] = forced_[old];
     pinned[sperm[old]] = pinned_[old];
   }
   signal_drvr_ = std::move(drvrs);
-  signal_loads_ = std::move(loads);
   forced_ = std::move(forced);
   pinned_ = std::move(pinned);
   for (SimSource &source : sources_)
     source.signal = sperm[source.signal];
   for (int &clk_sig : clock_signals_)
     clk_sig = sperm[clk_sig];
-  node_count_ = nodes_.size();
+  // Clock gates are two nodes (latch and gate).
+  node_count_ = nodes_.size() - clock_gate_count_;
   nodes_ = {};
   drvr_signal_ = {};
   load_signal_ = {};
@@ -984,25 +1126,21 @@ ActivitySim::annotate(int cycles,
   const ClkNetwork *clk_network = scene_->mode()->clkNetwork();
   double samples = static_cast<double>(cycles) * words_ * 64;
   PwrActivityMap &user_activity = power_->user_activity_map_;
-  size_t pin_count = 0;
-  for (const std::vector<const Pin *> &loads : signal_loads_)
-    pin_count += 1 + loads.size();
-  user_activity.reserve(user_activity.size() + pin_count);
+  user_activity.reserve(user_activity.size() + signal_drvr_.size());
   size_t annotated = 0;
   // A clock net that toggles every phase is the clock itself and keeps the
   // SDC waveform; gated clock nets are annotated.
   uint64_t clock_toggles = 2 * static_cast<uint64_t>(cycles) * words_ * 64;
   for (size_t s = 1; s < signal_drvr_.size(); s++) {
     const Pin *drvr = signal_drvr_[s];
-    if (drvr
+    // Primary inputs keep their set or default activity.
+    if (drvr && !network_->isTopLevelPort(drvr)
         && !(clk_network->isClock(drvr) && toggles_[s] == clock_toggles)) {
       PwrActivity activity(toggles_[s] / samples / period,
                            ones_[s] / (2.0 * samples),
                            PwrActivityOrigin::simulation);
       // Keep set_power_activity, read_saif and read_vcd annotations.
       annotated += user_activity.try_emplace(drvr, activity).second;
-      for (const Pin *load : signal_loads_[s])
-        annotated += user_activity.try_emplace(load, activity).second;
     }
   }
   power_->propagationInvalid();
@@ -1039,14 +1177,26 @@ Power::simulateActivities(const Scene *scene,
     if (command)
       report_->warn(2411, "power activity simulation needs a clock with a "
                     "source pin.");
+    else if (!activity_sim_fallback_warned_) {
+      report_->warn(2414, "power activity simulation needs a clock with a "
+                    "source pin; activities are propagated with formulas.");
+      activity_sim_fallback_warned_ = true;
+    }
     return;
   }
   for (const Clock *clk : clocks) {
     if (clk->period() != period) {
       // Clocks with different periods are not simulated yet. The default
       // (automatic) run leaves activities to the formulas instead.
-      if (!command)
+      if (!command) {
+        if (!activity_sim_fallback_warned_) {
+          report_->warn(2415, "power activity simulation does not support "
+                        "clocks with different periods; activities are "
+                        "propagated with formulas.");
+          activity_sim_fallback_warned_ = true;
+        }
         return;
+      }
       report_->warn(2412, "clock {} period differs from the fastest clock; "
                     "simulation runs all clocks at the fastest period.",
                     clk->name());

@@ -123,6 +123,7 @@ Power::clear()
   // OpenROAD fork: power activity simulation.
   activity_sim_valid_ = false;
   activity_sim_mode_ = nullptr;
+  activity_sim_fallback_warned_ = false;
   clearNonSdc();
 }
 
@@ -1064,7 +1065,8 @@ Power::ensureActivities(const Scene *scene)
     // annotations; new pins are propagated from them below.
     if (simulate_activities_ && !global_activity_.isSet()
         && (!activity_sim_valid_ || activity_sim_mode_ != scene->mode()))
-      simulateActivities(scene, 300, 1300, 64, 1, false);
+      simulateActivities(scene, activity_sim_warmup_, activity_sim_cycles_,
+                         activity_sim_lanes_, activity_sim_seed_, false);
     // ---- OpenROAD fork: power activity simulation (end) ----
     // No need to propagate activites if global activity is set.
     if (!global_activity_.isSet()) {
@@ -1086,6 +1088,8 @@ Power::ensureActivities(const Scene *scene)
       launch_period_cache_.clear();
       seedActivities(bfs);
       seedFuncLessOutputActivities(bfs);
+      // OpenROAD fork: power activity simulation
+      seedSimulationActivities(bfs);
       PropActivityVisitor visitor(this, scene_->mode(), &bfs);
       // Propagate activities through combinational logic.
       bfs.visit(levelize_->maxLevel(), &visitor);
@@ -1345,6 +1349,26 @@ Power::seedFuncLessOutputActivities(BfsFwdIterator &bfs)
   }
   delete inst_iter;
 }
+
+// ---- OpenROAD fork: power activity simulation (begin) ----
+// Simulated drivers are seeded like roots so that propagation reaches pins
+// without a primary input in their fanin (free running dividers, hold loops)
+// and deep register pipelines, and copies driver activity to the loads.
+void
+Power::seedSimulationActivities(BfsFwdIterator &bfs)
+{
+  const Mode *mode = scene_->mode();
+  for (auto &[pin, activity] : user_activity_map_) {
+    if (activity.origin() == PwrActivityOrigin::simulation) {
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (vertex) {
+        setActivity(pin, activity);
+        bfs.enqueueAdjacentVertices(vertex, mode);
+      }
+    }
+  }
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
 
 // Period of the fastest clock launching paths through pin, or of the
 // fastest clock in the design if none does. Zero if there are no clocks.
@@ -2004,7 +2028,9 @@ Power::reportActivityAnnotation(bool report_unannotated,
   if (input_count > 0)
     report_->report("input       {:>5}", input_count);
   size_t pin_count = pinCount();
-  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count;
+  // OpenROAD fork: power activity simulation
+  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count
+      - simulation_count;
   report_->report("unannotated {:>5}", unannotated_count);
 
   if (report_annotated) {

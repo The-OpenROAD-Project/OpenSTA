@@ -269,6 +269,8 @@ protected:
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
+  // OpenROAD fork: power activity simulation
+  void seedSimulationActivities(BfsFwdIterator &bfs);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,
@@ -312,6 +314,12 @@ private:
   // The simulation annotations match the current inputs and SDC.
   bool activity_sim_valid_{false};
   const Mode *activity_sim_mode_{nullptr};
+  bool activity_sim_fallback_warned_{false};
+  // Automatic run in simulation mode (shorter than the command defaults).
+  static constexpr int activity_sim_warmup_ = 300;
+  static constexpr int activity_sim_cycles_ = 1300;
+  static constexpr int activity_sim_lanes_ = 64;
+  static constexpr uint64_t activity_sim_seed_ = 1;
   void clearActivitySimResults();
   // Activities must be propagated again; the simulation is still valid.
   void propagationInvalid();

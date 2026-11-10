@@ -357,7 +357,7 @@ proc read_saif { args } {
 # ---- OpenROAD fork: power activity simulation (begin) ----
 define_cmd_args "simulate_power_activity" { [-cycles cycles] [-warmup cycles] \
                                               [-lanes lanes] [-seed seed] } \
-  -help {Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and outputs of cells without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. Every pin of each simulated net is annotated, as with read_saif.} \
+  -help {Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and outputs of cells without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.} \
   -arg_help {
     -cycles {`cycles`: Number of measured clock cycles. Defaults to 2000.}
     -warmup {`cycles`: Number of clock cycles simulated before counting starts, so the random initial state settles. Defaults to 500.}
@@ -393,7 +393,7 @@ proc simulate_power_activity { args } {
 }
 
 define_cmd_args "set_power_activity_mode" { simulation|vectorless } \
-  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the netlist before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. Designs whose clocks have different periods, or no clock, use the formulas. "vectorless" (the default) propagates activities through each cell with formulas.}
+  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the netlist before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 300 warmup cycles, 1300 measured cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.}
 
 proc set_power_activity_mode { args } {
   check_argc_eq1 "set_power_activity_mode" $args

@@ -2017,6 +2017,8 @@ Sta::removeCaseAnalysis(Pin *pin,
 {
   mode->sdc()->removeCaseAnalysis(pin);
   mode->sim()->constantsInvalid();
+  // OpenROAD fork: power activity simulation
+  power_->activitiesInvalid();
   // Constants disable edges which isolate downstream vertices of the
   // graph from the delay calculator's BFS search.  This means that
   // simply invaldating the delays downstream from the constant pin
