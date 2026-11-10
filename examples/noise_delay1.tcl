@@ -7,9 +7,13 @@ read_spef -keep_capacitive_coupling noise_delay1.spef
 sta::set_delay_calculator prima
 include noise_delay1.sdc
 
-report_checks -from in1 -unconstrained -path_delay min_max
+report_checks -from in1 -unconstrained \
+  -path_delay min_max \
+  -fields {input_pin noise_delay}
 
 report_noise_delays
 annotate_noise_delays
 
-report_checks -from in1 -unconstrained -path_delay min_max
+report_checks -from in1 -unconstrained \
+  -path_delay min_max \
+  -fields {input_pin noise_delay}

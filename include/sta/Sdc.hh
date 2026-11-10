@@ -377,6 +377,7 @@ public:
                       float fanout);
   void setMaxArea(float area);
   float maxArea() const;
+  void createLibertyGeneratedClocks(Clock *clk);
   void setMaxDynamicPower(float power);
   float maxDynamicPower() const;
   void setMaxLeakagePower(float power);

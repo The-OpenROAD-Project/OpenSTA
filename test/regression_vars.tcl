@@ -143,7 +143,9 @@ record_example_tests {
 record_public_tests {
   bidirect_pad_fanout
   clock_delete_inst
+  dcalc_cond_disabled_slew
   dcalc_incr_out_to_out_arc
+  define_scene_conflicting_args
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst
@@ -154,6 +156,9 @@ record_public_tests {
   disconnect_mcp_pin
   dmp_two_pole_reduce
   equiv_cells_ff_latch
+  genclk
+  genclk_edges_redefine
+  genclk_timing
   get_filter
   get_is_buffer
   get_is_memory
@@ -180,6 +185,7 @@ record_public_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  liberty_write_escaped_names
   liberty_malformed_ports
   liberty_retain
   make_concrete_parasitics_leak
@@ -190,6 +196,7 @@ record_public_tests {
   parasitic_network_new_net
   path_group_names
   port_delay_delete_inst
+  port_delay_hier_pin
   power_network_changed
   power_json
   power_activity_cases

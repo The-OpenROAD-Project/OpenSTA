@@ -70,7 +70,7 @@ make_net_cmd(const char *name,
 
 void
 make_port_pin_cmd(const char *port_name,
-                  PortDirection *dir)
+                  const PortDirection *dir)
 {
   Sta::sta()->makePortPin(port_name, dir);
 }

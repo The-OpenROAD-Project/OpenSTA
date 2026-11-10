@@ -65,6 +65,7 @@ using NetSeq = std::vector<const Net*>;
 using ConstNetSeq = std::vector<const Net*>;
 using InstanceChildIterator = Iterator<Instance*>;
 using InstancePinIterator = Iterator<Pin*>;
+using PinIterator = Iterator<Pin*>;
 using InstanceNetIterator = Iterator<Net*>;
 using LeafInstanceIterator = Iterator<Instance*>;
 using NetIterator = Iterator<Net*>;

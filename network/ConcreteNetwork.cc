@@ -686,7 +686,7 @@ ConcreteNetwork::makeBundlePort(Cell *cell,
 
 void
 ConcreteNetwork::setDirection(Port *port,
-                              PortDirection *dir)
+                              const PortDirection *dir)
 {
   ConcretePort *cport = reinterpret_cast<ConcretePort*>(port);
   cport->setDirection(dir);
@@ -809,7 +809,7 @@ ConcreteNetwork::libertyPort(const Port *port) const
   return cport->libertyPort();
 }
 
-PortDirection *
+const PortDirection *
 ConcreteNetwork::direction(const Port *port) const
 {
   const ConcretePort *cport = reinterpret_cast<const ConcretePort*>(port);
@@ -1086,7 +1086,7 @@ ConcreteNetwork::port(const Pin *pin) const
   return reinterpret_cast<Port*>(cpin->port());
 }
 
-PortDirection *
+const PortDirection *
 ConcreteNetwork::direction(const Pin *pin) const
 {
   const ConcretePin *cpin = reinterpret_cast<const ConcretePin*>(pin);

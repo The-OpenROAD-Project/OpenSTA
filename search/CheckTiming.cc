@@ -116,7 +116,7 @@ CheckTiming::checkNoInputDelay()
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     if (!sdc_->isClock(pin)) {
-      PortDirection *dir = network_->direction(pin);
+      const PortDirection *dir = network_->direction(pin);
       if (dir->isAnyInput()
           && !sdc_->hasInputDelay(pin)
           // OpenROAD fork: analysis_corner support.
@@ -146,7 +146,7 @@ CheckTiming::checkNoOutputDelay(PinSet &no_departure)
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     if (dir->isAnyOutput()
         && !sdc_->hasOutputDelay(pin)
         // OpenROAD fork: analysis_corner support.
@@ -261,7 +261,7 @@ CheckTiming::checkUnconstrainedOutputs(PinSet &unconstrained_ends)
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     Vertex *vertex = graph_->pinLoadVertex(pin);
     if (dir->isAnyOutput()
         && !sim_->isConstant(pin)
@@ -437,7 +437,7 @@ CheckTiming::checkGeneratedClocks()
     if (clk->isGenerated()) {
       mode_->genclks()->checkMaster(clk, sdc_);
       bool found_clk = false;
-      VertexSet src_vertices = makeVertexSet(this);
+      VertexSet src_vertices(graph_);
       clk->srcPinVertices(src_vertices, network_, graph_);
       for (Vertex *vertex : src_vertices) {
         if (clk_network_->isClock(vertex)) {

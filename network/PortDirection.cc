@@ -28,17 +28,17 @@
 
 namespace sta {
 
-PortDirection PortDirection::input_("input", 0);
-PortDirection PortDirection::output_("output", 1);
-PortDirection PortDirection::tristate_("tristate", 2);
-PortDirection PortDirection::bidirect_("bidirect", 3);
-PortDirection PortDirection::internal_("internal", 4);
-PortDirection PortDirection::ground_("ground", 5);
-PortDirection PortDirection::power_("power", 6);
-PortDirection PortDirection::well_("well", 7);
-PortDirection PortDirection::unknown_("unknown", 8);
+const PortDirection PortDirection::input_("input", 0);
+const PortDirection PortDirection::output_("output", 1);
+const PortDirection PortDirection::tristate_("tristate", 2);
+const PortDirection PortDirection::bidirect_("bidirect", 3);
+const PortDirection PortDirection::internal_("internal", 4);
+const PortDirection PortDirection::ground_("ground", 5);
+const PortDirection PortDirection::power_("power", 6);
+const PortDirection PortDirection::well_("well", 7);
+const PortDirection PortDirection::unknown_("unknown", 8);
 
-PortDirection *
+const PortDirection *
 PortDirection::find(const char *dir_name)
 {
   if (stringEqual(dir_name, "input"))

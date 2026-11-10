@@ -434,7 +434,7 @@ Sdc::allInputs(bool no_clks) const
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const Port *port = network_->port(pin);
-    PortDirection *dir = network_->direction(port);
+    const PortDirection *dir = network_->direction(port);
     if (dir->isAnyInput()
         && !(no_clks && isClock(pin)))
       portMembers(port, ports);
@@ -452,7 +452,7 @@ Sdc::allOutputs() const
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const Port *port = network_->port(pin);
-    PortDirection *dir = network_->direction(port);
+    const PortDirection *dir = network_->direction(port);
     if (dir->isAnyOutput())
       portMembers(port, ports);
   }
@@ -2738,7 +2738,7 @@ Sdc::makeInputDelay(const Pin *pin,
       InputDelaySet *internal_inputs = input_delay_internal_pin_map_[lpin];
       if (internal_inputs == nullptr) {
         internal_inputs = new InputDelaySet;
-        input_delay_internal_pin_map_[pin] = internal_inputs;
+        input_delay_internal_pin_map_[lpin] = internal_inputs;
       }
       internal_inputs->insert(input_delay);
     }
@@ -2833,7 +2833,7 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
     inputs->erase(input_delay);
     if (inputs->empty()) {
       delete inputs;
-      input_delay_leaf_pin_map_.erase(pin);
+      input_delay_leaf_pin_map_.erase(lpin);
     }
   }
 
@@ -3027,7 +3027,7 @@ Sdc::deleteOutputDelay(OutputDelay *output_delay)
     outputs->erase(output_delay);
     if (outputs->empty()) {
       delete outputs;
-      output_delay_leaf_pin_map_.erase(pin);
+      output_delay_leaf_pin_map_.erase(lpin);
     }
   }
 
@@ -5877,6 +5877,7 @@ Sdc::deletePortDelayReferences(const Pin *pin)
   }
   while (InputDelaySet *pin_input_delays = findKey(input_delay_pin_map_, pin))
     deleteInputDelay(*pin_input_delays->begin());
+  deletePinMapKey(input_delay_leaf_pin_map_, pin);
   deletePinMapKey(input_delay_internal_pin_map_, pin);
 
   OutputDelaySet *leaf_output_delays = outputDelaysLeafPin(pin);
@@ -5894,6 +5895,7 @@ Sdc::deletePortDelayReferences(const Pin *pin)
   }
   while (OutputDelaySet *pin_output_delays = findKey(output_delay_pin_map_, pin))
     deleteOutputDelay(*pin_output_delays->begin());
+  deletePinMapKey(output_delay_leaf_pin_map_, pin);
 }
 
 void
@@ -5915,7 +5917,7 @@ findLeafLoadPins(const Pin *pin,
                  PinSet *leaf_pins)
 {
   if (network->isHierarchical(pin)) {
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     bool is_input = dir->isAnyInput();
     bool is_output = dir->isAnyOutput();
     const Instance *hinst = network->instance(pin);
@@ -5944,7 +5946,7 @@ findLeafDriverPins(const Pin *pin,
                    PinSet *leaf_pins)
 {
   if (network->isHierarchical(pin)) {
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     bool is_input = dir->isAnyInput();
     bool is_output = dir->isAnyOutput();
     const Instance *hinst = network->instance(pin);

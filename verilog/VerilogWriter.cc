@@ -213,7 +213,7 @@ VerilogWriter::writePortDcls(const Cell *cell)
   CellPortIterator *port_iter = network_->portIterator(cell);
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
-    PortDirection *dir = network_->direction(port);
+    const PortDirection *dir = network_->direction(port);
     if (include_pwr_gnd_
         || !network_->direction(port)->isPowerGround()) {
       std::string port_vname = portVerilogName(std::string(network_->name(port)));
@@ -238,7 +238,7 @@ VerilogWriter::writePortDcls(const Cell *cell)
 }
 
 std::string_view
-verilogPortDir(PortDirection *dir)
+verilogPortDir(const PortDirection *dir)
 {
   if (dir == PortDirection::input())
     return "input";

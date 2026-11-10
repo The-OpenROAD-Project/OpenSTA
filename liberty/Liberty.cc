@@ -41,6 +41,7 @@
 #include "FuncExpr.hh"
 #include "InternalPower.hh"
 #include "LibertyClass.hh"
+#include "LibertyGenClk.hh"
 #include "MinMax.hh"
 #include "Mutex.hh"
 #include "Network.hh"
@@ -95,6 +96,18 @@ LibertyLibrary::~LibertyLibrary()
 
   delete buffers_;
   delete inverters_;
+}
+
+bool
+LibertyLibrary::hasCcsModels() const
+{
+  LibertyCellIterator cell_iter(this);
+  while (cell_iter.hasNext()) {
+    LibertyCell *cell = cell_iter.next();
+    if (cell->hasCcsModels())
+      return true;
+  }
+  return false;
 }
 
 LibertyCell *
@@ -925,6 +938,7 @@ LibertyCell::~LibertyCell()
 
   delete statetable_;
   deleteContents(scaled_cells_);
+  deleteContents(liberty_gen_clks_);
 
   delete test_cell_;
 }
@@ -1005,6 +1019,22 @@ BusDcl *
 LibertyCell::findBusDcl(std::string_view name)
 {
   return findStringValuePtr(bus_dcls_, name);
+}
+
+bool
+LibertyCell::hasCcsModels() const
+{
+  for (TimingArcSet *arc_set : timingArcSets()) {
+    for (TimingArc *arc : arc_set->arcs()) {
+      GateTableModel *model = arc->gateTableModel();
+      if (model) {
+        OutputWaveforms *output_waveforms = model->outputWaveforms();
+        if (output_waveforms)
+          return true;
+      }
+    }
+  }
+  return false;
 }
 
 void
@@ -1163,7 +1193,7 @@ LibertyCell::bufferPorts(// Return values.
   output = nullptr;
   for (ConcretePort *cport : ports_) {
     LibertyPort *port = static_cast<LibertyPort*>(cport);
-    PortDirection *dir = port->direction();
+    const PortDirection *dir = port->direction();
     if (dir->isInput()) {
       if (input) {
         // More than one input.
@@ -1382,6 +1412,35 @@ LibertyCell::hasTimingArcs(LibertyPort *port) const
 {
   return port_timing_arc_set_map_.contains({port, nullptr})
     || port_timing_arc_set_map_.contains({nullptr, port});
+}
+
+void
+LibertyCell::makeLibertyGenClk(const char *name,
+                               const char *clock_pin,
+                               const char *master_pin,
+                               int divided_by,
+                               int multiplied_by,
+                               float duty_cycle,
+                               bool invert,
+                               IntSeq *edges,
+                               FloatSeq *edge_shifts)
+{
+  IntSeq *edges_copy = nullptr;
+  if (edges)
+    edges_copy = new IntSeq(*edges);
+  FloatSeq *edge_shifts_copy = nullptr;
+  if (edge_shifts)
+    edge_shifts_copy = new FloatSeq(*edge_shifts);
+  LibertyGenClk *gen_clk = new LibertyGenClk(name,
+                                             clock_pin,
+                                             master_pin,
+                                             divided_by,
+                                             multiplied_by,
+                                             duty_cycle,
+                                             invert,
+                                             edges_copy,
+                                             edge_shifts_copy);
+  liberty_gen_clks_.push_back(gen_clk);
 }
 
 void

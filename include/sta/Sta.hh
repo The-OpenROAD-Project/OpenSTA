@@ -417,6 +417,10 @@ public:
                    Sdc *sdc);
   // Update period/waveform for generated clocks from source pin clock.
   void updateGeneratedClks();
+  // Make SDC generated clocks defined by Liberty generated_clock groups
+  // whose master pin is in clk's clock network.
+  void makeLibertyGeneratedClocks(Clock *clk,
+                                  const Mode *mode);
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClockSrc(const Pin *pin,
                   const Sdc *sdc) const;
@@ -1341,7 +1345,7 @@ public:
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
   virtual void makePortPin(const char *port_name,
-                           PortDirection *dir);
+                           const PortDirection *dir);
   // Notify STA that the network has changed without using the network
   // editing API. For example, reading a netlist without using the
   // builtin network readers.
@@ -1508,7 +1512,7 @@ public:
 
   void annotateNoiseDelays(float min_coupling_sum_ratio,
                            float min_coupling_ratio,
-                           const Scene *scene,
+                           const SceneSeq scenes,
                            const MinMaxAll *min_max);
   void reportNoiseDelays(size_t max_count,
                          const RiseFallBoth *drvr_rf,
@@ -1750,7 +1754,7 @@ protected:
   void deleteScenes();
   void noiseDelayPreamble();
   void checkLibrarayPocv();
-  void checkLibraryCcs();
+  bool libraryHasCcsModels() const;
 
   Scene *cmd_scene_{nullptr};
   Mode *cmd_mode_{nullptr};
