@@ -1113,7 +1113,24 @@ library(test_r9_27) {
   }
 }
 )";
-  writeAndReadLib(sta_, content);
+  LibertyLibrary *lib = writeAndReadLibReturn(sta_, content);
+  ASSERT_NE(lib, nullptr);
+  LibertyCell *cell = lib->findLibertyCell("POCV2");
+  ASSERT_NE(cell, nullptr);
+  int setup_arc_count = 0;
+  for (TimingArcSet *arc_set : cell->timingArcSets()) {
+    if (arc_set->role() != TimingRole::setup())
+      continue;
+    for (TimingArc *arc : arc_set->arcs()) {
+      auto *model = dynamic_cast<const CheckTableModel*>(arc->model());
+      ASSERT_NE(model, nullptr);
+      const TableModels *check_models = model->checkModels();
+      EXPECT_NE(check_models->sigma(EarlyLate::early()), nullptr);
+      EXPECT_NE(check_models->sigma(EarlyLate::late()), nullptr);
+      setup_arc_count++;
+    }
+  }
+  EXPECT_GT(setup_arc_count, 0);
 
   }() ));
 }

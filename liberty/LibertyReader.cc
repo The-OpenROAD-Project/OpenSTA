@@ -2213,10 +2213,10 @@ LibertyReader::makeTableModels(LibertyCell *cell,
     if (check_model) {
       TableModels *check_models = new TableModels(check_model);
       readLvfModels(timing_group,
-                    sta::format("ocv_sigma_{}_constraiint", rf->to_string()),
-                    sta::format("ocv_std_dev_{}_constraiint", rf->to_string()),
-                    sta::format("ocv_mean_shift_{}_constraiint", rf->to_string()),
-                    sta::format("ocv_skewness_{}_constraiint", rf->to_string()),
+                    sta::format("ocv_sigma_{}_constraint", rf->to_string()),
+                    sta::format("ocv_std_dev_{}_constraint", rf->to_string()),
+                    sta::format("ocv_mean_shift_{}_constraint", rf->to_string()),
+                    sta::format("ocv_skewness_{}_constraint", rf->to_string()),
                     rf, check_models, CheckTableModel::checkAxes);
       timing_attrs.setModel(rf, new CheckTableModel(cell, check_models));
       found_model = true;
