@@ -391,6 +391,14 @@ ExceptionPath::resetMatch(ExceptionFrom *from,
                           const MinMaxAll *min_max,
                           const Network *network)
 {
+  if (to && !to->hasObjects()) {
+    const RiseFallBoth *end_rf = to_
+      ? to_->endTransition()
+      : RiseFallBoth::riseFall();
+    if (end_rf != to->endTransition())
+      return false;
+    to = nullptr;
+  }
   // Only the reset expception points need to match.
   // For example, if the reset is -from, it matches any
   // exceptions that match the -from even if they are more specific.
@@ -912,6 +920,16 @@ GroupPath::overrides(ExceptionPath *exception) const
   return exception->isGroupPath()
     && is_default_ == exception->isDefault()
     && name_ == exception->name();
+}
+
+bool
+GroupPath::resetMatch(ExceptionFrom *,
+                      ExceptionThruSeq *,
+                      ExceptionTo *,
+                      const MinMaxAll *,
+                      const Network *)
+{
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2325,7 +2343,7 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
                                    ExceptionThruSeq *expanded_thrus)
 {
   ExceptionTo *to = exception_->to();
-  if (to) {
+  if (to && to->hasObjects()) {
     const RiseFallBoth *rf = to->transition();
     const RiseFallBoth *end_rf = to->endTransition();
     if (to->pins()) {
@@ -2354,7 +2372,7 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
     }
   }
   else
-    visit(expanded_from, expanded_thrus, nullptr);
+    visit(expanded_from, expanded_thrus, to);
 }
 
 ////////////////////////////////////////////////////////////////
