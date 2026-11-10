@@ -1574,7 +1574,7 @@ TEST_F(GraphLargeDesignTest, TimingAllCellTypes) {
     InstancePinIterator *pin_iter = network->pinIterator(inst);
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
-      PortDirection *dir = network->direction(pin);
+      const PortDirection *dir = network->direction(pin);
       if (dir->isOutput()) {
         Vertex *v = graph->pinDrvrVertex(pin);
         if (v) {

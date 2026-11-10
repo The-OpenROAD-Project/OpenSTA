@@ -292,7 +292,7 @@ TEST_F(NetworkAdapterTest, AdapterPortCell) {
 
 // NetworkNameAdapter: direction(Port) forwarding
 TEST_F(NetworkAdapterTest, AdapterPortDirection) {
-  PortDirection *dir = sdc_net_->direction(port_a_);
+  const PortDirection *dir = sdc_net_->direction(port_a_);
   EXPECT_EQ(dir, PortDirection::input());
 }
 
@@ -447,7 +447,7 @@ TEST_F(NetworkAdapterTest, AdapterPinTerm) {
 
 // NetworkNameAdapter: direction(Pin) forwarding
 TEST_F(NetworkAdapterTest, AdapterPinDirection) {
-  PortDirection *dir = sdc_net_->direction(pin_b1_a_);
+  const PortDirection *dir = sdc_net_->direction(pin_b1_a_);
   EXPECT_EQ(dir, PortDirection::input());
 }
 
@@ -1812,7 +1812,7 @@ TEST_F(ConcreteNetworkLinkedTest, CellNameConvenience) {
 
 // ConcreteNetwork: pin direction
 TEST_F(ConcreteNetworkLinkedTest, PinDirection2) {
-  PortDirection *dir = network_.direction(pin_u1_a_);
+  const PortDirection *dir = network_.direction(pin_u1_a_);
   EXPECT_NE(dir, nullptr);
   EXPECT_TRUE(dir->isInput());
 }
@@ -2551,7 +2551,7 @@ TEST_F(NetworkAdapterTest, AdapterPinNet2) {
 }
 
 TEST_F(NetworkAdapterTest, AdapterPinDirection2) {
-  PortDirection *dir = sdc_net_->direction(pin_b1_a_);
+  const PortDirection *dir = sdc_net_->direction(pin_b1_a_);
   EXPECT_TRUE(dir->isInput());
 }
 
