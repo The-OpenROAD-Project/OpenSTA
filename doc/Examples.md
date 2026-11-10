@@ -281,10 +281,10 @@ activities for internal pins.
 
 ```tcl
 read_liberty sky130hd_tt.lib
-read_verilog gcd_sky130hd.v
+read_verilog gcd_sky130hd.v.gz
 link_design gcd
 read_sdc gcd_sky130hd.sdc
-read_spef gcd_sky130hd.spef
+read_spef gcd_sky130hd.spef.gz
 set_power_activity -input -activity 0.1
 set_power_activity -input_port reset -activity 0
 report_power
@@ -311,10 +311,10 @@ The test bench writes the VCD (Value Change Dump) file
 
 ```tcl
 read_liberty sky130hd_tt.lib
-read_verilog gcd_sky130hd.v
+read_verilog gcd_sky130hd.v.gz
 link_design gcd
 read_sdc gcd_sky130hd.sdc
-read_spef gcd_sky130hd.spef
+read_spef gcd_sky130hd.spef.gz
 read_vcd -scope gcd_tb/gcd1 gcd_sky130hd.vcd.gz
 report_power
 ```

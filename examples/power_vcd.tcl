@@ -1,9 +1,9 @@
 # read_vcd_activities gcd
 read_liberty sky130hd_tt.lib.gz
-read_verilog gcd_sky130hd.v
+read_verilog gcd_sky130hd.v.gz
 link_design gcd
 read_sdc gcd_sky130hd.sdc
-read_spef gcd_sky130hd.spef
+read_spef gcd_sky130hd.spef.gz
 # Generate vcd file
 #  iverilog -o gcd_tb gcd_tb.v
 #  vvp gcd_tb
