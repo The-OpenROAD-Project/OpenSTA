@@ -29,7 +29,6 @@
 #include <set>
 #include <string>
 #include <unordered_set>
-#include <utility>
 #include <vector>
 
 #include "Iterator.hh"
@@ -63,10 +62,6 @@ using PinSeq = std::vector<const Pin*>;
 using PinUnorderedSet = std::unordered_set<const Pin*>;
 using InstanceSeq = std::vector<const Instance*>;
 using NetSeq = std::vector<const Net*>;
-using InstancePair = std::pair<const Instance*, const Instance*>;
-using InstancePairSeq = std::vector<InstancePair>;
-using NetPair = std::pair<const Net*, const Net*>;
-using NetPairSeq = std::vector<NetPair>;
 using ConstNetSeq = std::vector<const Net*>;
 using InstanceChildIterator = Iterator<Instance*>;
 using InstancePinIterator = Iterator<Pin*>;

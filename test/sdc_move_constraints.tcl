@@ -35,10 +35,10 @@ report_file $sdc_file
 
 # Replace reg1 with reg2 as an application would.
 make_instance reg2 DFFHQx4_ASAP7_75t_R
-sta::move_constraints_cmd \
-  [list [get_pins reg1/D] [get_pins reg1/CLK] [get_pins reg1/Q]] \
-  [list [get_pins reg2/D] [get_pins reg2/CLK] [get_pins reg2/Q]] \
-  [get_cells reg1] [get_cells reg2] {} {}
+foreach port {D CLK Q} {
+  sta::move_pin_constraints_cmd [get_pins reg1/$port] [get_pins reg2/$port]
+}
+sta::move_instance_constraints_cmd [get_cells reg1] [get_cells reg2]
 delete_instance reg1
 connect_pin n1 reg2/D
 connect_pin clk reg2/CLK

@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <map>
 #include <string>
 #include <utility>
@@ -4617,27 +4618,29 @@ Sta::replaceCell(Instance *inst,
   }
 }
 
-// Move set_disable_timing on timing arc edges of the replaced pins to the
-// edges between the replacing pins.
+// Move set_disable_timing on graph edges to the edges between the
+// pins that map_pin maps their ends to. Pins that do not move map
+// to themselves. Edges without a matching edge are dropped.
 static bool
 moveDisabledEdges(Sdc *sdc,
-                  const std::map<const Pin*, const Pin*> &pin_map,
-                  Graph *graph)
+                  Graph *graph,
+                  bool wire_edges,
+                  const std::function<const Pin* (const Pin *pin)> &map_pin)
 {
-  auto map_pin = [&pin_map](const Pin *pin) {
-    auto itr = pin_map.find(pin);
-    return itr == pin_map.end() ? pin : itr->second;
-  };
   EdgeSeq edges;
   for (Edge *edge : *sdc->disabledEdges()) {
-    if (pin_map.contains(edge->from(graph)->pin())
-        || pin_map.contains(edge->to(graph)->pin()))
+    const Pin *from = edge->from(graph)->pin();
+    const Pin *to = edge->to(graph)->pin();
+    if (edge->role()->isWire() == wire_edges
+        && (map_pin(from) != from || map_pin(to) != to))
       edges.push_back(edge);
   }
   for (Edge *edge : edges) {
     sdc->removeDisable(edge);
-    Vertex *from_vertex = graph->pinDrvrVertex(map_pin(edge->from(graph)->pin()));
-    Vertex *to_vertex = graph->pinLoadVertex(map_pin(edge->to(graph)->pin()));
+    const Pin *from = map_pin(edge->from(graph)->pin());
+    const Pin *to = map_pin(edge->to(graph)->pin());
+    Vertex *from_vertex = from ? graph->pinDrvrVertex(from) : nullptr;
+    Vertex *to_vertex = to ? graph->pinLoadVertex(to) : nullptr;
     if (from_vertex && to_vertex) {
       VertexOutEdgeIterator edge_iter(from_vertex, graph);
       while (edge_iter.hasNext()) {
@@ -4651,46 +4654,69 @@ moveDisabledEdges(Sdc *sdc,
   return !edges.empty();
 }
 
+// Wire edges to and from the pin move with the pin.
 void
-Sta::moveConstraints(const PinPairSeq &pins,
-                     const InstancePairSeq &insts,
-                     const NetPairSeq &nets)
+Sta::moveConstraints(const Pin *from,
+                     const Pin *to)
 {
-  std::map<const Pin*, const Pin*> pin_map(pins.begin(), pins.end());
-  // Liberty port maps of the replaced instances.
-  std::map<const Instance*, LibertyPortMap> inst_port_maps;
-  for (auto [from_pin, to_pin] : pins) {
-    LibertyPort *from_port = network_->libertyPort(from_pin);
-    LibertyPort *to_port = network_->libertyPort(to_pin);
-    if (from_port && to_port)
-      inst_port_maps[network_->instance(from_pin)][from_port] = to_port;
+  bool moved = false;
+  for (Mode *mode : modes_) {
+    Sdc *sdc = mode->sdc();
+    moved |= sdc->moveConstraints(from, to);
+    if (graph_)
+      moved |= moveDisabledEdges(sdc, graph_, true,
+                                 [from, to](const Pin *pin) {
+                                   return pin == from ? to : pin;
+                                 });
   }
-  auto find_port_map = [&inst_port_maps](const Instance *inst) {
-    auto itr = inst_port_maps.find(inst);
-    return itr == inst_port_maps.end() ? LibertyPortMap() : itr->second;
+  if (moved)
+    constraintsMoved();
+}
+
+// Timing arc edges of the instance move to the arcs between the pins
+// of to with the same port names.
+void
+Sta::moveConstraints(const Instance *from,
+                     const Instance *to)
+{
+  auto map_pin = [this, from, to](const Pin *pin) -> const Pin* {
+    if (network_->instance(pin) == from)
+      return network_->findPin(to, network_->portName(pin));
+    return pin;
   };
   bool moved = false;
   for (Mode *mode : modes_) {
     Sdc *sdc = mode->sdc();
-    for (auto [from, to] : pins)
-      moved |= sdc->moveConstraints(from, to);
-    for (auto [from, to] : insts)
-      moved |= sdc->moveConstraints(from, to, find_port_map(from));
-    for (auto [from, to] : nets)
-      moved |= sdc->moveConstraints(from, to);
+    moved |= sdc->moveConstraints(from, to);
     if (graph_)
-      moved |= moveDisabledEdges(sdc, pin_map, graph_);
+      moved |= moveDisabledEdges(sdc, graph_, false, map_pin);
   }
-  if (moved) {
-    for (Mode *mode : modes_) {
-      mode->sim()->constantsInvalid();
-      mode->clkNetwork()->clkPinsInvalid();
-    }
-    update_genclks_ = true;
-    delaysInvalid();
-    search_->arrivalsInvalid();
-    power_->activitiesInvalid();
+  if (moved)
+    constraintsMoved();
+}
+
+void
+Sta::moveConstraints(const Net *from,
+                     const Net *to)
+{
+  bool moved = false;
+  for (Mode *mode : modes_)
+    moved |= mode->sdc()->moveConstraints(from, to);
+  if (moved)
+    constraintsMoved();
+}
+
+void
+Sta::constraintsMoved()
+{
+  for (Mode *mode : modes_) {
+    mode->sim()->constantsInvalid();
+    mode->clkNetwork()->clkPinsInvalid();
   }
+  update_genclks_ = true;
+  delaysInvalid();
+  search_->arrivalsInvalid();
+  power_->activitiesInvalid();
 }
 
 Net *

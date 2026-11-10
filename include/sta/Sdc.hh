@@ -182,7 +182,6 @@ using ClockGroupsSet = std::set<ClockGroups*>;
 using ClockGroupsClkMap = std::map<const Clock*, ClockGroupsSet*>;
 using ClockGroupsNameMap = std::map<std::string, ClockGroups*, std::less<>>;
 using ClockSenseMap = std::map<PinClockPair, ClockSense, PinClockPairLess>;
-using LibertyPortMap = std::map<const LibertyPort*, LibertyPort*>;
 using ExceptionPtEdit = std::function<void (ExceptionPt *pt)>;
 using ClkHpinDisables = std::set<ClkHpinDisable*, ClkHpinDisableLess>;
 using GroupPathSet = std::set<GroupPath*, ExceptionPathLess>;
@@ -1076,10 +1075,9 @@ public:
   // Return true if any constraint moved.
   bool moveConstraints(const Pin *from,
                        const Pin *to);
-  // port_map maps the liberty ports of from to the ports of to.
+  // Ports of from are matched to the ports of to by name.
   bool moveConstraints(const Instance *from,
-                       const Instance *to,
-                       const LibertyPortMap &port_map);
+                       const Instance *to);
   bool moveConstraints(const Net *from,
                        const Net *to);
   void clkHpinDisablesChanged(const Pin *pin);
@@ -1262,8 +1260,7 @@ protected:
   bool moveNetWireCaps(const Net *from,
                        const Net *to);
   bool moveDisabledInstPorts(const Instance *from,
-                             const Instance *to,
-                             const LibertyPortMap &port_map);
+                             const Instance *to);
   void deleteDataChecks(const Pin *pin);
   void deleteDataCheck(DataCheck *check);
   bool editExceptions(const ExceptionPathSeq &exceptions,

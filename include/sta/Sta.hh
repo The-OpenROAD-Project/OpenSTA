@@ -1291,12 +1291,16 @@ public:
                            Cell *to_cell);
   virtual void replaceCell(Instance *inst,
                            LibertyCell *to_lib_cell);
-  // Move the SDC constraints on the pins, instances and nets being
-  // replaced to the ones that replace them, before the replaced ones
-  // are deleted. Constraints already on the replacing ones are replaced.
-  void moveConstraints(const PinPairSeq &pins,
-                       const InstancePairSeq &insts,
-                       const NetPairSeq &nets = {});
+  // Move the SDC constraints on a pin, instance or net being replaced
+  // to the one that replaces it, before the replaced one is deleted.
+  // Constraints already on the replacing one are replaced.
+  // Instance ports are matched by name.
+  void moveConstraints(const Pin *from,
+                       const Pin *to);
+  void moveConstraints(const Instance *from,
+                       const Instance *to);
+  void moveConstraints(const Net *from,
+                       const Net *to);
   virtual Net *makeNet(const char *name,
                        Instance *parent);
   virtual void deleteNet(Net *net);
@@ -1575,6 +1579,7 @@ public:
   ////////////////////////////////////////////////////////////////
 
 protected:
+  void constraintsMoved();
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.

@@ -32,7 +32,7 @@ report_checks -through [get_pins buf2/A] -format end
 # Remove buf3, moving the constraints on its output net to its input net.
 set_resistance 5 [get_nets n4]
 set_load 0.01 [get_nets n4]
-sta::move_constraints_cmd {} {} {} {} [get_nets n4] [get_nets n1]
+sta::move_net_constraints_cmd [get_nets n4] [get_nets n1]
 disconnect_pin n4 buf4/A
 delete_instance buf3
 delete_net [get_nets n4]

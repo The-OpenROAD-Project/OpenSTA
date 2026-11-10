@@ -6191,8 +6191,7 @@ Sdc::moveConstraints(const Pin *from,
 
 bool
 Sdc::moveConstraints(const Instance *from,
-                     const Instance *to,
-                     const LibertyPortMap &port_map)
+                     const Instance *to)
 {
   bool moved = false;
   for (InstancePvtMap &pvt_map : instance_pvt_maps_)
@@ -6203,7 +6202,7 @@ Sdc::moveConstraints(const Instance *from,
   moved |= moveMapKey(inst_latch_borrow_limit_map_, from, to);
   moved |= moveOwnedMapKey(inst_min_pulse_width_map_, from, to);
 
-  moved |= moveDisabledInstPorts(from, to, port_map);
+  moved |= moveDisabledInstPorts(from, to);
   ExceptionPathSeq exceptions =
     findExceptions(exceptions_, [from](ExceptionPt *pt) {
       InstanceSet *insts = pt->instances();
@@ -6224,34 +6223,37 @@ Sdc::moveConstraints(const Instance *from,
 // Disabled ports without a matching port on to are dropped.
 bool
 Sdc::moveDisabledInstPorts(const Instance *from,
-                           const Instance *to,
-                           const LibertyPortMap &port_map)
+                           const Instance *to)
 {
   auto disabled_itr = disabled_inst_ports_.find(from);
   if (disabled_itr != disabled_inst_ports_.end()) {
     DisabledInstancePorts *disabled = disabled_itr->second;
     disabled_inst_ports_.erase(disabled_itr);
     Instance *to_inst = const_cast<Instance*>(to);
+    LibertyCell *to_cell = network_->libertyCell(to);
+    auto to_port = [to_cell](const LibertyPort *port) {
+      return to_cell ? to_cell->findLibertyPort(port->name()) : nullptr;
+    };
     if (disabled->all())
       disable(to_inst, nullptr, nullptr);
     if (disabled->from()) {
       for (const LibertyPort *port : *disabled->from()) {
-        LibertyPort *to_port = findKey(port_map, port);
-        if (to_port)
-          disable(to_inst, to_port, nullptr);
+        LibertyPort *to_from_port = to_port(port);
+        if (to_from_port)
+          disable(to_inst, to_from_port, nullptr);
       }
     }
     if (disabled->to()) {
       for (const LibertyPort *port : *disabled->to()) {
-        LibertyPort *to_port = findKey(port_map, port);
-        if (to_port)
-          disable(to_inst, nullptr, to_port);
+        LibertyPort *to_to_port = to_port(port);
+        if (to_to_port)
+          disable(to_inst, nullptr, to_to_port);
       }
     }
     if (disabled->fromTo()) {
       for (const LibertyPortPair &ports : *disabled->fromTo()) {
-        LibertyPort *to_from_port = findKey(port_map, ports.first);
-        LibertyPort *to_to_port = findKey(port_map, ports.second);
+        LibertyPort *to_from_port = to_port(ports.first);
+        LibertyPort *to_to_port = to_port(ports.second);
         if (to_from_port && to_to_port)
           disable(to_inst, to_from_port, to_to_port);
       }
