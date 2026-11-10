@@ -154,8 +154,10 @@ ReportTcl::~ReportTcl()
   Report::redirectFileEnd();
   auto &reports = threadReports();
   if (std::erase(reports, this) > 0 && reports.empty()) {
-    Tcl_UnstackChannel(nullptr, tcl_stdout_);
-    Tcl_UnstackChannel(nullptr, tcl_stderr_);
+    if (tcl_stdout_)
+      Tcl_UnstackChannel(nullptr, tcl_stdout_);
+    if (tcl_stderr_)
+      Tcl_UnstackChannel(nullptr, tcl_stderr_);
   }
 }
 
@@ -168,16 +170,18 @@ ReportTcl::setTclInterp(Tcl_Interp *interp)
     // NOLINTBEGIN(bugprone-signed-bitwise)
     tcl_stdout_ = Tcl_GetStdChannel(TCL_STDOUT);
     tcl_stderr_ = Tcl_GetStdChannel(TCL_STDERR);
-    tcl_encap_stdout_ = Tcl_StackChannel(interp,
-                                         &tcl_encap_type_stdout,
-                                         nullptr,
-                                         TCL_WRITABLE,
-                                         tcl_stdout_);
-    tcl_encap_stderr_ = Tcl_StackChannel(interp,
-                                         &tcl_encap_type_stdout,
-                                         nullptr,
-                                         TCL_WRITABLE,
-                                         tcl_stderr_);
+    if (tcl_stdout_)
+      tcl_encap_stdout_ = Tcl_StackChannel(interp,
+                                           &tcl_encap_type_stdout,
+                                           nullptr,
+                                           TCL_WRITABLE,
+                                           tcl_stdout_);
+    if (tcl_stderr_)
+      tcl_encap_stderr_ = Tcl_StackChannel(interp,
+                                           &tcl_encap_type_stdout,
+                                           nullptr,
+                                           TCL_WRITABLE,
+                                           tcl_stderr_);
     // NOLINTEND(bugprone-signed-bitwise)
   }
   else {
