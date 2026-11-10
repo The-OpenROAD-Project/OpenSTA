@@ -26,6 +26,9 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
+
+#include "Sta.hh"
 
 namespace sta {
 
@@ -120,39 +123,80 @@ Tcl_ChannelType tcl_encap_type_stdout = {
 
 ////////////////////////////////////////////////////////////////
 
+static std::vector<ReportTcl *> &
+threadReports()
+{
+  thread_local std::vector<ReportTcl *> reports;
+  return reports;
+}
+
+static ReportTcl *
+activeReport()
+{
+  auto &reports = threadReports();
+  if (Sta *sta = Sta::sta()) {
+    for (ReportTcl *report : reports) {
+      if (sta->report() == report)
+        return report;
+    }
+  }
+  return reports.empty() ? nullptr : reports.back();
+}
+
 ReportTcl::ReportTcl() = default;
 
 ReportTcl::~ReportTcl()
 {
+  flush();
   tcl_encap_stdout_ = nullptr;
   tcl_encap_stderr_ = nullptr;
-  Tcl_UnstackChannel(interp_, tcl_stdout_);
-  Tcl_UnstackChannel(interp_, tcl_stderr_);
+  Report::logEnd();
+  Report::redirectFileEnd();
+  auto &reports = threadReports();
+  if (std::erase(reports, this) > 0 && reports.empty()) {
+    Tcl_UnstackChannel(nullptr, tcl_stdout_);
+    Tcl_UnstackChannel(nullptr, tcl_stderr_);
+  }
 }
 
 void
 ReportTcl::setTclInterp(Tcl_Interp *interp)
 {
   interp_ = interp;
-  tcl_stdout_ = Tcl_GetStdChannel(TCL_STDOUT);
-  tcl_stderr_ = Tcl_GetStdChannel(TCL_STDERR);
-  tcl_encap_stdout_ = Tcl_StackChannel(interp,
-                                       &tcl_encap_type_stdout,
-                                       this,
-                                       TCL_WRITABLE,
-                                       tcl_stdout_);
-  tcl_encap_stderr_ = Tcl_StackChannel(interp,
-                                       &tcl_encap_type_stdout,
-                                       this,
-                                       TCL_WRITABLE,
-                                       tcl_stderr_);
+  auto &reports = threadReports();
+  if (reports.empty()) {
+    // NOLINTBEGIN(bugprone-signed-bitwise)
+    tcl_stdout_ = Tcl_GetStdChannel(TCL_STDOUT);
+    tcl_stderr_ = Tcl_GetStdChannel(TCL_STDERR);
+    tcl_encap_stdout_ = Tcl_StackChannel(interp,
+                                         &tcl_encap_type_stdout,
+                                         nullptr,
+                                         TCL_WRITABLE,
+                                         tcl_stdout_);
+    tcl_encap_stderr_ = Tcl_StackChannel(interp,
+                                         &tcl_encap_type_stdout,
+                                         nullptr,
+                                         TCL_WRITABLE,
+                                         tcl_stderr_);
+    // NOLINTEND(bugprone-signed-bitwise)
+  }
+  else {
+    ReportTcl *first = reports.front();
+    tcl_stdout_ = first->tcl_stdout_;
+    tcl_stderr_ = first->tcl_stderr_;
+    tcl_encap_stdout_ = first->tcl_encap_stdout_;
+    tcl_encap_stderr_ = first->tcl_encap_stderr_;
+  }
+  reports.push_back(this);
 }
 
 size_t
 ReportTcl::printConsole(const char *buffer,
                         size_t length)
 {
-  return printTcl(tcl_stdout_, buffer, length);
+  if (tcl_stdout_)
+    return printTcl(tcl_stdout_, buffer, length);
+  return Report::printConsole(buffer, length);
 }
 
 size_t
@@ -233,13 +277,14 @@ ReportTcl::redirectStringEnd()
 ////////////////////////////////////////////////////////////////
 
 static int
-encapOutputProc(ClientData instanceData,
+encapOutputProc(ClientData,
                 CONST84 char *buf,
                 int toWrite,
                 int *)
 {
-  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
-  return report->printString(buf, toWrite);
+  if (ReportTcl *report = activeReport())
+    return report->printString(buf, toWrite);
+  return toWrite;
 }
 
 static int
@@ -293,27 +338,29 @@ encapBlockModeProc(ClientData,
 static int
 closeChannel(ReportTcl *report)
 {
-  report->logEnd();
-  report->redirectFileEnd();
-  report->redirectStringEnd();
+  if (report) {
+    report->logEnd();
+    report->redirectFileEnd();
+    report->redirectStringEnd();
+  }
   return 0;
 }
 
 static int
-encapClose2Proc(ClientData instanceData,
+encapClose2Proc(ClientData,
                 Tcl_Interp *,
                 int)
 {
-  return closeChannel(reinterpret_cast<ReportTcl *>(instanceData));
+  return closeChannel(activeReport());
 }
 
 #if TCL_MAJOR_VERSION < 9
 
 static int
-encapCloseProc(ClientData instanceData,
+encapCloseProc(ClientData,
                Tcl_Interp *)
 {
-  return closeChannel(reinterpret_cast<ReportTcl *>(instanceData));
+  return closeChannel(activeReport());
 }
 
 static int

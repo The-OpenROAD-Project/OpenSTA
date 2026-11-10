@@ -13,6 +13,7 @@
 #include "RiseFallValues.hh"
 #include "Report.hh"
 #include "ReportStd.hh"
+#include "ReportTcl.hh"
 #include "Error.hh"
 #include "Debug.hh"
 #include "Machine.hh"
@@ -2806,6 +2807,43 @@ TEST(GzStreamTest, WriteAndReadGz)
     in.close();
   }
   std::remove(tmpfile);
+}
+
+TEST(ReportTclTest, DestroyWithoutSetTclInterp)
+{
+  ReportTcl *report = new ReportTcl();
+  EXPECT_NE(report, nullptr);
+  delete report;
+}
+
+TEST(ReportTclTest, MultipleInstancesNonLifoDestruction)
+{
+  Tcl_Interp *interp = Tcl_CreateInterp();
+  ASSERT_NE(interp, nullptr);
+
+  ReportTcl *report1 = new ReportTcl();
+  report1->setTclInterp(interp);
+
+  ReportTcl *report2 = new ReportTcl();
+  report2->setTclInterp(interp);
+
+  // Destroy report1 first (FIFO / non-LIFO order).
+  delete report1;
+
+  // report2 should still capture Tcl stdout output cleanly.
+  report2->redirectStringBegin();
+  EXPECT_EQ(Tcl_Eval(interp, "puts \"hello from report2\""), TCL_OK);
+  const char *output = report2->redirectStringEnd();
+  ASSERT_NE(output, nullptr);
+  EXPECT_NE(std::string(output).find("hello from report2"), std::string::npos);
+
+  delete report2;
+
+  // Standard channels should still be valid after all ReportTcl instances die.
+  EXPECT_NE(Tcl_GetStdChannel(TCL_STDOUT), nullptr);
+  EXPECT_NE(Tcl_GetStdChannel(TCL_STDERR), nullptr);
+
+  Tcl_DeleteInterp(interp);
 }
 
 } // namespace sta
