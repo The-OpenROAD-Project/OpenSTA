@@ -1,0 +1,56 @@
+=== before move: corner input delay on reg1/Q ===
+Startpoint: reg1/Q (internal path startpoint clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+  90.00   90.00 v input external delay
+   0.00   90.00 v reg1/Q (DFFHQx4_ASAP7_75t_R)
+  16.20  106.20 v buf2/Y (BUFx2_ASAP7_75t_R)
+   0.00  106.20 v out1 (out)
+         106.20   data arrival time
+
+ 100.00  100.00   clock clk (rise edge)
+   0.00  100.00   clock network delay (ideal)
+   0.00  100.00   clock reconvergence pessimism
+  -2.00   98.00   output external delay
+          98.00   data required time
+---------------------------------------------------------
+          98.00   data required time
+        -106.20   data arrival time
+---------------------------------------------------------
+          -8.20   slack (VIOLATED)
+
+
+=== after move: corner input delay on reg2/Q ===
+Startpoint: reg2/Q (internal path startpoint clocked by clk)
+Endpoint: out1 (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+  90.00   90.00 v input external delay
+   0.00   90.00 v reg2/Q (DFFHQx4_ASAP7_75t_R)
+  16.20  106.20 v buf2/Y (BUFx2_ASAP7_75t_R)
+   0.00  106.20 v out1 (out)
+         106.20   data arrival time
+
+ 100.00  100.00   clock clk (rise edge)
+   0.00  100.00   clock network delay (ideal)
+   0.00  100.00   clock reconvergence pessimism
+  -2.00   98.00   output external delay
+          98.00   data required time
+---------------------------------------------------------
+          98.00   data required time
+        -106.20   data arrival time
+---------------------------------------------------------
+          -8.20   slack (VIOLATED)
+
+

@@ -4714,6 +4714,16 @@ Sta::moveConstraints(const Pin *from,
                                  [from, to](const Pin *pin) {
                                    return pin == from ? to : pin;
                                  });
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs()) {
+      moved |= corner_sdc->moveConstraints(from, to);
+      if (graph_)
+        moved |= moveDisabledEdges(corner_sdc, graph_, true,
+                                   [from, to](const Pin *pin) {
+                                     return pin == from ? to : pin;
+                                   });
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
   }
   if (moved)
     constraintsMoved();
@@ -4737,6 +4747,13 @@ Sta::moveConstraints(const Instance *from,
     moved |= sdc->moveConstraints(from, to);
     if (graph_)
       moved |= moveDisabledEdges(sdc, graph_, false, map_pin);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs()) {
+      moved |= corner_sdc->moveConstraints(from, to);
+      if (graph_)
+        moved |= moveDisabledEdges(corner_sdc, graph_, false, map_pin);
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
   }
   if (moved)
     constraintsMoved();
@@ -4747,8 +4764,13 @@ Sta::moveConstraints(const Net *from,
                      const Net *to)
 {
   bool moved = false;
-  for (Mode *mode : modes_)
+  for (Mode *mode : modes_) {
     moved |= mode->sdc()->moveConstraints(from, to);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      moved |= corner_sdc->moveConstraints(from, to);
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
   if (moved)
     constraintsMoved();
 }
