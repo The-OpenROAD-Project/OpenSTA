@@ -647,7 +647,7 @@ Sim::evalInstance(const Instance *inst,
     Pin *pin = pin_iter->next();
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
-      PortDirection *dir = port->direction();
+      const PortDirection *dir = port->direction();
       if (dir->isAnyOutput()) {
         LogicValue value = LogicValue::unknown;
         FuncExpr *expr = port->function();
@@ -718,12 +718,9 @@ Sim::setSimValue(const Pin *pin,
       sim_value_map_.erase(pin);
     else {
       sim_value_map_[pin] = value;
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
+      graph_->verticesApply(pin, [] (Vertex *vertex) {
         vertex->setHasSimValue(true);
-      if (bidirect_drvr_vertex)
-        bidirect_drvr_vertex->setHasSimValue(true);
+      });
     }
     if (observer_)
       observer_->valueChangeAfter(pin);
@@ -743,7 +740,7 @@ Sim::functionSense(const Instance *inst,
     if (to_port) {
       const FuncExpr *func = to_port->function();
       if (func) {
-        PortDirection *to_dir = to_port->direction();
+        const PortDirection *to_dir = to_port->direction();
         if (to_dir->isAnyTristate()) {
           FuncExpr *tri_func = to_port->tristateEnable();
           if (tri_func) {

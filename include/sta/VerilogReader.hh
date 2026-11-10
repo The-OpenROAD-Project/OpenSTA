@@ -114,23 +114,23 @@ public:
                   VerilogStmtSeq *stmts,
                   VerilogAttrStmtSeq *attr_stmts,
                   int line);
-  VerilogDcl *makeDcl(PortDirection *dir,
+  VerilogDcl *makeDcl(const PortDirection *dir,
                       VerilogDclArgSeq *args,
                       VerilogAttrStmtSeq *attr_stmts,
                       int line);
-  VerilogDcl *makeDcl(PortDirection *dir,
+  VerilogDcl *makeDcl(const PortDirection *dir,
                       VerilogDclArg *arg,
                       VerilogAttrStmtSeq *attr_stmts,
                       int line);
   VerilogDclArg *makeDclArg(std::string_view net_vname);
   VerilogDclArg *makeDclArg(VerilogAssign *assign);
-  VerilogDclBus *makeDclBus(PortDirection *dir,
+  VerilogDclBus *makeDclBus(const PortDirection *dir,
                             int from_index,
                             int to_index,
                             VerilogDclArg *arg,
                             VerilogAttrStmtSeq *attr_stmts,
                             int line);
-  VerilogDclBus *makeDclBus(PortDirection *dir,
+  VerilogDclBus *makeDclBus(const PortDirection *dir,
                             int from_index,
                             int to_index,
                             VerilogDclArgSeq *args,

@@ -80,7 +80,7 @@ The `all_registers` command returns a list of  register instances or register pi
 ## annotate_noise_delays
 
 <pre><code>annotate_noise_delays
-    [<a href="#opt-annotate_noise_delays-scene">-scene</a> scene]
+    [<a href="#opt-annotate_noise_delays-scenes">-scenes</a> scenes]
     [<a href="#opt-annotate_noise_delays-min">-min</a>]
     [<a href="#opt-annotate_noise_delays-max">-max</a>]
     [<a href="#opt-annotate_noise_delays-min_coupling_sum_ratio">-min_coupling_sum_ratio</a> coupling_sum_ratio]
@@ -94,8 +94,8 @@ Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors
 
 ### Options
 
-`-scene` {: #opt-annotate_noise_delays-scene }
-: Annotate delay calculation for a scene. Required for multi-scene analysis.
+`-scenes` {: #opt-annotate_noise_delays-scenes }
+: List of scenes to annotate.
 
 `-min` {: #opt-annotate_noise_delays-min }
 : Only annotate minimum delays.
@@ -233,7 +233,7 @@ The `-multiply_by` option is used to generate a higher frequency clock from the 
 
 The `-divide_by` option is used to generate a lower frequency clock from the source clock. The clock divisor must be a positive integer. If the clock divisor is a power of two the source clock period is multiplied by divisor, the clock rise time is the same as the source clock, and the clock fall edge is one half period later. If the clock divisor is not a power of two the source clock waveform edge times are multiplied by divisor.
 
-The `-edges` option forms the generated clock waveform by selecting edges from the source clock waveform.
+The `-edges` option forms the generated clock waveform by selecting edges from the source clock waveform. `edge_list` must have an odd number of edges and at least three.
 
 If the `-invert` option is specified the waveform derived above is inverted.
 
@@ -288,10 +288,10 @@ The generated clock has a period of 20, rises at time 1 and falls at time 11.
 : Invert the master clock.
 
 `-edges` {: #opt-create_generated_clock-edges }
-: `edge_list`: List of master clock edges to use in the generated clock. Edges are numbered from 1. edge_list must be 3 edges long.
+: `edge_list`: List of master clock edges to use in the generated clock. Edges are numbered from 1. `edge_list` must have an odd number of edges and at least three.
 
 `-edge_shift` {: #opt-create_generated_clock-edge_shift }
-: `shift_list`: Not supported.
+: `shift_list`: Shift each selected master-clock edge by this many time units. The list length must match `-edges`.
 
 `-combinational` {: #opt-create_generated_clock-combinational }
 : The generated clock is combinational, equivalent to `-divide_by 1`.
@@ -1251,6 +1251,8 @@ The `make_port` command creates a port on the top-level cell. `direction` is `in
 
 The `read_liberty` command reads a Liberty format library file. The first library that is read sets the units used by SDC/Tcl commands and reporting. The include_file attribute is supported.
 
+Liberty `generated_clock` groups are installed as generated clocks when the design is linked with `link_design`.
+
 Some Liberty libraries do not include latch groups for cells that describe transparent latches. In that situation the `-infer_latches` command flag can be used to infer the latches. The timing arcs required for a latch to be inferred should look like the following:
 
 ```
@@ -1299,23 +1301,6 @@ Files compressed with gzip are automatically uncompressed.
 
 `-infer_latches` {: #opt-read_liberty-infer_latches }
 : Infer latches from timing arcs when the Liberty file has no latch groups.
-
-## read_power_activities
-
-<pre><code>read_power_activities
-    [<a href="#opt-read_power_activities-scope">-scope</a> scope]
-    <a href="#opt-read_power_activities-vcd">-vcd</a>
-    filename</code></pre>
-
-The `read_power_activities` command is deprecated. Use `read_vcd` instead.
-
-### Options
-
-`-scope` {: #opt-read_power_activities-scope }
-: The VCD scope of the current design. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.
-
-`-vcd` {: #opt-read_power_activities-vcd }
-: VCD file to read. Use `read_vcd` instead.
 
 ## read_saif
 

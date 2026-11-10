@@ -2817,7 +2817,7 @@ protected:
     Library *library = network_->makeLibrary("alias_test", "alias_test.lib");
     Cell *top_cell = network_->makeCell(library, "alias_top", false,
                                         "alias_test.lib");
-    auto port = [&](const char *name, PortDirection *direction) {
+    auto port = [&](const char *name, const PortDirection *direction) {
       Port *p = network_->makePort(top_cell, name);
       network_->setDirection(p, direction);
       return p;

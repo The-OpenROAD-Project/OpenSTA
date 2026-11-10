@@ -474,11 +474,9 @@ ReportAnnotated::reportArcs(const std::string &header,
   PinSeq pins1 = sortByPathName(&pins, network_);
   int i = 0;
   for (const Pin *pin : pins1) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    reportArcs(vertex, report_annotated, i);
-    if (bidirect_drvr_vertex)
-      reportArcs(bidirect_drvr_vertex, report_annotated, i);
+    graph_->verticesApply(pin, [this, report_annotated, &i] (Vertex *vertex) {
+      reportArcs(vertex, report_annotated, i);
+    });
     reportPeriodArcs(pin, report_annotated, i);
     if (max_lines_ != 0 && i > max_lines_)
       break;

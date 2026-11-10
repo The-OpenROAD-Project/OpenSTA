@@ -28,12 +28,12 @@ delay_calc: find delays to level 16777215
 delay_calc: found 9 delays
 search: find arrivals pass 1
 search: find arrivals to level 50
+search: find arrivals reg1/IQN
+search: find arrivals reg1/IQ
 search: find arrivals in1
 search: arrival seed input arrival in1
 search: find arrivals clk
 search: arrival seed clk default/clk pin clk
-search: find arrivals reg1/IQN
-search: find arrivals reg1/IQ
 search: find arrivals reg1/CK
 search:  clk
 search:   ^ -> ^ min
@@ -224,9 +224,9 @@ search:   from tag: 15 default vmax clk ^ clk_src clk crpr_pin null
 search:   to tag  : 15 default vmax clk ^ clk_src clk crpr_pin null
 search:    0.024 + 0.000 = 0.024 > MIA
 search: found 13 arrivals
+search: find end slack out1
 search: find end slack reg1/D
 search: find end slack reg1/QN
-search: find end slack out1
 Startpoint: reg1 (rising edge-triggered flip-flop clocked by clk)
 Endpoint: out1 (output port clocked by clk)
 Path Group: clk

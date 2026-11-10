@@ -272,32 +272,6 @@ proc unset_power_activity { args } {
 
 ################################################################
 
-# Deprecated 9/2024
-define_cmd_args "read_power_activities" { [-scope scope] -vcd filename } \
-  -help {The `read_power_activities` command is deprecated. Use `read_vcd` instead.} \
-  -arg_help {
-    -scope {The VCD scope of the current design. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
-    -vcd {VCD file to read. Use `read_vcd` instead.}
-    filename {The name of the VCD file to read.}
-  }
-
-proc read_power_activities { args } {
-  parse_key_args "read_power_activities" args \
-    keys {-scope} flags {-vcd}
-
-  check_argc_eq1 "set_power_activity" $args
-  set filename [file nativename [lindex $args 0]]
-  set scope ""
-  if { [info exists keys(-scope)] } {
-    set scope $keys(-scope)
-  }
-  sta_warn 305 "read_power_activities is deprecated. Use read_vcd."
-  read_vcd_file $filename $scope [cmd_mode_name] \
-    $::sta::vcd_null_time $::sta::vcd_null_time
-}
-
-################################################################
-
 define_cmd_args "read_vcd" \
   {[-scope scope] [-mode mode_name] [-begin_time begin_time] [-end_time end_time] filename} \
   -help {The `read_vcd` command reads a VCD (Value Change Dump) file from a Verilog simulation and extracts activities and duty cycles for use in power estimation. A VCD name that matches a net annotates the pins connected to the net. A pin named by its own VCD variable keeps that variable's activity. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \

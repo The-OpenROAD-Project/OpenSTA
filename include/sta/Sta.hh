@@ -37,6 +37,7 @@
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
+#include "PinPair.hh"
 #include "PowerClass.hh"
 #include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
@@ -417,6 +418,10 @@ public:
                    Sdc *sdc);
   // Update period/waveform for generated clocks from source pin clock.
   void updateGeneratedClks();
+  // Make SDC generated clocks defined by Liberty generated_clock groups
+  // whose master pin is in clk's clock network.
+  void makeLibertyGeneratedClocks(Clock *clk,
+                                  const Mode *mode);
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClockSrc(const Pin *pin,
                   const Sdc *sdc) const;
@@ -1328,6 +1333,15 @@ public:
                            Cell *to_cell);
   virtual void replaceCell(Instance *inst,
                            LibertyCell *to_lib_cell);
+  // Move the SDC constraints on a pin, instance or net being replaced
+  // to the one that replaces it, before the replaced one is deleted.
+  // Instance ports are matched by name.
+  void moveConstraints(const Pin *from,
+                       const Pin *to);
+  void moveConstraints(const Instance *from,
+                       const Instance *to);
+  void moveConstraints(const Net *from,
+                       const Net *to);
   virtual Net *makeNet(const char *name,
                        Instance *parent);
   virtual void deleteNet(Net *net);
@@ -1341,7 +1355,7 @@ public:
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
   virtual void makePortPin(const char *port_name,
-                           PortDirection *dir);
+                           const PortDirection *dir);
   // Notify STA that the network has changed without using the network
   // editing API. For example, reading a netlist without using the
   // builtin network readers.
@@ -1508,7 +1522,7 @@ public:
 
   void annotateNoiseDelays(float min_coupling_sum_ratio,
                            float min_coupling_ratio,
-                           const Scene *scene,
+                           const SceneSeq scenes,
                            const MinMaxAll *min_max);
   void reportNoiseDelays(size_t max_count,
                          const RiseFallBoth *drvr_rf,
@@ -1606,6 +1620,8 @@ public:
   ////////////////////////////////////////////////////////////////
 
 protected:
+  void constraintsMoved();
+  void deletePinConstraintsBefore(const Pin *pin);
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.
@@ -1750,7 +1766,7 @@ protected:
   void deleteScenes();
   void noiseDelayPreamble();
   void checkLibrarayPocv();
-  void checkLibraryCcs();
+  bool libraryHasCcsModels() const;
 
   Scene *cmd_scene_{nullptr};
   Mode *cmd_mode_{nullptr};

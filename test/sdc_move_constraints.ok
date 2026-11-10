@@ -1,0 +1,84 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_move_constraints
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 100.0000 [get_ports {clk}]
+create_generated_clock -name div -source [get_pins {reg1/CLK}] -divide_by 2 [get_pins {reg1/Q}]
+set_propagated_clock [get_pins {reg1/Q}]
+set_clock_uncertainty 0.5000 [get_pins {reg1/CLK}]
+set_clock_latency 10.0000 [get_pins {reg1/CLK}]
+set_clock_latency -source 5.0000  -clock [get_clocks {div}] [get_pins {reg1/Q}]
+set_sense -type clock -stop_propagation -clock [get_clocks {clk}] [get_pins {reg1/Q}]
+set_input_delay 1.0000 -clock [get_clocks {clk}] -add_delay -reference_pin [get_pins {reg1/CLK}] [get_ports {in2}]
+set_disable_timing -from {CLK} -to {Q} [get_cells {reg1}]
+set_disable_timing [get_pins {reg1/D}]
+set_disable_timing [get_timing_edges -from [get_pins {reg1/CLK}] -to [get_pins {reg1/Q}]]
+set_multicycle_path -hold\
+    -from [get_cells {reg1}] 3
+set_multicycle_path -setup\
+    -to [get_pins {reg1/D}] 2
+set_max_delay\
+    -through [get_pins {reg1/Q}]\
+    -to [get_ports {out1}] 5.0000
+set_false_path\
+    -from [get_pins {reg1/CLK}]\
+    -to [get_ports {out1}]
+set_data_check -from [get_pins {reg1/CLK}] -to [get_pins {reg1/D}] -setup 0.3000
+###############################################################################
+# Environment
+###############################################################################
+set_case_analysis 0 [get_pins {reg1/D}]
+set_timing_derate -cell_delay -late 1.1000 [get_cells {reg1}]
+###############################################################################
+# Design Rules
+###############################################################################
+set_min_pulse_width 2.0000 [get_pins {reg1/CLK}]
+set_min_pulse_width 3.0000 [get_cells {reg1}]
+set_max_time_borrow 1.0000 [get_pins {reg1/D}]
+set_max_time_borrow 2.0000 [get_cells {reg1}]
+set_max_capacitance 0.5000 [get_pins {reg1/Q}]
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_move_constraints
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 100.0000 [get_ports {clk}]
+create_generated_clock -name div -source [get_pins {reg2/CLK}] -divide_by 2 [get_pins {reg2/Q}]
+set_propagated_clock [get_pins {reg2/Q}]
+set_clock_uncertainty 0.5000 [get_pins {reg2/CLK}]
+set_clock_latency 10.0000 [get_pins {reg2/CLK}]
+set_clock_latency -source 5.0000  -clock [get_clocks {div}] [get_pins {reg2/Q}]
+set_sense -type clock -stop_propagation -clock [get_clocks {clk}] [get_pins {reg2/Q}]
+set_input_delay 1.0000 -clock [get_clocks {clk}] -add_delay -reference_pin [get_pins {reg2/CLK}] [get_ports {in2}]
+set_disable_timing -from {CLK} -to {Q} [get_cells {reg2}]
+set_disable_timing [get_pins {reg2/D}]
+set_disable_timing [get_timing_edges -from [get_pins {reg2/CLK}] -to [get_pins {reg2/Q}]]
+set_multicycle_path -hold\
+    -from [get_cells {reg2}] 3
+set_multicycle_path -setup\
+    -to [get_pins {reg2/D}] 2
+set_max_delay\
+    -through [get_pins {reg2/Q}]\
+    -to [get_ports {out1}] 5.0000
+set_false_path\
+    -from [get_pins {reg2/CLK}]\
+    -to [get_ports {out1}]
+set_data_check -from [get_pins {reg2/CLK}] -to [get_pins {reg2/D}] -setup 0.3000
+###############################################################################
+# Environment
+###############################################################################
+set_case_analysis 0 [get_pins {reg2/D}]
+set_timing_derate -cell_delay -late 1.1000 [get_cells {reg2}]
+###############################################################################
+# Design Rules
+###############################################################################
+set_min_pulse_width 2.0000 [get_pins {reg2/CLK}]
+set_min_pulse_width 3.0000 [get_cells {reg2}]
+set_max_time_borrow 1.0000 [get_pins {reg2/D}]
+set_max_time_borrow 2.0000 [get_cells {reg2}]
+set_max_capacitance 0.5000 [get_pins {reg2/Q}]

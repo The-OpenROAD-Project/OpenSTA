@@ -849,7 +849,7 @@ TEST_F(PowerDesignTest, SetPinActivity) {
   InstancePinIterator *pin_iter = network->pinIterator(top);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     if (dir->isInput()) {
       pwr->setUserActivity(pin, 0.5f, 0.5f, PwrActivityOrigin::user);
     }
@@ -868,7 +868,7 @@ TEST_F(PowerDesignTest, SetPinActivity) {
   pin_iter = network->pinIterator(top);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     if (dir->isInput()) {
       pwr->unsetUserActivity(pin);
     }
@@ -1203,7 +1203,7 @@ TEST_F(PowerDesignTest, SetInputPortActivity) {
   InstancePinIterator *pin_iter = network->pinIterator(top);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    PortDirection *dir = network->direction(pin);
+    const PortDirection *dir = network->direction(pin);
     if (dir->isInput()) {
       input_port = network->port(pin);
       break;

@@ -1,0 +1,19 @@
+After first create_clock:
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                      10.00        0.00      5.00
+u_gen1/CLK_OUT           20.00        0.00     10.00 (generated)
+u_gen2/CLK_OUT           40.00        0.00     20.00 (generated)
+After second create_clock:
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                      20.00        0.00     10.00
+u_gen1/CLK_OUT           40.00        0.00     20.00 (generated)
+u_gen2/CLK_OUT           80.00        0.00     40.00 (generated)
+After third create_clock:
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                       5.00        0.00      2.50
+u_gen1/CLK_OUT           10.00        0.00      5.00 (generated)
+u_gen2/CLK_OUT           20.00        0.00     10.00 (generated)
+Test passed.

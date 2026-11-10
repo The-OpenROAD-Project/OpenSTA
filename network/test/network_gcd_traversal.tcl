@@ -19,7 +19,7 @@ source ../../test/helpers.tcl
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
 
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 
 source ../../examples/gcd_sky130hd.sdc

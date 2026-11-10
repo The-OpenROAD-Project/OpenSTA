@@ -2864,6 +2864,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcDmpElmore) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2893,6 +2895,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcDmpTwoPole) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2933,6 +2937,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcCcsCeff) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2962,6 +2968,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcLumpedCap) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2991,6 +2999,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcArnoldi) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -3024,6 +3034,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcPrima) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
                                                     MinMax::max(), 4);
@@ -3107,6 +3119,8 @@ TEST_F(DesignDcalcTest, VerifyEdgeDelays) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       EXPECT_NE(edge, nullptr);
       edges_with_delays++;
       break;
@@ -3129,6 +3143,8 @@ TEST_F(DesignDcalcTest, MinAnalysisReport) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,

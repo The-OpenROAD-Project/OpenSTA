@@ -490,13 +490,14 @@ using namespace sta;
 %typemap(in) PortDirection* {
   Tcl_Size length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  PortDirection *dir = PortDirection::find(arg);
+  const PortDirection *dir = PortDirection::find(arg);
   if (dir == nullptr) {
     tclArgError(interp, 2153, "Unknown port direction '{}'.", arg);
     return TCL_ERROR;
   }
   else
-    $1 = dir;
+    // Swig is retarded and drops const on args.
+    $1 = const_cast<PortDirection*>(dir);
  }
 
 %typemap(in) TimingRole* {

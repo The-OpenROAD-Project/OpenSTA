@@ -9,7 +9,7 @@ suppress_msg 1140
 #---------------------------------------------------------------
 puts "--- Test 1: GCD sky130 write ---"
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 
 set cells [get_cells *]

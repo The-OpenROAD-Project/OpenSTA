@@ -61,6 +61,28 @@ replace_cell_cmd(Instance *inst,
   Sta::sta()->replaceCell(inst, to_cell);
 }
 
+// Move the SDC constraints on from to to.
+void
+move_pin_constraints_cmd(const Pin *from,
+                         const Pin *to)
+{
+  Sta::sta()->moveConstraints(from, to);
+}
+
+void
+move_instance_constraints_cmd(const Instance *from,
+                              const Instance *to)
+{
+  Sta::sta()->moveConstraints(from, to);
+}
+
+void
+move_net_constraints_cmd(const Net *from,
+                         const Net *to)
+{
+  Sta::sta()->moveConstraints(from, to);
+}
+
 Net *
 make_net_cmd(const char *name,
              Instance *parent)
@@ -70,7 +92,7 @@ make_net_cmd(const char *name,
 
 void
 make_port_pin_cmd(const char *port_name,
-                  PortDirection *dir)
+                  const PortDirection *dir)
 {
   Sta::sta()->makePortPin(port_name, dir);
 }

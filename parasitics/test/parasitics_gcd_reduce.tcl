@@ -20,7 +20,7 @@ source ../../test/helpers.tcl
 ############################################################
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
 
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 
 source ../../examples/gcd_sky130hd.sdc
@@ -29,7 +29,7 @@ source ../../examples/gcd_sky130hd.sdc
 # Test 1: Read large SPEF and run baseline
 ############################################################
 puts "--- Test 1: read GCD SPEF ---"
-read_spef ../../examples/gcd_sky130hd.spef
+read_spef ../../examples/gcd_sky130hd.spef.gz
 
 set_delay_calculator dmp_ceff_elmore
 report_checks -endpoint_count 3
@@ -107,7 +107,7 @@ foreach net_obj [get_nets *] {
 # Exercises reduce-during-read path
 ############################################################
 puts "--- Test 6: SPEF with -reduce ---"
-read_spef -reduce ../../examples/gcd_sky130hd.spef
+read_spef -reduce ../../examples/gcd_sky130hd.spef.gz
 
 report_checks -endpoint_count 2
 
@@ -139,7 +139,7 @@ foreach port_name {resp_val resp_rdy} {
 # Test 8: Re-read SPEF after load changes (exercises delete/re-create)
 ############################################################
 puts "--- Test 8: SPEF re-read ---"
-read_spef ../../examples/gcd_sky130hd.spef
+read_spef ../../examples/gcd_sky130hd.spef.gz
 
 report_checks -endpoint_count 2
 

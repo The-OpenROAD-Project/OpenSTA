@@ -1,0 +1,49 @@
+library (generated_clock_edges_redefine) {
+  delay_model : "table_lookup";
+  time_unit : "1ns";
+  voltage_unit : "1v";
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 30;
+  slew_lower_threshold_pct_fall : 30;
+  slew_upper_threshold_pct_rise : 70;
+  slew_upper_threshold_pct_fall : 70;
+  cell (CLK_EDGE_GEN) {
+    area : 10.0;
+    pin (CLK_IN) {
+      direction : input;
+      clock : true;
+    }
+    pin (CLK_OUT) {
+      direction : output;
+    }
+    generated_clock (edge_gen) {
+      clock_pin : CLK_OUT;
+      master_pin : CLK_IN;
+      edges(1, 3, 5);
+    }
+    timing () {
+      related_pin : CLK_IN;
+      timing_type : rising_edge;
+      intrinsic_rise : 10;
+      intrinsic_fall : 10;
+    }
+  }
+  cell (BUF) {
+    area : 1.0;
+    pin (A) {
+      direction : input;
+    }
+    pin (Z) {
+      direction : output;
+      function : "A";
+    }
+    timing () {
+      related_pin : A;
+      intrinsic_rise : 1;
+      intrinsic_fall : 1;
+    }
+  }
+}

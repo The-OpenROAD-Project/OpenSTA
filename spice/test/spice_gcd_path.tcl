@@ -2,10 +2,10 @@
 source ../../test/helpers.tcl
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
-read_spef ../../examples/gcd_sky130hd.spef
+read_spef ../../examples/gcd_sky130hd.spef.gz
 
 # Run timing
 report_checks

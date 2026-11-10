@@ -10,7 +10,7 @@ source ../../test/helpers.tcl
 #---------------------------------------------------------------
 puts "--- VCD reading test ---"
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 

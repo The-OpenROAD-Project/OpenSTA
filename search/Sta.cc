@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <map>
 #include <string>
 #include <utility>
@@ -66,6 +67,7 @@
 #include "Levelize.hh"
 #include "Liberty.hh"
 #include "LibertyClass.hh"
+#include "LibertyGenClk.hh"
 #include "LibertyWriter.hh"
 #include "Machine.hh"
 #include "MakeConcreteNetwork.hh"
@@ -125,6 +127,8 @@ libertyPortCapsEqual(const LibertyPort *port1,
 static bool
 hasDisabledArcs(Edge *edge,
                 const Mode *mode);
+static bool
+hasLibertyGenClks(Network *network);
 static InstanceSet
 pinInstances(PinSet &pins,
              const Network *network);
@@ -1233,11 +1237,13 @@ Sta::makeClock(std::string_view name,
                std::string_view comment,
                const Mode *mode)
 {
-  mode->sdc()->makeClock(name, pins, add_to_pins, period, waveform, comment);
+  Clock *clk = mode->sdc()->makeClock(name, pins, add_to_pins, period,
+                                      waveform, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
   power_->activitiesInvalid();
   mode->clkNetwork()->clkPinsInvalid();
+  makeLibertyGeneratedClocks(clk, mode);
 }
 
 void
@@ -1256,13 +1262,16 @@ Sta::makeGeneratedClock(std::string_view name,
                         std::string_view comment,
                         const Mode *mode)
 {
-  mode->sdc()->makeGeneratedClock(name, pins, add_to_pins, src_pin, master_clk,
-                                  divide_by, multiply_by, duty_cycle, invert,
-                                  combinational, edges, edge_shifts, comment);
+  Clock *clk = mode->sdc()->makeGeneratedClock(name, pins, add_to_pins, src_pin,
+                                               master_clk, divide_by,
+                                               multiply_by, duty_cycle, invert,
+                                               combinational, edges,
+                                               edge_shifts, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
   power_->activitiesInvalid();
   mode->clkNetwork()->clkPinsInvalid();
+  makeLibertyGeneratedClocks(clk, mode);
 }
 
 void
@@ -2044,14 +2053,10 @@ Sta::setInputDelay(const Pin *pin,
   search_->arrivalInvalid(pin);
   if (ref_pin) {
     // reference pins make graph edges from the ref pin to the input pin.
-    if (graph_) {
-      Vertex *vertex, *bidirect_vertex;
-      graph_->pinVertices(ref_pin, vertex, bidirect_vertex);
-      if (vertex)
+    if (graph_)
+      graph_->verticesApply(ref_pin, [this] (Vertex *vertex) {
         levelize_->relevelizeFrom(vertex);
-      if (bidirect_vertex)
-        levelize_->relevelizeFrom(bidirect_vertex);
-    }
+      });
   }
 }
 
@@ -3067,12 +3072,14 @@ Sta::delaysInvalid() const
 {
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  delay_noise_->noiseDelaysInvalid();
 }
 
 void
 Sta::arrivalsInvalid()
 {
   search_->arrivalsInvalid();
+  delay_noise_->noiseDelaysInvalid();
 }
 
 void
@@ -3212,16 +3219,12 @@ Sta::arrival(const Pin *pin,
              const MinMax *min_max)
 {
   ensureGraph();
-  Vertex *vertex, *bidirect_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_vertex);
   Arrival worst_arrival = min_max->initValue();
-  if (vertex)
-    worst_arrival = arrival(vertex, rf, scenes_, min_max);
-  if (bidirect_vertex) {
-    Arrival arrival2 = arrival(bidirect_vertex, rf, scenes_, min_max);
-    if (delayGreater(arrival2, worst_arrival, min_max, this))
-      worst_arrival = arrival2;
-  }
+  graph_->verticesApply(pin, [this, rf, min_max, &worst_arrival] (Vertex *vertex) {
+    Arrival arrival1 = arrival(vertex, rf, scenes_, min_max);
+    if (delayGreater(arrival1, worst_arrival, min_max, this))
+      worst_arrival = arrival1;
+  });
   return worst_arrival;
 }
 
@@ -3327,16 +3330,12 @@ Sta::slack(const Pin *pin,
            const MinMax *min_max)
 {
   ensureGraph();
-  Vertex *vertex, *bidirect_drvr_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slack min_slack = MinMax::min()->initValue();
-  if (vertex)
-    min_slack = slack(vertex, rf, scenes, min_max);
-  if (bidirect_drvr_vertex) {
-    Slack slack1 = slack(bidirect_drvr_vertex, rf, scenes, min_max);
+  graph_->verticesApply(pin, [this, rf, &scenes, min_max, &min_slack] (Vertex *vertex) {
+    Slack slack1 = slack(vertex, rf, scenes, min_max);
     if (delayLess(slack1, min_slack, this))
       min_slack = slack1;
-  }
+  });
   return min_slack;
 }
 
@@ -3511,14 +3510,11 @@ Sta::reportDelaysWrtClks(const Pin *pin,
                          const PathDelayFunc &get_path_delay)
 {
   ensureGraph();
-  Vertex *vertex, *bidir_vertex;
-  graph_->pinVertices(pin, vertex, bidir_vertex);
-  if (vertex)
+  graph_->verticesApply(pin, [this, scene, report_variance, digits, find_required,
+                              &get_path_delay] (Vertex *vertex) {
     reportDelaysWrtClks(vertex, scene, report_variance, digits,
                         find_required, get_path_delay);
-  if (bidir_vertex)
-    reportDelaysWrtClks(vertex, scene, report_variance, digits,
-                        find_required, get_path_delay);
+  });
 }
 
 void
@@ -3937,6 +3933,103 @@ Sta::updateGeneratedClks()
     }
   }
   update_genclks_ = false;
+}
+
+static bool
+hasLibertyGenClks(Network *network)
+{
+  LibertyLibraryIterator *lib_iter = network->libertyLibraryIterator();
+  while (lib_iter->hasNext()) {
+    LibertyLibrary *lib = lib_iter->next();
+    LibertyCellIterator cell_iter(lib);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      if (!cell->libertyGenClks().empty()) {
+        delete lib_iter;
+        return true;
+      }
+    }
+  }
+  delete lib_iter;
+  return false;
+}
+
+void
+Sta::makeLibertyGeneratedClocks(Clock *clk,
+                                const Mode *mode)
+{
+  Network *network = network_;
+  // ensureClkNetwork() levelizes. Skip that when no Liberty generated
+  // clocks exist so create_clock does not build the graph before
+  // set_input_delay -reference_pin can add ref_pin edges.
+  if (network->defaultLibertyLibrary() && hasLibertyGenClks(network)) {
+    Sdc *sdc = mode->sdc();
+    clkPinsInvalid(mode);
+    ensureClkNetwork(mode);
+    const PinSet *clk_pins = pins(clk, mode);
+    if (clk_pins) {
+      // Copy before makeGeneratedClock invalidates the clock-network pin set.
+      PinSet clk_network_pins(*clk_pins);
+
+      LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+      while (inst_iter->hasNext()) {
+        Instance *inst = inst_iter->next();
+        LibertyCell *cell = network->libertyCell(inst);
+        if (cell && !cell->libertyGenClks().empty()) {
+          for (LibertyGenClk *gen_clk : cell->libertyGenClks()) {
+            Pin *master_pin = network->findPin(inst, gen_clk->masterPin());
+            if (master_pin && clk_network_pins.count(master_pin) != 0) {
+              std::string inst_path = network->pathName(inst);
+              std::string gen_clk_name = sta::format("{}/{}", inst_path,
+                                                    gen_clk->clockPin());
+              debugPrint(debug_, "libgenclk", 1,
+                         "Creating generated clock {} from clock {} in instance {}",
+                         gen_clk_name, clk->name(), inst_path);
+
+              Pin *clk_out_pin = network->findPin(inst, gen_clk->clockPin());
+              PinSet clk_pins_out(network);
+              if (clk_out_pin)
+                clk_pins_out.insert(clk_out_pin);
+
+              IntSeq edges_copy;
+              if (gen_clk->edges())
+                edges_copy = *gen_clk->edges();
+              FloatSeq edge_shifts_copy;
+              if (gen_clk->edgeShifts())
+                edge_shifts_copy = *gen_clk->edgeShifts();
+
+              int divide_by = edges_copy.empty() ? gen_clk->dividedBy() : 0;
+              int multiply_by = edges_copy.empty() ? gen_clk->multipliedBy() : 0;
+              if (divide_by == 1 && multiply_by > 1)
+                divide_by = 0;
+
+              Clock *lib_gen_clk = sdc->makeGeneratedClock(gen_clk_name,
+                                                          clk_pins_out,
+                                                          true,
+                                                          master_pin,
+                                                          clk,
+                                                          divide_by,
+                                                          multiply_by,
+                                                          gen_clk->dutyCycle(),
+                                                          gen_clk->invert(),
+                                                          false,
+                                                          edges_copy,
+                                                          edge_shifts_copy,
+                                                          "");
+              update_genclks_ = true;
+              search_->arrivalsInvalid();
+              power_->activitiesInvalid();
+              mode->clkNetwork()->clkPinsInvalid();
+              // Nested Liberty generated clocks may hang off this new clock.
+              makeLibertyGeneratedClocks(lib_gen_clk, mode);
+            }
+          }
+        }
+      }
+      delete inst_iter;
+      updateGeneratedClks();
+    }
+  }
 }
 
 Level
@@ -4571,6 +4664,130 @@ Sta::replaceCell(Instance *inst,
   }
 }
 
+// Move set_disable_timing on graph edges to the edges between the
+// pins that map_pin maps their ends to. Pins that do not move map
+// to themselves. Edges without a matching edge are dropped.
+static bool
+moveDisabledEdges(Sdc *sdc,
+                  Graph *graph,
+                  bool wire_edges,
+                  const std::function<const Pin* (const Pin *pin)> &map_pin)
+{
+  EdgeSeq edges;
+  for (Edge *edge : *sdc->disabledEdges()) {
+    const Pin *from = edge->from(graph)->pin();
+    const Pin *to = edge->to(graph)->pin();
+    if (edge->role()->isWire() == wire_edges
+        && (map_pin(from) != from || map_pin(to) != to))
+      edges.push_back(edge);
+  }
+  for (Edge *edge : edges) {
+    sdc->removeDisable(edge);
+    const Pin *from = map_pin(edge->from(graph)->pin());
+    const Pin *to = map_pin(edge->to(graph)->pin());
+    Vertex *from_vertex = from ? graph->pinDrvrVertex(from) : nullptr;
+    Vertex *to_vertex = to ? graph->pinLoadVertex(to) : nullptr;
+    if (from_vertex && to_vertex) {
+      VertexOutEdgeIterator edge_iter(from_vertex, graph);
+      while (edge_iter.hasNext()) {
+        Edge *to_edge = edge_iter.next();
+        if (to_edge->to(graph) == to_vertex
+            && to_edge->role() == edge->role())
+          sdc->disable(to_edge);
+      }
+    }
+  }
+  return !edges.empty();
+}
+
+// Wire edges to and from the pin move with the pin.
+void
+Sta::moveConstraints(const Pin *from,
+                     const Pin *to)
+{
+  bool moved = false;
+  for (Mode *mode : modes_) {
+    Sdc *sdc = mode->sdc();
+    moved |= sdc->moveConstraints(from, to);
+    if (graph_)
+      moved |= moveDisabledEdges(sdc, graph_, true,
+                                 [from, to](const Pin *pin) {
+                                   return pin == from ? to : pin;
+                                 });
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs()) {
+      moved |= corner_sdc->moveConstraints(from, to);
+      if (graph_)
+        moved |= moveDisabledEdges(corner_sdc, graph_, true,
+                                   [from, to](const Pin *pin) {
+                                     return pin == from ? to : pin;
+                                   });
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
+  if (moved)
+    constraintsMoved();
+}
+
+// Timing arc edges of the instance move to the arcs between the pins
+// of to with the same port names.
+void
+Sta::moveConstraints(const Instance *from,
+                     const Instance *to)
+{
+  auto map_pin = [this, from, to](const Pin *pin) {
+    const Pin *to_pin = pin;
+    if (network_->instance(pin) == from)
+      to_pin = network_->findPin(to, network_->portName(pin));
+    return to_pin;
+  };
+  bool moved = false;
+  for (Mode *mode : modes_) {
+    Sdc *sdc = mode->sdc();
+    moved |= sdc->moveConstraints(from, to);
+    if (graph_)
+      moved |= moveDisabledEdges(sdc, graph_, false, map_pin);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs()) {
+      moved |= corner_sdc->moveConstraints(from, to);
+      if (graph_)
+        moved |= moveDisabledEdges(corner_sdc, graph_, false, map_pin);
+    }
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
+  if (moved)
+    constraintsMoved();
+}
+
+void
+Sta::moveConstraints(const Net *from,
+                     const Net *to)
+{
+  bool moved = false;
+  for (Mode *mode : modes_) {
+    moved |= mode->sdc()->moveConstraints(from, to);
+    // ---- OpenROAD fork: analysis_corner support (begin) ----
+    for (const auto [corner, corner_sdc] : mode->cornerSdcs())
+      moved |= corner_sdc->moveConstraints(from, to);
+    // ---- OpenROAD fork: analysis_corner support (end) ----
+  }
+  if (moved)
+    constraintsMoved();
+}
+
+void
+Sta::constraintsMoved()
+{
+  for (Mode *mode : modes_) {
+    mode->sim()->constantsInvalid();
+    mode->clkNetwork()->clkPinsInvalid();
+  }
+  update_genclks_ = true;
+  delaysInvalid();
+  search_->arrivalsInvalid();
+  power_->activitiesInvalid();
+}
+
 Net *
 Sta::makeNet(const char *name,
              Instance *parent)
@@ -4626,7 +4843,7 @@ Sta::disconnectPin(Pin *pin)
 
 void
 Sta::makePortPin(const char *port_name,
-                 PortDirection *dir)
+                 const PortDirection *dir)
 {
   ensureLinked();
   NetworkReader *network = dynamic_cast<NetworkReader *>(network_);
@@ -4996,6 +5213,26 @@ Sta::disconnectPinBefore(const Pin *pin)
   }
 }
 
+// Remove the edges of a vertex about to be deleted from
+// set_disable_timing edge disables.
+static void
+removeDisabledEdges(Vertex *vertex,
+                    Graph *graph,
+                    const ModeSeq &modes)
+{
+  for (Mode *mode : modes) {
+    Sdc *sdc = mode->sdc();
+    if (sdc->disabledEdges()->empty())
+      continue;
+    VertexInEdgeIterator in_edge_iter(vertex, graph);
+    while (in_edge_iter.hasNext())
+      sdc->removeDisable(in_edge_iter.next());
+    VertexOutEdgeIterator out_edge_iter(vertex, graph);
+    while (out_edge_iter.hasNext())
+      sdc->removeDisable(out_edge_iter.next());
+  }
+}
+
 void
 Sta::deleteEdge(Edge *edge)
 {
@@ -5011,6 +5248,8 @@ Sta::deleteEdge(Edge *edge)
     for (Mode *mode : modes_)
       mode->sdc()->clkHpinDisablesChanged(edge->from(graph_)->pin());
   }
+  for (Mode *mode : modes_)
+    mode->sdc()->removeDisable(edge);
   graph_->deleteEdge(edge);
 }
 
@@ -5039,13 +5278,17 @@ Sta::deleteNetBefore(const Net *net)
     }
     delete pin_iter;
   }
+  bool exceptions_deleted = false;
   for (Mode *mode : modes_) {
-    mode->sdc()->deleteNetBefore(net);
+    exceptions_deleted |= mode->sdc()->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
-      corner_sdc->deleteNetBefore(net);
+      exceptions_deleted |= corner_sdc->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  // Tags reference the deleted exceptions.
+  if (exceptions_deleted)
+    search_->arrivalsInvalid();
   for (auto [name, parasitics] : parasitics_name_map_)
     parasitics->deleteNetBefore(net);
   clk_skews_->clear();
@@ -5075,14 +5318,18 @@ Sta::deleteInstanceBefore(const Instance *inst)
 void
 Sta::deleteLeafInstanceBefore(const Instance *inst)
 {
+  bool exceptions_deleted = false;
   for (Mode *mode : modes_) {
     mode->sim()->deleteInstanceBefore(inst);
-    mode->sdc()->deleteInstanceBefore(inst);
+    exceptions_deleted |= mode->sdc()->deleteInstanceBefore(inst);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
-      corner_sdc->deleteInstanceBefore(inst);
+      exceptions_deleted |= corner_sdc->deleteInstanceBefore(inst);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  // Tags reference the deleted exceptions.
+  if (exceptions_deleted)
+    search_->arrivalsInvalid();
   clk_skews_->clear();
   power_->powerInvalid();
 }
@@ -5122,6 +5369,7 @@ Sta::deletePinBefore(const Pin *pin)
           levelize_->deleteEdgeBefore(edge);
         }
         // Deletes edges to/from vertex also.
+        removeDisabledEdges(vertex, graph_, modes_);
         graph_->deleteVertex(vertex);
       }
     }
@@ -5145,6 +5393,7 @@ Sta::deletePinBefore(const Pin *pin)
           levelize_->deleteEdgeBefore(edge);
         }
         // Deletes edges to/from vertex also.
+        removeDisabledEdges(vertex, graph_, modes_);
         graph_->deleteVertex(vertex);
       }
     }
@@ -5155,26 +5404,56 @@ Sta::deletePinBefore(const Pin *pin)
         levelize_->deleteVertexBefore(vertex);
         graph_delay_calc_->deleteVertexBefore(vertex);
         search_->deleteVertexBefore(vertex);
+        removeDisabledEdges(vertex, graph_, modes_);
         graph_->deleteVertex(vertex);
       }
     }
   }
+  deletePinConstraintsBefore(pin);
+}
 
+// Delete the SDC constraints on the pin in every mode.
+void
+Sta::deletePinConstraintsBefore(const Pin *pin)
+{
   bool port_delay_deleted = false;
+  bool exceptions_deleted = false;
+  bool constant_deleted = false;
+  bool clk_deleted = false;
   for (const Mode *mode : modes_) {
     port_delay_deleted |= mode->sdc()->hasPortDelays(pin);
-    mode->sdc()->deletePinBefore(pin);
+    // Generated clocks sourced from the pin are removed.
+    clk_deleted |= std::ranges::any_of(mode->sdc()->clocks(),
+                                       [pin](const Clock *clk) {
+                                         return clk->srcPin() == pin;
+                                       });
+    bool has_logic_value = mode->sdc()->hasLogicValue(pin);
+    exceptions_deleted |= mode->sdc()->deletePinBefore(pin);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
-      corner_sdc->deletePinBefore(pin);
+      exceptions_deleted |= corner_sdc->deletePinBefore(pin);
     // ---- OpenROAD fork: analysis_corner support (end) ----
     mode->sim()->deletePinBefore(pin);
+    // Constants propagated from the pin's case/logic value are stale.
+    if (has_logic_value)
+      mode->sim()->constantsInvalid();
+    constant_deleted |= has_logic_value;
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  // Constants disable edges, so invalidate all delays as in removeCaseAnalysis.
+  if (constant_deleted)
+    delaysInvalid();
   power_->deletePinBefore(pin);
-  // Tags on pins downstream from input delays reference the input delay.
-  if (port_delay_deleted)
+  // Tags on pins downstream from input delays reference the input delay,
+  // and tags reference exceptions.
+  if (port_delay_deleted || exceptions_deleted)
     search_->arrivalsInvalid();
+  if (clk_deleted) {
+    for (const Mode *mode : modes_)
+      mode->clkNetwork()->clkPinsInvalid();
+    update_genclks_ = true;
+    power_->activitiesInvalid();
+  }
 }
 
 void
@@ -5204,11 +5483,9 @@ void
 Sta::delaysInvalidFrom(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    delaysInvalidFrom(vertex);
-    if (bidirect_drvr_vertex)
-      delaysInvalidFrom(bidirect_drvr_vertex);
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
+      delaysInvalidFrom(vertex);
+    });
   }
 }
 
@@ -5226,11 +5503,9 @@ Sta::delaysInvalidFromFanin(const Port *port)
   if (graph_) {
     Instance *top_inst = network_->topInstance();
     Pin *pin = network_->findPin(top_inst, port);
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    delaysInvalidFromFanin(vertex);
-    if (bidirect_drvr_vertex)
-      delaysInvalidFromFanin(bidirect_drvr_vertex);
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
+      delaysInvalidFromFanin(vertex);
+    });
   }
 }
 
@@ -5238,12 +5513,9 @@ void
 Sta::delaysInvalidFromFanin(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
       delaysInvalidFromFanin(vertex);
-    if (bidirect_drvr_vertex)
-      delaysInvalidFromFanin(bidirect_drvr_vertex);
+    });
   }
 }
 
@@ -5255,12 +5527,9 @@ Sta::delaysInvalidFromFanin(const Net *net)
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
       if (!network_->isHierarchical(pin)) {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        if (vertex)
+        graph_->verticesApply(pin, [this] (Vertex *vertex) {
           delaysInvalidFrom(vertex);
-        if (bidirect_drvr_vertex)
-          delaysInvalidFrom(bidirect_drvr_vertex);
+        });
       }
     }
     delete pin_iter;
@@ -5529,7 +5798,7 @@ Sta::findFaninPins(Vertex *vertex,
                    SearchPred &pred,
                    const Mode *mode)
 {
-  VertexSet visited = makeVertexSet(this);
+  VertexSet visited(graph_);
   findFaninPins(vertex, flat, inst_levels, pin_levels, visited, &pred, 0, 0, mode);
   for (Vertex *visited_vertex : visited) {
     Pin *visited_pin = visited_vertex->pin();
@@ -5630,7 +5899,7 @@ Sta::findFanoutPins(Vertex *vertex,
                     SearchPred &pred,
                     const Mode *mode)
 {
-  VertexSet visited = makeVertexSet(this);
+  VertexSet visited(graph_);
   findFanoutPins(vertex, flat, inst_levels, pin_levels, visited, &pred, 0, 0, mode);
   for (Vertex *visited_vertex : visited) {
     Pin *visited_pin = visited_vertex->pin();
@@ -6250,12 +6519,14 @@ Sta::activity(const Pin *pin,
 void
 Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
                           float min_coupling_ratio,
-                          const Scene *scene,
+                           const SceneSeq scenes,
                           const MinMaxAll *min_max)
 {
-  noiseDelayPreamble();
-  delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
-                                    min_coupling_ratio, scene, min_max);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->annotateNoiseDelays(min_coupling_sum_ratio,
+                                      min_coupling_ratio, scenes, min_max);
+  }
 }
 
 void
@@ -6267,11 +6538,13 @@ Sta::reportNoiseDelays(size_t max_count,
                        const MinMaxAll *min_max,
                        int digits)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(max_count, drvr_rf, min_coupling_sum_ratio,
-                                  min_coupling_ratio, scene, min_max, digits);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->reportNoiseDelays(max_count, drvr_rf, min_coupling_sum_ratio,
+                                    min_coupling_ratio, scene, min_max, digits);
+  }
 }
-
+ 
 void
 Sta::reportNoiseDelays(const Net *net,
                        const RiseFallBoth *drvr_rf,
@@ -6280,9 +6553,12 @@ Sta::reportNoiseDelays(const Net *net,
                        const MinMaxAll *min_max,
                        int digits)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene,
-                                  min_max, digits);
+  if (libraryHasCcsModels()) {
+    delay_noise_->removeNoiseAnnotations();
+    noiseDelayPreamble();
+    delay_noise_->reportNoiseDelays(net, drvr_rf, min_coupling_ratio, scene,
+                                    min_max, digits);
+  }
 }
 
 void
@@ -6291,8 +6567,10 @@ Sta::reportNoiseDelays(ArcDcalcArgSeq gates,
                        const MinMax *min_max,
                        int digits)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportNoiseDelays(gates, scene, min_max, digits);
+  if (libraryHasCcsModels()) {
+    noiseDelayPreamble();
+    delay_noise_->reportNoiseDelays(gates, scene, min_max, digits);
+  }
 }
 
 void
@@ -6300,8 +6578,9 @@ Sta::reportVictimNets(float min_coupling_ratio,
                       const Scene *scene,
                       const MinMax *min_max)
 {
-  noiseDelayPreamble();
-  delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
+  // No delay calc or arrival dependence.
+  if (libraryHasCcsModels())
+    delay_noise_->reportVictimNets(min_coupling_ratio, scene, min_max);
 }
 
 void
@@ -6310,6 +6589,8 @@ Sta::reportAggressors(const Net *victim,
                       const Scene *scene,
                       const MinMax *min_max)
 {
+  // Non-noise delays necessary for arrivals to find timing window overlap.
+  delay_noise_->removeNoiseAnnotations();
   noiseDelayPreamble();
   delay_noise_->reportAggressors(victim, min_coupling_ratio, scene, min_max);
 }
@@ -6334,37 +6615,28 @@ Sta::writeNoiseDelayCase(const Net *net,
 void
 Sta::noiseDelayPreamble()
 {
-  checkLibraryCcs();
   // Arrivals required to filter aggressors.
   searchPreamble();
   search_->findArrivals();
 }
 
-void
-Sta::checkLibraryCcs()
+bool
+Sta::libraryHasCcsModels() const
 {
   LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
   while (lib_iter->hasNext()) {
     LibertyLibrary *lib = lib_iter->next();
-    LibertyCellIterator cell_iter(lib);
-    while (cell_iter.hasNext()) {
-      LibertyCell *cell = cell_iter.next();
-      for (const TimingArcSet *arc_set : cell->timingArcSets()) {
-        for (const TimingArc *arc : arc_set->arcs()) {
-          GateTableModel *gate_model = arc->gateTableModel();
-          if (gate_model
-              && gate_model->outputWaveforms() != nullptr) {
-            delete lib_iter;
-            return;
-          }
-        }
-      }
+    if (lib->hasCcsModels()) {
+      delete lib_iter;
+      return true;
     }
   }
   delete lib_iter;
   report_->warn(1579, "No liberty CCS models found.");
+  return false;
 }
 
+// External api for tcl debug.
 ArcDcalcArgSeq
 Sta::makeDcalcArgs(const Net *net,
                    const RiseFall *drvr_rf,
