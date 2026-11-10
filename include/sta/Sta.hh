@@ -1296,7 +1296,7 @@ public:
   // are deleted. Constraints already on the replacing ones are replaced.
   void moveConstraints(const PinPairSeq &pins,
                        const InstancePairSeq &insts,
-                       const NetPairSeq &nets);
+                       const NetPairSeq &nets = {});
   virtual Net *makeNet(const char *name,
                        Instance *parent);
   virtual void deleteNet(Net *net);

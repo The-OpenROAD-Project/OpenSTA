@@ -454,12 +454,18 @@ Sdc::deleteNetBefore(const Net *net)
 bool
 Sdc::deleteInstanceBefore(const Instance *inst)
 {
-  instance_pvt_maps_[MinMax::minIndex()].erase(inst);
-  instance_pvt_maps_[MinMax::maxIndex()].erase(inst);
+  for (InstancePvtMap &pvt_map : instance_pvt_maps_) {
+    delete findKey(pvt_map, inst);
+    pvt_map.erase(inst);
+  }
+  delete findKey(inst_derating_factors_, inst);
   inst_derating_factors_.erase(inst);
+  delete findKey(inst_clk_gating_check_map_, inst);
   inst_clk_gating_check_map_.erase(inst);
+  delete findKey(disabled_inst_ports_, inst);
   disabled_inst_ports_.erase(inst);
   inst_latch_borrow_limit_map_.erase(inst);
+  delete findKey(inst_min_pulse_width_map_, inst);
   inst_min_pulse_width_map_.erase(inst);
   disabled_clk_gating_checks_inst_.erase(inst);
 

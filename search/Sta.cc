@@ -5309,8 +5309,14 @@ Sta::deletePinBefore(const Pin *pin)
   bool port_delay_deleted = false;
   bool exceptions_deleted = false;
   bool constant_deleted = false;
+  bool clk_deleted = false;
   for (const Mode *mode : modes_) {
     port_delay_deleted |= mode->sdc()->hasPortDelays(pin);
+    // Generated clocks sourced from the pin are removed.
+    clk_deleted |= std::ranges::any_of(mode->sdc()->clocks(),
+                                       [pin](const Clock *clk) {
+                                         return clk->srcPin() == pin;
+                                       });
     bool has_logic_value = mode->sdc()->hasLogicValue(pin);
     exceptions_deleted |= mode->sdc()->deletePinBefore(pin);
     mode->sim()->deletePinBefore(pin);
@@ -5328,6 +5334,8 @@ Sta::deletePinBefore(const Pin *pin)
   // and tags reference exceptions.
   if (port_delay_deleted || exceptions_deleted)
     search_->arrivalsInvalid();
+  if (clk_deleted)
+    power_->activitiesInvalid();
 }
 
 void
