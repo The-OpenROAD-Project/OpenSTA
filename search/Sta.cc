@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <map>
 #include <string>
 #include <utility>
@@ -4663,6 +4664,108 @@ Sta::replaceCell(Instance *inst,
   }
 }
 
+// Move set_disable_timing on graph edges to the edges between the
+// pins that map_pin maps their ends to. Pins that do not move map
+// to themselves. Edges without a matching edge are dropped.
+static bool
+moveDisabledEdges(Sdc *sdc,
+                  Graph *graph,
+                  bool wire_edges,
+                  const std::function<const Pin* (const Pin *pin)> &map_pin)
+{
+  EdgeSeq edges;
+  for (Edge *edge : *sdc->disabledEdges()) {
+    const Pin *from = edge->from(graph)->pin();
+    const Pin *to = edge->to(graph)->pin();
+    if (edge->role()->isWire() == wire_edges
+        && (map_pin(from) != from || map_pin(to) != to))
+      edges.push_back(edge);
+  }
+  for (Edge *edge : edges) {
+    sdc->removeDisable(edge);
+    const Pin *from = map_pin(edge->from(graph)->pin());
+    const Pin *to = map_pin(edge->to(graph)->pin());
+    Vertex *from_vertex = from ? graph->pinDrvrVertex(from) : nullptr;
+    Vertex *to_vertex = to ? graph->pinLoadVertex(to) : nullptr;
+    if (from_vertex && to_vertex) {
+      VertexOutEdgeIterator edge_iter(from_vertex, graph);
+      while (edge_iter.hasNext()) {
+        Edge *to_edge = edge_iter.next();
+        if (to_edge->to(graph) == to_vertex
+            && to_edge->role() == edge->role())
+          sdc->disable(to_edge);
+      }
+    }
+  }
+  return !edges.empty();
+}
+
+// Wire edges to and from the pin move with the pin.
+void
+Sta::moveConstraints(const Pin *from,
+                     const Pin *to)
+{
+  bool moved = false;
+  for (Mode *mode : modes_) {
+    Sdc *sdc = mode->sdc();
+    moved |= sdc->moveConstraints(from, to);
+    if (graph_)
+      moved |= moveDisabledEdges(sdc, graph_, true,
+                                 [from, to](const Pin *pin) {
+                                   return pin == from ? to : pin;
+                                 });
+  }
+  if (moved)
+    constraintsMoved();
+}
+
+// Timing arc edges of the instance move to the arcs between the pins
+// of to with the same port names.
+void
+Sta::moveConstraints(const Instance *from,
+                     const Instance *to)
+{
+  auto map_pin = [this, from, to](const Pin *pin) {
+    const Pin *to_pin = pin;
+    if (network_->instance(pin) == from)
+      to_pin = network_->findPin(to, network_->portName(pin));
+    return to_pin;
+  };
+  bool moved = false;
+  for (Mode *mode : modes_) {
+    Sdc *sdc = mode->sdc();
+    moved |= sdc->moveConstraints(from, to);
+    if (graph_)
+      moved |= moveDisabledEdges(sdc, graph_, false, map_pin);
+  }
+  if (moved)
+    constraintsMoved();
+}
+
+void
+Sta::moveConstraints(const Net *from,
+                     const Net *to)
+{
+  bool moved = false;
+  for (Mode *mode : modes_)
+    moved |= mode->sdc()->moveConstraints(from, to);
+  if (moved)
+    constraintsMoved();
+}
+
+void
+Sta::constraintsMoved()
+{
+  for (Mode *mode : modes_) {
+    mode->sim()->constantsInvalid();
+    mode->clkNetwork()->clkPinsInvalid();
+  }
+  update_genclks_ = true;
+  delaysInvalid();
+  search_->arrivalsInvalid();
+  power_->activitiesInvalid();
+}
+
 Net *
 Sta::makeNet(const char *name,
              Instance *parent)
@@ -5088,6 +5191,26 @@ Sta::disconnectPinBefore(const Pin *pin)
   }
 }
 
+// Remove the edges of a vertex about to be deleted from
+// set_disable_timing edge disables.
+static void
+removeDisabledEdges(Vertex *vertex,
+                    Graph *graph,
+                    const ModeSeq &modes)
+{
+  for (Mode *mode : modes) {
+    Sdc *sdc = mode->sdc();
+    if (sdc->disabledEdges()->empty())
+      continue;
+    VertexInEdgeIterator in_edge_iter(vertex, graph);
+    while (in_edge_iter.hasNext())
+      sdc->removeDisable(in_edge_iter.next());
+    VertexOutEdgeIterator out_edge_iter(vertex, graph);
+    while (out_edge_iter.hasNext())
+      sdc->removeDisable(out_edge_iter.next());
+  }
+}
+
 void
 Sta::deleteEdge(Edge *edge)
 {
@@ -5103,6 +5226,8 @@ Sta::deleteEdge(Edge *edge)
     for (Mode *mode : modes_)
       mode->sdc()->clkHpinDisablesChanged(edge->from(graph_)->pin());
   }
+  for (Mode *mode : modes_)
+    mode->sdc()->removeDisable(edge);
   graph_->deleteEdge(edge);
 }
 
@@ -5131,13 +5256,17 @@ Sta::deleteNetBefore(const Net *net)
     }
     delete pin_iter;
   }
+  bool exceptions_deleted = false;
   for (Mode *mode : modes_) {
-    mode->sdc()->deleteNetBefore(net);
+    exceptions_deleted |= mode->sdc()->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
-      corner_sdc->deleteNetBefore(net);
+      exceptions_deleted |= corner_sdc->deleteNetBefore(net);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  // Tags reference the deleted exceptions.
+  if (exceptions_deleted)
+    search_->arrivalsInvalid();
   for (auto [name, parasitics] : parasitics_name_map_)
     parasitics->deleteNetBefore(net);
   clk_skews_->clear();
@@ -5167,14 +5296,18 @@ Sta::deleteInstanceBefore(const Instance *inst)
 void
 Sta::deleteLeafInstanceBefore(const Instance *inst)
 {
+  bool exceptions_deleted = false;
   for (Mode *mode : modes_) {
     mode->sim()->deleteInstanceBefore(inst);
-    mode->sdc()->deleteInstanceBefore(inst);
+    exceptions_deleted |= mode->sdc()->deleteInstanceBefore(inst);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
-      corner_sdc->deleteInstanceBefore(inst);
+      exceptions_deleted |= corner_sdc->deleteInstanceBefore(inst);
     // ---- OpenROAD fork: analysis_corner support (end) ----
   }
+  // Tags reference the deleted exceptions.
+  if (exceptions_deleted)
+    search_->arrivalsInvalid();
   clk_skews_->clear();
   power_->powerInvalid();
 }
@@ -5214,6 +5347,7 @@ Sta::deletePinBefore(const Pin *pin)
           levelize_->deleteEdgeBefore(edge);
         }
         // Deletes edges to/from vertex also.
+        removeDisabledEdges(vertex, graph_, modes_);
         graph_->deleteVertex(vertex);
       }
     }
@@ -5237,6 +5371,7 @@ Sta::deletePinBefore(const Pin *pin)
           levelize_->deleteEdgeBefore(edge);
         }
         // Deletes edges to/from vertex also.
+        removeDisabledEdges(vertex, graph_, modes_);
         graph_->deleteVertex(vertex);
       }
     }
@@ -5247,26 +5382,56 @@ Sta::deletePinBefore(const Pin *pin)
         levelize_->deleteVertexBefore(vertex);
         graph_delay_calc_->deleteVertexBefore(vertex);
         search_->deleteVertexBefore(vertex);
+        removeDisabledEdges(vertex, graph_, modes_);
         graph_->deleteVertex(vertex);
       }
     }
   }
+  deletePinConstraintsBefore(pin);
+}
 
+// Delete the SDC constraints on the pin in every mode.
+void
+Sta::deletePinConstraintsBefore(const Pin *pin)
+{
   bool port_delay_deleted = false;
+  bool exceptions_deleted = false;
+  bool constant_deleted = false;
+  bool clk_deleted = false;
   for (const Mode *mode : modes_) {
     port_delay_deleted |= mode->sdc()->hasPortDelays(pin);
-    mode->sdc()->deletePinBefore(pin);
+    // Generated clocks sourced from the pin are removed.
+    clk_deleted |= std::ranges::any_of(mode->sdc()->clocks(),
+                                       [pin](const Clock *clk) {
+                                         return clk->srcPin() == pin;
+                                       });
+    bool has_logic_value = mode->sdc()->hasLogicValue(pin);
+    exceptions_deleted |= mode->sdc()->deletePinBefore(pin);
     // ---- OpenROAD fork: analysis_corner support (begin) ----
     for (const auto [corner, corner_sdc] : mode->cornerSdcs())
-      corner_sdc->deletePinBefore(pin);
+      exceptions_deleted |= corner_sdc->deletePinBefore(pin);
     // ---- OpenROAD fork: analysis_corner support (end) ----
     mode->sim()->deletePinBefore(pin);
+    // Constants propagated from the pin's case/logic value are stale.
+    if (has_logic_value)
+      mode->sim()->constantsInvalid();
+    constant_deleted |= has_logic_value;
     mode->clkNetwork()->deletePinBefore(pin);
   }
+  // Constants disable edges, so invalidate all delays as in removeCaseAnalysis.
+  if (constant_deleted)
+    delaysInvalid();
   power_->deletePinBefore(pin);
-  // Tags on pins downstream from input delays reference the input delay.
-  if (port_delay_deleted)
+  // Tags on pins downstream from input delays reference the input delay,
+  // and tags reference exceptions.
+  if (port_delay_deleted || exceptions_deleted)
     search_->arrivalsInvalid();
+  if (clk_deleted) {
+    for (const Mode *mode : modes_)
+      mode->clkNetwork()->clkPinsInvalid();
+    update_genclks_ = true;
+    power_->activitiesInvalid();
+  }
 }
 
 void

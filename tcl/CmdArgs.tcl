@@ -123,52 +123,52 @@ proc get_object_args { objects clks_var libcells_var libports_var \
         set matches [get_clocks -quiet $obj]
       }
       if { $matches != {} } {
-        set clks [concat $clks $matches]
+        lappend clks {*}$matches
       } else {
         if { $libcells_var != {} } {
           set matches [get_lib_cells -quiet $obj]
         }
         if { $matches != {} } {
-          set libcells [concat $libcells $matches]
+          lappend libcells {*}$matches
         } else {
           
           if { $libports_var != {} } {
             set matches [get_lib_pins -quiet $obj]
           }
           if { $matches != {} } {
-            set libports [concat $libports $matches]
+            lappend libports {*}$matches
           } else {
             
             if { $cells_var != {} } {
               set matches [find_cells_matching $obj 0 0]
             }
             if { $matches != {} } {
-              set cells [concat $cells $matches]
+              lappend cells {*}$matches
             } else {
               
               if { $insts_var != {} } {
                 set matches [get_cells -quiet $obj]
               }
               if { $matches != {} } {
-                set insts [concat $insts $matches]
+                lappend insts {*}$matches
               } else {
                 if { $ports_var != {} } {
                   set matches [get_ports -quiet $obj]
                 }
                 if { $matches != {} }  {
-                  set ports [concat $ports $matches]
+                  lappend ports {*}$matches
                 } else {
                   if { $pins_var != {} } {
                     set matches [get_pins -quiet $obj]
                   }
                   if { $matches != {} } {
-                    set pins [concat $pins $matches]
+                    lappend pins {*}$matches
                   } else {
                     if { $nets_var != {} } {
                       set matches [get_nets -quiet $obj]
                     }
                     if { $matches != {} } {
-                      set nets [concat $nets $matches]
+                      lappend nets {*}$matches
                     } else {
                       sta_warn 101 "object '$obj' not found."
                     }

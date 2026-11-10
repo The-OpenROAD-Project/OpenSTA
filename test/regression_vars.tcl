@@ -190,6 +190,7 @@ record_public_tests {
   liberty_retain
   make_concrete_parasitics_leak
   max_power_area
+  multicycle_path_through_list
   noise_case
   non_seq_timing
   package_require
@@ -211,6 +212,11 @@ record_public_tests {
   report_checks_src_attr
   report_json1
   report_json2
+  sdc_hpin_delete
+  sdc_move_constraints
+  sdc_move_hpin
+  sdc_net_delete
+  sdc_pin_delete
   set_max_time_borrow_pg_pin
   set_path_margin1
   set_path_margin2

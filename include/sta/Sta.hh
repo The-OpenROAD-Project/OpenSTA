@@ -37,6 +37,7 @@
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
+#include "PinPair.hh"
 #include "PowerClass.hh"
 #include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
@@ -1332,6 +1333,15 @@ public:
                            Cell *to_cell);
   virtual void replaceCell(Instance *inst,
                            LibertyCell *to_lib_cell);
+  // Move the SDC constraints on a pin, instance or net being replaced
+  // to the one that replaces it, before the replaced one is deleted.
+  // Instance ports are matched by name.
+  void moveConstraints(const Pin *from,
+                       const Pin *to);
+  void moveConstraints(const Instance *from,
+                       const Instance *to);
+  void moveConstraints(const Net *from,
+                       const Net *to);
   virtual Net *makeNet(const char *name,
                        Instance *parent);
   virtual void deleteNet(Net *net);
@@ -1610,6 +1620,8 @@ public:
   ////////////////////////////////////////////////////////////////
 
 protected:
+  void constraintsMoved();
+  void deletePinConstraintsBefore(const Pin *pin);
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.

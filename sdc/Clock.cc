@@ -102,6 +102,12 @@ Clock::setMasterClk(Clock *master)
 }
 
 void
+Clock::setSrcPin(Pin *src_pin)
+{
+  src_pin_ = src_pin;
+}
+
+void
 Clock::makeClkEdges()
 {
   for (const RiseFall *rf : RiseFall::range()) {

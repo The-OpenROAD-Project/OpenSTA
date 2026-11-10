@@ -1,0 +1,43 @@
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out1 (output)                           9.00   83.94  -74.94 (VIOLATED)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out1 (output)                           9.00   63.94  -54.94 (VIOLATED)
+
+sub1/u1/Y reg1/CLK constraint
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_hpin_delete
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 10.0000 [get_ports {clk}]
+set_clock_latency 20.0000 [get_pins {sub1/in}]
+set_input_delay 1.0000 -clock [get_clocks {clk}] -add_delay [get_ports {in1}]
+set_input_delay 1.0000 -clock [get_clocks {clk}] -add_delay [get_ports {in2}]
+set_output_delay 1.0000 -clock [get_clocks {clk}] -add_delay [get_ports {out1}]
+set_output_delay 1.0000 -clock [get_clocks {clk}] -add_delay [get_ports {out2}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################
+No paths found.
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+out2 (output)                           9.00   15.24   -6.24 (VIOLATED)
+
