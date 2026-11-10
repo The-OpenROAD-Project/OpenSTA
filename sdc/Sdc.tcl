@@ -517,7 +517,7 @@ proc get_cells { args } {
         if { [object_type $pattern] != "Instance" } {
           sta_error 326 "object '$pattern' is not an instance."
         }
-        set insts [concat $insts $pattern]
+        lappend insts $pattern
       } else {
         if { $divider != $hierarchy_separator } {
           regsub $divider $pattern $hierarchy_separator pattern
@@ -530,7 +530,7 @@ proc get_cells { args } {
         if { $matches == {} && !$quiet} {
           sta_warn 349 "instance '$pattern' not found."
         }
-        set insts [concat $insts $matches]
+        lappend insts {*}$matches
       }
     }
   }
@@ -575,11 +575,11 @@ proc get_clocks { args } {
       if { [object_type $pattern] != "Clock" } {
         sta_error 327 "object '$pattern' is not an clock."
       }
-      set clocks [concat $clocks $pattern]
+      lappend clocks $pattern
     } else {
       set matches [find_clocks_matching $pattern $regexp $nocase]
       if { $matches != {} } {
-        set clocks [concat $clocks $matches]
+        lappend clocks {*}$matches
       } else {
         if {![info exists flags(-quiet)]} {
           sta_warn 351 "clock '$pattern' not found."
@@ -651,7 +651,7 @@ proc get_lib_cells { args } {
         if { [object_type $pattern] != "LibertyCell" } {
           sta_error 328 "object '$pattern' is not a liberty cell."
         }
-        set cells [concat $cells $pattern]
+        lappend cells $pattern
       } else {
         if { ![regexp $cell_regexp $pattern ignore lib_name cell_pattern]} {
           set lib_name "*"
@@ -668,7 +668,7 @@ proc get_lib_cells { args } {
             set matches [$lib find_liberty_cells_matching $cell_pattern \
                          $regexp $nocase]
             if {$matches != {}} {
-              set cells [concat $cells $matches]
+              lappend cells {*}$matches
             }
           }
           if { $cells == {} } {
@@ -751,7 +751,7 @@ proc get_lib_pins { args } {
         if { [object_type $pattern] != "LibertyPort" } {
           sta_error 329 "object '$pattern' is not a liberty pin."
         }
-        set ports [concat $ports $pattern]
+        lappend ports $pattern
       } else {
         # match library/cell/port
         set libs {}
@@ -844,11 +844,11 @@ proc get_libs { args } {
       if { [object_type $pattern] != "LibertyLibrary" } {
         sta_error 330 "object '$pattern' is not a liberty library."
       }
-      set libs [concat $libs $pattern]
+      lappend libs $pattern
     } else {
       set matches [find_liberty_libraries_matching $pattern $regexp $nocase]
       if {$matches != {}} {
-        set libs [concat $libs $matches]
+        lappend libs {*}$matches
       } else {
         if {![info exists flags(-quiet)]} {
           sta_warn 359 "library '$pattern' not found."
@@ -956,14 +956,14 @@ proc get_nets { args } {
         if { [object_type $pattern] != "Net" } {
           sta_error 331 "object '$pattern' is not a net."
         }
-        set nets [concat $nets $pattern]
+        lappend nets $pattern
       } else {
         if { $hierarchical } {
           set matches [find_nets_hier_matching $pattern $regexp $nocase]
         } else {
           set matches [find_nets_matching $pattern $regexp $nocase]
         }
-        set nets [concat $nets $matches]
+        lappend nets {*}$matches
         if { $matches == {} && !$quiet } {
           sta_warn 361 "net '$pattern' not found."
         }
@@ -1061,7 +1061,7 @@ proc get_pins { args } {
         if { [object_type $pattern] != "Pin" } {
           sta_error 332 "object '$pattern' is not a pin."
         }
-        set pins [concat $pins $pattern]
+        lappend pins $pattern
       } else {
         if { $hierarchical } {
           set matches [find_pins_hier_matching $pattern $regexp $nocase]
@@ -1125,7 +1125,7 @@ proc get_ports { args } {
     }
     set nets [get_nets_arg "objects" $keys(-of_objects)]
     foreach net $nets {
-      set ports [concat $ports [$net ports]]
+      lappend ports {*}[$net ports]
     }
   } else {
     check_argc_eq0or1 "get_ports" $args
@@ -1134,11 +1134,11 @@ proc get_ports { args } {
         if { [object_type $pattern] != "Port" } {
           sta_error 333 "object '$pattern' is not a port."
         }
-        set ports [concat $ports $pattern]
+        lappend ports $pattern
       } else {
         set matches [find_ports_matching $pattern $regexp $nocase]
         if { $matches != {} } {
-          set ports [concat $ports $matches]
+          lappend ports {*}$matches
         } else {
           if {![info exists flags(-quiet)]} {
             sta_warn 366 "port '$pattern' not found."
