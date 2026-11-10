@@ -39,6 +39,7 @@
 // propagation copies them to the loads, so report_power uses them unchanged.
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -58,6 +59,7 @@
 #include "Scene.hh"
 #include "Sdc.hh"
 #include "Sequential.hh"
+#include "Units.hh"
 #include "search/Sim.hh"
 
 namespace sta {
@@ -167,8 +169,9 @@ public:
     unsigned bits = static_cast<unsigned>(prob * 65536.0F + 0.5F);
     if (bits >= 65536)
       return ~Word(0);
+    // Bits below the lowest set bit only AND into zero.
     Word word = 0;
-    for (int i = 0; i < 16; i++)
+    for (int i = std::countr_zero(bits); i < 16; i++)
       word = ((bits >> i) & 1) ? (word | next()) : (word & next());
     return word;
   }
@@ -237,7 +240,7 @@ private:
   // clocks defined on cell pins. Their drivers are not evaluated.
   std::vector<bool> pinned_;
   int clock_gate_other_ = 0;
-  int clock_gate_count_ = 0;
+  int cell_count_ = 0;
   // Constant 1 for undriven pins tied high, created on first use.
   int const_one_ = -1;
   // Sources for loads without a driver (floating or black box nets).
@@ -262,7 +265,6 @@ private:
   std::vector<Word> stack_;
   std::vector<TapeInstr> eval_tape_;
   std::vector<TapeInstr> next_tape_;
-  size_t node_count_ = 0;
   std::vector<int> macro_signals_;
   size_t max_stack_ = 1;
   std::vector<uint64_t> toggles_;
@@ -517,7 +519,7 @@ ActivitySim::addInstance(const Instance *inst)
                                {negedge ? TapeOp::or_ : TapeOp::and_, 0}}});
       nodes_.push_back(std::move(node));
       nodes_.push_back(std::move(gate));
-      clock_gate_count_++;
+      cell_count_++;
       return;
     }
   }
@@ -557,19 +559,23 @@ ActivitySim::addInstance(const Instance *inst)
     for (auto [pin, port] : outputs) {
       LibertyPort *sport = port ? seqPort(port) : nullptr;
       FuncExpr *func = sport ? sport->function() : nullptr;
-      size_t owner = first_node;
       if (func) {
+        size_t owner = first_node;
         for (size_t i = 0; i < seqs->size(); i++) {
           const Sequential &seq = (*seqs)[i];
           if ((seq.output() && func->hasPort(seq.output()))
               || (seq.outputInv() && func->hasPort(seq.outputInv())))
             owner = first_node + i;
         }
+        SimNode &node = nodes_[owner];
+        node.outputs.push_back({signal(pin),
+                                compile(func, inst, states, &node.deps)});
       }
-      SimNode &node = nodes_[owner];
-      node.outputs.push_back({signal(pin),
-                              compile(func, inst, states, &node.deps)});
+      else
+        // Outputs without a function are driven like macro outputs.
+        macro_signals_.push_back(signal(pin));
     }
+    cell_count_++;
     return;
   }
 
@@ -581,11 +587,17 @@ ActivitySim::addInstance(const Instance *inst)
     SimNode node;
     node.kind = SimNodeKind::comb;
     std::map<const LibertyPort *, int> no_states;
-    for (auto [pin, port] : outputs)
-      node.outputs.push_back({signal(pin),
-                              compile(port ? port->function() : nullptr,
-                                      inst, no_states, &node.deps)});
+    for (auto [pin, port] : outputs) {
+      if (port && port->function())
+        node.outputs.push_back({signal(pin),
+                                compile(port->function(), inst, no_states,
+                                        &node.deps)});
+      else
+        // Outputs without a function are driven like macro outputs.
+        macro_signals_.push_back(signal(pin));
+    }
     nodes_.push_back(std::move(node));
+    cell_count_++;
   }
   else {
     // Macros, memories and cells without a function drive their outputs
@@ -616,20 +628,33 @@ ActivitySim::build(const PwrActivity &input_activity,
 {
   input_activity_ = input_activity;
   period_ = period;
+  // A clock defined on a cell input pin drives only that pin; the other
+  // loads of its net keep the driver.
+  for (const Clock *clk : clocks) {
+    for (const Pin *pin : clk->leafPins()) {
+      if (!network_->isDriver(pin) && network_->isLoad(pin)
+          && !load_signal_.contains(pin)) {
+        int sig = signal_drvr_.size();
+        signal_drvr_.push_back(nullptr);
+        forced_.push_back(-1);
+        pinned_.push_back(true);
+        load_signal_[pin] = sig;
+        clock_signals_.push_back(sig);
+      }
+    }
+  }
   LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
   while (inst_iter->hasNext())
     addInstance(inst_iter->next());
   delete inst_iter;
 
-  // Clocks drive the net of each source pin (port, cell output or input).
+  // Clocks drive the net of each driver source pin (port or cell output).
   for (const Clock *clk : clocks) {
     for (const Pin *pin : clk->leafPins()) {
       int sig = 0;
       auto itr = drvr_signal_.find(pin);
       if (itr != drvr_signal_.end())
         sig = itr->second;
-      else if (network_->isLoad(pin))
-        sig = loadSignal(pin);
       if (sig > 0 && !pinned_[sig]) {
         pinned_[sig] = true;
         clock_signals_.push_back(sig);
@@ -687,7 +712,7 @@ ActivitySim::build(const PwrActivity &input_activity,
   if (verbose_)
     report_->report("Simulation: {} cells {} sequential states {} sources "
                     "{} macros {} signals, {} lanes.",
-                    node_count_, state_count_, sources_.size(), macro_count_,
+                    cell_count_, state_count_, sources_.size(), macro_count_,
                     signal_count, words_ * 64);
   if (loop_count_ > 0)
     report_->warn(2410, "{} cells in combinational loops are evaluated in "
@@ -911,8 +936,6 @@ ActivitySim::lower()
     source.signal = sperm[source.signal];
   for (int &clk_sig : clock_signals_)
     clk_sig = sperm[clk_sig];
-  // Clock gates are two nodes (latch and gate).
-  node_count_ = nodes_.size() - clock_gate_count_;
   nodes_ = {};
   drvr_signal_ = {};
   load_signal_ = {};
@@ -1160,13 +1183,15 @@ Power::simulateActivities(const Scene *scene,
   activity_sim_valid_ = true;
   activity_sim_mode_ = scene->mode();
 
-  // Clocks with source pins; virtual and generated clocks are not simulated.
+  // Clocks with source pins. Generated clocks on simulated cells (dividers,
+  // clock gates) come out of the simulation; those on macro outputs (PLLs),
+  // ports or undriven nets are simulated as clocks.
   const Sdc *sdc = scene->mode()->sdc();
   std::vector<const Clock *> clocks;
   float period = 0.0;
   for (const Clock *clk : sdc->clocks()) {
-    if (!clk->isGenerated() && !clk->isVirtual() && !clk->leafPins().empty()
-        && clk->period() > 0.0) {
+    if (!clk->isVirtual() && !clk->leafPins().empty() && clk->period() > 0.0
+        && !(clk->isGenerated() && simulatedClockSource(clk))) {
       clocks.push_back(clk);
       if (period == 0.0 || clk->period() < period)
         period = clk->period();
@@ -1203,8 +1228,13 @@ Power::simulateActivities(const Scene *scene,
     }
   }
   PwrActivity input_activity = input_activity_;
-  if (input_activity.origin() == PwrActivityOrigin::unknown)
-    input_activity.set(0.1 / period, 0.5, PwrActivityOrigin::input);
+  if (input_activity.origin() == PwrActivityOrigin::unknown) {
+    // As ensureActivities seeds it, so inputs match their propagated values.
+    float min_period = clockMinPeriod(sdc);
+    if (min_period == 0.0)
+      min_period = units_->timeUnit()->scale();
+    input_activity.set(0.1 / min_period, 0.5, PwrActivityOrigin::input);
+  }
   // 64, 128, 256, 512 or 1024 lanes.
   int words = 1;
   while (words * 64 < lanes && words < 16)
@@ -1213,6 +1243,29 @@ Power::simulateActivities(const Scene *scene,
   sim.build(input_activity, period, clocks);
   sim.run(warmup, cycles);
   sim.annotate(cycles, period);
+}
+
+bool
+Power::simulatedClockSource(const Clock *clk)
+{
+  for (const Pin *pin : clk->leafPins()) {
+    const Pin *drvr = pin;
+    if (!network_->isDriver(pin)) {
+      PinSet *drvrs = network_->drivers(pin);
+      drvr = (drvrs && !drvrs->empty()) ? *drvrs->begin() : nullptr;
+    }
+    if (drvr && !network_->isTopLevelPort(drvr)) {
+      const LibertyCell *cell = network_->libertyCell(network_->instance(drvr));
+      const LibertyPort *port = network_->libertyPort(drvr);
+      const LibertyCell *test_cell = cell ? cell->testCell() : nullptr;
+      const LibertyPort *test_port = (test_cell && port)
+        ? test_cell->findLibertyPort(port->name()) : nullptr;
+      if (cell && (cell->isClockGate() || (port && port->function())
+                   || (test_port && test_port->function())))
+        return true;
+    }
+  }
+  return false;
 }
 
 void

@@ -189,3 +189,72 @@ simulate_power_activity -cycles 4000 -warmup 500 -lanes 256 -seed 1
 foreach pin {xr_r/Q a_r/Q icg/GCLK} {
   show $pin
 }
+
+puts "Clock from a macro (PLL), output without a function, clock on a load"
+puts "pin, default input activity with a virtual clock."
+# pll/CLKOUT carries a generated clock, so pf_r toggles like x (0.5).
+# mo/Z has no function and toggles at the default input activity, like the
+# port z: 0.1 per 2ns virtual clock period, 0.3 per cycle. The clock on lb/A
+# leaves its driver dg/X a data signal (0.25 duty).
+set lib5 [make_result_file power_activity_sim5.lib]
+set stream [open $lib5 w]
+puts $stream {library (power_activity_sim5) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1,ff);
+  pulling_resistance_unit : "1kohm";
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.8;
+  cell (PLL) {
+    pin (REF) { direction : input; capacitance : 1.0; }
+    pin (CLKOUT) { direction : output; }
+  }
+  cell (MIXOUT) {
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A"; }
+    pin (Z) { direction : output; }
+  }
+}}
+close $stream
+read_liberty $lib5
+set verilog5 [make_result_file power_activity_sim5.v]
+set stream [open $verilog5 w]
+puts $stream {module top5 (clk, x, y, z, pq, mq, zq, dq, lq);
+  input clk, x, y, z;
+  output pq, mq, zq, dq, lq;
+  wire pclk, my, mz, d, lclk;
+  PLL pll (.REF(clk), .CLKOUT(pclk));
+  sky130_fd_sc_hd__dfxtp_1 pf_r (.CLK(pclk), .D(x), .Q(pq));
+  MIXOUT mo (.A(x), .Y(my), .Z(mz));
+  sky130_fd_sc_hd__dfxtp_1 mo_r (.CLK(clk), .D(mz), .Q(mq));
+  sky130_fd_sc_hd__dfxtp_1 z_r (.CLK(clk), .D(z), .Q(zq));
+  sky130_fd_sc_hd__and2_1 dg (.A(x), .B(y), .X(d));
+  sky130_fd_sc_hd__dfxtp_1 d_r (.CLK(clk), .D(d), .Q(dq));
+  sky130_fd_sc_hd__buf_1 lb (.A(d), .X(lclk));
+  sky130_fd_sc_hd__dfxtp_1 lf_r (.CLK(lclk), .D(x), .Q(lq));
+endmodule}
+close $stream
+read_verilog $verilog5
+link_design top5
+create_clock -name clk -period 6 [get_ports clk]
+create_generated_clock -name pclk -source [get_ports clk] -multiply_by 1 \
+  [get_pins pll/CLKOUT]
+create_clock -name lclk -period 6 [get_pins lb/A]
+create_clock -name vclk -period 2
+set_input x 0.5 0.5
+set_input y 0.5 0.5
+simulate_power_activity -cycles 4000 -warmup 500 -lanes 256 -seed 1
+foreach pin {pll/CLKOUT pf_r/Q mo/Z mo_r/Q z z_r/Q dg/X d_r/Q lb/A lf_r/Q} {
+  if { [get_pins -quiet $pin] == "" } {
+    lassign [get_property [get_ports $pin] activity] density duty origin
+    puts [format "%-6s toggles/cycle %.3f duty %.3f %s" \
+            $pin [expr {$density * 6e-9}] $duty $origin]
+  } else {
+    show $pin
+  }
+}
+unknown_pins

@@ -357,7 +357,7 @@ proc read_saif { args } {
 # ---- OpenROAD fork: power activity simulation (begin) ----
 define_cmd_args "simulate_power_activity" { [-cycles cycles] [-warmup cycles] \
                                               [-lanes lanes] [-seed seed] } \
-  -help {Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and outputs of cells without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.} \
+  -help {Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and output pins without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.} \
   -arg_help {
     -cycles {`cycles`: Number of measured clock cycles. Defaults to 2000.}
     -warmup {`cycles`: Number of clock cycles simulated before counting starts, so the random initial state settles. Defaults to 500.}

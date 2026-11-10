@@ -225,12 +225,7 @@ Power::setUserActivity(const Pin *pin,
                        PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {density, duty, origin};
-  // OpenROAD fork: power activity simulation. Its own annotations do not
-  // make the simulation stale.
-  if (origin == PwrActivityOrigin::simulation)
-    propagationInvalid();
-  else
-    activitiesInvalid();
+  activitiesInvalid();
 }
 
 void

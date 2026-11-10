@@ -321,6 +321,8 @@ private:
   static constexpr int activity_sim_lanes_ = 64;
   static constexpr uint64_t activity_sim_seed_ = 1;
   void clearActivitySimResults();
+  // A generated clock whose source pin is driven by a simulated cell.
+  bool simulatedClockSource(const Clock *clk);
   // Activities must be propagated again; the simulation is still valid.
   void propagationInvalid();
   // ---- OpenROAD fork: power activity simulation (end) ----

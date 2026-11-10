@@ -4228,7 +4228,7 @@ The `set_wire_load_selection_group` command is parsed but not supported.
     [<a href="#opt-simulate_power_activity-lanes">-lanes</a> lanes]
     [<a href="#opt-simulate_power_activity-seed">-seed</a> seed]</code></pre>
 
-Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and outputs of cells without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.
+Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and output pins without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.
 
 ### Options
 
