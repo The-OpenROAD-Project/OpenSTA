@@ -160,6 +160,7 @@ protected:
   void setPins(const PinSet &pins,
                const Network *network);
   void setMasterClk(Clock *master);
+  void setSrcPin(Pin *src_pin);
   void makeClkEdges();
   void setClkEdgeTimes();
   void setClkEdgeTime(const RiseFall *rf);

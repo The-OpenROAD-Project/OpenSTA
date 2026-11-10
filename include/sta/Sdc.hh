@@ -1071,7 +1071,9 @@ public:
   bool deletePinBefore(const Pin *pin);
   void connectPinAfter(const Pin *pin);
   // Move the constraints on a pin, instance or net being replaced to
-  // the one that replaces it. Constraints already on to are replaced.
+  // the one that replaces it. A moved constraint overrides the same
+  // constraint on to and other constraints on to are kept, except
+  // that moved input/output delays replace all of the delays on to.
   // Return true if any constraint moved.
   bool moveConstraints(const Pin *from,
                        const Pin *to);
@@ -1265,10 +1267,16 @@ protected:
   void deleteDataCheck(DataCheck *check);
   bool editExceptions(const ExceptionPathSeq &exceptions,
                       const ExceptionPtEdit &edit);
+  bool deletePinExceptions(const Pin *pin);
+  bool deleteSrcPinClocks(const Pin *pin);
   bool moveClockConstraints(const Pin *from,
                             const Pin *to);
-  bool movePortDelays(const Pin *from,
-                      const Pin *to);
+  bool moveClockLatencies(const Pin *from,
+                          const Pin *to);
+  bool moveInputDelays(const Pin *from,
+                       const Pin *to);
+  bool moveOutputDelays(const Pin *from,
+                        const Pin *to);
   bool moveDataChecks(const Pin *from,
                       const Pin *to);
 

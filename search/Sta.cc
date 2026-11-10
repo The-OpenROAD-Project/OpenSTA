@@ -4679,10 +4679,11 @@ void
 Sta::moveConstraints(const Instance *from,
                      const Instance *to)
 {
-  auto map_pin = [this, from, to](const Pin *pin) -> const Pin* {
+  auto map_pin = [this, from, to](const Pin *pin) {
+    const Pin *to_pin = pin;
     if (network_->instance(pin) == from)
-      return network_->findPin(to, network_->portName(pin));
-    return pin;
+      to_pin = network_->findPin(to, network_->portName(pin));
+    return to_pin;
   };
   bool moved = false;
   for (Mode *mode : modes_) {
@@ -5331,7 +5332,13 @@ Sta::deletePinBefore(const Pin *pin)
       }
     }
   }
+  deletePinConstraintsBefore(pin);
+}
 
+// Delete the SDC constraints on the pin in every mode.
+void
+Sta::deletePinConstraintsBefore(const Pin *pin)
+{
   bool port_delay_deleted = false;
   bool exceptions_deleted = false;
   bool constant_deleted = false;
@@ -5360,8 +5367,12 @@ Sta::deletePinBefore(const Pin *pin)
   // and tags reference exceptions.
   if (port_delay_deleted || exceptions_deleted)
     search_->arrivalsInvalid();
-  if (clk_deleted)
+  if (clk_deleted) {
+    for (const Mode *mode : modes_)
+      mode->clkNetwork()->clkPinsInvalid();
+    update_genclks_ = true;
     power_->activitiesInvalid();
+  }
 }
 
 void

@@ -1722,11 +1722,15 @@ void
 Sdc::deleteClockLatency(ClockLatency *latency)
 {
   // Latencies on hierarchical pins are also referenced by edge.
-  const Pin *pin = latency->pin();
-  if (pin && network_->isHierarchical(pin))
-    std::erase_if(edge_clk_latency_map_, [latency](const auto &edge_latency) {
-      return edge_latency.second == latency;
-    });
+  if (!edge_clk_latency_map_.empty()) {
+    for (auto itr = edge_clk_latency_map_.begin();
+         itr != edge_clk_latency_map_.end(); ) {
+      if (itr->second == latency)
+        itr = edge_clk_latency_map_.erase(itr);
+      else
+        itr++;
+    }
+  }
   clk_latencies_.erase(latency);
   delete latency;
 }
@@ -5967,10 +5971,13 @@ Sdc::deleteClockPinConstraints(const Pin *pin)
   }
   // Latencies on hierarchical pins are keyed by the leaf pin pairs
   // through the hierarchical pin.
-  std::erase_if(edge_clk_latency_map_, [pin](const auto &edge_latency) {
-    return edge_latency.first.first == pin
-      || edge_latency.first.second == pin;
-  });
+  for (auto itr = edge_clk_latency_map_.begin();
+       itr != edge_clk_latency_map_.end(); ) {
+    if (itr->first.first == pin || itr->first.second == pin)
+      itr = edge_clk_latency_map_.erase(itr);
+    else
+      itr++;
+  }
   for (ClockInsertion *insertion : pinElements(clk_insertions_, pin))
     deleteClockInsertion(insertion);
   deletePinMapKey(pin_clk_uncertainty_map_, pin);
@@ -6022,8 +6029,9 @@ Sdc::deleteDataCheck(DataCheck *check)
   delete check;
 }
 
+// Delete the pin from the exception points that reference it.
 bool
-Sdc::deletePinBefore(const Pin *pin)
+Sdc::deletePinExceptions(const Pin *pin)
 {
   auto itr = pin_exceptions_.find(pin);
   const ExceptionPathSet *pin_exceptions =
@@ -6046,11 +6054,20 @@ Sdc::deletePinBefore(const Pin *pin)
         exceptions.push_back(exception);
     }
   }
-  bool exceptions_deleted =
-    editExceptions(exceptions, [this, pin](ExceptionPt *pt) {
-      pt->deletePinBefore(pin, network_);
-    });
-  // A generated clock without its -source pin is removed.
+  bool deleted = editExceptions(exceptions, [this, pin](ExceptionPt *pt) {
+    pt->deletePinBefore(pin, network_);
+  });
+  first_from_pin_exceptions_.erase(pin);
+  first_thru_pin_exceptions_.erase(pin);
+  first_to_pin_exceptions_.erase(pin);
+  pin_exceptions_.erase(pin);
+  return deleted;
+}
+
+// A generated clock without its -source pin is removed.
+bool
+Sdc::deleteSrcPinClocks(const Pin *pin)
+{
   ClockSeq src_clks;
   for (Clock *clk : clocks_) {
     if (clk->srcPin() == pin)
@@ -6058,11 +6075,14 @@ Sdc::deletePinBefore(const Pin *pin)
   }
   for (Clock *clk : src_clks)
     removeClock(clk);
-  exceptions_deleted |= !src_clks.empty();
-  first_from_pin_exceptions_.erase(pin);
-  first_thru_pin_exceptions_.erase(pin);
-  first_to_pin_exceptions_.erase(pin);
-  pin_exceptions_.erase(pin);
+  return !src_clks.empty();
+}
+
+bool
+Sdc::deletePinBefore(const Pin *pin)
+{
+  bool deleted = deletePinExceptions(pin);
+  deleted |= deleteSrcPinClocks(pin);
   deletePortDelayReferences(pin);
   ClockSet *leaf_pin_clks = findKey(clock_leaf_pin_map_, pin);
   if (leaf_pin_clks) {
@@ -6080,9 +6100,13 @@ Sdc::deletePinBefore(const Pin *pin)
   pin_cap_limit_map_.erase(pin);
   disabled_pins_.erase(pin);
   disabled_clk_gating_checks_pin_.erase(pin);
-  std::erase_if(disabled_wire_edges_, [pin](const PinPair &pins) {
-    return pins.first == pin || pins.second == pin;
-  });
+  for (auto itr = disabled_wire_edges_.begin();
+       itr != disabled_wire_edges_.end(); ) {
+    if (itr->first == pin || itr->second == pin)
+      itr = disabled_wire_edges_.erase(itr);
+    else
+      itr++;
+  }
   path_delay_internal_from_.erase(pin);
   path_delay_internal_from_break_.erase(pin);
   path_delay_internal_to_.erase(pin);
@@ -6091,7 +6115,7 @@ Sdc::deletePinBefore(const Pin *pin)
   case_value_map_.erase(pin);
   pin_latch_borrow_limit_map_.erase(pin);
   deletePinMapKey(pin_min_pulse_width_map_, pin);
-  return exceptions_deleted;
+  return deleted;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -6108,7 +6132,7 @@ moveMapKey(Map &map,
     return false;
   auto value = itr->second;
   map.erase(itr);
-  map.insert_or_assign(to, value);
+  map[to] = value;
   return true;
 }
 
@@ -6151,8 +6175,11 @@ bool
 Sdc::moveConstraints(const Pin *from,
                      const Pin *to)
 {
+  if (from == to)
+    return false;
   bool moved = moveClockConstraints(from, to);
-  moved |= movePortDelays(from, to);
+  moved |= moveInputDelays(from, to);
+  moved |= moveOutputDelays(from, to);
   moved |= moveDataChecks(from, to);
   auto pin_itr = pin_exceptions_.find(from);
   if (pin_itr != pin_exceptions_.end()) {
@@ -6193,6 +6220,8 @@ bool
 Sdc::moveConstraints(const Instance *from,
                      const Instance *to)
 {
+  if (from == to)
+    return false;
   bool moved = false;
   for (InstancePvtMap &pvt_map : instance_pvt_maps_)
     moved |= moveOwnedMapKey(pvt_map, from, to);
@@ -6268,6 +6297,8 @@ bool
 Sdc::moveConstraints(const Net *from,
                      const Net *to)
 {
+  if (from == to)
+    return false;
   bool moved = moveNetWireCaps(from, to);
   moved |= moveMapKey(net_res_map_, from, to);
   moved |= moveMapKey(net_voltage_map_, from, to);
@@ -6304,12 +6335,34 @@ Sdc::moveClockConstraints(const Pin *from,
   }
   for (Clock *clk : clocks_) {
     if (clk->srcPin() == from) {
-      clk->src_pin_ = const_cast<Pin*>(to);
+      clk->setSrcPin(const_cast<Pin*>(to));
       moved = true;
     }
   }
   moved |= moveSetKey(propagated_clk_pins_, from, to);
+  moved |= moveClockLatencies(from, to);
+  moved |= moveOwnedMapKey(pin_clk_uncertainty_map_, from, to);
 
+  // clk_sense_map_ is ordered by pin, then clock.
+  auto sense_itr = clk_sense_map_.lower_bound(PinClockPair(from, nullptr));
+  while (sense_itr != clk_sense_map_.end()
+         && sense_itr->first.first == from) {
+    clk_sense_map_[PinClockPair(to, sense_itr->first.second)] =
+      sense_itr->second;
+    sense_itr = clk_sense_map_.erase(sense_itr);
+    moved = true;
+  }
+
+  moved |= moveOwnedMapKey(pin_clk_gating_check_map_, from, to);
+  return moved;
+}
+
+// set_clock_latency and clock insertion delays on the pin.
+bool
+Sdc::moveClockLatencies(const Pin *from,
+                        const Pin *to)
+{
+  bool moved = false;
   if (clk_latency_pins_.contains(from)) {
     for (ClockLatency *latency : pinElements(clk_latencies_, from)) {
       findOrMakeClockLatency(latency->clock(), to)->setDelays(latency->delays());
@@ -6327,96 +6380,105 @@ Sdc::moveClockConstraints(const Pin *from,
     deleteClockInsertion(insertion);
     moved = true;
   }
-
-  moved |= moveOwnedMapKey(pin_clk_uncertainty_map_, from, to);
-
-  // clk_sense_map_ is ordered by pin, then clock.
-  auto sense_itr = clk_sense_map_.lower_bound(PinClockPair(from, nullptr));
-  while (sense_itr != clk_sense_map_.end()
-         && sense_itr->first.first == from) {
-    clk_sense_map_[PinClockPair(to, sense_itr->first.second)] =
-      sense_itr->second;
-    sense_itr = clk_sense_map_.erase(sense_itr);
-    moved = true;
-  }
-
-  moved |= moveOwnedMapKey(pin_clk_gating_check_map_, from, to);
   return moved;
 }
 
-// Replace the delays on to with the delays in pin_delays, then delete
-// pin_delays.
-template <class DelaySet, class SetDelay, class DeleteDelay>
-static bool
-moveDelays(DelaySet *pin_delays,
-           DelaySet *to_delays,
-           const Pin *to,
-           SetDelay set_delay,
-           DeleteDelay delete_delay)
-{
-  if (pin_delays == nullptr)
-    return false;
-  if (to_delays) {
-    DelaySet replaced = *to_delays;
-    for (auto *port_delay : replaced)
-      delete_delay(port_delay);
-  }
-  DelaySet delays = *pin_delays;
-  for (auto *port_delay : delays) {
-    const ClockEdge *clk_edge = port_delay->clkEdge();
-    for (const RiseFall *rf : RiseFall::range()) {
-      for (const MinMax *min_max : MinMax::range()) {
-        float delay;
-        bool exists;
-        port_delay->delays()->value(rf, min_max, delay, exists);
-        if (exists)
-          set_delay(to, rf->asRiseFallBoth(),
-                    clk_edge ? clk_edge->clock() : nullptr,
-                    clk_edge ? clk_edge->transition() : RiseFall::rise(),
-                    port_delay->refPin(),
-                    port_delay->sourceLatencyIncluded(),
-                    port_delay->networkLatencyIncluded(),
-                    min_max->asMinMaxAll(), true, delay);
-      }
-    }
-    delete_delay(port_delay);
-  }
-  return true;
-}
-
-// set_input_delay/set_output_delay on or referencing the pin.
+// set_input_delay on or referencing the pin.
+// Input delays on from replace the input delays on to.
 bool
-Sdc::movePortDelays(const Pin *from,
-                    const Pin *to)
+Sdc::moveInputDelays(const Pin *from,
+                     const Pin *to)
 {
   bool moved = false;
-  auto move_ref_pins = [from, to](auto &port_delays) {
-    bool moved_ref = false;
-    for (auto *port_delay : port_delays) {
-      if (port_delay->refPin() == from) {
-        port_delay->setRefPin(to);
+  if (have_input_delay_ref_pins_) {
+    for (InputDelay *input_delay : input_delays_) {
+      if (input_delay->refPin() == from) {
+        input_delay->setRefPin(to);
         // Make the edges from the new reference pin.
-        port_delay->setRefPinEdgesExist(false);
-        moved_ref = true;
+        input_delay->setRefPinEdgesExist(false);
+        input_ref_pin_edges_valid_ = false;
+        moved = true;
       }
     }
-    return moved_ref;
-  };
-  if (have_input_delay_ref_pins_ && move_ref_pins(input_delays_)) {
-    input_ref_pin_edges_valid_ = false;
+  }
+  InputDelaySet *from_delays = findKey(input_delay_pin_map_, from);
+  if (from_delays) {
+    InputDelaySet *to_delays = findKey(input_delay_pin_map_, to);
+    if (to_delays) {
+      InputDelaySet replaced = *to_delays;
+      for (InputDelay *input_delay : replaced)
+        deleteInputDelay(input_delay);
+    }
+    InputDelaySet delays = *from_delays;
+    for (InputDelay *input_delay : delays) {
+      const ClockEdge *clk_edge = input_delay->clkEdge();
+      for (const RiseFall *rf : RiseFall::range()) {
+        for (const MinMax *min_max : MinMax::range()) {
+          float delay;
+          bool exists;
+          input_delay->delays()->value(rf, min_max, delay, exists);
+          if (exists)
+            setInputDelay(to, rf->asRiseFallBoth(),
+                          clk_edge ? clk_edge->clock() : nullptr,
+                          clk_edge ? clk_edge->transition() : RiseFall::rise(),
+                          input_delay->refPin(),
+                          input_delay->sourceLatencyIncluded(),
+                          input_delay->networkLatencyIncluded(),
+                          min_max->asMinMaxAll(), true, delay);
+        }
+      }
+      deleteInputDelay(input_delay);
+    }
     moved = true;
   }
-  if (have_output_delay_ref_pins_)
-    moved |= move_ref_pins(output_delays_);
+  return moved;
+}
 
-  auto set_input = [this](auto... args) { setInputDelay(args...); };
-  auto set_output = [this](auto... args) { setOutputDelay(args...); };
-  moved |= moveDelays(findKey(input_delay_pin_map_, from),
-                      findKey(input_delay_pin_map_, to), to, set_input,
-                      [this](InputDelay *delay) { deleteInputDelay(delay); });
-  moved |= moveDelays(findKey(output_delay_pin_map_, from),
-                      findKey(output_delay_pin_map_, to), to, set_output,
-                      [this](OutputDelay *delay) { deleteOutputDelay(delay); });
+// set_output_delay on or referencing the pin.
+// Output delays on from replace the output delays on to.
+bool
+Sdc::moveOutputDelays(const Pin *from,
+                      const Pin *to)
+{
+  bool moved = false;
+  if (have_output_delay_ref_pins_) {
+    for (OutputDelay *output_delay : output_delays_) {
+      if (output_delay->refPin() == from) {
+        output_delay->setRefPin(to);
+        moved = true;
+      }
+    }
+  }
+  OutputDelaySet *from_delays = findKey(output_delay_pin_map_, from);
+  if (from_delays) {
+    OutputDelaySet *to_delays = findKey(output_delay_pin_map_, to);
+    if (to_delays) {
+      OutputDelaySet replaced = *to_delays;
+      for (OutputDelay *output_delay : replaced)
+        deleteOutputDelay(output_delay);
+    }
+    OutputDelaySet delays = *from_delays;
+    for (OutputDelay *output_delay : delays) {
+      const ClockEdge *clk_edge = output_delay->clkEdge();
+      for (const RiseFall *rf : RiseFall::range()) {
+        for (const MinMax *min_max : MinMax::range()) {
+          float delay;
+          bool exists;
+          output_delay->delays()->value(rf, min_max, delay, exists);
+          if (exists)
+            setOutputDelay(to, rf->asRiseFallBoth(),
+                           clk_edge ? clk_edge->clock() : nullptr,
+                           clk_edge ? clk_edge->transition() : RiseFall::rise(),
+                           output_delay->refPin(),
+                           output_delay->sourceLatencyIncluded(),
+                           output_delay->networkLatencyIncluded(),
+                           min_max->asMinMaxAll(), true, delay);
+        }
+      }
+      deleteOutputDelay(output_delay);
+    }
+    moved = true;
+  }
   return moved;
 }
 

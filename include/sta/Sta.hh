@@ -1293,7 +1293,6 @@ public:
                            LibertyCell *to_lib_cell);
   // Move the SDC constraints on a pin, instance or net being replaced
   // to the one that replaces it, before the replaced one is deleted.
-  // Constraints already on the replacing one are replaced.
   // Instance ports are matched by name.
   void moveConstraints(const Pin *from,
                        const Pin *to);
@@ -1580,6 +1579,7 @@ public:
 
 protected:
   void constraintsMoved();
+  void deletePinConstraintsBefore(const Pin *pin);
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.
