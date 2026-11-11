@@ -1,8 +1,6 @@
 # write_timing_model input -> output combinational arcs.
-# OpenROAD issue #11752.
-source ../../test/helpers.tcl
-
-read_liberty ../../test/nangate45/Nangate45_typ.lib
+source "helpers.tcl"
+read_liberty ../examples/nangate45_typ.lib.gz
 read_verilog write_timing_model8.v
 link_design top
 create_clock -name clk -period 10 [get_ports clk]

@@ -1,5 +1,5 @@
 # write_timing_model clock passthrough writes only transitions with a path
-source helpers.tcl
+source "helpers.tcl"
 read_liberty ../examples/nangate45_typ.lib.gz
 read_verilog write_timing_model7.v
 link_design top

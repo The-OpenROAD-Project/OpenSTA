@@ -1,5 +1,5 @@
 # write_timing_model -scene uses the delays of its scene with several scenes defined
-source helpers.tcl
+source "helpers.tcl"
 set fast_lib ../examples/nangate45_fast.lib.gz
 set slow_lib ../examples/nangate45_slow.lib.gz
 read_liberty $fast_lib
