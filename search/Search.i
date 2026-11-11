@@ -447,13 +447,13 @@ make_report_path_attr_field(std::string attr_name,
                            });
 }
 
-const char *
-find_report_path_field_abrev(const char *name)
+const std::string
+find_report_path_field_abrev(const char *field_name)
 {
   Sta *sta = Sta::sta();
-  ReportField *field = sta->findReportPathFieldAbrev(name);
+  ReportField *field = sta->findReportPathFieldAbrev(field_name);
   if (field)
-    return field->name().c_str();
+    return field->name();
   else
     return "";
 }
