@@ -212,7 +212,6 @@ record_public_tests {
   set_path_margin5
   set_path_margin6
   slash_port_test
-  timing_model1
   suppress_msg
   swig_seq_double_free
   swig_seq_leak
@@ -240,7 +239,9 @@ record_public_tests {
   verilog_unconnected_hpin
   write_path_spice_arc_sense
   write_path_spice_async_set_reset
-  write_timing_model_scenes
+  write_timing_model7
+  write_timing_model8
+  write_timing_model9
 }
 
 define_test_group fast [group_tests all]
