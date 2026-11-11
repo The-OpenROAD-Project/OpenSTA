@@ -5084,7 +5084,6 @@ Sdc::mergeException(ExceptionPath *exception)
 ExceptionPath *
 Sdc::findMergeMatch(ExceptionPath *exception)
 {
-  bool first_pt = true;
   ExceptionPtIterator missing_pt_iter(exception);
   while (missing_pt_iter.hasNext()) {
     ExceptionPt *missing_pt = missing_pt_iter.next();
@@ -5109,10 +5108,10 @@ Sdc::findMergeMatch(ExceptionPath *exception)
           unrecordMergeHashes(match);
           missing_pt->mergeInto(match_missing_pt, network_);
           recordMergeHashes(match);
-          // First point maps only change if the exception point that
-          // is being merged is the first exception point.
-          if (first_pt)
-            recordExceptionFirstPts(match);
+          // The merged objects are recorded in the first point maps
+          // (all -through nets) and the pin map.
+          recordExceptionFirstPts(match);
+          recordExceptionPins(match);
           // Have to wait until after exception point merge to delete
           // the exception.
           delete exception;
@@ -5120,7 +5119,6 @@ Sdc::findMergeMatch(ExceptionPath *exception)
         }
       }
     }
-    first_pt = false;
   }
   return nullptr;
 }
@@ -5293,19 +5291,31 @@ Sdc::unrecordExceptionPins(ExceptionPath *exception)
     unrecordExceptionPins(exception, to->pins(), pin_exceptions_);
 }
 
+// Remove exception from the exceptions of key. The key is removed
+// with its last exception because isConstrained() checks for the key.
+template <class ExceptionsMap>
+static void
+unrecordMapException(ExceptionsMap &exception_map,
+                     const typename ExceptionsMap::key_type &key,
+                     ExceptionPath *exception)
+{
+  auto itr = exception_map.find(key);
+  if (itr != exception_map.end()) {
+    ExceptionPathSet &exceptions = itr->second;
+    exceptions.erase(exception);
+    if (exceptions.empty())
+      exception_map.erase(itr);
+  }
+}
+
 void
 Sdc::unrecordExceptionClks(ExceptionPath *exception,
                            ClockSet *clks,
                            ClockExceptionsMap &exception_map)
 {
   if (clks) {
-    for (Clock *clk : *clks) {
-      auto itr = exception_map.find(clk);
-      if (itr != exception_map.end()) {
-        ExceptionPathSet &set = itr->second;
-        set.erase(exception);
-      }
-    }
+    for (Clock *clk : *clks)
+      unrecordMapException(exception_map, clk, exception);
   }
 }
 
@@ -5315,13 +5325,8 @@ Sdc::unrecordExceptionPins(ExceptionPath *exception,
                            PinExceptionsMap &exception_map)
 {
   if (pins) {
-    for (const Pin *pin : *pins) {
-      auto itr = exception_map.find(pin);
-      if (itr != exception_map.end()) {
-        ExceptionPathSet &set = itr->second;
-        set.erase(exception);
-      }
-    }
+    for (const Pin *pin : *pins)
+      unrecordMapException(exception_map, pin, exception);
   }
 }
 
@@ -5331,13 +5336,8 @@ Sdc::unrecordExceptionInsts(ExceptionPath *exception,
                             InstanceExceptionsMap &exception_map)
 {
   if (insts) {
-    for (const Instance *inst : *insts) {
-      auto itr = exception_map.find(inst);
-      if (itr != exception_map.end()) {
-        ExceptionPathSet &set = itr->second;
-        set.erase(exception);
-      }
-    }
+    for (const Instance *inst : *insts)
+      unrecordMapException(exception_map, inst, exception);
   }
 }
 
@@ -5347,13 +5347,8 @@ Sdc::unrecordExceptionEdges(ExceptionPath *exception,
                             EdgeExceptionsMap &exception_map)
 {
   if (edges) {
-    for (const EdgePins &edge : *edges) {
-      auto itr = exception_map.find(edge);
-      if (itr != exception_map.end()) {
-        ExceptionPathSet &set = itr->second;
-        set.erase(exception);
-      }
-    }
+    for (const EdgePins &edge : *edges)
+      unrecordMapException(exception_map, edge, exception);
   }
 }
 
@@ -5363,13 +5358,8 @@ Sdc::unrecordExceptionNets(ExceptionPath *exception,
                            NetExceptionsMap &exception_map)
 {
   if (nets) {
-    for (const Net *net : *nets) {
-      auto itr = exception_map.find(net);
-      if (itr != exception_map.end()) {
-        ExceptionPathSet &set = itr->second;
-        set.erase(exception);
-      }
-    }
+    for (const Net *net : *nets)
+      unrecordMapException(exception_map, net, exception);
   }
 }
 

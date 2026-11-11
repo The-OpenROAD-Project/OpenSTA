@@ -1716,8 +1716,9 @@ ExceptionThru::~ExceptionThru()
     delete pins_;
     delete nets_;
     delete insts_;
-    delete edges_;
   }
+  // The thru always makes its own edges.
+  delete edges_;
 }
 
 std::string
