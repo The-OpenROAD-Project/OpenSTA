@@ -1299,8 +1299,8 @@ VerilogNetConstant::parseConstant(std::string_view constant,
   value_digit_str[1] = '\0';
   size_t bit = 0;
   size_t idx = constant.size() - 1;
-  while (bit < size) {
-    char ch = (idx > base_idx) ? constant.at(idx--) : '0';
+  while (idx > base_idx) {
+    char ch = constant[idx];
     // Skip underscores.
     if (ch != '_') {
       value_digit_str[0] = ch;
@@ -1312,6 +1312,7 @@ VerilogNetConstant::parseConstant(std::string_view constant,
         mask = mask << 1;
       }
     }
+    idx--;
   }
 }
 
