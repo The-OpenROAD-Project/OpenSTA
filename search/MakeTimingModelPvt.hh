@@ -84,6 +84,7 @@ private:
                         TimingSense sense,
                         const ClkDelays &delays);
   void findOutputDelays(const RiseFall *input_rf,
+                        const VertexSeq &endpoints,
                         OutputPinDelays &output_pin_delays);
   void makeSetupHoldTimingArcs(const Pin *input_pin,
                                const ClockEdgeDelays &clk_margins);
