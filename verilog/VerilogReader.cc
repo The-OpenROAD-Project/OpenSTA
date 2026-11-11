@@ -348,12 +348,11 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
 {
   for (auto const &[port_name, dcl] : *module->declarationMap()) {
     const PortDirection *dir = dcl->direction();
-    if (dir->isInput() || dir->isOutput() || dir->isBidirect()) {
-      if (!port_names.contains(port_name))
-        linkWarn(197, module->filename(), module->line(),
-                 "module {} declared signal {} is not in the port list.",
-                 module->name(), port_name);
-    }
+    if ((dir->isInput() || dir->isOutput() || dir->isBidirect())
+        && !port_names.contains(port_name))
+      linkWarn(197, module->filename(), module->line(),
+               "module {} declared signal {} is not in the port list.",
+               module->name(), port_name);
   }
 }
 
@@ -553,7 +552,8 @@ VerilogReader::hasScalarNamedPortRefs(LibertyCell *liberty_cell,
       std::string_view port_name = vpin->name();
       LibertyPort *port = liberty_cell->findLibertyPort(port_name);
       if (port) {
-        if (!(port->size() == 1 && (vpin->isNamedPortRefScalarNet())))
+        if (!(port->size() == 1
+              && vpin->isNamedPortRefScalarNet()))
           return false;
       }
       else
@@ -945,7 +945,7 @@ VerilogNullNetNameIterator::next()
 class VerilogOneNetNameIterator : public VerilogNetNameIterator
 {
 public:
-  VerilogOneNetNameIterator(const std::string &name);
+  explicit VerilogOneNetNameIterator(const std::string &name);
   bool hasNext() override;
   const std::string &next() override;
 

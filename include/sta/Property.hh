@@ -78,11 +78,11 @@ public:
                     instance, pin, pins, net,
                     clk, clks, paths, pwr_activity };
   PropertyValue();
-  PropertyValue(std::string_view value);
-  PropertyValue(std::string value);
+  explicit PropertyValue(std::string_view value);
+  explicit PropertyValue(std::string value);
   PropertyValue(float value,
                 const Unit *unit);
-  PropertyValue(bool value);
+  explicit PropertyValue(bool value);
   PropertyValue(const Library *value);
   PropertyValue(const Cell *value);
   PropertyValue(const Port *value);

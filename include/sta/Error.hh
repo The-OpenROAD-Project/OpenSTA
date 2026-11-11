@@ -66,7 +66,7 @@ protected:
 class FileNotReadable : public Exception
 {
 public:
-  FileNotReadable(std::string_view filename);
+  explicit FileNotReadable(std::string_view filename);
   const char *what() const noexcept override;
 
 protected:
@@ -77,7 +77,7 @@ protected:
 class FileNotWritable : public Exception
 {
 public:
-  FileNotWritable(std::string_view filename);
+  explicit FileNotWritable(std::string_view filename);
   const char *what() const noexcept override;
 
 protected:

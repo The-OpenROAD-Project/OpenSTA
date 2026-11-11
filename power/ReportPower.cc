@@ -108,7 +108,7 @@ ReportPower::reportInst(const Instance *inst,
   line += powerCol(switching, field_width, digits);
   line += powerCol(leakage, field_width, digits);
   line += powerCol(total, field_width, digits);
-  line += " ";
+  line += ' ';
   line += network_->pathName(inst);
   report_->reportLine(line);
 }

@@ -332,7 +332,7 @@ FindVertexDelays::visit(Vertex *vertex)
 void
 GraphDelayCalc::findDelays()
 {
-  return findDelays(Graph::vertex_level_max);
+  findDelays(Graph::vertex_level_max);
 }
 
 // The logical structure of incremental delay calculation closely

@@ -335,7 +335,7 @@ ExceptionPath::fromThruToString(const Network *network) const
           str += " &&";
         str += " {";
         str += thru->to_string(network);
-        str += "}";
+        str += '}';
         first_thru = false;
       }
     }
@@ -772,7 +772,7 @@ std::string
 MultiCyclePath::to_string(const Network *network) const
 {
   return sta::format("Multicycle {} {}{}",
-                     (use_end_clk_) ? "-end" : "-start",
+                     use_end_clk_ ? "-end" : "-start",
                      path_multiplier_,
                      fromThruToString(network));
 }
@@ -1238,7 +1238,7 @@ std::string
 ExceptionFromTo::to_string(const Network *network) const
 {
   std::string str;
-  str += " ";
+  str += ' ';
   str += cmdKeyword();
   str += " {";
 
@@ -1283,7 +1283,7 @@ ExceptionFromTo::to_string(const Network *network) const
   if (obj_count == to_string_max_objects_)
     str += ", ...";
 
-  str += "}";
+  str += '}';
 
   return str;
 }
@@ -1607,16 +1607,14 @@ ExceptionThru::deletePinEdges(const Pin *pin,
       // Use driver lookup to minimize potentially expensive calls to
       // deletePinPairsThruHierPin.
       PinSet *drvrs = network->drivers(pin);
-      if (drvrs) {
+      if (drvrs && edges_) {
         // Some edges originating at drvrs may not actually go through pin, so
         // still must use deletePinPairsThruHierPin to identify specific edges.
-        if (edges_) {
-          for (const EdgePins &edge_pins : *edges_) {
-            const Pin *p_first = edge_pins.first;
-            if (drvrs->contains(p_first)) {
-              deletePinPairsThruHierPin(pin, network, edges_);
-              break;
-            }
+        for (const EdgePins &edge_pins : *edges_) {
+          const Pin *p_first = edge_pins.first;
+          if (drvrs->contains(p_first)) {
+            deletePinPairsThruHierPin(pin, network, edges_);
+            break;
           }
         }
       }

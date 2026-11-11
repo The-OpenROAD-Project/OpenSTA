@@ -1185,18 +1185,16 @@ Power::seedRegOutputActivities(const Instance *reg,
       // "(D&DE) | (IQ&!DE)"), so solve the hold loop instead.
       evalRegHoldActivity(reg, seq, clk_density, out_density, out_duty);
     }
-    else if (in_density > clk_density / 2) {
-      if (seq.isLatch()) {
-        PwrActivity clk_activity = evalActivity(seq.clock(), reg);
-        float clk_duty = clk_activity.duty();
-        FuncExpr *clk_func = seq.clock();
-        bool clk_invert = clk_func && clk_func->op() == FuncExpr::Op::not_
-            && clk_func->left()->op() == FuncExpr::Op::port;
-        if (clk_invert)
-          out_density = in_density * (1 - clk_duty);
-        else
-          out_density = in_density * clk_duty;
-      }
+    else if (in_density > clk_density / 2 && seq.isLatch()) {
+      PwrActivity clk_activity = evalActivity(seq.clock(), reg);
+      float clk_duty = clk_activity.duty();
+      FuncExpr *clk_func = seq.clock();
+      bool clk_invert = clk_func && clk_func->op() == FuncExpr::Op::not_
+          && clk_func->left()->op() == FuncExpr::Op::port;
+      if (clk_invert)
+        out_density = in_density * (1 - clk_duty);
+      else
+        out_density = in_density * clk_duty;
     }
     if (invert)
       out_duty = 1.0 - out_duty;

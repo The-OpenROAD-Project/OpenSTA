@@ -71,7 +71,7 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
-  clear();
+  PrimaDelayCalc::clear();
 }
 
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
@@ -81,7 +81,7 @@ PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
 {
-  clear();
+  PrimaDelayCalc::clear();
 }
 
 PrimaDelayCalc::~PrimaDelayCalc()
@@ -879,7 +879,7 @@ PrimaDelayCalc::driverCurrent(size_t drvr_idx,
   OutputWaveforms *output_waveform = output_waveforms_[drvr_idx];
   float in_slew = delayAsFloat(dcalc_arg.inSlew());
   double vdd = vdd_;
-  DrvrIv iv{0.0, 0.0, DrvrRegion::time_current};
+  DrvrIv iv{.i = 0.0, .gm = 0.0, .region = DrvrRegion::time_current};
 
   if (time < waveform_begin_[drvr_idx]
       || time > waveform_end_[drvr_idx]) {
@@ -1498,7 +1498,7 @@ PrimaDelayCalc::reportMatrix(MatrixSd &matrix)
     std::string line = "| ";
     for (Eigen::Index j = 0; j < matrix.cols(); j++)
       line += sta::format("{:10.3e}", matrix.coeff(i, j)) + " ";
-    line += "|";
+    line += '|';
     report_->reportLine(line);
   }
 }
@@ -1510,7 +1510,7 @@ PrimaDelayCalc::reportMatrix(Eigen::MatrixXd &matrix)
     std::string line = "| ";
     for (Eigen::Index j = 0; j < matrix.cols(); j++)
       line += sta::format("{:10.3e}", matrix.coeff(i, j)) + " ";
-    line += "|";
+    line += '|';
     report_->reportLine(line);
   }
 }
@@ -1521,7 +1521,7 @@ PrimaDelayCalc::reportMatrix(Eigen::VectorXd &matrix)
   std::string line = "| ";
   for (Eigen::Index i = 0; i < matrix.rows(); i++)
     line += sta::format("{:10.3e}", matrix.coeff(i)) + " ";
-  line += "|";
+  line += '|';
   report_->reportLine(line);
 }
 
@@ -1531,7 +1531,7 @@ PrimaDelayCalc::reportVector(std::vector<double> &matrix)
   std::string line = "| ";
   for (const double &entry : matrix)
     line += sta::format("{:10.3e}", entry) + " ";
-  line += "|";
+  line += '|';
   report_->reportLine(line);
 }
 

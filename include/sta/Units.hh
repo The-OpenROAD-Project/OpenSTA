@@ -31,7 +31,7 @@ namespace sta {
 class Unit
 {
 public:
-  Unit(const char *suffix);
+  explicit Unit(const char *suffix);
   Unit(float scale,
        const char *suffix,
        int digits);

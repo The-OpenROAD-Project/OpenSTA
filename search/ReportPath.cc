@@ -1147,9 +1147,9 @@ ReportPath::reportJson(const PathEnd *end,
     result += sta::format("  \"slack\": {:.{}e}\n",
                  delayAsFloat(end->slack(this)), digits_);
   }
-  result += "}";
+  result += '}';
   if (!last)
-    result += ",";
+    result += ',';
   report_->reportLine(result);
 }
 
@@ -1717,7 +1717,7 @@ ReportPath::reportLimitVerbose(const ReportField *field,
   if (scene && multiScene()) {
     line += " (corner ";
     line += scene->name();
-    line += ")";
+    line += ')';
   }
   report_->reportLine(line);
 
@@ -1908,7 +1908,7 @@ ReportPath::reportStartEndPoint(std::string_view pt,
 
     line += "  (";
     line += reason;
-    line += ")";
+    line += ')';
     report_->reportLine(line);
   }
   else {
@@ -1917,7 +1917,7 @@ ReportPath::reportStartEndPoint(std::string_view pt,
     line += pt;
     line += " (";
     line += reason;
-    line += ")";
+    line += ')';
     report_->reportLine(line);
   }
 }

@@ -70,27 +70,25 @@ PathExpanded::expand(const Path *path,
   bool found_start = false;
   while (p) {
     const Path *prev_path = p->prevPath();
-    if (!found_start) {
-      if (prev_path) {
-        const TimingArc *prev_arc = p->prevArc(sta_);
-        const TimingRole *prev_role = prev_arc->role();
-        if (prev_role == TimingRole::regClkToQ()
-            || prev_role == TimingRole::latchEnToQ()) {
+    if (!found_start && prev_path) {
+      const TimingArc *prev_arc = p->prevArc(sta_);
+      const TimingRole *prev_role = prev_arc->role();
+      if (prev_role == TimingRole::regClkToQ()
+          || prev_role == TimingRole::latchEnToQ()) {
+        start_index_ = i;
+        found_start = true;
+      }
+      else if (prev_role->isLatchDtoQ()) {
+        const Edge *prev_edge = p->prevEdge(sta_);
+        if (prev_edge && latches->isLatchDtoQ(prev_edge, mode)) {
           start_index_ = i;
           found_start = true;
-        }
-        else if (prev_role->isLatchDtoQ()) {
-          const Edge *prev_edge = p->prevEdge(sta_);
-          if (prev_edge && latches->isLatchDtoQ(prev_edge, mode)) {
-            start_index_ = i;
-            found_start = true;
 
-            paths_.push_back(p);
-            // Push latch D path.
-            paths_.push_back(prev_path);
-            // This breaks latch loop paths.
-            break;
-          }
+          paths_.push_back(p);
+          // Push latch D path.
+          paths_.push_back(prev_path);
+          // This breaks latch loop paths.
+          break;
         }
       }
     }

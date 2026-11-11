@@ -78,7 +78,6 @@ WriteSpice::WriteSpice(std::string_view spice_filename,
   ckt_sim_(ckt_sim),
   scene_(scene),
   min_max_(min_max),
-  threshold_library_(nullptr),
   bdd_(sta),
   parasitics_(scene->parasitics(min_max))
 {
@@ -214,7 +213,7 @@ WriteSpice::writeSubckts(StringSet &cell_names)
   if (!cell_names.empty()) {
     std::string missing_cells;
     for (const std::string &cell_name : cell_names) {
-      missing_cells += "\n";
+      missing_cells += '\n';
       missing_cells += cell_name;
     }
     std::string lib_files;

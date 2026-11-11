@@ -191,7 +191,7 @@ protected:
   const MinMax *min_max_;
 
   std::ofstream spice_stream_;
-  LibertyLibrary *threshold_library_;
+  LibertyLibrary *threshold_library_{nullptr};
   float power_voltage_;
   float gnd_voltage_;
   float max_time_;

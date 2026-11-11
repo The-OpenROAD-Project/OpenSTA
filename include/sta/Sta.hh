@@ -1480,7 +1480,7 @@ public:
 
   void annotateNoiseDelays(float min_coupling_sum_ratio,
                            float min_coupling_ratio,
-                           const SceneSeq scenes,
+                           const SceneSeq &scenes,
                            const MinMaxAll *min_max);
   void reportNoiseDelays(size_t max_count,
                          const RiseFallBoth *drvr_rf,

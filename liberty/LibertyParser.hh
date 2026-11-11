@@ -103,8 +103,8 @@ private:
 class LibertyAttrValue
 {
 public:
-  LibertyAttrValue(float value);
-  LibertyAttrValue(std::string &&value);
+  explicit LibertyAttrValue(float value);
+  explicit LibertyAttrValue(std::string &&value);
   bool isString() const;
   bool isFloat() const;
   std::pair<float, bool> floatValue() const;
