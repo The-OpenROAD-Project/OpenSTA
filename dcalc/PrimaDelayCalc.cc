@@ -71,7 +71,6 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
-  PrimaDelayCalc::clear();
 }
 
 PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
@@ -81,7 +80,6 @@ PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(this))
 {
-  PrimaDelayCalc::clear();
 }
 
 PrimaDelayCalc::~PrimaDelayCalc()
@@ -106,7 +104,7 @@ PrimaDelayCalc::copyState(const StaState *sta)
 void
 PrimaDelayCalc::clear()
 {
-  prima_gate_order_ = 3;
+  prima_gate_order_ = prima_gate_order_default_;
 }
 
 Parasitic *

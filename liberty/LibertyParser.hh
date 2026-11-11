@@ -112,7 +112,7 @@ public:
   std::string &stringValue() { return string_value_; }
 
 private:
-  float float_value_;
+  float float_value_{0};
   std::string string_value_;
 };
 

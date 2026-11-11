@@ -1024,7 +1024,7 @@ public:
                            size_t width,
                            bool left_justify,
                            Unit *unit,
-                           const ReportFieldGetValue &get_value);
+                           const ReportFieldGetValue get_value);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void reportPathEnd(PathEnd *end);

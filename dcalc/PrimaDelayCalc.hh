@@ -261,8 +261,9 @@ protected:
   Eigen::VectorXd x_init_;
   Eigen::VectorXd u_;
 
+  static constexpr size_t prima_gate_order_default_{3};
   // Prima reduced MNA eqn order per gate.
-  size_t prima_gate_order_;
+  size_t prima_gate_order_{prima_gate_order_default_};
   // Prima reduced MNA eqn order.
   size_t prima_order_;
   Eigen::MatrixXd Vq_;

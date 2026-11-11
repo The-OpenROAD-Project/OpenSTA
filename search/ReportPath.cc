@@ -87,8 +87,8 @@ ReportField::ReportField(std::string_view name,
                          std::string_view title,
                          size_t width,
                          bool left_justify,
-                         Unit *unit,
-                         ReportFieldGetValue get_value) :
+                         const Unit *unit,
+                         const ReportFieldGetValue get_value) :
   name_(name),
   name_abrev_(name_abrev),
   title_(title),
@@ -180,8 +180,8 @@ ReportPath::makeField(std::string_view name,
                       std::string_view title,
                       size_t width,
                       bool left_justify,
-                      Unit *unit,
-                      ReportFieldGetValue get_value)
+                      const Unit *unit,
+                      const ReportFieldGetValue get_value)
 {
   ReportField *field = new ReportField(name, name_abrev, title, width, left_justify,
                                        unit, get_value);
@@ -201,7 +201,7 @@ ReportPath::findFieldAbrev(std::string_view name)
 {
   for (ReportField *field : fields_) {
     const std::string &name_abrev = field->nameAbrev();
-    if (name.substr(0, name_abrev.size()) == name_abrev)
+    if (name.starts_with(name_abrev))
       return field;
   }
   return nullptr;
@@ -3468,7 +3468,7 @@ ReportPath::reportField(float value,
   if (value == field_blank_)
     reportFieldBlank(field, line);
   else {
-    Unit *unit = field->unit();
+    const Unit *unit = field->unit();
     if (unit) {
       std::string value_str = unit->asString(value, digits_);
       reportField(value_str, field, line);

@@ -43,7 +43,7 @@ public:
   float scale() const { return scale_; }
   void setScale(float scale);
   // Mkmunpf abbreviation for scale.
-  std::string scaleAbbreviation() const;
+  std::string_view scaleAbbreviation() const;
   // 1Mkmunpf or scale
   std::string scaleString() const;
   std::string suffix() const { return suffix_; }

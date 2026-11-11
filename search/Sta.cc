@@ -2934,7 +2934,7 @@ Sta::makeReportPathField(std::string_view name,
                          size_t width,
                          bool left_justify,
                          Unit *unit,
-                         const ReportFieldGetValue &get_value)
+                         const ReportFieldGetValue get_value)
 {
   report_path_->makeField(name, name_abrev, title, width, left_justify, unit, get_value);
 }

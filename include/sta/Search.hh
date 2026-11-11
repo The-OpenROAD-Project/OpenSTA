@@ -285,7 +285,7 @@ public:
                                Vertex *vertex,
                                const Mode *mode,
                                TagGroupBldr *tag_bldr);
-  void postponeLatchDataOutputs(Vertex *vertex);
+  void postponeLatchDataOutputs(Vertex *latch_data);
   void postponeArrivals(Vertex *vertex);
   void seedRequired(Vertex *vertex);
   void seedRequiredEnqueueFanin(Vertex *vertex);
