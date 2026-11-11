@@ -1024,7 +1024,7 @@ public:
                            size_t width,
                            bool left_justify,
                            Unit *unit,
-                           const ReportFieldGetValue get_value);
+                           ReportFieldGetValue get_value);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void reportPathEnd(PathEnd *end);
@@ -1450,7 +1450,7 @@ public:
   void writePathSpice(const Path *path,
                       std::string_view spice_filename,
                       std::string_view subckt_filename,
-                      StringSeq lib_subckt_filenames,
+                      const StringSeq &lib_subckt_filenames,
                       std::string_view model_filename,
                       std::string_view power_name,
                       std::string_view gnd_name,
@@ -1463,7 +1463,7 @@ public:
   void writeGateSpice(ArcDcalcArgSeq &gates,
                       const char *spice_filename,
                       const char *subckt_filename,
-                      StringSeq lib_subckt_filenames,
+                      const StringSeq &lib_subckt_filenames,
                       const char *model_filename,
                       const char *power_name,
                       const char *gnd_name,

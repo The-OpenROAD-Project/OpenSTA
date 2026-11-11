@@ -2934,9 +2934,10 @@ Sta::makeReportPathField(std::string_view name,
                          size_t width,
                          bool left_justify,
                          Unit *unit,
-                         const ReportFieldGetValue get_value)
+                         ReportFieldGetValue get_value)
 {
-  report_path_->makeField(name, name_abrev, title, width, left_justify, unit, get_value);
+  report_path_->makeField(name, name_abrev, title, width, left_justify, unit,
+                          std::move(get_value));
 }
 
 void
@@ -6573,15 +6574,14 @@ void
 Sta::writePathSpice(const Path *path,
                     std::string_view spice_filename,
                     std::string_view subckt_filename,
-                    StringSeq lib_subckt_filenames,
+                    const StringSeq &lib_subckt_filenames,
                     std::string_view model_filename,
                     std::string_view power_name,
                     std::string_view gnd_name,
                     CircuitSim ckt_sim)
 {
   ensureLibLinked();
-  sta::writePathSpice(path, spice_filename, subckt_filename,
-                      std::move(lib_subckt_filenames),
+  sta::writePathSpice(path, spice_filename, subckt_filename, lib_subckt_filenames,
                       model_filename, power_name, gnd_name, ckt_sim, this);
 }
 
@@ -6589,7 +6589,7 @@ void
 Sta::writeGateSpice(ArcDcalcArgSeq &gates,
                     const char *spice_filename,
                     const char *subckt_filename,
-                    StringSeq lib_subckt_filenames,
+                    const StringSeq &lib_subckt_filenames,
                     const char *model_filename,
                     const char *power_name,
                     const char *gnd_name,
@@ -6601,7 +6601,7 @@ Sta::writeGateSpice(ArcDcalcArgSeq &gates,
     ensureGraph();
     findDelays();
     sta::writeGateSpice(gates, spice_filename, subckt_filename,
-                        std::move(lib_subckt_filenames), model_filename,
+                        lib_subckt_filenames, model_filename,
                         power_name, gnd_name, ckt_sim, scene,
                         min_max, this);
   }

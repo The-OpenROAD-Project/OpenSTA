@@ -27,6 +27,7 @@
 #include <algorithm>            // reverse
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "ArcDelayCalc.hh"
 #include "CheckMaxSkews.hh"
@@ -88,13 +89,13 @@ ReportField::ReportField(std::string_view name,
                          size_t width,
                          bool left_justify,
                          const Unit *unit,
-                         const ReportFieldGetValue get_value) :
+                         ReportFieldGetValue get_value) :
   name_(name),
   name_abrev_(name_abrev),
   title_(title),
   left_justify_(left_justify),
   unit_(unit),
-  get_value_(get_value)
+  get_value_(std::move(get_value))
 {
   setWidth(width);
 }
@@ -181,10 +182,10 @@ ReportPath::makeField(std::string_view name,
                       size_t width,
                       bool left_justify,
                       const Unit *unit,
-                      const ReportFieldGetValue get_value)
+                      ReportFieldGetValue get_value)
 {
   ReportField *field = new ReportField(name, name_abrev, title, width, left_justify,
-                                       unit, get_value);
+                                       unit, std::move(get_value));
   fields_.push_back(field);
   field_map_[std::string(name)] = field;
   return field;
