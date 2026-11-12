@@ -34,6 +34,7 @@ define_cmd_args "read_spef" \
      [-keep_capacitive_coupling]\
      [-coupling_reduction_factor factor]\
      [-reduce]\
+     [-replace]\
      filename} \
   -help {The `read_spef` command reads a file of net parasitics in SPEF format. Use the `-report_parasitic_annotation` command to check for nets that are not annotated.
 
@@ -62,12 +63,15 @@ The following SPEF constructs are ignored.
 
 If the SPEF file contains triplet values the first value is used.
 
-Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.} \
+Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.
+
+Reading a net that already has a parasitic network adds to the network so that the block and higher level parasitics of a net can be read in any order. Use `-replace` to replace the parasitic network of each net in the file instead, for example to read parasitics that were extracted again.} \
   -arg_help {
     -name {The name of the SPEF parasitics to use for defining scenes. The default is the base name of filename.}
     -corner {Process corner to annotate. Deprecated; use `-name` and `define_scene`.}
     -pin_cap_included {SPEF pin capacitances are included (library pin capacitances are not added).}
     -reduce {Reduce parasitic networks to the form used by the current delay calculator.}
+    -replace {Replace the parasitic network of each net in the file instead of adding to it.}
     -path {Hierarchical block instance path to annotate with  parasitics.}
     -keep_capacitive_coupling {Keep coupling capacitors in parasitic networks rather than converting them to grounded capacitors.}
     -coupling_reduction_factor {`factor`: Factor to multiply coupling capacitance by when reducing parasitic networks. The default value is 1.0.}
@@ -80,7 +84,8 @@ Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-p
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
     keys {-name -path -coupling_reduction_factor -corner} \
-    flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling -reduce}
+    flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling -reduce \
+             -replace}
 
   check_argc_eq1 "read_spef" $args
   set name ""
@@ -105,11 +110,12 @@ proc_redirect read_spef {
   set keep_coupling_caps [info exists flags(-keep_capacitive_coupling)]
   set pin_cap_included [info exists flags(-pin_cap_included)]
   set reduce [info exists flags(-reduce)]
+  set replace [info exists flags(-replace)]
 
   set filename [file nativename [lindex $args 0]]
   return [read_spef_cmd $name $filename $instance $scene $min_max \
             $pin_cap_included $keep_coupling_caps \
-            $coupling_reduction_factor $reduce]
+            $coupling_reduction_factor $reduce $replace]
 }
 
 define_cmd_args "report_parasitic_annotation" {[-name spef_name]\

@@ -824,7 +824,7 @@ TEST_F(SdfDesignTest, WriteSdfExercisesWriter) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Write SDF to a temp file - this exercises all SdfWriter methods
   const char *tmpfile = "/tmp/test_r8_sdf_output.sdf";
@@ -851,7 +851,7 @@ TEST_F(SdfDesignTest, WriteSdfGzip) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r8_sdf_output.sdf.gz";
   sta_->writeSdf(tmpfile, corner, '/', false, 3, true, true, true);
@@ -880,7 +880,7 @@ TEST_F(SdfDesignTest, WriteSdfDotDivider) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_dot.sdf";
   sta_->writeSdf(tmpfile, corner, '.', true, 3, false, true, true);
@@ -903,7 +903,7 @@ TEST_F(SdfDesignTest, WriteSdfNoTyp) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_notyp.sdf";
   sta_->writeSdf(tmpfile, corner, '/', false, 3, false, true, true);
@@ -926,7 +926,7 @@ TEST_F(SdfDesignTest, WriteSdfHighPrecision) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_highprec.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 6, false, true, true);
@@ -949,7 +949,7 @@ TEST_F(SdfDesignTest, WriteSdfNoTimestamp) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_notimestamp.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, false, true);
@@ -972,7 +972,7 @@ TEST_F(SdfDesignTest, WriteSdfNoTimescale) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_notimescale.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, false);
@@ -995,7 +995,7 @@ TEST_F(SdfDesignTest, WriteThenReadSdf) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_roundtrip.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1016,7 +1016,7 @@ TEST_F(SdfDesignTest, ReadSdfUnescapedDividers) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_unesc.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1036,7 +1036,7 @@ TEST_F(SdfDesignTest, ReadSdfIncrementalOnly) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_incr.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1056,7 +1056,7 @@ TEST_F(SdfDesignTest, ReadSdfCondUseMin) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_cumin.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1076,7 +1076,7 @@ TEST_F(SdfDesignTest, ReadSdfCondUseMax) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_cumax.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1096,7 +1096,7 @@ TEST_F(SdfDesignTest, ReadSdfCombinedOptions) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_combined.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1116,7 +1116,7 @@ TEST_F(SdfDesignTest, WriteSdfLowPrecision) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_lowprec.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 1, false, true, true);
@@ -1139,7 +1139,7 @@ TEST_F(SdfDesignTest, WriteSdfGzipThenRead) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_gz.sdf.gz";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, true, true, true);
@@ -1159,7 +1159,7 @@ TEST_F(SdfDesignTest, WriteSdfNoTimestampNoTimescale) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r9_sdf_minimal.sdf";
   sta_->writeSdf(tmpfile, corner, '/', false, 3, false, false, false);
@@ -1371,7 +1371,7 @@ TEST_F(SdfDesignTest, ReadSdfWithPath) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r11_sdf_path.sdf";
   sta_->writeSdf(tmpfile, corner, '/', true, 3, false, true, true);
@@ -1392,7 +1392,7 @@ TEST_F(SdfDesignTest, ReadHandCraftedSdf) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Write a hand-crafted SDF with IOPATH and timing checks
   const char *sdf_path = "/tmp/test_r11_handcraft.sdf";
@@ -1433,7 +1433,7 @@ TEST_F(SdfDesignTest, ReadSdfEdgeIopath) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_edge_iopath.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1470,7 +1470,7 @@ TEST_F(SdfDesignTest, ReadSdfSetupHold) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_setuphold.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1504,7 +1504,7 @@ TEST_F(SdfDesignTest, ReadSdfRecRem) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_recrem.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1538,7 +1538,7 @@ TEST_F(SdfDesignTest, ReadSdfWidth) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_width.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1572,7 +1572,7 @@ TEST_F(SdfDesignTest, ReadSdfPeriod) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_period.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1607,7 +1607,7 @@ TEST_F(SdfDesignTest, ReadSdfNochange) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_nochange.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1644,7 +1644,7 @@ TEST_F(SdfDesignTest, ReadSdfInterconnect) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *sdf_path = "/tmp/test_r11_interconnect.sdf";
   FILE *fp = fopen(sdf_path, "w");
@@ -1680,7 +1680,7 @@ TEST_F(SdfDesignTest, WriteSdfWithVersion) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   const char *tmpfile = "/tmp/test_r11_sdf_version.sdf";
   // no_timestamp=false, no_version=false -> includes version and timestamp

@@ -1277,6 +1277,7 @@ public:
   // The parasitic memory footprint is much smaller if parasitic
   // networks (dspf) are reduced and deleted after reading each net
   // with reduce_to and delete_after_reduce.
+  // A net that already has a parasitic network is added to unless replace.
   // Return true if successful.
   bool readSpef(std::string_view name,
                 std::string_view filename,
@@ -1286,7 +1287,8 @@ public:
                 bool pin_cap_included,
                 bool keep_coupling_caps,
                 float coupling_cap_factor,
-                bool reduce);
+                bool reduce,
+                bool replace);
   Parasitics *findParasitics(const std::string &name);
   void reportParasiticAnnotation(const std::string &spef_name,
                                  bool report_unannotated);

@@ -127,6 +127,8 @@ public:
   Parasitic *findParasiticNetwork(const Pin *pin)  override;
   Parasitic *makeParasiticNetwork(const Net *net,
                                   bool includes_pin_caps) override;
+  void clearParasiticNetwork(Parasitic *parasitic,
+                             bool includes_pin_caps) override;
   void deleteParasiticNetwork(const Net *net) override;
   const Net *net(const Parasitic *parasitic) const override;
   bool includesPinCaps(const Parasitic *parasitic) const override;

@@ -1665,7 +1665,7 @@ protected:
     // Read SPEF with reduction (default)
     Instance *top = sta_->network()->topInstance();
     ok = sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                         min_max, false, false, 1.0f, true);
+                         min_max, false, false, 1.0f, true, false);
     ASSERT_TRUE(ok);
 
     // Create clock
@@ -1735,7 +1735,7 @@ TEST_F(DesignDcalcTest, TimingArnoldi) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->updateTiming(true);
   EXPECT_GT(sta_->graph()->vertexCount(), 0);
 }
@@ -1789,7 +1789,7 @@ TEST_F(DesignDcalcTest, TimingPrima) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->updateTiming(true);
   EXPECT_GT(sta_->graph()->vertexCount(), 0);
 }
@@ -1812,7 +1812,7 @@ TEST_F(DesignDcalcTest, ArnoldiReduceParasiticWithDesign) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
 
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
@@ -3023,7 +3023,7 @@ TEST_F(DesignDcalcTest, ReportDelayCalcPrima) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->updateTiming(true);
   Graph *graph = sta_->graph();
   ASSERT_NE(graph, nullptr);
@@ -3165,7 +3165,7 @@ TEST_F(DesignDcalcTest, ArnoldiReduceDesign) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
   Network *network = sta_->network();
@@ -3578,7 +3578,7 @@ TEST_F(DesignDcalcTest, DmpCeffTwoPoleWithParasitics) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("dmp_ceff_two_pole");
   sta_->updateTiming(true);
 
@@ -3837,7 +3837,7 @@ TEST_F(DesignDcalcTest, CcsCeffUnreducedParasitics) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
 
@@ -3853,7 +3853,7 @@ TEST_F(DesignDcalcTest, PrimaTimingWithReport) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("prima");
   sta_->updateTiming(true);
 
@@ -3937,7 +3937,7 @@ TEST_F(DesignDcalcTest, ArnoldiLoadCapAndNetCaps) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("arnoldi");
   sta_->updateTiming(true);
 
@@ -4071,7 +4071,7 @@ TEST_F(DesignDcalcTest, ArnoldiReduceAllNets) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
 
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);

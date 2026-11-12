@@ -44,12 +44,13 @@ read_spef_cmd(const char *name,
               bool pin_cap_included,
               bool keep_coupling_caps,
               float coupling_cap_factor,
-              bool reduce)
+              bool reduce,
+              bool replace)
 {
   return Sta::sta()->readSpef(name, filename, instance,
                               scene, min_max,
                               pin_cap_included, keep_coupling_caps,
-                              coupling_cap_factor, reduce);
+                              coupling_cap_factor, reduce, replace);
 }
 
 void

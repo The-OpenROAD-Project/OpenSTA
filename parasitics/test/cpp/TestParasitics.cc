@@ -1369,7 +1369,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkIncludesPinCaps) {
   EXPECT_FALSE(pnet1.includesPinCaps());
 
   ConcreteParasiticNetwork pnet2(network);
-  pnet2.init(nullptr, true);
+  pnet2.clear(nullptr, true);
   EXPECT_TRUE(pnet2.includesPinCaps());
 }
 
@@ -1426,7 +1426,7 @@ TEST_F(StaParasiticsTest, ConcreteParasiticsIncludesPinCaps) {
   Parasitics *parasitics = sta_->findParasitics("default");
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(network);
-  pnet.init(nullptr, true);
+  pnet.clear(nullptr, true);
   EXPECT_TRUE(parasitics->includesPinCaps(static_cast<Parasitic*>(&pnet)));
 }
 
@@ -1977,7 +1977,8 @@ TEST_F(DesignParasiticsTest, ReadSpefWithReduction) {
     false,           // pin_cap_included
     false,           // keep_coupling_caps
     1.0f,            // coupling_cap_factor
-    true);           // reduce (triggers ReduceToPiElmore)
+    true,            // reduce (triggers ReduceToPiElmore)
+    false);          // replace
   EXPECT_TRUE(success);
 
   // Parasitics should now be loaded
@@ -1998,7 +1999,8 @@ TEST_F(DesignParasiticsTest, ReadSpefNoReduction) {
     false,           // pin_cap_included
     false,           // keep_coupling_caps
     1.0f,
-    false);          // no reduction - keeps networks
+    false,           // no reduction - keeps networks
+    false);          // replace
   EXPECT_TRUE(success);
   Parasitics *parasitics = sta_->findParasitics("default");
   EXPECT_TRUE(parasitics->haveParasitics());
@@ -2009,7 +2011,7 @@ TEST_F(DesignParasiticsTest, ReportParasiticAnnotation) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
   // Report annotated - exercises ReportParasiticAnnotation::report()
   sta_->reportParasiticAnnotation("", false);
   // Report unannotated
@@ -2021,7 +2023,7 @@ TEST_F(DesignParasiticsTest, FindPiElmoreAfterReduce) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Find a driver pin and query its reduced parasitic
   Network *network = sta_->network();
@@ -2050,7 +2052,7 @@ TEST_F(DesignParasiticsTest, DeleteParasiticsNet) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Parasitics *parasitics = sta_->findParasitics("default");
   ConcreteParasitics *concrete = dynamic_cast<ConcreteParasitics*>(parasitics);
@@ -2077,7 +2079,7 @@ TEST_F(DesignParasiticsTest, UnannotatedLoadsWithDesign) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // ConcretePiPoleResidue::unannotatedLoads requires real pins
   // Build a pipr and check unannotatedLoads with real parasitics API
@@ -2103,7 +2105,7 @@ TEST_F(DesignParasiticsTest, TimingWithParasitics) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Create clock and set constraints via C++ API
   Network *network = sta_->network();
@@ -2144,7 +2146,7 @@ TEST_F(DesignParasiticsTest, ReadSpefWithCouplingCapFactor) {
     false,
     true,            // keep_coupling_caps
     0.5f,            // coupling_cap_factor = 0.5
-    true);
+    true, false);
   EXPECT_TRUE(success);
 }
 
@@ -2161,7 +2163,7 @@ TEST_F(DesignParasiticsTest, ReadSpefPinCapIncluded) {
     true,            // pin_cap_included
     false,
     1.0f,
-    true);
+    true, false);
   EXPECT_TRUE(success);
 }
 
@@ -2171,7 +2173,7 @@ TEST_F(DesignParasiticsTest, ReduceWithRealDriver) {
   Scene *corner = sta_->cmdScene();
   // Read SPEF WITHOUT reduction to keep the networks
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
 
   Parasitics *parasitics = sta_->findParasitics("default");
   Network *network = sta_->network();
@@ -2208,7 +2210,7 @@ TEST_F(DesignParasiticsTest, ReducePoleResidue2WithRealDriver) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
 
   Parasitics *parasitics = sta_->findParasitics("default");
   Network *network = sta_->network();
@@ -2242,7 +2244,7 @@ TEST_F(DesignParasiticsTest, DeleteParasiticsAllNets) {
   ASSERT_TRUE(design_loaded_);
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Parasitics *parasitics = sta_->findParasitics("default");
   EXPECT_TRUE(parasitics->haveParasitics());
@@ -2365,7 +2367,7 @@ TEST_F(StaParasiticsTest, ParasiticNetworkCreation) {
 TEST_F(StaParasiticsTest, ParasiticNetworkIncludesPinCaps2) {
   const Network *network = sta_->network();
   ConcreteParasiticNetwork pnet(network);
-  pnet.init(nullptr, true);
+  pnet.clear(nullptr, true);
   EXPECT_TRUE(pnet.includesPinCaps());
 }
 
@@ -2440,7 +2442,7 @@ TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndex) {
     sta_->network()->topInstance(),
     corner,
     MinMaxAll::min(),  // just min to exercise specific index path
-    false, false, 1.0f, true);
+    false, false, 1.0f, true, false);
   EXPECT_TRUE(success);
 
   // readSpef with name="" and scene+min creates parasitics under "default_min"
@@ -2459,7 +2461,7 @@ TEST_F(DesignParasiticsTest, ReportParasiticAnnotation2) {
 
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // This calls ReportParasiticAnnotation::report()
   reportParasiticAnnotation(sta_->findParasitics("default"), true, corner, sta_);
@@ -2528,7 +2530,7 @@ TEST_F(DesignParasiticsTest, ParasiticAnalysisPtIndexMaxOnly) {
     sta_->network()->topInstance(),
     corner,
     MinMaxAll::max(),
-    false, false, 1.0f, true);
+    false, false, 1.0f, true, false);
   EXPECT_TRUE(success);
   // readSpef with name="" and scene+max creates parasitics under "default_max"
   Parasitics *parasitics = sta_->findParasitics("default_max");
@@ -2543,7 +2545,7 @@ TEST_F(DesignParasiticsTest, ReportAnnotationAfterSpef) {
   sta_->ensureGraph();
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("", "test/reg1_asap7.spef", sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
   sta_->reportParasiticAnnotation("", true);
   sta_->reportParasiticAnnotation("", false);
 }
@@ -2565,7 +2567,8 @@ TEST_F(DesignParasiticsTest, ReduceToPiElmoreWithNetwork) {
     corner,
     MinMaxAll::all(),
     false, false, 1.0f,
-    false);  // no reduction - keep networks
+    false,   // no reduction - keep networks
+    false);  // replace
   ASSERT_TRUE(success);
 
   // Now read again with reduction to exercise ReduceToPi methods
@@ -2576,7 +2579,8 @@ TEST_F(DesignParasiticsTest, ReduceToPiElmoreWithNetwork) {
     corner,
     MinMaxAll::all(),
     false, false, 1.0f,
-    true);  // with reduction
+    true,   // with reduction
+    false); // replace
   EXPECT_TRUE(success);
 }
 
