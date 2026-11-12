@@ -68,18 +68,16 @@ report_checks
 #---------------------------------------------------------------
 puts "--- Test 5: SPEF with coupling factor ---"
 set_delay_calculator dmp_ceff_elmore
-sta::delete_parasitics
-read_spef -coupling_reduction_factor 0.5 parasitics_coupling_spef.spef
+read_spef -replace -coupling_reduction_factor 0.5 parasitics_coupling_spef.spef
 
 report_checks
 
 #---------------------------------------------------------------
 # Test 6: Re-read SPEF without coupling (default mode)
-# A read adds to a net's existing network; delete the parasitics first
+# Exercises: read_spef -replace on re-read
 #---------------------------------------------------------------
 puts "--- Test 6: SPEF without coupling (re-read) ---"
-sta::delete_parasitics
-read_spef ../../test/reg1_asap7.spef
+read_spef -replace ../../test/reg1_asap7.spef
 
 report_checks
 
@@ -88,8 +86,7 @@ report_checks
 # Exercises: reduce parameter in readSpef, parasitic reduction flow
 #---------------------------------------------------------------
 puts "--- Test 7: SPEF with -reduce ---"
-sta::delete_parasitics
-read_spef -reduce ../../test/reg1_asap7.spef
+read_spef -replace -reduce ../../test/reg1_asap7.spef
 
 report_checks
 

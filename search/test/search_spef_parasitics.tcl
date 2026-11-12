@@ -101,11 +101,10 @@ report_checks -path_delay max
 report_checks -path_delay min
 
 ############################################################
-# Delete the parasitics and re-read SPEF (exercises setParasiticAnalysisPts path)
+# Re-read SPEF with -replace (exercises setParasiticAnalysisPts path)
 ############################################################
 puts "--- re-read SPEF ---"
-sta::delete_parasitics
-read_spef search_test1.spef
+read_spef -replace search_test1.spef
 report_checks -path_delay max
 
 ############################################################
