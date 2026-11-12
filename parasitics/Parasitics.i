@@ -109,4 +109,10 @@ set_elmore_cmd(Pin *drvr_pin,
   Sta::sta()->setElmore(drvr_pin, load_pin, rf, min_max, elmore);
 }
 
+void
+delete_parasitics()
+{
+  Sta::sta()->deleteParasitics();
+}
+
 %} // inline

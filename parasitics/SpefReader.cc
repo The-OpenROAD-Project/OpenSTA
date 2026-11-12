@@ -372,16 +372,10 @@ SpefReader::dspfBegin(Net *net,
                       SpefTriple *total_cap)
 {
   if (net) {
-    if (network_->isTopInstance(instance_)) {
-      parasitics_->deleteReducedParasitics(net);
-      parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_);
-    }
-    else {
-      const Net *dspef_net = dspefNet(net);
-      parasitic_ = parasitics_->findParasiticNetwork(dspef_net);
-      if (parasitic_ == nullptr)
-        parasitic_ = parasitics_->makeParasiticNetwork(dspef_net, pin_cap_included_);
-    }
+    const Net *dspef_net = network_->isTopInstance(instance_) ? net : dspefNet(net);
+    parasitic_ = parasitics_->findParasiticNetwork(dspef_net);
+    if (parasitic_ == nullptr)
+      parasitic_ = parasitics_->makeParasiticNetwork(dspef_net, pin_cap_included_);
     net_ = net;
   }
   else {
