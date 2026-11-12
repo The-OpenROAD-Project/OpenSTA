@@ -93,18 +93,18 @@ Tag::to_string(bool report_index,
 
   if (report_index) {
     result += std::to_string(index_);
-    result += " ";
+    result += ' ';
   }
 
   result += scene_->name();
-  result += " ";
+  result += ' ';
 
   if (report_rf_min_max) {
     const RiseFall *rf = transition();
     const MinMax *min_max = minMax();
     result += rf->shortName();
     result += min_max->to_string();
-    result += " ";
+    result += ' ';
   }
 
   const ClockEdge *clk_edge = clkEdge();
@@ -123,11 +123,11 @@ Tag::to_string(bool report_index,
       else
         result += " ideal";
       if (is_genclk_src)
-        result += " ";
+        result += ' ';
     }
     if (clk_info_->isGenClkSrcPath())
       result += "genclk";
-    result += ")";
+    result += ')';
   }
 
   const Pin *clk_src = clkSrc();
@@ -140,7 +140,7 @@ Tag::to_string(bool report_index,
   const Path *crpr_clk_path = clk_info_->crprClkPath(sta);
   if (crpr_clk_path) {
     result += network->pathName(crpr_clk_path->pin(sta));
-    result += " ";
+    result += ' ';
     result += crpr_clk_path->minMax(sta)->to_string();
   }
   else
@@ -157,12 +157,12 @@ Tag::to_string(bool report_index,
   if (states_) {
     for (ExceptionState *state : *states_) {
       ExceptionPath *exception = state->exception();
-      result += " ";
+      result += ' ';
       result += exception->to_string(network);
       if (state->nextThru()) {
         result += " (next thru ";
         result += state->nextThru()->to_string(network);
-        result += ")";
+        result += ')';
       }
       else {
         if (exception->thrus() != nullptr)

@@ -159,9 +159,9 @@ ClkInfo::to_string(const StaState *sta) const
 
   const MinMax *min_max = minMax();
   result += scene_->name();
-  result += "/";
+  result += '/';
   result += min_max->to_string();
-  result += " ";
+  result += ' ';
 
   if (clk_edge_)
     result += clk_edge_->name();
@@ -177,16 +177,16 @@ ClkInfo::to_string(const StaState *sta) const
     const Pin *crpr_clk_pin = crpr_clk_path_.vertex(sta)->pin();
     result += " crpr ";
     result += network->pathName(crpr_clk_pin);
-    result += " ";
+    result += ' ';
     result += std::to_string(crpr_clk_path_.tag(sta)->index());
-    result += "/";
+    result += '/';
     result += crpr_clk_path_.minMax(sta)->to_string();
   }
 
   if (is_gen_clk_src_path_)
     result += " genclk";
   if (gen_clk_src_) {
-    result += " ";
+    result += ' ';
     result += network->pathName(gen_clk_src_);
   }
 
@@ -204,7 +204,7 @@ ClkInfo::to_string(const StaState *sta) const
       result += sta->units()->timeUnit()->asString(uncertainty);
     uncertainties_->value(MinMax::max(), uncertainty, exists);
     if (exists) {
-      result += ":";
+      result += ':';
       result += sta->units()->timeUnit()->asString(uncertainty);
     }
   }

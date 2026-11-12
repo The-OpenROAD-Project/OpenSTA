@@ -54,7 +54,8 @@ Unit::Unit(float scale,
 void
 Unit::setScaleAbbrevSuffix()
 {
-  scale_abbrev_suffix_ = scaleAbbreviation() + suffix_;
+  scale_abbrev_suffix_ = scaleAbbreviation();
+  scale_abbrev_suffix_ += suffix_;
 }
 
 double
@@ -76,7 +77,7 @@ Unit::setScale(float scale)
   setScaleAbbrevSuffix();
 }
 
-std::string
+std::string_view
 Unit::scaleAbbreviation() const
 {
   if (fuzzyEqual(scale_, 1E+6))

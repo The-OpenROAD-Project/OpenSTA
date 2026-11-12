@@ -43,7 +43,7 @@ writePathSpice(const Path *path,
                // Subckts used by path included in spice file.
                std::string_view subckt_filename,
                // Files of cell spice subckt definitions.
-               StringSeq lib_subckt_filenames,
+               const StringSeq &lib_subckt_filenames,
                // Device model file included in spice file.
                std::string_view model_filename,
                std::string_view power_name,

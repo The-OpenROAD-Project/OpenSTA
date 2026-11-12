@@ -1617,7 +1617,7 @@ TEST_F(StaInitTest, ReportFieldUnit) {
   ASSERT_NO_THROW(( [&](){
     ReportPath *rpt = sta_->reportPath();
     ReportField *field = rpt->fieldSlew();
-    Unit *u = field->unit();
+    const Unit *u = field->unit();
     EXPECT_NE(u, nullptr);
   }() ));
 }

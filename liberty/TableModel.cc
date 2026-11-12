@@ -1429,7 +1429,7 @@ Table::reportValueOrder3(std::string_view result_name,
   result += '\n';
   result += "   v    |    --------------------\n";
   if (axis1_->size() != 1) {
-    result += " ";
+    result += ' ';
     result += unit1->asString(axis1_->axisValue(axis_index1 + 1), digits);
     result += "   v   / ";
     result += table_unit->asString(value(axis_index1 + 1, axis_index2, axis_index3),
@@ -1505,13 +1505,13 @@ Table::report(const Units *units,
     std::string line;
     for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
       line += unit1->asString(axis1_->axisValue(index1), digits);
-      line += " ";
+      line += ' ';
     }
     report->reportLine(line);
     line.clear();
     for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
       line += table_unit->asString(value(index1), digits);
-      line += " ";
+      line += ' ';
     }
     report->reportLine(line);
     return;
@@ -1524,7 +1524,7 @@ Table::report(const Units *units,
     std::string line = "     ";
     for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
       line += unit2->asString(axis2_->axisValue(index2), digits);
-      line += " ";
+      line += ' ';
     }
     report->reportLine(line);
     for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
@@ -1532,7 +1532,7 @@ Table::report(const Units *units,
       line += " |";
       for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
         line += table_unit->asString(value(index1, index2), digits);
-        line += " ";
+        line += ' ';
       }
       report->reportLine(line);
     }
@@ -1550,7 +1550,7 @@ Table::report(const Units *units,
     std::string line = "     ";
     for (size_t axis_index3 = 0; axis_index3 < axis3_->size(); axis_index3++) {
       line += unit3->asString(axis3_->axisValue(axis_index3), digits);
-      line += " ";
+      line += ' ';
     }
     report->reportLine(line);
     for (size_t axis_index2 = 0; axis_index2 < axis2_->size(); axis_index2++) {
@@ -1559,7 +1559,7 @@ Table::report(const Units *units,
       for (size_t axis_index3 = 0; axis_index3 < axis3_->size(); axis_index3++) {
         line += table_unit->asString(value(axis_index1, axis_index2, axis_index3),
                                      digits);
-        line += " ";
+        line += ' ';
       }
       report->reportLine(line);
     }

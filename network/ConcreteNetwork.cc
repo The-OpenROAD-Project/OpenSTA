@@ -435,8 +435,7 @@ Library *
 ConcreteNetwork::makeLibrary(std::string_view name,
                              std::string_view filename)
 {
-  ConcreteLibrary *library = new ConcreteLibrary(std::string(name),
-                                                 std::string(filename), false);
+  ConcreteLibrary *library = new ConcreteLibrary(name, filename, false);
   addLibrary(library);
   return reinterpret_cast<Library*>(library);
 }
@@ -445,8 +444,7 @@ LibertyLibrary *
 ConcreteNetwork::makeLibertyLibrary(std::string_view name,
                                     std::string_view filename)
 {
-  LibertyLibrary *library = new LibertyLibrary(std::string(name),
-                                               std::string(filename));
+  LibertyLibrary *library = new LibertyLibrary(name, filename);
   addLibrary(library);
   return library;
 }

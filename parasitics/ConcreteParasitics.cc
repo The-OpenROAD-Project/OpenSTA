@@ -1194,19 +1194,17 @@ Parasitic *
 ConcreteParasitics::findParasiticNetwork(const Pin *pin)
 {
   if (!parasitic_network_map_.empty()) {
-    if (!parasitic_network_map_.empty()) {
-      // Only call findParasiticNet if parasitics exist.
-      const Net *net = findParasiticNet(pin);
+    // Only call findParasiticNet if parasitics exist.
+    const Net *net = findParasiticNet(pin);
 
-      if (!parasitic_network_map_.empty()) {
-        auto itr = parasitic_network_map_.find(net);
-        if (itr != parasitic_network_map_.end()) {
-          ConcreteParasiticNetwork &parasitic = itr->second;
-          if (parasitic.empty())
-            return nullptr;
-          else
-            return &parasitic;
-        }
+    if (!parasitic_network_map_.empty()) {
+      auto itr = parasitic_network_map_.find(net);
+      if (itr != parasitic_network_map_.end()) {
+        ConcreteParasiticNetwork &parasitic = itr->second;
+        if (parasitic.empty())
+          return nullptr;
+        else
+          return &parasitic;
       }
     }
   }

@@ -33,7 +33,7 @@ class RiseFallValues
 {
 public:
   RiseFallValues();
-  RiseFallValues(float init_value);
+  explicit RiseFallValues(float init_value);
   float value(const RiseFall *rf) const;
   void value(const RiseFall *rf,
              float &value, bool &exists) const;

@@ -156,7 +156,7 @@ private:
 class SpefTriple
 {
 public:
-  SpefTriple(float value);
+  explicit SpefTriple(float value);
   SpefTriple(float value1,
              float value2,
              float value3);
