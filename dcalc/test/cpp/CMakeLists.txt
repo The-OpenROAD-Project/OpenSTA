@@ -31,3 +31,22 @@ gtest_discover_tests(TestDcalc
   WORKING_DIRECTORY ${STA_HOME}
   PROPERTIES LABELS "cpp\;module_dcalc"
 )
+# ---- OpenROAD fork: DMP accuracy tests (begin) ----
+
+add_executable(TestDmpAccuracy TestDmpAccuracy.cc)
+target_link_libraries(TestDmpAccuracy
+  OpenSTA
+  GTest::gtest
+  GTest::gtest_main
+  ${TCL_LIBRARY}
+)
+target_include_directories(TestDmpAccuracy PRIVATE
+  ${STA_HOME}/include/sta
+  ${STA_HOME}
+  ${CMAKE_BINARY_DIR}/include/sta
+)
+gtest_discover_tests(TestDmpAccuracy
+  WORKING_DIRECTORY ${STA_HOME}
+  PROPERTIES LABELS "cpp\;module_dcalc"
+)
+# ---- OpenROAD fork: DMP accuracy tests (end) ----

@@ -3,6 +3,11 @@
 
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+# ---- OpenROAD fork: DMP accuracy tests (begin) ----
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
+# ---- OpenROAD fork: DMP accuracy tests (end) ----
 load("//bazel:bison.bzl", "genyacc")
 load("//bazel:flex.bzl", "genlex")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
@@ -444,6 +449,26 @@ cc_library(
         "@zlib",  # keep. Is used, but with <>-includes
     ],
 )
+# ---- OpenROAD fork: DMP accuracy tests (begin) ----
+
+cc_test(
+    name = "TestDmpAccuracy",
+    size = "small",
+    srcs = ["dcalc/test/cpp/TestDmpAccuracy.cc"],
+    features = ["-use_header_modules"],
+    includes = [
+        ".",
+        "include/sta",
+    ],
+    deps = [
+        ":config",
+        ":opensta_lib",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+        "@tcl_lang//:tcl",
+    ],
+)
+# ---- OpenROAD fork: DMP accuracy tests (end) ----
 
 filegroup(
     name = "tcl_util",
