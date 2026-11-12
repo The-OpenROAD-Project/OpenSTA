@@ -196,6 +196,7 @@ record_public_tests {
   prima10
   prima_singular
   read_saif_null_instance
+  read_spef_twice
   report_checks_sorted
   report_checks_src_attr
   report_json1
