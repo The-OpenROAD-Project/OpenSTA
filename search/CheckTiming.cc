@@ -44,6 +44,8 @@
 #include "SdcClass.hh"
 #include "Sim.hh"
 #include "StaState.hh"
+#include "Tag.hh"
+#include "TimingArc.hh"
 #include "TimingRole.hh"
 
 namespace sta {
@@ -114,12 +116,13 @@ CheckTiming::checkNoInputDelay()
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     if (!sdc_->isClock(pin)) {
-      PortDirection *dir = network_->direction(pin);
+      const PortDirection *dir = network_->direction(pin);
       if (dir->isAnyInput()
           && !sdc_->hasInputDelay(pin)
           // OpenROAD fork: analysis_corner support.
           && !modeHasCornerInputDelay(mode_, pin)
-          && !sim_->isConstant(pin))
+          && !sim_->isConstant(pin)
+          && !hasMaxDelayFrom(pin))
         no_arrival.insert(pin);
     }
   }
@@ -143,12 +146,13 @@ CheckTiming::checkNoOutputDelay(PinSet &no_departure)
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     if (dir->isAnyOutput()
         && !sdc_->hasOutputDelay(pin)
         // OpenROAD fork: analysis_corner support.
         && !modeHasCornerOutputDelay(mode_, pin)
-        && !sim_->isConstant(pin))
+        && !sim_->isConstant(pin)
+        && !hasMaxDelay(pin))
       no_departure.insert(pin);
   }
   delete pin_iter;
@@ -176,7 +180,7 @@ CheckTiming::checkRegClks(bool reg_multiple_clks,
   for (Vertex *vertex : graph_->regClkVertices()) {
     const Pin *pin = vertex->pin();
     const ClockSet *clks = clk_network_->clocks(pin);
-    if (reg_no_clks && clks == nullptr)
+    if (reg_no_clks && (clks == nullptr || !hasClkArrivalOnLaunchEdge(vertex)))
       no_clk_pins.insert(pin);
     if (reg_multiple_clks && clks && clks->size() > 1)
       multiple_clk_pins.insert(pin);
@@ -257,7 +261,7 @@ CheckTiming::checkUnconstrainedOutputs(PinSet &unconstrained_ends)
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     Vertex *vertex = graph_->pinLoadVertex(pin);
     if (dir->isAnyOutput()
         && !sim_->isConstant(pin)
@@ -294,7 +298,7 @@ CheckTiming::hasClkedDepature(Pin *pin)
 
 // Check for max delay exception that ends at pin.
 bool
-CheckTiming::hasMaxDelay(Pin *pin)
+CheckTiming::hasMaxDelay(const Pin *pin)
 {
   for (const ExceptionPath *exception : sdc_->exceptions()) {
     ExceptionTo *to = exception->to();
@@ -303,6 +307,22 @@ CheckTiming::hasMaxDelay(Pin *pin)
         && to
         && to->hasPins()
         && to->pins()->contains(pin))
+      return true;
+  }
+  return false;
+}
+
+// Check for max delay exception that starts at pin.
+bool
+CheckTiming::hasMaxDelayFrom(const Pin *pin)
+{
+  for (const ExceptionPath *exception : sdc_->exceptions()) {
+    ExceptionFrom *from = exception->from();
+    if (exception->isPathDelay()
+        && exception->minMax() == MinMaxAll::max()
+        && from
+        && from->hasPins()
+        && from->pins()->contains(pin))
       return true;
   }
   return false;
@@ -320,13 +340,54 @@ CheckTiming::checkUnconstrainedSetups(PinSet &unconstrained_ends)
         Edge *edge = edge_iter.next();
         if (edge->role() == TimingRole::setup()
             && (!clk_network_->isClock(edge->from(graph_))
-                || !hasClkedArrival(edge->to(graph_)))) {
+                || !(hasClkedArrival(edge->to(graph_))
+                     || hasMaxDelayArrival(edge->to(graph_))))) {
           unconstrained_ends.insert(vertex->pin());
           break;
         }
       }
     }
   }
+}
+
+// The clock network is found without regard to transitions, so a
+// register can be in it while the edge it launches on never arrives:
+// a cell whose only arc carries the falling edge in front of a
+// rising-edge flop. The search then times nothing at the register.
+// True when a clock path arrives on an edge one of the register's
+// clock-to-output arcs starts from, or when it has no such arc.
+bool
+CheckTiming::hasClkArrivalOnLaunchEdge(Vertex *clk_vertex)
+{
+  bool launches_rise = false;
+  bool launches_fall = false;
+  VertexOutEdgeIterator edge_iter(clk_vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    const TimingRole *role = edge->role();
+    if (role == TimingRole::regClkToQ() || role == TimingRole::latchEnToQ()) {
+      for (const TimingArc *arc : edge->timingArcSet()->arcs()) {
+        const RiseFall *launch_rf = arc->fromEdge()->asRiseFall();
+        if (launch_rf == RiseFall::rise())
+          launches_rise = true;
+        else if (launch_rf == RiseFall::fall())
+          launches_fall = true;
+      }
+    }
+  }
+  if (!launches_rise && !launches_fall)
+    return true;
+  VertexPathIterator path_iter(clk_vertex, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    if (path->isClock(this) && path->mode(this) == mode_) {
+      const RiseFall *rf = path->transition(this);
+      if ((rf == RiseFall::rise() && launches_rise)
+          || (rf == RiseFall::fall() && launches_fall))
+        return true;
+    }
+  }
+  return false;
 }
 
 bool
@@ -341,6 +402,33 @@ CheckTiming::hasClkedArrival(Vertex *vertex)
   return false;
 }
 
+// Check for a data arrival a max delay exception ending at vertex
+// constrains, such as one from an input port with no input delay.
+bool
+CheckTiming::hasMaxDelayArrival(Vertex *vertex)
+{
+  const Pin *pin = vertex->pin();
+  VertexPathIterator path_iter(vertex, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    const ExceptionStateSet *states = path->tag(this)->states();
+    if (path->minMax(this) != MinMax::max()
+        || states == nullptr)
+      continue;
+    for (const ExceptionState *state : *states) {
+      const ExceptionPath *exception = state->exception();
+      const ExceptionTo *to = exception->to();
+      if (exception->isPathDelay()
+          && exception->minMax() == MinMaxAll::max()
+          && state->nextThru() == nullptr
+          && (to == nullptr
+              || to->matches(pin, path->transition(this), network_)))
+        return true;
+    }
+  }
+  return false;
+}
+
 void
 CheckTiming::checkGeneratedClocks()
 {
@@ -349,7 +437,7 @@ CheckTiming::checkGeneratedClocks()
     if (clk->isGenerated()) {
       mode_->genclks()->checkMaster(clk, sdc_);
       bool found_clk = false;
-      VertexSet src_vertices = makeVertexSet(this);
+      VertexSet src_vertices(graph_);
       clk->srcPinVertices(src_vertices, network_, graph_);
       for (Vertex *vertex : src_vertices) {
         if (clk_network_->isClock(vertex)) {

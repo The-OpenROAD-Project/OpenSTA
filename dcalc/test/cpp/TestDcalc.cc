@@ -1339,21 +1339,6 @@ TEST_F(StaDcalcTest, CcsCeffWatchWaveformEmpty) {
   delete calc;
 }
 
-// Test PrimaDelayCalc watchWaveform with non-watched pin
-TEST_F(StaDcalcTest, PrimaWatchWaveformEmpty) {
-  ArcDelayCalc *calc = makeDelayCalc("prima", sta_);
-  ASSERT_NE(calc, nullptr);
-  PrimaDelayCalc *prima = dynamic_cast<PrimaDelayCalc*>(calc);
-  ASSERT_NE(prima, nullptr);
-  int d1 = 1;
-  const Pin *pin = reinterpret_cast<const Pin*>(&d1);
-  // watchWaveform returns a Waveform
-  Waveform wf = prima->watchWaveform(pin);
-  // PrimaDelayCalc returns a waveform with a valid axis
-  EXPECT_NE(wf.axis1(), nullptr);
-  delete calc;
-}
-
 // Test DmpCeffDelayCalc copyState
 TEST_F(StaDcalcTest, DmpCeffCopyState) {
   ArcDelayCalc *calc = makeDelayCalc("dmp_ceff_elmore", sta_);
@@ -2879,6 +2864,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcDmpElmore) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2908,6 +2895,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcDmpTwoPole) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2948,6 +2937,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcCcsCeff) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -2977,6 +2968,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcLumpedCap) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -3006,6 +2999,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcArnoldi) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
@@ -3039,6 +3034,8 @@ TEST_F(DesignDcalcTest, ReportDelayCalcPrima) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         std::string report = sta_->reportDelayCalc(edge, arc, corner,
                                                     MinMax::max(), 4);
@@ -3122,6 +3119,8 @@ TEST_F(DesignDcalcTest, VerifyEdgeDelays) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       EXPECT_NE(edge, nullptr);
       edges_with_delays++;
       break;
@@ -3144,6 +3143,8 @@ TEST_F(DesignDcalcTest, MinAnalysisReport) {
     VertexInEdgeIterator eiter(v, graph);
     while (eiter.hasNext()) {
       Edge *edge = eiter.next();
+      if (edge->isWire())
+        continue;
       for (auto arc : edge->timingArcSet()->arcs()) {
         Scene *corner = sta_->cmdScene();
         std::string report = sta_->reportDelayCalc(edge, arc, corner,

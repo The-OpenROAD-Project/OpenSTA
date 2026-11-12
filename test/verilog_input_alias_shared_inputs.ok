@@ -1,0 +1,2 @@
+shared signal inputs: rejected with both ports and net
+rejected writes: plain/gzip outputs preserved and absent paths untouched

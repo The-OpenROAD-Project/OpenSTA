@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #include "Error.hh"
 #include "Format.hh"
@@ -96,6 +97,27 @@ protected:
   const Unit *time_unit_;
   const Unit *cap_unit_;
 };
+
+
+static std::string
+portStaToLiberty(std::string_view sta_name)
+{
+  std::string liberty_name;
+  for (size_t i = 0; i < sta_name.length(); i += 1) {
+    char ch = sta_name[i];
+    if (ch == '\\') {
+      char next_ch = sta_name[i + 1];
+      if (next_ch == '\\') {
+        liberty_name += ch;
+        liberty_name += next_ch;
+        i++;
+      }
+    }
+    else
+      liberty_name += ch;
+  }
+  return liberty_name;
+}
 
 void
 writeLiberty(LibertyLibrary *lib,
@@ -276,7 +298,7 @@ LibertyWriter::writeBusDcls()
 {
   BusDclSeq dcls = library_->busDcls();
   for (BusDcl *dcl : dcls) {
-    sta::print(stream_, "  type (\"{}\") {{\n", dcl->name());
+    sta::print(stream_, "  type (\"{}\") {{\n", portStaToLiberty(dcl->name()));
     sta::print(stream_, "    base_type : array;\n");
     sta::print(stream_, "    data_type : bit;\n");
     sta::print(stream_, "    bit_width : {};\n", std::abs(dcl->from() - dcl->to()) + 1);
@@ -299,7 +321,7 @@ LibertyWriter::writeCells()
 void
 LibertyWriter::writeCell(const LibertyCell *cell)
 {
-  sta::print(stream_, "  cell (\"{}\") {{\n", cell->name());
+  sta::print(stream_, "  cell (\"{}\") {{\n", portStaToLiberty(cell->name()));
   float area = cell->area();
   if (area > 0.0)
     sta::print(stream_, "    area : {:.3f} \n", area);
@@ -337,9 +359,9 @@ LibertyWriter::writeCell(const LibertyCell *cell)
 void
 LibertyWriter::writeBusPort(const LibertyPort *port)
 {
-  sta::print(stream_, "    bus(\"{}\") {{\n", port->name());
+  sta::print(stream_, "    bus(\"{}\") {{\n", portStaToLiberty(port->name()));
   if (port->busDcl())
-    sta::print(stream_, "      bus_type : {};\n", port->busDcl()->name());
+    sta::print(stream_, "      bus_type : \"{}\";\n", portStaToLiberty(port->busDcl()->name()));
   writePortAttrs(port);
 
   LibertyPortMemberIterator member_iter(port);
@@ -353,7 +375,7 @@ LibertyWriter::writeBusPort(const LibertyPort *port)
 void
 LibertyWriter::writePort(const LibertyPort *port)
 {
-  sta::print(stream_, "    pin(\"{}\") {{\n", port->name());
+  sta::print(stream_, "    pin(\"{}\") {{\n", portStaToLiberty(port->name()));
   writePortAttrs(port);
   sta::print(stream_, "    }}\n");
 }
@@ -366,18 +388,18 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
   if (func
       // cannot ref internal ports until sequentials are written
       && !(func->port() && func->port()->direction()->isInternal()))
-    sta::print(stream_, "      function : \"{}\";\n", func->to_string());
+    sta::print(stream_, "      function : \"{}\";\n", portStaToLiberty(func->to_string()));
   auto tristate_enable = port->tristateEnable();
   if (tristate_enable) {
     if (tristate_enable->op() == FuncExpr::Op::not_) {
       FuncExpr *three_state = tristate_enable->left();
       sta::print(stream_, "      three_state : \"{}\";\n",
-                 three_state->to_string());
+                 portStaToLiberty(three_state->to_string()));
     }
     else {
       FuncExpr *three_state = tristate_enable->copy()->invert();
       sta::print(stream_, "      three_state : \"{}\";\n",
-                 three_state->to_string());
+                 portStaToLiberty(three_state->to_string()));
       delete three_state;
     }
   }
@@ -404,7 +426,7 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
 void
 LibertyWriter::writePwrGndPort(const LibertyPort *port)
 {
-  sta::print(stream_, "    pg_pin(\"{}\") {{\n", port->name());
+  sta::print(stream_, "    pg_pin(\"{}\") {{\n", portStaToLiberty(port->name()));
   sta::print(stream_, "      pg_type : \"{}\";\n", pwrGndTypeName(port->pwrGndType()));
   sta::print(stream_, "      voltage_name : \"{}\";\n", port->voltageName());
   sta::print(stream_, "    }}\n");
@@ -430,7 +452,7 @@ LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
 {
   sta::print(stream_, "      timing() {{\n");
   if (arc_set->from())
-    sta::print(stream_, "        related_pin : \"{}\";\n", arc_set->from()->name());
+    sta::print(stream_, "        related_pin : \"{}\";\n", portStaToLiberty(arc_set->from()->name()));
   TimingSense sense = arc_set->sense();
   if (sense != TimingSense::unknown && sense != TimingSense::non_unate)
     sta::print(stream_, "        timing_sense : {};\n", to_string(sense));

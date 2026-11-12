@@ -67,9 +67,12 @@ Parasitics::report(const Parasitic *parasitic) const
     for (ParasiticCapacitor *cap : capacitors(parasitic)) {
       ParasiticNode *node1 = this->node1(cap);
       ParasiticNode *node2 = this->node2(cap);
-      report_->report("{} {}{} {}{} {}", id(cap), name(node1),
-                      isExternal(node1) ? " (ext)" : "", name(node2),
-                      isExternal(node2) ? " (ext)" : "",
+      report_->report("{} {}{} {}{} {}",
+                      id(cap),
+                      node1 ? name(node1) : "??",
+                      node1 && isExternal(node1) ? " (ext)" : "",
+                      node2 ? name(node2) : "??",
+                      node2 && isExternal(node2) ? " (ext)" : "",
                       cap_unit->asString(value(cap)));
     }
   }
@@ -78,23 +81,13 @@ Parasitics::report(const Parasitic *parasitic) const
 void
 Parasitics::ensureParasitics()
 {
-  auto make_parasitics = [this] (const Instance *inst) {
-    InstancePinIterator *pin_iter = network_->pinIterator(inst);
-    while (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
-      if (network_->isDriver(pin))
-        ensureParasitics(pin);
-    }
-    delete pin_iter;
-  };
-
-  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
-  while (leaf_iter->hasNext()) {
-    const Instance *inst = leaf_iter->next();
-    make_parasitics(inst);
+  PinIterator *pin_iter = network_->pinIterator();
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network_->isDriver(pin))
+      ensureParasitics(pin);
   }
-  delete leaf_iter;
-  make_parasitics(network_->topInstance());
+  delete pin_iter;
 }
 
 const Net *
@@ -362,6 +355,7 @@ Parasitics::makeWireloadNetworkBalanced(Parasitic *parasitic,
       incrCap(load_node1, fanout_cap);
     }
   }
+  delete load_iter;
 }
 
 void

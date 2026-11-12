@@ -1,0 +1,32 @@
+Clock                   Period          Waveform
+----------------------------------------------------
+clk                      10.00        0.00      5.00
+clk_gen/CLK_OUT          17.00        3.00      9.00 (generated)
+
+Startpoint: data_in (input port clocked by clk)
+Endpoint: ff_inst (rising edge-triggered flip-flop clocked by clk_gen/CLK_OUT)
+Path Group: clk_gen/CLK_OUT
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+  70.00   70.00   clock clk (rise edge)
+   0.00   70.00   clock network delay (ideal)
+   0.50   70.50 v input external delay
+   0.00   70.50 v data_in (in)
+   0.00   70.50 v ff_inst/D (DFFHQNx1_ASAP7_75t_R)
+          70.50   data arrival time
+
+  71.00   71.00   clock clk_gen/CLK_OUT (rise edge)
+   0.00   71.00   clock network delay (ideal)
+   0.00   71.00   clock reconvergence pessimism
+          71.00 ^ ff_inst/CLK (DFFHQNx1_ASAP7_75t_R)
+   0.00   71.00   library setup time
+          71.00   data required time
+---------------------------------------------------------
+          71.00   data required time
+         -70.50   data arrival time
+---------------------------------------------------------
+           0.50   slack (MET)
+
+

@@ -57,7 +57,7 @@ typedef sta::SaifParse::token token;
 %x QUOTE
 %x COND_EXPR
 
-ID	([A-Za-z_])([A-Za-z0-9_$\[\]\\.])*
+ID	([A-Za-z_]|\\[^ \t\r\n])([A-Za-z0-9_$\[\]\\.]|\\[^ \t\r\n])*
 HCHAR "."|"/"
 BLANK	[ \n\t\r\b]
 EOL	\r?\n

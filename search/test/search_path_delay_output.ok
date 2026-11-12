@@ -116,9 +116,9 @@ clk                                     7.90
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 9.497e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 9.50e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -126,8 +126,8 @@ clk                                     7.90
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
   "source_path": [
@@ -137,9 +137,9 @@ clk                                     7.90
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 8.371e-11,
-      "capacitance": 9.747e-16,
-      "slew": 7.314e-12
+      "arrival": 8.37e-11,
+      "capacitance": 9.75e-16,
+      "slew": 7.31e-12
     },
     {
       "instance": "buf2",
@@ -147,8 +147,8 @@ clk                                     7.90
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n3",
-      "arrival": 8.371e-11,
-      "slew": 7.314e-12
+      "arrival": 8.37e-11,
+      "slew": 7.31e-12
     },
     {
       "instance": "buf2",
@@ -156,26 +156,26 @@ clk                                     7.90
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "out1",
-      "arrival": 1.003e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.638e-12
+      "arrival": 1.00e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.64e-12
     },
     {
       "instance": "",
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.003e-10,
-      "slew": 3.638e-12
+      "arrival": 1.00e-10,
+      "slew": 3.64e-12
     }
   ],
   "target_clock": "clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.003e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.900e-09
+  "data_arrival_time": 1.00e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.90e-09
 }
 ]
 }
@@ -289,9 +289,9 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 9.497e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 9.50e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -299,8 +299,8 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
   "source_path": [
@@ -310,9 +310,9 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 7.722e-11,
-      "capacitance": 8.752e-16,
-      "slew": 5.624e-12
+      "arrival": 7.72e-11,
+      "capacitance": 8.75e-16,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf2",
@@ -320,8 +320,8 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n3",
-      "arrival": 7.722e-11,
-      "slew": 5.624e-12
+      "arrival": 7.72e-11,
+      "slew": 5.62e-12
     },
     {
       "instance": "buf2",
@@ -329,26 +329,26 @@ out1 (output)                          -2.00    0.10    2.10 (MET)
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "out1",
-      "arrival": 9.857e-11,
-      "capacitance": 0.000e+00,
-      "slew": 3.903e-12
+      "arrival": 9.86e-11,
+      "capacitance": 0.00e+00,
+      "slew": 3.90e-12
     },
     {
       "instance": "",
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 9.857e-11,
-      "slew": 3.903e-12
+      "arrival": 9.86e-11,
+      "slew": 3.90e-12
     }
   ],
   "target_clock": "clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 9.857e-11,
-  "crpr": 0.000e+00,
-  "margin": -2.000e-09,
-  "required_time": -2.000e-09,
-  "slack": 2.099e-09
+  "data_arrival_time": 9.86e-11,
+  "crpr": 0.00e+00,
+  "margin": -2.00e-09,
+  "required_time": -2.00e-09,
+  "slack": 2.10e-09
 }
 ]
 }
@@ -527,9 +527,9 @@ reg1/Q (search_test1)                out1 (output)                           7.9
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 9.497e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 9.50e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -537,8 +537,8 @@ reg1/Q (search_test1)                out1 (output)                           7.9
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
   "source_path": [
@@ -548,9 +548,9 @@ reg1/Q (search_test1)                out1 (output)                           7.9
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 8.371e-11,
-      "capacitance": 9.747e-16,
-      "slew": 7.314e-12
+      "arrival": 8.37e-11,
+      "capacitance": 9.75e-16,
+      "slew": 7.31e-12
     },
     {
       "instance": "buf2",
@@ -558,8 +558,8 @@ reg1/Q (search_test1)                out1 (output)                           7.9
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n3",
-      "arrival": 8.371e-11,
-      "slew": 7.314e-12
+      "arrival": 8.37e-11,
+      "slew": 7.31e-12
     },
     {
       "instance": "buf2",
@@ -567,26 +567,26 @@ reg1/Q (search_test1)                out1 (output)                           7.9
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "out1",
-      "arrival": 1.003e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.638e-12
+      "arrival": 1.00e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.64e-12
     },
     {
       "instance": "",
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.003e-10,
-      "slew": 3.638e-12
+      "arrival": 1.00e-10,
+      "slew": 3.64e-12
     }
   ],
   "target_clock": "clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.003e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.900e-09
+  "data_arrival_time": 1.00e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.90e-09
 }
 ]
 }
@@ -736,9 +736,9 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "in1",
-      "arrival": 1.000e-09,
-      "capacitance": 9.181e-16,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "capacitance": 9.18e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -746,8 +746,8 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "verilog_src": "",
       "pin": "and1/A1",
       "net": "in1",
-      "arrival": 1.000e-09,
-      "slew": 0.000e+00
+      "arrival": 1.00e-09,
+      "slew": 0.00e+00
     },
     {
       "instance": "and1",
@@ -755,9 +755,9 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "verilog_src": "",
       "pin": "and1/ZN",
       "net": "n1",
-      "arrival": 1.024e-09,
-      "capacitance": 9.747e-16,
-      "slew": 7.000e-12
+      "arrival": 1.02e-09,
+      "capacitance": 9.75e-16,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -765,8 +765,8 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "verilog_src": "",
       "pin": "buf1/A",
       "net": "n1",
-      "arrival": 1.024e-09,
-      "slew": 7.000e-12
+      "arrival": 1.02e-09,
+      "slew": 7.00e-12
     },
     {
       "instance": "buf1",
@@ -774,9 +774,9 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "verilog_src": "",
       "pin": "buf1/Z",
       "net": "n2",
-      "arrival": 1.044e-09,
-      "capacitance": 1.140e-15,
-      "slew": 5.947e-12
+      "arrival": 1.04e-09,
+      "capacitance": 1.14e-15,
+      "slew": 5.95e-12
     },
     {
       "instance": "reg1",
@@ -784,8 +784,8 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "verilog_src": "",
       "pin": "reg1/D",
       "net": "n2",
-      "arrival": 1.044e-09,
-      "slew": 5.947e-12
+      "arrival": 1.04e-09,
+      "slew": 5.95e-12
     }
   ],
   "target_clock": "clk",
@@ -796,9 +796,9 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "cell": "search_test1",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 9.497e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 9.50e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "reg1",
@@ -806,15 +806,15 @@ reg1/D (DFF_X1)                         0.00    1.04    1.04 (MET)
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     }
   ],
-  "data_arrival_time": 1.044e-09,
-  "crpr": 0.000e+00,
-  "margin": 4.894e-12,
-  "required_time": 4.894e-12,
-  "slack": 1.039e-09
+  "data_arrival_time": 1.04e-09,
+  "crpr": 0.00e+00,
+  "margin": 4.89e-12,
+  "required_time": 4.89e-12,
+  "slack": 1.04e-09
 }
 ]
 }

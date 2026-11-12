@@ -1,0 +1,176 @@
+module gcd (_125_,
+  _126_,
+  clknet_2_1__leaf_clk,
+  _006_);
+  input _125_;
+  input _126_;
+  input clknet_2_1__leaf_clk;
+  input _006_;
+  sky130_fd_sc_hd__nand2_1 _312_ (.A(_125_),
+    .B(_126_),
+    .Y(_006_));
+  // load pins
+  sky130_fd_sc_hd__dfxtp_2 _417_ (.D(_006_),
+    .Q(\dpath.a_lt_b$in1[3] ));
+
+  sky130_fd_sc_hd__dfxtp_2 _417_ (.CLK(clknet_2_1__leaf_clk),
+    .D(_006_),
+    .Q(\dpath.a_lt_b$in1[3] ));
+  // load pins
+  sky130_fd_sc_hd__a22oi_1 _364_ (.A1(\dpath.a_lt_b$in1[3] ));
+  sky130_fd_sc_hd__a22oi_1 _311_ (.A1(\dpath.a_lt_b$in1[3] ));
+  sky130_fd_sc_hd__nor4_1 _273_ (.A(\dpath.a_lt_b$in1[3] ));
+  sky130_fd_sc_hd__xnor2_1 _243_ (.A(\dpath.a_lt_b$in1[3] ));
+  sky130_fd_sc_hd__maj3_2 _217_ (.A(\dpath.a_lt_b$in1[3] ));
+
+endmodule
+*D_NET _006_ 2.549e-03
+*CONN
+*I _417_:D I
+*I _312_:Y O
+*CAP
+1 _312_:Y 1.385e-04
+2 _417_:D 1.385e-04
+3 _417_:D 1.648e-04
+4 _417_:D 2.113e-04
+5 _417_:D 8.366e-06
+6 _417_:D dpath.a_lt_b$in1\[3\]:5 2.132e-04
+*RES
+1 _312_:Y _417_:D 3.302e+01
+*END
+*D_NET dpath\.a_lt_b\$in1\[3\] 2.904e-02
+*CONN
+*I _417_:Q O
+*I _364_:A1 I
+*I _311_:A1 I
+*I _273_:A I
+*I _243_:A I
+*I _217_:A I
+*CAP
+1 _243_:A 5.828e-05
+2 _311_:A1 5.607e-05
+3 _417_:Q 4.219e-04
+4 dpath.a_lt_b$in1\[3\]:5 1.086e-03
+5 dpath.a_lt_b$in1\[3\]:11 7.809e-04
+6 dpath.a_lt_b$in1\[3\]:22 5.000e-04
+7 dpath.a_lt_b$in1\[3\]:26 8.558e-04
+8 dpath.a_lt_b$in1\[3\]:37 1.867e-03
+9 dpath.a_lt_b$in1\[3\]:41 1.279e-03
+10 dpath.a_lt_b$in1\[3\]:22 1.383e-04
+11 dpath.a_lt_b$in1\[3\]:26 3.615e-04
+12 dpath.a_lt_b$in1\[3\]:41 4.597e-05
+13 dpath.a_lt_b$in1\[3\]:41 2.087e-04
+14 dpath.a_lt_b$in1\[3\]:22 8.707e-06
+15 dpath.a_lt_b$in1\[3\]:26 1.157e-04
+16 dpath.a_lt_b$in1\[3\]:41 5.236e-04
+17 dpath.a_lt_b$in1\[3\]:41 1.444e-04
+18 dpath.a_lt_b$in1\[3\]:41 5.547e-04
+19 dpath.a_lt_b$in1\[3\]:37 9.995e-05
+20 dpath.a_lt_b$in1\[3\]:11 5.199e-05
+21 dpath.a_lt_b$in1\[3\]:22 4.762e-06
+22 dpath.a_lt_b$in1\[3\]:22 1.023e-05
+23 _417_:D dpath.a_lt_b$in1\[3\]:5 2.132e-04
+24 dpath.a_lt_b$in1\[3\]:5 2.876e-05
+25 dpath.a_lt_b$in1\[3\]:11 1.659e-05
+26 dpath.a_lt_b$in1\[3\]:26 1.170e-04
+27 dpath.a_lt_b$in1\[3\]:41 1.830e-04
+28 dpath.a_lt_b$in1\[3\]:26 1.775e-06
+29 dpath.a_lt_b$in1\[3\]:37 3.646e-04
+30 dpath.a_lt_b$in1\[3\]:41 1.248e-03
+31 dpath.a_lt_b$in1\[3\]:41 4.040e-04
+32 dpath.a_lt_b$in1\[3\]:5 3.679e-04
+33 dpath.a_lt_b$in1\[3\]:37 7.906e-04
+34 dpath.a_lt_b$in1\[3\]:41 1.601e-05
+35 _243_:A 3.822e-05
+36 _311_:A1 9.298e-05
+37 dpath.a_lt_b$in1\[3\]:11 1.882e-05
+38 dpath.a_lt_b$in1\[3\]:22 2.067e-04
+39 _311_:A1 9.298e-05
+40 dpath.a_lt_b$in1\[3\]:11 2.661e-04
+41 dpath.a_lt_b$in1\[3\]:11 5.675e-04
+42 dpath.a_lt_b$in1\[3\]:22 5.905e-05
+43 dpath.a_lt_b$in1\[3\]:11 4.537e-04
+44 dpath.a_lt_b$in1\[3\]:22 2.081e-05
+45 dpath.a_lt_b$in1\[3\]:41 1.268e-05
+46 dpath.a_lt_b$in1\[3\]:41 1.000e-05
+*RES
+1 _417_:Q dpath.a_lt_b$in1\[3\]:5 1.663e+01
+2 dpath.a_lt_b$in1\[3\]:5 dpath.a_lt_b$in1\[3\]:11 1.478e+01
+3 dpath.a_lt_b$in1\[3\]:11 _364_:A1 9.249e+00
+4 dpath.a_lt_b$in1\[3\]:11 dpath.a_lt_b$in1\[3\]:22 1.054e+01
+5 dpath.a_lt_b$in1\[3\]:22 dpath.a_lt_b$in1\[3\]:26 1.505e+01
+6 dpath.a_lt_b$in1\[3\]:26 dpath.a_lt_b$in1\[3\]:37 3.328e+01
+7 dpath.a_lt_b$in1\[3\]:37 dpath.a_lt_b$in1\[3\]:41 4.986e+01
+8 dpath.a_lt_b$in1\[3\]:41 _273_:A 9.249e+00
+9 dpath.a_lt_b$in1\[3\]:26 _217_:A 9.249e+00
+10 dpath.a_lt_b$in1\[3\]:22 _243_:A 1.503e+01
+11 dpath.a_lt_b$in1\[3\]:5 _311_:A1 2.008e+01
+*END
+module gcd (net10,
+  _076_,
+  net7,
+  _078_);
+  input net10;
+  input _076_;
+  input net7;
+  input _078_;
+  sky130_fd_sc_hd__xnor2_2 _240_ (.A(net10),
+    .B(_076_),
+    .Y(resp_msg[1]));
+  // load pins
+  sky130_fd_sc_hd__a22oi_1 _358_ (.B2(resp_msg[1]));
+
+  sky130_fd_sc_hd__xnor2_2 _244_ (.A(net7),
+    .B(_078_),
+    .Y(resp_msg[3]));
+  // load pins
+  sky130_fd_sc_hd__a22oi_1 _364_ (.B2(resp_msg[3]));
+
+endmodule
+*D_NET resp_msg\[1\] 1.743e-02
+*CONN
+*I _358_:B2 I
+*I _240_:Y O
+*CAP
+1 resp_msg\[1\] 5.852e-04
+2 _240_:Y 5.956e-04
+3 _358_:B2 1.127e-04
+4 resp_msg[1]:8 7.083e-04
+5 resp_msg[1]:10 5.166e-03
+6 resp_msg[1]:11 5.751e-03
+7 resp_msg\[1\] resp_msg\[3\] 8.946e-04
+8 resp_msg[1]:8 resp_msg[3]:7 6.743e-04
+9 _358_:B2 2.599e-05
+10 resp_msg[1]:8 1.277e-04
+11 _358_:B2 1.036e-05
+12 _358_:B2 5.840e-05
+13 resp_msg\[1\] 2.386e-04
+*RES
+1 _240_:Y resp_msg[1]:8 2.628e+01
+2 resp_msg[1]:8 resp_msg[1]:10 4.500e+00
+3 resp_msg[1]:10 resp_msg[1]:11 1.122e+02
+4 resp_msg[1]:11 resp_msg\[1\] 1.465e+01
+5 resp_msg[1]:8 _358_:B2 1.724e+01
+*END
+*D_NET resp_msg\[3\] 1.859e-02
+*CONN
+*I _364_:B2 I
+*I _244_:Y O
+*CAP
+1 resp_msg\[3\] 1.412e-03
+2 _244_:Y 2.548e-04
+3 _364_:B2 1.620e-04
+4 resp_msg[3]:5 5.513e-03
+5 resp_msg[3]:7 6.509e-03
+6 resp_msg\[1\] resp_msg\[3\] 8.946e-04
+7 _364_:B2 4.915e-04
+8 _364_:B2 1.383e-04
+9 _364_:B2 3.615e-04
+10 resp_msg\[3\] 2.020e-05
+11 resp_msg[1]:8 resp_msg[3]:7 6.743e-04
+*RES
+1 _244_:Y resp_msg[3]:5 1.441e+01
+2 resp_msg[3]:5 resp_msg[3]:7 1.130e+02
+3 resp_msg[3]:7 resp_msg\[3\] 3.261e+01
+4 resp_msg[3]:5 _364_:B2 2.714e+01
+*END

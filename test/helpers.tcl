@@ -1,7 +1,12 @@
 # Helper functions common to multiple regressions.
 
 set test_dir [file dirname [file normalize [info script]]]
-set result_dir [file join [pwd] "results"]
+# bazel_test.sh sets RESULTS_DIR so bazel keeps the results as test outputs.
+if { [info exists ::env(RESULTS_DIR)] } {
+  set result_dir $::env(RESULTS_DIR)
+} else {
+  set result_dir [file join [pwd] "results"]
+}
 
 # puts [exec cat $file] without forking.
 proc report_file { file } {
@@ -37,6 +42,18 @@ proc make_result_file { filename } {
     file mkdir $result_dir
   }
   return [file join $result_dir $filename]
+}
+
+# Copy file's bytes to a new regular file. Tcl's `file copy` recreates a
+# symlink source as a symlink, so writes to the copy would reach the source
+# (bazel runfiles are symlinks).
+proc copy_file_contents { from to } {
+  set in [open $from rb]
+  file delete -force $to
+  set out [open $to wb]
+  fcopy $in $out
+  close $in
+  close $out
 }
 
 proc sort_objects { objects } {

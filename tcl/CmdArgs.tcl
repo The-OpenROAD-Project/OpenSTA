@@ -123,52 +123,52 @@ proc get_object_args { objects clks_var libcells_var libports_var \
         set matches [get_clocks -quiet $obj]
       }
       if { $matches != {} } {
-        set clks [concat $clks $matches]
+        lappend clks {*}$matches
       } else {
         if { $libcells_var != {} } {
           set matches [get_lib_cells -quiet $obj]
         }
         if { $matches != {} } {
-          set libcells [concat $libcells $matches]
+          lappend libcells {*}$matches
         } else {
           
           if { $libports_var != {} } {
             set matches [get_lib_pins -quiet $obj]
           }
           if { $matches != {} } {
-            set libports [concat $libports $matches]
+            lappend libports {*}$matches
           } else {
             
             if { $cells_var != {} } {
               set matches [find_cells_matching $obj 0 0]
             }
             if { $matches != {} } {
-              set cells [concat $cells $matches]
+              lappend cells {*}$matches
             } else {
               
               if { $insts_var != {} } {
                 set matches [get_cells -quiet $obj]
               }
               if { $matches != {} } {
-                set insts [concat $insts $matches]
+                lappend insts {*}$matches
               } else {
                 if { $ports_var != {} } {
                   set matches [get_ports -quiet $obj]
                 }
                 if { $matches != {} }  {
-                  set ports [concat $ports $matches]
+                  lappend ports {*}$matches
                 } else {
                   if { $pins_var != {} } {
                     set matches [get_pins -quiet $obj]
                   }
                   if { $matches != {} } {
-                    set pins [concat $pins $matches]
+                    lappend pins {*}$matches
                   } else {
                     if { $nets_var != {} } {
                       set matches [get_nets -quiet $obj]
                     }
                     if { $matches != {} } {
-                      set nets [concat $nets $matches]
+                      lappend nets {*}$matches
                     } else {
                       sta_warn 101 "object '$obj' not found."
                     }
@@ -906,14 +906,22 @@ proc get_port_pin_arg { arg_name arg warn_error } {
   return $pin
 }
 
+proc get_port_pins_warn { arg_name arglist } {
+  return [get_port_pins_warn_error $arg_name $arglist "warn"]
+}
+
 proc get_port_pins_error { arg_name arglist } {
+  return [get_port_pins_warn_error $arg_name $arglist "error"]
+}
+
+proc get_port_pins_warn_error { arg_name arglist warn_error } {
   set pins {}
   # Copy backslashes that will be removed by foreach.
   set arglist [string map {\\ \\\\} $arglist]
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set pins [concat $pins [get_port_pins_error $arg_name $arg]]
+      set pins [concat $pins [get_port_pins_warn_error $arg_name $arg $warn_error]]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Pin" } {
@@ -922,14 +930,14 @@ proc get_port_pins_error { arg_name arglist } {
         # Convert port to pin.
         lappend pins [get_port_pin $arg]
       } else {
-        sta_error 131 "$arg_name type '$object_type' is not a pin or port."
+        sta_warn_error 131 $warn_error "$arg_name type '$object_type' is not a pin or port."
       }
     } elseif { $arg != {} } {
       set arg_pins [get_ports_or_pins $arg]
       if { $arg_pins != {} } {
         set pins [concat $pins $arg_pins]
       } else {
-        sta_error 132 "pin '$arg' not found."
+        sta_warn_error 132 $warn_error "pin '$arg' not found."
       }
     }
   }

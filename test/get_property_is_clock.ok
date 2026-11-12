@@ -1,0 +1,2 @@
+Warning 198: get_property_is_clock.v line 5, module macro1 not found. Creating black box for bb1.
+b1/r1/CLK

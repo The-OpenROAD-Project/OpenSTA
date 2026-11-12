@@ -88,7 +88,7 @@ class PortDirectionTest : public ::testing::Test {
 };
 
 TEST_F(PortDirectionTest, InputSingleton) {
-  PortDirection *dir = PortDirection::input();
+  const PortDirection *dir = PortDirection::input();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "input");
   EXPECT_EQ(dir->index(), 0);
@@ -103,7 +103,7 @@ TEST_F(PortDirectionTest, InputSingleton) {
 }
 
 TEST_F(PortDirectionTest, OutputSingleton) {
-  PortDirection *dir = PortDirection::output();
+  const PortDirection *dir = PortDirection::output();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "output");
   EXPECT_EQ(dir->index(), 1);
@@ -112,7 +112,7 @@ TEST_F(PortDirectionTest, OutputSingleton) {
 }
 
 TEST_F(PortDirectionTest, TristateSingleton) {
-  PortDirection *dir = PortDirection::tristate();
+  const PortDirection *dir = PortDirection::tristate();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "tristate");
   EXPECT_EQ(dir->index(), 2);
@@ -122,7 +122,7 @@ TEST_F(PortDirectionTest, TristateSingleton) {
 }
 
 TEST_F(PortDirectionTest, BidirectSingleton) {
-  PortDirection *dir = PortDirection::bidirect();
+  const PortDirection *dir = PortDirection::bidirect();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "bidirect");
   EXPECT_EQ(dir->index(), 3);
@@ -130,7 +130,7 @@ TEST_F(PortDirectionTest, BidirectSingleton) {
 }
 
 TEST_F(PortDirectionTest, InternalSingleton) {
-  PortDirection *dir = PortDirection::internal();
+  const PortDirection *dir = PortDirection::internal();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "internal");
   EXPECT_EQ(dir->index(), 4);
@@ -138,7 +138,7 @@ TEST_F(PortDirectionTest, InternalSingleton) {
 }
 
 TEST_F(PortDirectionTest, GroundSingleton) {
-  PortDirection *dir = PortDirection::ground();
+  const PortDirection *dir = PortDirection::ground();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "ground");
   EXPECT_EQ(dir->index(), 5);
@@ -146,7 +146,7 @@ TEST_F(PortDirectionTest, GroundSingleton) {
 }
 
 TEST_F(PortDirectionTest, PowerSingleton) {
-  PortDirection *dir = PortDirection::power();
+  const PortDirection *dir = PortDirection::power();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "power");
   EXPECT_EQ(dir->index(), 6);
@@ -155,7 +155,7 @@ TEST_F(PortDirectionTest, PowerSingleton) {
 
 TEST_F(PortDirectionTest, WellSingleton)
 {
-  PortDirection *dir = PortDirection::well();
+  const PortDirection *dir = PortDirection::well();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "well");
   EXPECT_EQ(dir->index(), 7);
@@ -163,7 +163,7 @@ TEST_F(PortDirectionTest, WellSingleton)
 }
 
 TEST_F(PortDirectionTest, UnknownSingleton) {
-  PortDirection *dir = PortDirection::unknown();
+  const PortDirection *dir = PortDirection::unknown();
   EXPECT_NE(dir, nullptr);
   EXPECT_EQ(dir->name(), "unknown");
   EXPECT_EQ(dir->index(), 8);
@@ -1413,9 +1413,9 @@ TEST_F(ConcreteNetworkLinkedTest, PinPort) {
 }
 
 TEST_F(ConcreteNetworkLinkedTest, PinDirection) {
-  PortDirection *dir = network_.direction(pin_u1_a_);
+  const PortDirection *dir = network_.direction(pin_u1_a_);
   EXPECT_TRUE(dir->isInput());
-  PortDirection *dir2 = network_.direction(pin_u1_y_);
+  const PortDirection *dir2 = network_.direction(pin_u1_y_);
   EXPECT_TRUE(dir2->isOutput());
 }
 

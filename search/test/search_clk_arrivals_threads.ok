@@ -1,0 +1,13 @@
+Clock clk
+   0.00 source latency r1/CK ^
+   0.00 target latency r3/CK ^
+   0.00 CRPR
+--------------
+   0.00 setup skew
+
+r1/CK: 4 paths
+r1/Q: 0 paths
+r2/Q: 0 paths
+u1/Z: 0 paths
+u2/ZN: 0 paths
+r3/D: 0 paths

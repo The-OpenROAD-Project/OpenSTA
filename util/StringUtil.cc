@@ -110,6 +110,19 @@ trimRight(std::string &str)
   str.erase(str.find_last_not_of(' ') + 1);
 }
 
+void
+trimLeft(std::string &str)
+{
+  str.erase(0, str.find_first_not_of(" "));
+}
+
+void
+trim(std::string &str)
+{
+  trimLeft(str);
+  trimRight(str);
+}
+
 StringSeq
 parseTokens(const std::string &text,
             std::string_view delims)

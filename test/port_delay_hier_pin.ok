@@ -1,0 +1,26 @@
+Startpoint: sub1/u2/A (internal path startpoint clocked by clk)
+Endpoint: sub1/u2/Y (internal path endpoint clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+ 100.00  100.00 v input external delay
+   0.00  100.00 v sub1/u2/A (BUFx2_ASAP7_75t_R)
+  13.76  113.76 v sub1/u2/Y (BUFx2_ASAP7_75t_R)
+         113.76   data arrival time
+
+1000.00 1000.00   clock clk (rise edge)
+   0.00 1000.00   clock network delay (ideal)
+   0.00 1000.00   clock reconvergence pessimism
+-300.00  700.00   output external delay
+         700.00   data required time
+---------------------------------------------------------
+         700.00   data required time
+        -113.76   data arrival time
+---------------------------------------------------------
+         586.24   slack (MET)
+
+

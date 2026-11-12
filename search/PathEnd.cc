@@ -333,10 +333,9 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
     const Pin *tgt_src_pin = clk_info->clkSrc();
     const Clock *tgt_clk = tgt_clk_edge->clock();
     const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
-    const Mode *mode = tgt_clk_path->mode(sta);
+    const Scene *scene = tgt_clk_path->scene(sta);
     insertion = search->clockInsertion(tgt_clk, tgt_src_pin, tgt_clk_rf,
-                                       min_max, early_late, mode,
-                                       tgt_clk_path->scene(sta));
+                                       min_max, early_late, scene);
     if (clk_info->isPropagated()
         // Data check target clock is always propagated.
         || check_role->isDataCheck()) {
@@ -345,8 +344,7 @@ PathEnd::checkTgtClkDelay(const Path *tgt_clk_path,
       Arrival clk_arrival = tgt_clk_path->arrival();
       Delay path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
                                                     tgt_clk_rf, min_max,
-                                                    min_max, mode,
-                                                    tgt_clk_path->scene(sta));
+                                                    min_max, scene);
       latency = delayRemove(delayDiff(clk_arrival, tgt_clk_edge->time(), sta),
                             path_insertion);
     }
@@ -1504,13 +1502,13 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
   Clock *tgt_clk = tgt_clk_edge->clock();
   const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
   const Mode *mode = path_->mode(sta);
+  const Scene *scene = path_->scene(sta);
   if (!output_delay_->sourceLatencyIncluded())
     insertion = sta->search()->clockInsertion(tgt_clk,
                                               tgt_clk->defaultPin(),
                                               tgt_clk_rf,
                                               latency_min_max,
-                                              early_late, mode,
-                                              path_->scene(sta));
+                                              early_late, scene);
   else
     insertion = 0.0;
   if (!tgt_clk->isPropagated()

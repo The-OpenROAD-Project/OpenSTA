@@ -1,0 +1,30 @@
+read
+  multicycle paths
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+r3/D (DFF_X1)                           0.01    0.13    0.13 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+r3/D (DFF_X1)                          19.96    0.13   19.83 (MET)
+
+min_delay/hold group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+r3/D (DFF_X1)                           0.00    0.10    0.10 (MET)
+
+max_delay/setup group clk
+
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+r3/D (DFF_X1)                           9.97    0.11    9.86 (MET)
+

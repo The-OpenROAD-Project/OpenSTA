@@ -79,6 +79,9 @@ public:
                    // Return values.
                    Vertex *&vertex,
                    Vertex *&bidirect_drvr_vertex) const;
+  // Apply func to pin vertices.
+  void verticesApply(const Pin *pin,
+                     const std::function<void(Vertex*)> func) const;
   // Driver vertex for bidirects.
   Vertex *pinDrvrVertex(const Pin *pin) const;
   // Load vertex for bidirects.
@@ -200,7 +203,6 @@ protected:
                      bool is_bidirect_drvr,
                      bool is_reg_clk);
   void makeEdgeArcDelays(Edge *edge);
-  void makePinVertices(const Instance *inst);
   void makeWireEdgesFromPin(const Pin *drvr_pin,
                             PinSet &visited_drvrs);
   bool isIsolatedNet(PinSeq &drvrs,
@@ -208,8 +210,6 @@ protected:
   bool isPassiveBidirectDrvr(const Pin *drvr_pin) const;
   bool hasActiveDrvr(const PinSeq &drvrs) const;
   void makeWireEdges();
-  void makeInstDrvrWireEdges(const Instance *inst,
-                             PinSet &visited_drvrs);
   void makePortInstanceEdges(const Instance *inst,
                              LibertyCell *cell,
                              LibertyPort *from_to_port);
@@ -282,6 +282,11 @@ public:
                         const RiseFall *rf,
                         DcalcAPIndex ap_index);
   void removeSlewAnnotated();
+  bool hasNoiseSlewAnnotation() const { return has_noise_slew_annotation_; }
+  void setHasNoiseSlewAnnotation(bool annotated);
+  // Constant zero/one from simulation.
+  bool isConstant() const;
+  LogicValue simValue() const;
   // True when vertex has timing check edges that constrain it.
   [[nodiscard]] bool hasChecks() const  { return has_checks_; }
   void setHasChecks(bool has_checks);
@@ -343,6 +348,7 @@ protected:
   unsigned int visited2_:1;
   unsigned int bfs_predecessor_changed_:1;
   unsigned int has_sim_value_:1;
+  unsigned int has_noise_slew_annotation_:1;
   int level_:Graph::vertex_level_bits; // 24
   unsigned int slew_annotated_:slew_annotated_bits;  // 4
 
@@ -375,6 +381,8 @@ public:
   void setArcDelays(float *delays);
   bool delay_Annotation_Is_Incremental() const {return delay_annotation_is_incremental_;};
   void setDelayAnnotationIsIncremental(bool is_incr);
+  bool hasNoiseDelayAnnotation() const { return has_noise_delay_annotation_; }
+  void setHasNoiseDelayAnnotation(bool annotated);
   // Edge is disabled to break combinational loops.
   [[nodiscard]] bool isDisabledLoop() const { return is_disabled_loop_; }
   void setIsDisabledLoop(bool disabled);
@@ -423,6 +431,7 @@ protected:
   EdgeId vertex_out_prev_;
   bool arc_delay_annotated_is_bits_:1;
   bool delay_annotation_is_incremental_:1;
+  bool has_noise_delay_annotation_:1;
   bool is_bidirect_inst_path_:1;
   bool is_bidirect_net_path_:1;
   // Bidirect load -> driver edge.
@@ -447,18 +456,16 @@ class VertexIterator : public Iterator<Vertex*>
 {
 public:
   VertexIterator(Graph *graph);
+  ~VertexIterator() override;
   bool hasNext() override { return vertex_ || bidir_vertex_; }
   Vertex *next() override;
 
 private:
-  bool findNextPin();
   void findNext();
 
   Graph *graph_;
   Network *network_;
-  Instance *top_inst_;
-  LeafInstanceIterator *inst_iter_;
-  InstancePinIterator *pin_iter_{nullptr};
+  PinIterator *pin_iter_;
   Vertex *vertex_{nullptr};
   Vertex *bidir_vertex_{nullptr};
 };
@@ -505,12 +512,5 @@ private:
   EdgeSet edges_;
   EdgeSet::iterator edge_iter_;
 };
-
-// Helper function to create a VertexSet with the comparator initialized
-inline VertexSet
-makeVertexSet(StaState *sta)
-{
-  return VertexSet(VertexIdLess(sta->graphRef()));
-}
 
 } // namespace sta

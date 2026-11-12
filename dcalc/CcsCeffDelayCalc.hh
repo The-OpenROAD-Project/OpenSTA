@@ -44,6 +44,7 @@ public:
   ArcDelayCalc *copy() override;
   std::string_view name() const override { return "ccs_ceff"; }
   bool reduceSupported() const override { return true; }
+
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,

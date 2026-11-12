@@ -21,7 +21,7 @@ suppress_msg 1140
 ############################################################
 puts "--- Test 1: read GCD design ---"
 read_liberty ../../test/sky130hd/sky130hd_tt.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 
 set cells [get_cells *]

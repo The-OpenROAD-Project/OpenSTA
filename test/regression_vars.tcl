@@ -142,6 +142,10 @@ record_example_tests {
 
 record_public_tests {
   bidirect_pad_fanout
+  clock_delete_inst
+  dcalc_cond_disabled_slew
+  dcalc_incr_out_to_out_arc
+  define_scene_conflicting_args
   disable_clock_gating_check_cell
   disable_clock_gating_check_deprecated
   disable_clock_gating_check_inst
@@ -152,16 +156,21 @@ record_public_tests {
   disconnect_mcp_pin
   dmp_two_pole_reduce
   equiv_cells_ff_latch
+  genclk
+  genclk_edges_redefine
+  genclk_timing
   get_filter
   get_is_buffer
   get_is_memory
   get_lib_pins_of_objects
   get_noargs
   get_property_arrival_first
+  get_property_is_clock
   get_scenes
   get_objrefs
   include_error_line
   input_delay_ref_pin_rebuild
+  levelize_loop_cut_move
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
   liberty_backslash_eol
@@ -176,24 +185,38 @@ record_public_tests {
   liberty_ccsn
   liberty_float_as_str
   liberty_latch3
+  liberty_write_escaped_names
   liberty_malformed_ports
   liberty_retain
   make_concrete_parasitics_leak
   max_power_area
+  multicycle_path_through_list
+  noise_case
   non_seq_timing
   package_require
   parasitic_network_new_net
   path_group_names
   port_delay_delete_inst
+  port_delay_hier_pin
   power_network_changed
   power_json
+  power_activity_cases
+  power_enable_flop
+  power_pin_delete
   prima3
+  prima10
   prima_singular
+  read_saif_escaped_divider
   read_saif_null_instance
   report_checks_sorted
   report_checks_src_attr
   report_json1
   report_json2
+  sdc_hpin_delete
+  sdc_move_constraints
+  sdc_move_hpin
+  sdc_net_delete
+  sdc_pin_delete
   set_max_time_borrow_pg_pin
   set_path_margin1
   set_path_margin2
@@ -203,6 +226,7 @@ record_public_tests {
   set_path_margin6
   slash_port_test
   spef_hier_reduce
+  timing_model1
   suppress_msg
   swig_seq_double_free
   swig_seq_leak
@@ -214,7 +238,13 @@ record_public_tests {
   verilog_port_bundle_find_pin
   verilog_port_bundle_ordered
   verilog_port_concat
-  verilog_wired_nets
+  verilog_input_alias
+  verilog_input_alias_shared_inputs
+  verilog_input_alias_supplies
+  verilog_wor
+  verilog_wand
+  verilog_port_assign
+  verilog_signed
   verilog_unsized_constant
   verilog_well_supplies
   verilog_specify
@@ -223,6 +253,8 @@ record_public_tests {
   verilog_unconnected_hpin
   wireload_before_link
   write_path_spice_arc_sense
+  write_path_spice_async_set_reset
+  write_timing_model_scenes
 }
 
 define_test_group fast [group_tests all]

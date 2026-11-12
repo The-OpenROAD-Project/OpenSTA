@@ -218,6 +218,7 @@ public:
   float scaleResistance(float res) const;
   void writeFloat(float value) const;
   void writeTime(float time) const;
+  void writePower(float power) const;
   void writeCapacitance(float cap) const;
   void writeResistance(float res) const;
 

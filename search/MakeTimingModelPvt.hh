@@ -72,6 +72,7 @@ private:
   void makeCell();
   float findArea();
   void makePorts();
+  void setConstantOutputs();
   void setPortLimits(const Pin *pin,
                      LibertyPort *lib_port);
   void checkClock(Clock *clk);

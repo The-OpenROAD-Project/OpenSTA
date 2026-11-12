@@ -194,8 +194,8 @@ proc define_hidden_cmd_args { cmd arglist } {
   namespace export $cmd
 }
 
-# Shared option descriptions used when a command has no -arg_help entry
-# for that option. Per-command -arg_help always wins.
+# Shared option descriptions. An -arg_help value of "default" uses the
+# description stored here. A command that needs different text supplies it.
 proc define_common_arg_help { help_dict } {
   variable common_arg_help
 
@@ -275,39 +275,33 @@ proc cmd_arg_help_group_canonical { arglist opt } {
 
 proc cmd_arg_help_text { cmd opt } {
   variable cmd_arg_help
-  variable common_arg_help
   variable cmd_args
+  variable common_arg_help
 
   set cmd_dict {}
   if { [info exists cmd_arg_help($cmd)] } {
     set cmd_dict $cmd_arg_help($cmd)
   }
   set text [cmd_arg_help_lookup $cmd_dict $opt]
-  if { $text != "" } {
-    return $text
-  }
-  if { [info exists cmd_args($cmd)] } {
+  if { $text == "" && [info exists cmd_args($cmd)] } {
     set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
     if { $canon != $opt } {
       set text [cmd_arg_help_lookup $cmd_dict $canon]
-      if { $text != "" } {
-        return $text
+    }
+  }
+  if { $text == "default" } {
+    set text ""
+    if { [info exists common_arg_help] } {
+      set text [cmd_arg_help_lookup $common_arg_help $opt]
+      if { $text == "" && [info exists cmd_args($cmd)] } {
+        set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
+        if { $canon != $opt } {
+          set text [cmd_arg_help_lookup $common_arg_help $canon]
+        }
       }
     }
   }
-  if { [info exists common_arg_help] } {
-    set text [cmd_arg_help_lookup $common_arg_help $opt]
-    if { $text != "" } {
-      return $text
-    }
-    if { [info exists cmd_args($cmd)] } {
-      set canon [cmd_arg_help_group_canonical $cmd_args($cmd) $opt]
-      if { $canon != $opt } {
-        return [cmd_arg_help_lookup $common_arg_help $canon]
-      }
-    }
-  }
-  return ""
+  return $text
 }
 
 proc cmd_synopsis_options { arglist } {
@@ -647,10 +641,13 @@ proc include_file { filename echo verbose } {
         }
         if { $cmd == "" } {
           set cmd_start_line $include_line
+          set check_complete 1
         }
         append cmd $line "\n"
-        if { [string index $line end] != "\\" \
-               && [info complete $cmd] } {
+        if { [string index $line end] == "\\" } {
+          set check_complete 1
+        } elseif { ($check_complete || [regexp {[\]\})"]} $line]) \
+                     && [info complete $cmd] } {
           set error {}
           set error_traceback {}
           set error_code [catch {uplevel \#0 $cmd} result error_options]
@@ -683,6 +680,8 @@ proc include_file { filename echo verbose } {
               break
             }
           }
+        } else {
+          set check_complete 0
         }
         incr include_line
       }
@@ -729,7 +728,7 @@ define_common_arg_help {
   -max {Apply to maximum (setup) analysis.}
   -setup {Apply to setup checks.}
   -hold {Apply to hold checks.}
-  -digits {Number of digits to print after the decimal point.}
+  -digits {Number of digits to print after the decimal point. The default value is the variable sta_report_default_digits.}
   -nocase {Case-insensitive matching. Only valid with `-regexp`.}
   -quiet {Do not report an error if no objects match.}
   -regexp {Match patterns as regular expressions.}
@@ -748,6 +747,8 @@ define_common_arg_help {
   -report_variance {Include delay distribution variance in the report.}
   -report_annotated {Report objects that are annotated.}
   -no_line_splits {Do not split long lines into multiple lines.}
+  -min_coupling_sum_ratio  {The minimum ratio of total coupling capaictance for all aggressor nets to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_sum_ratio_default, or .7.}
+  -min_coupling_ratio {The minimum ratio of aggressor coupling capaictance to victim net capacitance. Nets with less than this capacitance ratio are not annotated. The default value is sta::min_coupling_ratio_default, or .1.}
 }
 
 # sta namespace end

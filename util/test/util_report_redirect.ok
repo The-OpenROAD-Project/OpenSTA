@@ -40,7 +40,7 @@ redirect string captured: 91 chars
  resistance 1ohm
  voltage 1v
  current 1A
- power 1W
+ power 1mW
  distance 1m
 --- set_cmd_units all options ---
  time 1ns
@@ -48,7 +48,7 @@ redirect string captured: 91 chars
  resistance 1kohm
  voltage 1v
  current 1mA
- power 1W
+ power 1mW
  distance 1um
 --- set_debug commands ---
 --- suppress/unsuppress variety ---
@@ -70,6 +70,6 @@ format_voltage: 1.100
 --- format_current ---
 format_current: 1.000
 --- format_power ---
-format_power: 0.001
+format_power: 1.000
 --- format_distance ---
 format_distance: 1.000

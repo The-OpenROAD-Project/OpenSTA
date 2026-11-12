@@ -58,6 +58,22 @@ RiseFallMinMaxDelay::value(const RiseFall *rf,
 }
 
 void
+RiseFallMinMaxDelay::range(const RiseFall *rf,
+                           // Return values.
+                           Delay &min_value,
+                           Delay &max_value,
+                           bool &exists) const
+{
+  size_t rf_index = rf->index();
+  exists = exists_[rf_index][MinMax::minIndex()]
+    && exists_[rf_index][MinMax::maxIndex()];
+  if (exists) {
+    min_value = values_[rf_index][MinMax::minIndex()];
+    max_value = values_[rf_index][MinMax::maxIndex()];
+  }
+}
+
+void
 RiseFallMinMaxDelay::mergeValue(const RiseFall *rf,
                                 const MinMax *min_max,
                                 Delay &value,

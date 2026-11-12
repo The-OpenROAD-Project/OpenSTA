@@ -145,6 +145,9 @@ VerilogReader::read(std::string_view filename)
     VerilogParse parser(&scanner, this);
     init(filename);
     bool success = (parser.parse() == 0);
+    if (!unsupported_net_type_.empty())
+      report_->fileError(171, filename_, unsupported_net_line_,
+                         "unsupported net type '{}'.", unsupported_net_type_);
     stats.report("Read verilog");
     return success;
   }
@@ -156,6 +159,8 @@ void
 VerilogReader::init(std::string_view filename)
 {
   filename_ = filename;
+  unsupported_net_type_.clear();
+  unsupported_net_line_ = 0;
 
   library_ = network_->findLibrary("verilog");
   if (library_ == nullptr)
@@ -197,28 +202,38 @@ VerilogReader::makeModule(std::string_view module_vname,
                           VerilogAttrStmtSeq *attr_stmts,
                           int line)
 {
-  const std::string module_name = moduleVerilogToSta(module_vname);
-  Cell *cell = network_->findCell(library_, module_name);
-  if (cell) {
-    VerilogModule *module = module_map_[cell];
-    delete module;
-    module_map_.erase(cell);
-    network_->deleteCell(cell);
-  }
-
-  VerilogModule *module = new VerilogModule(module_name, ports, stmts,
-                                            attr_stmts, filename_, line, this);
-  cell = network_->makeCell(library_, module_name, false, filename_);
-
-  if (attr_stmts) {
-    for (VerilogAttrStmt *stmt : *attr_stmts) {
-      for (VerilogAttrEntry *entry : *stmt->attrs())
-        setAttribute(cell, entry->key(), entry->value());
+  if (unsupported_net_type_.empty()) {
+    const std::string module_name = moduleVerilogToSta(module_vname);
+    Cell *cell = network_->findCell(library_, module_name);
+    if (cell) {
+      VerilogModule *module = module_map_[cell];
+      delete module;
+      module_map_.erase(cell);
+      network_->deleteCell(cell);
     }
-  }
 
-  module_map_[cell] = module;
-  makeCellPorts(cell, module, ports);
+    VerilogModule *module = new VerilogModule(module_name, ports, stmts,
+                                              attr_stmts, filename_, line, this);
+    cell = network_->makeCell(library_, module_name, false, filename_);
+
+    if (attr_stmts) {
+      for (VerilogAttrStmt *stmt : *attr_stmts) {
+        for (VerilogAttrEntry *entry : *stmt->attrs())
+          setAttribute(cell, entry->key(), entry->value());
+      }
+    }
+
+    module_map_[cell] = module;
+    makeCellPorts(cell, module, ports);
+  }
+  else {
+    deleteContents(ports);
+    delete ports;
+    deleteContents(stmts);
+    delete stmts;
+    deleteContents(attr_stmts);
+    delete attr_stmts;
+  }
 }
 
 void
@@ -228,6 +243,16 @@ VerilogReader::makeModule(std::string_view module_vname,
                           VerilogAttrStmtSeq *attr_stmts,
                           int line)
 {
+  if (!unsupported_net_type_.empty()) {
+    deleteContents(port_dcls);
+    delete port_dcls;
+    deleteContents(stmts);
+    delete stmts;
+    deleteContents(attr_stmts);
+    delete attr_stmts;
+    return;
+  }
+
   VerilogNetSeq *ports = new VerilogNetSeq;
   // Pull the port names out of the port declarations.
   for (VerilogStmt *dcl : *port_dcls) {
@@ -280,7 +305,7 @@ VerilogReader::makeCellPort(Cell *cell,
 {
   VerilogDcl *dcl = module->declaration(port_name);
   if (dcl) {
-    PortDirection *dir = dcl->direction();
+    const PortDirection *dir = dcl->direction();
     VerilogDclBus *dcl_bus = dynamic_cast<VerilogDclBus *>(dcl);
     Port *port = dcl->isBus()
         ? network_->makeBusPort(cell, port_name, dcl_bus->fromIndex(),
@@ -322,7 +347,7 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
                                std::set<std::string> &port_names)
 {
   for (auto const &[port_name, dcl] : *module->declarationMap()) {
-    PortDirection *dir = dcl->direction();
+    const PortDirection *dir = dcl->direction();
     if (dir->isInput() || dir->isOutput() || dir->isBidirect()) {
       if (!port_names.contains(port_name))
         linkWarn(197, module->filename(), module->line(),
@@ -332,8 +357,28 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
   }
 }
 
+void
+VerilogReader::unsupportedNetType(std::string_view net_type,
+                                   int line)
+{
+  if (unsupported_net_type_.empty()) {
+    unsupported_net_type_ = net_type;
+    unsupported_net_line_ = line;
+  }
+}
+
+void
+VerilogReader::deleteDcl(VerilogAttrStmtSeq *attr_stmts,
+                          VerilogDclArgSeq *args)
+{
+  deleteContents(attr_stmts);
+  delete attr_stmts;
+  deleteContents(args);
+  delete args;
+}
+
 VerilogDcl *
-VerilogReader::makeDcl(PortDirection *dir,
+VerilogReader::makeDcl(const PortDirection *dir,
                        VerilogDclArgSeq *args,
                        VerilogAttrStmtSeq *attr_stmts,
                        int line)
@@ -367,7 +412,7 @@ VerilogReader::makeDcl(PortDirection *dir,
 }
 
 VerilogDcl *
-VerilogReader::makeDcl(PortDirection *dir,
+VerilogReader::makeDcl(const PortDirection *dir,
                        VerilogDclArg *arg,
                        VerilogAttrStmtSeq *attr_stmts,
                        int line)
@@ -376,7 +421,7 @@ VerilogReader::makeDcl(PortDirection *dir,
 }
 
 VerilogDclBus *
-VerilogReader::makeDclBus(PortDirection *dir,
+VerilogReader::makeDclBus(const PortDirection *dir,
                           int from_index,
                           int to_index,
                           VerilogDclArg *arg,
@@ -387,7 +432,7 @@ VerilogReader::makeDclBus(PortDirection *dir,
 }
 
 VerilogDclBus *
-VerilogReader::makeDclBus(PortDirection *dir,
+VerilogReader::makeDclBus(const PortDirection *dir,
                           int from_index,
                           int to_index,
                           VerilogDclArgSeq *args,
@@ -638,7 +683,7 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
       const std::string &net_name = arg->netName();
       VerilogDcl *existing_dcl = dcl_map_[net_name];
       if (existing_dcl) {
-        PortDirection *existing_dir = existing_dcl->direction();
+        const PortDirection *existing_dir = existing_dcl->direction();
         if (existing_dir->isInternal())
           // wire dcl can be used as modifier for input/inout dcls.
           // Ignore the wire dcl.
@@ -771,7 +816,7 @@ VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
 {
 }
 
-VerilogDcl::VerilogDcl(PortDirection *dir,
+VerilogDcl::VerilogDcl(const PortDirection *dir,
                        VerilogDclArgSeq *args,
                        VerilogAttrStmtSeq *attr_stmts,
                        int line) :
@@ -782,7 +827,7 @@ VerilogDcl::VerilogDcl(PortDirection *dir,
 {
 }
 
-VerilogDcl::VerilogDcl(PortDirection *dir,
+VerilogDcl::VerilogDcl(const PortDirection *dir,
                        VerilogDclArg *arg,
                        VerilogAttrStmtSeq *attr_stmts,
                        int line) :
@@ -814,7 +859,7 @@ VerilogDcl::portName()
   return (*args_)[0]->netName();
 }
 
-VerilogDclBus::VerilogDclBus(PortDirection *dir,
+VerilogDclBus::VerilogDclBus(const PortDirection *dir,
                              int from_index,
                              int to_index,
                              VerilogDclArgSeq *args,
@@ -826,7 +871,7 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
 {
 }
 
-VerilogDclBus::VerilogDclBus(PortDirection *dir,
+VerilogDclBus::VerilogDclBus(const PortDirection *dir,
                              int from_index,
                              int to_index,
                              VerilogDclArg *arg,
@@ -1561,7 +1606,7 @@ VerilogReader::makeModuleInstBody(VerilogModule *module,
                       bindings);
     else if (stmt->isDeclaration()) {
       VerilogDcl *dcl = dynamic_cast<VerilogDcl *>(stmt);
-      PortDirection *dir = dcl->direction();
+      const PortDirection *dir = dcl->direction();
       for (VerilogDclArg *arg : *dcl->args()) {
         VerilogAssign *assign = arg->assign();
         if (assign)

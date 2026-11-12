@@ -194,6 +194,7 @@ public:
   virtual const Net *net(const ParasiticNode *node,
                          const Network *network) const = 0;
   virtual unsigned netId(const ParasiticNode *node) const = 0;
+  // Node is external to the parasitic network (coupling capacittor connection).
   virtual bool isExternal(const ParasiticNode *node) const = 0;
   // Node capacitance to ground.
   virtual float nodeGndCap(const ParasiticNode *node) const = 0;

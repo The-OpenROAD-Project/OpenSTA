@@ -285,6 +285,9 @@ define_cmd_args "report_clock_skew" {[-setup|-hold]\
     -clocks {The clocks to report. The default is all clocks.}
     -scenes {Report clocks for these scenes. The default is all scenes.}
     -include_internal_latency {Include internal clock latency from liberty min/max_clock_tree_path timing groups.}
+    -digits default
+    -setup default
+    -hold default
   }
 
 proc_redirect report_clock_skew {
@@ -335,6 +338,7 @@ define_cmd_args "report_clock_latency" {[-clocks clocks]\
     -clocks {The clocks to report. The default is all clocks.}
     -scenes {Report latency for these scenes. The default is all scenes.}
     -include_internal_latency {Include internal clock latency from liberty min/max_clock_tree_path timing groups.}
+    -digits default
   }
 
 proc_redirect report_clock_latency {
@@ -411,7 +415,8 @@ See `set_false_path` for a description of allowed from_list, through_list and to
     -path_group {List of path groups to report. The default is to report all path groups.}
     -format {`end`: Report path ends in one line with delay, required time and slack. `full`: Report path start and end points and the path. This is the default path type. `full_clock`: Report path start and end points, the path, and the source and target clock paths. `full_clock_expanded`: Report path start and end points, the path, and the source and target clock paths. If the clock is generated and propagated, the path from the clock source pin is also reported. `short`: Report only path start and end points. `summary`: Report only path ends with delay. `json`: Report in json format. `-fields` is ignored.}
     -fields {List of capacitance|slew|input_pins|hierarchical_pins|net|fanout|src_attr|variation}
-    -no_line_splits {Do not split long lines into multiple lines.}
+    -digits default
+    -no_line_splits default
   }
 
 proc_redirect report_checks {
@@ -461,7 +466,8 @@ define_cmd_args "report_check_types" \
     -min_capacitance {Report min capacitance design rule checks.}
     -net {Report checks on this net.}
     -max_count {Maximum number of checks to report.}
-    -no_line_splits {Do not split long lines into multiple lines.}
+    -digits default
+    -no_line_splits default
   }
 
 proc_redirect report_check_types {
@@ -646,7 +652,12 @@ u1 A B constant B=0
 ################################################################
 
 define_cmd_args "report_tns" {[-min] [-max] [-digits digits]} \
-  -help {Report the total negative slack.}
+  -help {Report the total negative slack.} \
+  -arg_help {
+    -min default
+    -max default
+    -digits default
+  }
 
 proc_redirect report_tns {
   global sta_report_default_digits
@@ -672,7 +683,12 @@ proc_redirect report_tns {
 ################################################################
 
 define_cmd_args "report_wns" {[-min] [-max] [-digits digits]} \
-  -help {Report the worst negative slack. If the worst slack is positive, zero is reported.}
+  -help {Report the worst negative slack. If the worst slack is positive, zero is reported.} \
+  -arg_help {
+    -min default
+    -max default
+    -digits default
+  }
 
 proc_redirect report_wns {
   global sta_report_default_digits
@@ -702,7 +718,12 @@ proc_redirect report_wns {
 ################################################# ###############
 
 define_cmd_args "report_worst_slack" {[-min] [-max] [-digits digits]} \
-  -help {Report the worst slack in the design.}
+  -help {Report the worst slack in the design.} \
+  -arg_help {
+    -min default
+    -max default
+    -digits default
+  }
 
 proc_redirect report_worst_slack {
   global sta_report_default_digits
@@ -728,7 +749,12 @@ define_cmd_args "report_path" \
      [-fields capacitance|slew|input_pin|net|src_attr]\
      [-digits digits] [-no_line_splits]\
      [> filename] [>> filename]\
-     pin ^|r|rise|v|f|fall}
+     pin ^|r|rise|v|f|fall} \
+  -arg_help {
+    -min default
+    -max default
+    -digits default
+  }
 
 proc_redirect report_path {
   parse_key_args "report_path" args keys {} \
@@ -853,6 +879,9 @@ define_cmd_args "report_arrival" {[-scene scene] [-report_variance] [-digits dig
   -help {The `report_arrival` command reports min/max rise/fall arrival times at a pin with respect to each clock that has a path to the pin.} \
   -arg_help {
     pin {A pin or port.}
+    -scene default
+    -report_variance default
+    -digits default
   }
 
 proc report_arrival { args } {
@@ -879,6 +908,9 @@ define_cmd_args "report_required" {[-scene scene] [-report_variance] [-digits di
   -help {The `report_required` command reports min/max rise/fall required times at a pin with respect to each clock.} \
   -arg_help {
     pin {A pin or port.}
+    -scene default
+    -report_variance default
+    -digits default
   }
 
 proc report_required { args } {
@@ -905,6 +937,9 @@ define_cmd_args "report_slack" {[-scene scene] [-report_variance] [-digits digit
   -help {The `report_slack` command reports min/max rise/fall slack at a pin with respect to each clock.} \
   -arg_help {
     pin {A pin or port.}
+    -scene default
+    -report_variance default
+    -digits default
   }
 
 proc report_slack { args } {

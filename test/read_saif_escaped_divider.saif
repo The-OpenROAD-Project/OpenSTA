@@ -1,0 +1,10 @@
+(SAIFILE
+(DIVIDER / )
+(TIMESCALE 1ns)
+(DURATION 1000)
+ (INSTANCE top
+  (NET
+   (u_a\/n1 (T0 600) (T1 400) (TC 200))
+  )
+ )
+)

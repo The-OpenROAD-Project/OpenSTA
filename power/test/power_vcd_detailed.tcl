@@ -13,7 +13,7 @@ suppress_msg 1140
 #---------------------------------------------------------------
 puts "--- Test 1: VCD power full report ---"
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 
@@ -130,7 +130,7 @@ unset_power_activity -global
 puts "--- Test 9: SAIF power ---"
 # Re-read design fresh
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 

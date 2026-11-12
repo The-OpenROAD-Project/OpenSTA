@@ -101,6 +101,8 @@ protected:
   void setLevelIncr(Vertex  *vertex,
                     Level level);
   void clearLoopEdges();
+  // Invalidate arrivals/requireds across a loop edge when its cut changes.
+  void loopEdgeChanged(Edge *edge);
   void deleteLoops();
   void reportPath(EdgeSeq &path) const;
 

@@ -52,7 +52,7 @@ class GenclkInfo
 public:
   GenclkInfo(Clock *gclk,
              FilterPath *src_filter,
-             const StaState *sta);
+             Graph *&graph);
   ~GenclkInfo();
   EdgeSet &fdbkEdges() { return fdbk_edges_; }
   VertexSet &fanins() { return fanins_; }
@@ -70,9 +70,9 @@ protected:
 
 GenclkInfo::GenclkInfo(Clock *gclk,
                        FilterPath *src_filter,
-                       const StaState *sta) :
+                       Graph *&graph) :
   gclk_(gclk),
-  fanins_(makeVertexSet(sta->graph())),
+  fanins_(graph),
   src_filter_(src_filter)
 {
 }
@@ -227,7 +227,7 @@ Genclks::ensureMaster(Clock *gclk,
       // Search backward from generated clock source pin to a clock pin.
       GenClkMasterSearchPred srch_pred(this);
       VertexQueue master_queue;
-      VertexSet src_vertices = makeVertexSet(this);
+      VertexSet src_vertices(graph_);
       gclk->srcPinVertices(src_vertices, network_, graph_);
       for (Vertex *vertex : src_vertices)
         master_queue.push(vertex);
@@ -319,14 +319,11 @@ Genclks::seedClkVertices(Clock *clk,
                          SearchPred &srch_pred)
 {
   for (const Pin *pin : clk->leafPins()) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    fanins.insert(vertex);
-    enqueueFanin(vertex, fanin_queue, srch_pred);
-    if (bidirect_drvr_vertex) {
-      fanins.insert(bidirect_drvr_vertex);
-      enqueueFanin(bidirect_drvr_vertex, fanin_queue, srch_pred);
-    }
+    graph_->verticesApply(pin, [this, &fanins, &fanin_queue,
+                                &srch_pred] (Vertex *vertex) {
+      fanins.insert(vertex);
+      enqueueFanin(vertex, fanin_queue, srch_pred);
+    });
   }
 }
 
@@ -423,7 +420,7 @@ GenclkInfo *
 Genclks::makeGenclkInfo(Clock *gclk)
 {
   FilterPath *src_filter = makeSrcFilter(gclk, mode_->sdc());
-  GenclkInfo *genclk_info = new GenclkInfo(gclk, src_filter, this);
+  GenclkInfo *genclk_info = new GenclkInfo(gclk, src_filter, graph_);
   findFanin(gclk, genclk_info->fanins());
   genclk_info_map_[gclk] = genclk_info;
   return genclk_info;
@@ -475,8 +472,8 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
   EdgeSet &fdbk_edges = genclk_info->fdbkEdges();
   for (const Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
-    VertexSet path_vertices = makeVertexSet(this);
-    VertexSet visited_vertices = makeVertexSet(this);
+    VertexSet path_vertices(graph_);
+    VertexSet visited_vertices(graph_);
     SearchPred1 srch_pred(this);
     findLatchFdbkEdges(vertex, srch_pred, path_vertices,
                        visited_vertices, fdbk_edges);
@@ -554,8 +551,7 @@ Genclks::seedSrcPins(Clock *gclk,
           const EarlyLate *early_late = min_max;
           for (const RiseFall *rf : RiseFall::range()) {
             Arrival insert = search_->clockInsertion(master_clk, master_pin, rf,
-                                                     min_max, early_late, mode_,
-                                                     // OpenROAD fork: analysis_corner support.
+                                                     min_max, early_late,
                                                      scene);
             Tag *tag = makeTag(gclk, master_clk, master_pin, rf, src_filter, insert,
                                scene, min_max);
@@ -782,15 +778,16 @@ Genclks::clearSrcPaths()
 
 size_t
 Genclks::srcPathIndex(const RiseFall *clk_rf,
-                      const MinMax *min_max) const
+                      const MinMax *min_max,
+                      const Scene *scene) const
 {
-  return min_max->index() * RiseFall::index_count + clk_rf->index();
+  return scene->pathIndex(min_max) * RiseFall::index_count + clk_rf->index();
 }
 
 void
 Genclks::recordSrcPaths(Clock *gclk)
 {
-  size_t path_count = RiseFall::index_count * MinMax::index_count;
+  size_t path_count = scenePathCount() * RiseFall::index_count;
 
   bool divide_by_1 = gclk->isDivideByOneCombinational();
   bool invert = gclk->invert();
@@ -809,16 +806,20 @@ Genclks::recordSrcPaths(Clock *gclk)
         const RiseFall *src_clk_rf = src_clk_edge->transition();
         const RiseFall *rf = path->transition(this);
         bool inverting_path = (rf != src_clk_rf);
-        size_t path_index = srcPathIndex(rf, path->minMax(this));
+        const Scene *scene = path->scene(this);
+        size_t path_index = srcPathIndex(rf, path->minMax(this), scene);
         Path &src_path = src_paths[path_index];
         if ((!divide_by_1 || (inverting_path == invert))
             && (!has_edges || src_clk_rf == gclk->masterClkEdgeTr(rf))
             && (src_path.isNull()
                 || delayGreater(path->arrival(), src_path.arrival(), early_late,
                                 this))) {
-          debugPrint(debug_, "genclk", 2, "  {} insertion {} {} {}",
-                     network_->pathName(gclk_pin), early_late->to_string(),
-                     rf->shortName(), delayAsString(path->arrival(), this));
+          debugPrint(debug_, "genclk", 2, "  {} {} insertion {} {} {}",
+                     network_->pathName(gclk_pin),
+                     scene->name(),
+                     early_late->to_string(),
+                     rf->shortName(),
+                     delayAsString(path->arrival(), this));
           src_path = *path;
         }
       }
@@ -895,28 +896,32 @@ Genclks::srcPath(const Path *clk_path) const
   const Pin *src_pin = clk_path->pin(this);
   const ClockEdge *clk_edge = clk_path->clkEdge(this);
   const EarlyLate *early_late = clk_path->minMax(this);
-  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(), early_late);
+  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(),
+                 early_late, clk_path->scene(this));
 }
 
 const Path *
 Genclks::srcPath(const ClockEdge *clk_edge,
                  const Pin *src_pin,
-                 const MinMax *min_max) const
+                 const MinMax *min_max,
+                 const Scene *scene) const
 {
-  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(), min_max);
+  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(), min_max,
+                 scene);
 }
 
 const Path *
 Genclks::srcPath(const Clock *gclk,
                  const Pin *src_pin,
                  const RiseFall *rf,
-                 const MinMax *min_max) const
+                 const MinMax *min_max,
+                 const Scene *scene) const
 {
   auto itr = genclk_src_paths_.find(ClockPinPair(gclk, src_pin));
   if (itr != genclk_src_paths_.end()) {
     const std::vector<Path> &src_paths = itr->second;
     if (!src_paths.empty()) {
-      size_t path_index = srcPathIndex(rf, min_max);
+      size_t path_index = srcPathIndex(rf, min_max, scene);
       const Path *src_path = &src_paths[path_index];
       if (!src_path->isNull())
         return src_path;
@@ -929,9 +934,10 @@ Arrival
 Genclks::insertionDelay(const Clock *clk,
                         const Pin *pin,
                         const RiseFall *rf,
-                        const EarlyLate *early_late) const
+                        const EarlyLate *early_late,
+                        const Scene *scene) const
 {
-  const Path *src_path = srcPath(clk, pin, rf, early_late);
+  const Path *src_path = srcPath(clk, pin, rf, early_late, scene);
   if (src_path)
     return src_path->arrival();
   else

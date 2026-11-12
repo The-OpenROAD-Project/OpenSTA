@@ -1,0 +1,27 @@
+Warning 1212: asap7_simple.lib.gz line 71029, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 71505, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 71981, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 72457, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 72933, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 73409, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 73885, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 81795, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 82271, timing group from output port.
+Warning 1212: asap7_simple.lib.gz line 82747, timing group from output port.
+u_xor/Y 5.00000e+07 0.500 propagated
+u_and/Y 3.75000e+07 0.250 propagated
+u_icg/GCLK 5.00000e+07 0.125 propagated
+r_reg/Q 1.00000e+07 0.250 propagated
+r_glitch/Q 5.00000e+07 0.250 propagated
+r_gen/CLK 1.00000e+08 0.250 clock
+r_niq/QN 1.00000e+07 0.750 propagated
+u_inv1/Y 3.00000e+07 0.500 propagated
+u_inv2/Y 2.00000e+07 0.500 propagated
+   Internal  Switching    Leakage      Total
+      Power      Power      Power      Power (Watts)
+--------------------------------------------
+ 7.5000e-08 0.0000e+00 0.0000e+00 7.5000e-08 u_when
+u_and/Y 0.00000e+00 0.000 constant
+u_xor/Y 5.00000e+07 0.500 propagated
+u_inv2/A 3.00000e+08 0.500 propagated
+u_inv2/Y 1.00000e+08 0.500 propagated

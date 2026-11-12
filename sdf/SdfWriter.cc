@@ -67,7 +67,6 @@ protected:
                    bool no_version);
   void writeTrailer();
   void writeInterconnects();
-  void writeInstInterconnects(Instance *inst);
   void writeInterconnectFromPin(Pin *drvr_pin);
 
   void writeInstances();
@@ -271,30 +270,17 @@ SdfWriter::writeInterconnects()
   sta::print(stream_, "  (DELAY\n");
   sta::print(stream_, "   (ABSOLUTE\n");
 
-  writeInstInterconnects(network_->topInstance());
-
-  LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    writeInstInterconnects(inst);
-  }
-  delete inst_iter;
-
-  sta::print(stream_, "   )\n");
-  sta::print(stream_, "  )\n");
-  sta::print(stream_, " )\n");
-}
-
-void
-SdfWriter::writeInstInterconnects(Instance *inst)
-{
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  PinIterator *pin_iter = network_->pinIterator();
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     if (network_->isDriver(pin))
       writeInterconnectFromPin(pin);
   }
   delete pin_iter;
+
+  sta::print(stream_, "   )\n");
+  sta::print(stream_, "  )\n");
+  sta::print(stream_, " )\n");
 }
 
 void

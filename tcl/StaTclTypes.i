@@ -490,13 +490,14 @@ using namespace sta;
 %typemap(in) PortDirection* {
   Tcl_Size length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  PortDirection *dir = PortDirection::find(arg);
+  const PortDirection *dir = PortDirection::find(arg);
   if (dir == nullptr) {
     tclArgError(interp, 2153, "Unknown port direction '{}'.", arg);
     return TCL_ERROR;
   }
   else
-    $1 = dir;
+    // Swig is retarded and drops const on args.
+    $1 = const_cast<PortDirection*>(dir);
  }
 
 %typemap(in) TimingRole* {
@@ -1484,14 +1485,21 @@ using namespace sta;
   Tcl_Size argc;
   Tcl_Obj **argv;
 
-  Sta *sta = Sta::sta();
   ArcDcalcArgSeq seq;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
-    for (int i = 0; i < argc; i++) {
-      ArcDcalcArg gate = arcDcalcArgTcl(argv[i], interp);
+    if (argc == 5 || argc == 6) {
+      // One driver.
+      ArcDcalcArg gate = arcDcalcArgTcl(source, interp);
       if (gate.drvrPin())
         seq.push_back(gate);
+    }
+    else {
+      for (int i = 0; i < argc; i++) {
+        ArcDcalcArg gate = arcDcalcArgTcl(argv[i], interp);
+        if (gate.drvrPin())
+          seq.push_back(gate);
+      }
     }
   }
   $1 = seq;

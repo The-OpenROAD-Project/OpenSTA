@@ -7,7 +7,7 @@ suppress_msg 1140
 #---------------------------------------------------------------
 puts "--- Test 1: GCD power with VCD ---"
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 
@@ -128,7 +128,7 @@ unset_power_activity -global
 puts "--- Test 6: SAIF power ---"
 # Re-read design
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 
@@ -147,7 +147,7 @@ report_activity_annotation
 #---------------------------------------------------------------
 puts "--- Test 7: power with defaults ---"
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../../examples/gcd_sky130hd.sdc
 

@@ -240,14 +240,14 @@ CheckCapacitances::checkViolators(const Net *net,
     delete pin_iter;
   }
   else {
-    LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-    while (inst_iter->hasNext()) {
-      Instance *inst = inst_iter->next();
-      checkCapLimits(inst, true, scenes, min_max);
+    PinIterator *pin_iter = network->pinIterator();
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      CapacitanceCheck cap_check = check(pin, true, scenes, min_max);
+      if (!cap_check.isNull())
+        checks_.push_back(cap_check);
     }
-    delete inst_iter;
-    // Check top level ports.
-    checkCapLimits(network->topInstance(), true, scenes, min_max);
+    delete pin_iter;
   }
 
   sort(checks_, CapacitanceCheckSlackLess(sta_));
@@ -272,50 +272,16 @@ CheckCapacitances::checkMaxCount(const Net *net,
     delete pin_iter;
   }
   else {
-    LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-    while (inst_iter->hasNext()) {
-      Instance *inst = inst_iter->next();
-      checkCapLimits(inst, scenes, min_max, heap);
+    PinIterator *pin_iter = network->pinIterator();
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      check(pin, scenes, min_max, heap);
     }
-    delete inst_iter;
-    // Check top level ports.
-    checkCapLimits(network->topInstance(), scenes, min_max, heap);
+    delete pin_iter;
   }
 
   checks_ = heap.extract();
   return checks_;
-}
-
-void
-CheckCapacitances::checkCapLimits(const Instance *inst,
-                                 bool violators,
-                                 const SceneSeq &scenes,
-                                 const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  InstancePinIterator *pin_iter = network->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    CapacitanceCheck cap_check = check(pin, violators, scenes, min_max);
-    if (!cap_check.isNull())
-      checks_.push_back(cap_check);
-  }
-  delete pin_iter;
-}
-
-void
-CheckCapacitances::checkCapLimits(const Instance *inst,
-                                  const SceneSeq &scenes,
-                                  const MinMax *min_max,
-                                  CapacitanceCheckHeap &heap)
-{
-  const Network *network = sta_->network();
-  InstancePinIterator *pin_iter = network->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    check(pin, scenes, min_max, heap);
-  }
-  delete pin_iter;
 }
 
 void

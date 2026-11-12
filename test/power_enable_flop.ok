@@ -1,0 +1,14 @@
+P(D) 0.5 P(DE) 0.1
+r/Q    toggles/cycle 0.0500 duty 0.500 propagated
+rb/Q_N toggles/cycle 0.0500 duty 0.500 propagated
+P(D) 0.2 P(DE) 0.1
+r/Q    toggles/cycle 0.0320 duty 0.200 propagated
+rb/Q_N toggles/cycle 0.0320 duty 0.800 propagated
+P(D) 0.8 P(DE) 0.1
+r/Q    toggles/cycle 0.0320 duty 0.800 propagated
+rb/Q_N toggles/cycle 0.0320 duty 0.200 propagated
+DE constant 0
+r/Q    toggles/cycle 0.0000 duty 0.500 propagated
+DE constant 1, D 0.012/cycle
+r/Q    toggles/cycle 0.0120 duty 0.500 propagated
+rb/Q_N toggles/cycle 0.0120 duty 0.500 propagated

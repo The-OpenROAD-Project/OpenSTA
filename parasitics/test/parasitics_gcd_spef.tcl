@@ -8,7 +8,7 @@
 #   Parasitics.cc (various find/make operations with large design)
 
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_verilog ../../examples/gcd_sky130hd.v
+read_verilog ../../examples/gcd_sky130hd.v.gz
 link_design gcd
 
 read_sdc ../../examples/gcd_sky130hd.sdc
@@ -25,7 +25,7 @@ report_checks -path_delay min
 # Read SPEF (large sky130 SPEF)
 #---------------------------------------------------------------
 puts "--- read_spef GCD ---"
-read_spef ../../examples/gcd_sky130hd.spef
+read_spef ../../examples/gcd_sky130hd.spef.gz
 
 #---------------------------------------------------------------
 # Report with parasitics

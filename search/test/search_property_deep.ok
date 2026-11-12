@@ -314,9 +314,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "cell": "search_genclk",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "clkbuf",
@@ -324,8 +324,8 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "clkbuf/A",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clkbuf",
@@ -333,9 +333,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "clkbuf/Z",
       "net": "clk_buf",
-      "arrival": 2.604e-11,
-      "capacitance": 1.899e-15,
-      "slew": 8.412e-12
+      "arrival": 2.60e-11,
+      "capacitance": 1.90e-15,
+      "slew": 8.41e-12
     },
     {
       "instance": "reg1",
@@ -343,8 +343,8 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk_buf",
-      "arrival": 2.604e-11,
-      "slew": 8.412e-12
+      "arrival": 2.60e-11,
+      "slew": 8.41e-12
     }
   ],
   "source_path": [
@@ -354,9 +354,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 8.624e-11,
-      "capacitance": 2.115e-15,
-      "slew": 9.338e-12
+      "arrival": 8.62e-11,
+      "capacitance": 2.11e-15,
+      "slew": 9.34e-12
     },
     {
       "instance": "buf2",
@@ -364,8 +364,8 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "buf2/A",
       "net": "n3",
-      "arrival": 8.624e-11,
-      "slew": 9.338e-12
+      "arrival": 8.62e-11,
+      "slew": 9.34e-12
     },
     {
       "instance": "buf2",
@@ -373,26 +373,26 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "buf2/Z",
       "net": "out1",
-      "arrival": 1.036e-10,
-      "capacitance": 0.000e+00,
-      "slew": 3.695e-12
+      "arrival": 1.04e-10,
+      "capacitance": 0.00e+00,
+      "slew": 3.70e-12
     },
     {
       "instance": "",
       "cell": "search_genclk",
       "verilog_src": "",
       "pin": "out1",
-      "arrival": 1.036e-10,
-      "slew": 3.695e-12
+      "arrival": 1.04e-10,
+      "slew": 3.70e-12
     }
   ],
   "target_clock": "clk",
   "target_clock_edge": "rise",
-  "data_arrival_time": 1.036e-10,
-  "crpr": 0.000e+00,
-  "margin": 2.000e-09,
-  "required_time": 8.000e-09,
-  "slack": 7.896e-09
+  "data_arrival_time": 1.04e-10,
+  "crpr": 0.00e+00,
+  "margin": 2.00e-09,
+  "required_time": 8.00e-09,
+  "slack": 7.90e-09
 },
 {
   "type": "check",
@@ -408,9 +408,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "cell": "search_genclk",
       "verilog_src": "",
       "pin": "clk",
-      "arrival": 0.000e+00,
-      "capacitance": 7.798e-16,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "capacitance": 7.80e-16,
+      "slew": 0.00e+00
     },
     {
       "instance": "clkbuf",
@@ -418,8 +418,8 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "clkbuf/A",
       "net": "clk",
-      "arrival": 0.000e+00,
-      "slew": 0.000e+00
+      "arrival": 0.00e+00,
+      "slew": 0.00e+00
     },
     {
       "instance": "clkbuf",
@@ -427,9 +427,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "clkbuf/Z",
       "net": "clk_buf",
-      "arrival": 2.604e-11,
-      "capacitance": 1.899e-15,
-      "slew": 8.412e-12
+      "arrival": 2.60e-11,
+      "capacitance": 1.90e-15,
+      "slew": 8.41e-12
     },
     {
       "instance": "reg1",
@@ -437,8 +437,8 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "reg1/CK",
       "net": "clk_buf",
-      "arrival": 2.604e-11,
-      "slew": 8.412e-12
+      "arrival": 2.60e-11,
+      "slew": 8.41e-12
     }
   ],
   "source_path": [
@@ -448,9 +448,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "reg1/Q",
       "net": "n3",
-      "arrival": 7.938e-11,
-      "capacitance": 1.938e-15,
-      "slew": 6.713e-12
+      "arrival": 7.94e-11,
+      "capacitance": 1.94e-15,
+      "slew": 6.71e-12
     },
     {
       "instance": "reg2",
@@ -458,8 +458,8 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "reg2/D",
       "net": "n3",
-      "arrival": 7.938e-11,
-      "slew": 6.713e-12
+      "arrival": 7.94e-11,
+      "slew": 6.71e-12
     }
   ],
   "target_clock": "div_clk",
@@ -471,9 +471,9 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "div_reg/Q",
       "net": "div_clk",
-      "arrival": 0.000e+00,
-      "capacitance": 9.497e-16,
-      "slew": 7.270e-12
+      "arrival": 0.00e+00,
+      "capacitance": 9.50e-16,
+      "slew": 7.27e-12
     },
     {
       "instance": "reg2",
@@ -481,15 +481,15 @@ reg1/Q (DFF_X1)                      reg2/D (DFF_X1)                         9.8
       "verilog_src": "",
       "pin": "reg2/CK",
       "net": "div_clk",
-      "arrival": 0.000e+00,
-      "slew": 7.270e-12
+      "arrival": 0.00e+00,
+      "slew": 7.27e-12
     }
   ],
-  "data_arrival_time": 1.008e-08,
-  "crpr": 0.000e+00,
-  "margin": 3.947e-11,
-  "required_time": 1.996e-08,
-  "slack": 9.881e-09
+  "data_arrival_time": 1.01e-08,
+  "crpr": 0.00e+00,
+  "margin": 3.95e-11,
+  "required_time": 2.00e-08,
+  "slack": 9.88e-09
 }
 ]
 }

@@ -79,6 +79,7 @@ private:
   void parseScope();
   void parseUpscope();
   void parseVarValues();
+  void parseVarValues(const std::string &first_token);
   std::string getToken();
   std::string readStmtString();
   std::vector<std::string> readStmtTokens();
@@ -123,6 +124,8 @@ public:
                        VcdVarType type,
                        size_t width,
                        std::string_view id) = 0;
+  // Called after all $var definitions have been read.
+  virtual void endDefinitions() {}
   virtual void varAppendValue(const std::string &id,
                               VcdTime time,
                               char value) = 0;

@@ -49,6 +49,7 @@ StaState::StaState() :
   levelize_(nullptr),
   arc_delay_calc_(nullptr),
   graph_delay_calc_(nullptr),
+  delay_noise_(nullptr),
   search_(nullptr),
   delay_ops_(nullptr),
   latches_(nullptr),

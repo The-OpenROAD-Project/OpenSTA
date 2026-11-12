@@ -5,11 +5,14 @@ sta_module_tests("search"
     analysis_corner_props
     annotated_write_verilog
     assigned_delays
+    check_setup_max_delay
     check_timing
     check_types_deep
+    clk_arrivals_threads
     clk_skew_interclk
     clk_skew_multiclock
     corner_io_gates
+    corner_move_constraints
     corner_scope_audit
     corner_sdc_bundle
     corner_sdc_derate
@@ -78,6 +81,7 @@ sta_module_tests("search"
     timing
     timing_model
     timing_model_clktree
+    timing_model_constant
     timing_model_deep
     timing_model_io
     timing_model_readback

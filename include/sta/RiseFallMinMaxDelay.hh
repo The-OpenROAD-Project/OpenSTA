@@ -37,7 +37,13 @@ public:
   [[nodiscard]] bool empty() const;
   void value(const RiseFall *rf,
              const MinMax *min_max,
+             // Return values.
              Delay &value,
+             bool &exists) const;
+  void range(const RiseFall *rf,
+             // Return values.
+             Delay &min_value,
+             Delay &max_value,
              bool &exists) const;
   void mergeValue(const RiseFall *rf,
                   const MinMax *min_max,

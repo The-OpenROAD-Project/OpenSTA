@@ -64,13 +64,16 @@ protected:
                     bool reg_no_clks);
   void checkUnconstrainedEndpoints();
   bool hasClkedArrival(Vertex *vertex);
+  bool hasClkArrivalOnLaunchEdge(Vertex *clk_vertex);
   void checkNoOutputDelay(PinSet &no_departure);
   void checkUnconstrainedOutputs(PinSet &unconstrained_ends);
   void checkUnconstrainedSetups(PinSet &unconstrained_ends);
   void checkLoops();
   bool hasClkedDepature(Pin *pin);
   bool hasClkedCheck(Vertex *vertex);
-  bool hasMaxDelay(Pin *pin);
+  bool hasMaxDelay(const Pin *pin);
+  bool hasMaxDelayFrom(const Pin *pin);
+  bool hasMaxDelayArrival(Vertex *vertex);
   void checkGeneratedClocks();
   void pushPinErrors(std::string_view msg,
                      PinSet &pins);

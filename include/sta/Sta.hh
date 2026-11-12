@@ -37,6 +37,7 @@
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
+#include "PinPair.hh"
 #include "PowerClass.hh"
 #include "RiseFallMinMaxDelay.hh"
 #include "Scene.hh"
@@ -76,6 +77,7 @@ class EquivCells;
 class StaSimObserver;
 class LevelizeObserver;
 class GraphLoop;
+class DelayNoise;
 
 using ModeNameMap = std::map<std::string, Mode*, std::less<>>;
 using SceneNameMap = std::map<std::string, Scene*>;
@@ -416,6 +418,10 @@ public:
                    Sdc *sdc);
   // Update period/waveform for generated clocks from source pin clock.
   void updateGeneratedClks();
+  // Make SDC generated clocks defined by Liberty generated_clock groups
+  // whose master pin is in clk's clock network.
+  void makeLibertyGeneratedClocks(Clock *clk,
+                                  const Mode *mode);
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClockSrc(const Pin *pin,
                   const Sdc *sdc) const;
@@ -1327,6 +1333,15 @@ public:
                            Cell *to_cell);
   virtual void replaceCell(Instance *inst,
                            LibertyCell *to_lib_cell);
+  // Move the SDC constraints on a pin, instance or net being replaced
+  // to the one that replaces it, before the replaced one is deleted.
+  // Instance ports are matched by name.
+  void moveConstraints(const Pin *from,
+                       const Pin *to);
+  void moveConstraints(const Instance *from,
+                       const Instance *to);
+  void moveConstraints(const Net *from,
+                       const Net *to);
   virtual Net *makeNet(const char *name,
                        Instance *parent);
   virtual void deleteNet(Net *net);
@@ -1340,7 +1355,7 @@ public:
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
   virtual void makePortPin(const char *port_name,
-                           PortDirection *dir);
+                           const PortDirection *dir);
   // Notify STA that the network has changed without using the network
   // editing API. For example, reading a netlist without using the
   // builtin network readers.
@@ -1482,6 +1497,70 @@ public:
                       std::string_view power_name,
                       std::string_view gnd_name,
                       CircuitSim ckt_sim);
+  void writePathGnuplot(const Path *path,
+                        const PinSet &plot_pins,
+                        std::string_view spice_waveform_filename,
+                        std::string_view gnuplot_filename,
+                        std::string_view gnuplot_csv_filename);
+  void writeGateSpice(ArcDcalcArgSeq &gates,
+                      const char *spice_filename,
+                      const char *subckt_filename,
+                      StringSeq lib_subckt_filenames,
+                      const char *model_filename,
+                      const char *power_name,
+                      const char *gnd_name,
+                      CircuitSim ckt_sim,
+                      const Scene *scene,
+                      const MinMax *min_max);
+  void writeGateGnuplot(ArcDcalcArgSeq &gates,
+                        const PinSet &plot_pins,
+                        std::string_view spice_waveform_filename,
+                        std::string_view gnuplot_filename,
+                        std::string_view gnuplot_csv_filename,
+                        const Scene *scene,
+                        const MinMax *min_max);
+
+  void annotateNoiseDelays(float min_coupling_sum_ratio,
+                           float min_coupling_ratio,
+                           const SceneSeq scenes,
+                           const MinMaxAll *min_max);
+  void reportNoiseDelays(size_t max_count,
+                         const RiseFallBoth *drvr_rf,
+                         float min_coupling_sum_ratio,
+                         float min_coupling_ratio,
+                         const Scene *scene,
+                         const MinMaxAll *min_max,
+                         int digits);
+  void reportNoiseDelays(const Net *net,
+                         const RiseFallBoth *drvr_rf,
+                         float min_coupling_ratio,
+                         const Scene *scene,
+                         const MinMaxAll *min_max,
+                         int digits);
+  void reportNoiseDelays(ArcDcalcArgSeq gates,
+                         const Scene *scene,
+                         const MinMax *min_max,
+                         int digits);
+  void reportVictimNets(float min_coupling_ratio,
+                        const Scene *scene,
+                        const MinMax *min_max);
+  void reportAggressors(const Net *victim,
+                        float min_coupling_ratio,
+                        const Scene *scene,
+                        const MinMax *min_max);
+  void writeNoiseDelayCase(const Net *net,
+                           const RiseFall *drvr_rf,
+                           std::string_view file_basename,
+                           float min_coupling_sum_ratio,
+                           float min_coupling_ratio,
+                           bool no_timestamp,
+                           const Scene *scene,
+                           const MinMax *min_max);
+  ArcDcalcArgSeq makeDcalcArgs(const Net *net,
+                               const RiseFall *drvr_rf,
+                               float min_coupling_ratio,
+                               const Scene *scene,
+                               const MinMax *min_max);
 
   ////////////////////////////////////////////////////////////////
   // TCL Variables
@@ -1541,6 +1620,8 @@ public:
   ////////////////////////////////////////////////////////////////
 
 protected:
+  void constraintsMoved();
+  void deletePinConstraintsBefore(const Pin *pin);
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
   // specialize the sta components.
@@ -1568,6 +1649,7 @@ protected:
   virtual void makeReportPath();
   virtual void makePower();
   virtual void makeClkSkews();
+  virtual void makeDelayNoise();
   virtual void makeObservers();
   NetworkEdit *networkCmdEdit();
 
@@ -1682,7 +1764,9 @@ protected:
                    Mode *mode,
                    Parasitics *parasitics);
   void deleteScenes();
+  void noiseDelayPreamble();
   void checkLibrarayPocv();
+  bool libraryHasCcsModels() const;
 
   Scene *cmd_scene_{nullptr};
   Mode *cmd_mode_{nullptr};

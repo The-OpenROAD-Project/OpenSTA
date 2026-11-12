@@ -36,12 +36,12 @@
 namespace sta {
 
 void
-readXyceCsv(const char *csv_filename,
+readXyceCsv(std::string_view csv_filename,
             // Return values.
             StringSeq &titles,
             WaveformSeq &waveforms)
 {
-  std::ifstream file(csv_filename);
+  std::ifstream file(std::string(csv_filename).c_str());
   if (file.is_open()) {
     std::string line;
 

@@ -34,7 +34,7 @@ CLK -> GCLK combinational
 CLK -> GCLK combinational
   Disabled by constant
   Condition: !ENA*!SE
-  v -> v 7.06:7.36
+  v -> v 0.00:0.00
 CLK -> GCLK combinational
   Condition: ENA+(!ENA*SE)
   v -> v 7.02:7.32
@@ -51,7 +51,7 @@ CLK -> GCLK combinational
 CLK -> GCLK combinational
   Disabled by constant
   Condition: ENA+(!ENA*SE)
-  v -> v 7.02:7.32
+  v -> v 0.00:0.00
 --- disabled edges ---
 g1 CLK CLK when: !ENA*!SE constant ENA=1 SE=0
 g1 CLK ENA constant SE=0

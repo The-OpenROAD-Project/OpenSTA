@@ -1,0 +1,70 @@
+* Copyright 2020 The SkyWater PDK Authors
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+* SPDX-License-Identifier: Apache-2.0
+
+
+.subckt sky130_fd_sc_hd__dfbbp_1 CLK D RESET_B SET_B VGND VNB VPB VPWR Q Q_N
+X0 a_1364_47# a_1429_21# VGND VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X1 a_2136_47# a_1429_21# VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=640000u l=150000u
+X2 VGND SET_B a_1545_47# VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X3 a_788_47# a_474_413# a_648_21# VNB sky130_fd_pr__nfet_01v8 w=640000u l=150000u
+X4 a_1255_47# a_193_47# a_1341_413# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X5 a_381_47# a_27_47# a_474_413# VNB sky130_fd_pr__nfet_01v8 w=360000u l=150000u
+X6 VPWR D a_381_47# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X7 VPWR SET_B a_648_21# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X8 VPWR a_648_21# a_1113_329# VPB sky130_fd_pr__pfet_01v8_hvt w=840000u l=150000u
+X9 a_942_21# RESET_B VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=640000u l=150000u
+X10 a_2136_47# a_1429_21# VGND VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X11 a_892_329# a_942_21# VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=840000u l=150000u
+X12 VPWR SET_B a_1429_21# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X13 VGND SET_B a_788_47# VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X14 VGND a_648_21# a_1160_47# VNB sky130_fd_pr__nfet_01v8 w=640000u l=150000u
+X15 a_558_413# a_648_21# VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X16 a_648_21# a_474_413# a_892_329# VPB sky130_fd_pr__pfet_01v8_hvt w=840000u l=150000u
+X17 a_1341_413# a_1429_21# VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X18 VGND a_2136_47# Q VNB sky130_fd_pr__nfet_01v8 w=650000u l=150000u
+X19 VGND a_1429_21# Q_N VNB sky130_fd_pr__nfet_01v8 w=650000u l=150000u
+X20 a_1255_47# a_27_47# a_1364_47# VNB sky130_fd_pr__nfet_01v8 w=360000u l=150000u
+X21 a_474_413# a_27_47# a_558_413# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X22 VGND a_27_47# a_193_47# VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X23 VPWR a_2136_47# Q VPB sky130_fd_pr__pfet_01v8_hvt w=1e+06u l=150000u
+X24 a_27_47# CLK VGND VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X25 a_648_21# a_942_21# a_788_47# VNB sky130_fd_pr__nfet_01v8 w=640000u l=150000u
+X26 a_27_47# CLK VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=640000u l=150000u
+X27 a_1429_21# a_1255_47# a_1663_329# VPB sky130_fd_pr__pfet_01v8_hvt w=840000u l=150000u
+X28 a_1663_329# a_942_21# VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=840000u l=150000u
+X29 a_1429_21# a_942_21# a_1545_47# VNB sky130_fd_pr__nfet_01v8 w=640000u l=150000u
+X30 VPWR a_27_47# a_193_47# VPB sky130_fd_pr__pfet_01v8_hvt w=640000u l=150000u
+X31 a_381_47# a_193_47# a_474_413# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X32 VGND D a_381_47# VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X33 a_1160_47# a_193_47# a_1255_47# VNB sky130_fd_pr__nfet_01v8 w=360000u l=150000u
+X34 a_474_413# a_193_47# a_582_47# VNB sky130_fd_pr__nfet_01v8 w=360000u l=150000u
+X35 a_1545_47# a_1255_47# a_1429_21# VNB sky130_fd_pr__nfet_01v8 w=640000u l=150000u
+X36 a_942_21# RESET_B VGND VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X37 a_1113_329# a_27_47# a_1255_47# VPB sky130_fd_pr__pfet_01v8_hvt w=420000u l=150000u
+X38 a_582_47# a_648_21# VGND VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X39 VPWR a_1429_21# Q_N VPB sky130_fd_pr__pfet_01v8_hvt w=1e+06u l=150000u
+.ends
+
+* Absorber stubs: write_path_spice's lib_subckt reader (findCellSubckts) treats
+* the last token of every device line as a subckt-call name, so a flat
+* transistor netlist makes it look for the parameter "l=150000u" and the
+* closing ".ends" as if they were cells.  These empty subckts satisfy that
+* lookup; only the sky130_fd_sc_hd__dfbbp_1 subckt above is real.  (Unrelated
+* to the async set/reset fix under test.)
+.subckt l=150000u
+.ends
+.subckt .ends
+.ends

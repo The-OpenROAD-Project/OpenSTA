@@ -76,7 +76,7 @@ library (fakeram7_256x32) {
       capacitance : 0.0250;
     }
     bus("rd_out") {
-      bus_type : fakeram7_256x32_DATA;
+      bus_type : "fakeram7_256x32_DATA";
       direction : output;
       capacitance : 0.0000;
       max_capacitance : 0.500;
@@ -1082,7 +1082,7 @@ library (fakeram7_256x32) {
       }
     }
     bus("addr_in") {
-      bus_type : fakeram7_256x32_ADDRESS;
+      bus_type : "fakeram7_256x32_ADDRESS";
       direction : input;
       capacitance : 0.0050;
     pin("addr_in[7]") {
@@ -1375,7 +1375,7 @@ library (fakeram7_256x32) {
     }
     }
     bus("wd_in") {
-      bus_type : fakeram7_256x32_DATA;
+      bus_type : "fakeram7_256x32_DATA";
       direction : input;
       capacitance : 0.0050;
     pin("wd_in[31]") {

@@ -19,6 +19,7 @@ proc check_binary_equiv { lib_file } {
   set text_dump [make_result_file ${stem}_text.lib]
   set blib_dump [make_result_file ${stem}_blib.lib]
   # Relative so the "library already exists" warning is reproducible.
+  file mkdir results
   set blib_file results/$stem.blib
 
   set text_lib [read_liberty_new $lib_file]

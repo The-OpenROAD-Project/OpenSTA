@@ -84,6 +84,11 @@ public:
   // combinational logic and registers (ignores Sdc).
   // Used by OpenROAD/Restructure.cpp
   void findLogicConstants();
+  // Constants the netlist alone fixes (tie cells, constant nets, constant
+  // functions) through combinational logic, without the SDC's
+  // set_case_analysis or set_logic_zero/one. For a Sim of its own: the
+  // mode's Sim holds the constants timing uses.
+  void findNetlistConstants();
 
   // Edge cond (liberty "when") function is disabled (evals to zero).
   bool isDisabledCond(Edge *edge,

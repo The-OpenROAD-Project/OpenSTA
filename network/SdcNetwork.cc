@@ -226,7 +226,7 @@ NetworkNameAdapter::libertyPort(const Port *port) const
   return network_->libertyPort(port);
 }
 
-PortDirection *
+const PortDirection *
 NetworkNameAdapter::direction(const Port *port) const
 {
   return network_->direction(port);
@@ -412,7 +412,7 @@ NetworkNameAdapter::term(const Pin *pin) const
   return network_->term(pin);
 }
 
-PortDirection *
+const PortDirection *
 NetworkNameAdapter::direction(const Pin *pin) const
 {
   return network_->direction(pin);

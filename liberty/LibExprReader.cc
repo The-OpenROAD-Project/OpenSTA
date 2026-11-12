@@ -89,8 +89,10 @@ LibExprReader::makeFuncExprNot(FuncExpr *arg)
 {
   if (arg)
     return FuncExpr::makeNot(arg);
-  else
+  else {
+    delete arg;
     return nullptr;
+  }
 }
 
 FuncExpr *
@@ -99,8 +101,11 @@ LibExprReader::makeFuncExprXor(FuncExpr *arg1,
 {
   if (arg1 && arg2)
     return FuncExpr::makeXor(arg1, arg2);
-  else
+  else {
+    delete arg1;
+    delete arg2;
     return nullptr;
+  }
 }
 
 FuncExpr *
@@ -109,8 +114,11 @@ LibExprReader::makeFuncExprAnd(FuncExpr *arg1,
 {
   if (arg1 && arg2)
     return FuncExpr::makeAnd(arg1, arg2);
-  else
+  else {
+    delete arg1;
+    delete arg2;
     return nullptr;
+  }
 }
 
 FuncExpr *
@@ -119,8 +127,11 @@ LibExprReader::makeFuncExprOr(FuncExpr *arg1,
 {
   if (arg1 && arg2)
     return FuncExpr::makeOr(arg1, arg2);
-  else
+  else {
+    delete arg1;
+    delete arg2;
     return nullptr;
+  }
 }
 
 void

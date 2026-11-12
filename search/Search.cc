@@ -225,16 +225,16 @@ Search::Search(StaState *sta) :
   search_adj_(new SearchAdj(this)),
   eval_pred_(new EvalPred(this)),
 
-  invalid_arrivals_(makeVertexSet(this)),
+  invalid_arrivals_(graph_),
   arrival_iter_(new BfsFwdIterator(BfsIndex::arrival,
                                    nullptr,
                                    this)),
   arrival_visitor_(new ArrivalVisitor(this)),
 
-  invalid_requireds_(makeVertexSet(this)),
+  invalid_requireds_(graph_),
   required_iter_(new BfsBkwdIterator(BfsIndex::required, search_adj_, this)),
 
-  invalid_tns_(makeVertexSet(this)),
+  invalid_tns_(graph_),
   clk_info_set_(new ClkInfoSet(ClkInfoLess(this))),
 
   tags_(new Tag *[tag_capacity_]),
@@ -244,11 +244,11 @@ Search::Search(StaState *sta) :
   tag_group_capacity_(tag_capacity_),
   tag_groups_(new TagGroup *[tag_group_capacity_]),
   tag_group_set_(new TagGroupSet(tag_group_capacity_)),
-  pending_arrivals_(makeVertexSet(this)),
-  endpoints_(makeVertexSet(this)),
-  invalid_endpoints_(makeVertexSet(this)),
+  pending_arrivals_(graph_),
+  endpoints_(graph_),
+  invalid_endpoints_(graph_),
 
-  filtered_arrivals_(makeVertexSet(this)),
+  filtered_arrivals_(graph_),
 
   visit_path_ends_(new VisitPathEnds(this)),
   gated_clk_(new GatedClk(this)),
@@ -706,11 +706,9 @@ void
 SeedFaninsThruHierPin::visit(const Pin *drvr,
                              const Pin *)
 {
-  Vertex *vertex, *bidirect_drvr_vertex;
-  graph_->pinVertices(drvr, vertex, bidirect_drvr_vertex);
-  search_->arrivalIterator()->enqueue(vertex);
-  if (bidirect_drvr_vertex)
-    search_->arrivalIterator()->enqueue(bidirect_drvr_vertex);
+  graph_->verticesApply(drvr, [this] (Vertex *vertex) {
+    search_->arrivalIterator()->enqueue(vertex);
+  });
 }
 
 void
@@ -729,12 +727,9 @@ Search::seedFilterStarts()
         visitDrvrLoadsThruHierPin(pin, network_, &visitor);
       }
       else {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        if (vertex)
+        graph_->verticesApply(pin, [this] (Vertex *vertex) {
           arrival_iter_->enqueue(vertex);
-        if (bidirect_drvr_vertex)
-          arrival_iter_->enqueue(bidirect_drvr_vertex);
+        });
       }
     }
   }
@@ -866,12 +861,9 @@ void
 Search::arrivalInvalid(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
       arrivalInvalid(vertex);
-    if (bidirect_drvr_vertex)
-      arrivalInvalid(bidirect_drvr_vertex);
+    });
   }
 }
 
@@ -905,12 +897,9 @@ void
 Search::requiredInvalid(const Pin *pin)
 {
   if (graph_) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    if (vertex)
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
       requiredInvalid(vertex);
-    if (bidirect_drvr_vertex)
-      requiredInvalid(bidirect_drvr_vertex);
+    });
   }
 }
 
@@ -948,11 +937,9 @@ Search::enqueueClkRoots()
   PinSet clk_pins(network_);
   findClkVertexPins(clk_pins);
   for (const Pin *pin : clk_pins) {
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-    arrival_iter_->enqueue(vertex);
-    if (bidirect_drvr_vertex)
-      arrival_iter_->enqueue(bidirect_drvr_vertex);
+    graph_->verticesApply(pin, [this] (Vertex *vertex) {
+      arrival_iter_->enqueue(vertex);
+    });
   }
   arrivals_exist_ = true;
 }
@@ -988,9 +975,9 @@ Search::clockInsertion(const Clock *clk,
                        const RiseFall *rf,
                        const MinMax *min_max,
                        const EarlyLate *early_late,
-                       const Mode *mode,
                        const Scene *scene) const
 {
+  const Mode *mode = scene->mode();
   float insert;
   bool exists;
   // ---- OpenROAD fork: analysis_corner support (begin) ----
@@ -1007,7 +994,7 @@ Search::clockInsertion(const Clock *clk,
   if (exists)
     return insert;
   else if (clk->isGeneratedWithPropagatedMaster())
-    return mode->genclks()->insertionDelay(clk, pin, rf, early_late);
+    return mode->genclks()->insertionDelay(clk, pin, rf, early_late, scene);
   else
     return 0.0;
 }
@@ -1102,7 +1089,9 @@ ArrivalVisitor::ArrivalVisitor(const ArrivalVisitor &arrival_visitor) :
   PathVisitor(arrival_visitor.pred_, true, &arrival_visitor)
 {
   init0();
-  init(arrival_visitor.always_to_endpoints_, false, arrival_visitor.pred_);
+  init(arrival_visitor.always_to_endpoints_,
+       arrival_visitor.clks_only_,
+       arrival_visitor.pred_);
 }
 
 void
@@ -1458,7 +1447,7 @@ Search::postponeArrivals(Vertex *vertex)
 void
 Search::seedArrivals()
 {
-  VertexSet vertices = makeVertexSet(this);
+  VertexSet vertices(graph_);
   findClockVertices(vertices);
   findRootVertices(vertices);
   findInputDrvrVertices(vertices);
@@ -1475,11 +1464,9 @@ Search::findClockVertices(VertexSet &vertices)
     const Sdc *sdc = mode->sdc();
     for (const Clock *clk : sdc->clocks()) {
       for (const Pin *pin : clk->leafPins()) {
-        Vertex *vertex, *bidirect_drvr_vertex;
-        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-        vertices.insert(vertex);
-        if (bidirect_drvr_vertex)
-          vertices.insert(bidirect_drvr_vertex);
+        graph_->verticesApply(pin, [&vertices] (Vertex *vertex) {
+          vertices.insert(vertex);
+        });
       }
     }
   }
@@ -1527,9 +1514,8 @@ Search::seedClkArrivals(const Pin *pin,
               seedClkDataArrival(pin, rf, clk, clk_edge, min_max, 0.0, scene,
                                  tag_bldr);
             else {
-              Arrival insertion =
-                  clockInsertion(clk, pin, rf, min_max, early_late, mode,
-                                 scene);
+              Arrival insertion = clockInsertion(clk, pin, rf, min_max,
+                                                 early_late, scene);
               seedClkArrival(pin, rf, clk, clk_edge, min_max, insertion, scene,
                              tag_bldr);
             }
@@ -1753,7 +1739,7 @@ bool
 Search::isInputArrivalSrchStart(Vertex *vertex)
 {
   const Pin *pin = vertex->pin();
-  PortDirection *dir = network_->direction(pin);
+  const PortDirection *dir = network_->direction(pin);
   bool is_top_level_port = network_->isTopLevelPort(pin);
   return (is_top_level_port
           && (dir->isInput() || (dir->isBidirect() && vertex->isBidirectDriver())));
@@ -1881,19 +1867,19 @@ Search::seedInputDelayArrival(const Pin *pin,
     }
   }
   else {
-    for (const MinMax *min_max : MinMax::range()) {
-      float clk_arrival, clk_insertion, clk_latency;
-      inputDelayClkArrival(input_delay, clk_edge, min_max, mode, clk_arrival,
-                           clk_insertion, clk_latency);
-      for (Scene *scene : mode->scenes()) {
-        // ---- OpenROAD fork: analysis_corner support (begin) ----
-        if (!mode->cornerSdcs().empty()
-            && !sceneSeesInputDelay(scene, pin, input_delay))
-          continue;
-        // ---- OpenROAD fork: analysis_corner support (end) ----
-        seedInputDelayArrival(pin, input_delay, clk_edge, clk_arrival, clk_insertion,
-                              clk_latency, is_segment_start, min_max, scene,
-                              tag_bldr);
+    for (Scene *scene : mode->scenes()) {
+      // ---- OpenROAD fork: analysis_corner support (begin) ----
+      if (!mode->cornerSdcs().empty()
+          && !sceneSeesInputDelay(scene, pin, input_delay))
+        continue;
+      // ---- OpenROAD fork: analysis_corner support (end) ----
+      for (const MinMax *min_max : MinMax::range()) {
+        float clk_arrival, clk_insertion, clk_latency;
+        inputDelayClkArrival(input_delay, clk_edge, min_max, scene, mode,
+                             clk_arrival, clk_insertion, clk_latency);
+        seedInputDelayArrival(pin, input_delay, clk_edge, clk_arrival,
+                              clk_insertion, clk_latency, is_segment_start,
+                              min_max, scene, tag_bldr);
       }
     }
   }
@@ -1980,6 +1966,7 @@ void
 Search::inputDelayClkArrival(InputDelay *input_delay,
                              const ClockEdge *clk_edge,
                              const MinMax *min_max,
+                             const Scene *scene,
                              const Mode *mode,
                              // Return values.
                              float &clk_arrival,
@@ -1995,8 +1982,9 @@ Search::inputDelayClkArrival(InputDelay *input_delay,
     const RiseFall *clk_rf = clk_edge->transition();
     if (!input_delay->sourceLatencyIncluded()) {
       const EarlyLate *early_late = min_max;
-      clk_insertion = delayAsFloat(
-          clockInsertion(clk, clk->defaultPin(), clk_rf, min_max, early_late, mode));
+      clk_insertion = delayAsFloat(clockInsertion(clk, clk->defaultPin(),
+                                                  clk_rf, min_max, early_late,
+                                                  scene));
       clk_arrival += clk_insertion;
     }
     if (!clk->isPropagated() && !input_delay->networkLatencyIncluded()) {
@@ -2376,7 +2364,7 @@ Search::clkPathArrival(const Path *clk_path,
     const EarlyLate *early_late = min_max;
     Arrival insertion = clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
                                        clk_edge->transition(), min_max,
-                                       early_late, scene->mode(), scene);
+                                       early_late, scene);
     return delaySum(delaySum(insertion, clk_edge->time(), this),
                     clk_info->latency(), this);
   }
@@ -3218,6 +3206,19 @@ Search::timingDerate(const Vertex *from_vertex,
   }
 }
 
+////////////////////////////////////////////////////////////////
+
+ClockSet
+Search::clockDomains(const Pin *pin,
+                     const Mode *mode) const
+{
+  ClockSet clks;
+  graph_->verticesApply(pin, [this, mode, &clks] (Vertex *vertex) {
+    clockDomains(vertex, mode, clks);
+  });
+  return clks;
+}
+
 ClockSet
 Search::clockDomains(const Vertex *vertex,
                      const Mode *mode) const
@@ -3244,32 +3245,13 @@ Search::clockDomains(const Vertex *vertex,
 }
 
 ClockSet
-Search::clockDomains(const Pin *pin,
-                     const Mode *mode) const
-{
-  ClockSet clks;
-  Vertex *vertex;
-  Vertex *bidirect_drvr_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  if (vertex)
-    clockDomains(vertex, mode, clks);
-  if (bidirect_drvr_vertex)
-    clockDomains(bidirect_drvr_vertex, mode, clks);
-  return clks;
-}
-
-ClockSet
 Search::clocks(const Pin *pin,
                const Mode *mode) const
 {
   ClockSet clks;
-  Vertex *vertex;
-  Vertex *bidirect_drvr_vertex;
-  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  if (vertex)
+  graph_->verticesApply(pin, [this, mode, &clks] (Vertex *vertex) {
     clocks(vertex, mode, clks);
-  if (bidirect_drvr_vertex)
-    clocks(bidirect_drvr_vertex, mode, clks);
+  });
   return clks;
 }
 
@@ -3930,18 +3912,29 @@ Search::updateInvalidTns()
   size_t path_count = scenePathCount();
   for (Vertex *vertex : invalid_tns_) {
     // Network edits can change endpointedness since tnsInvalid was called.
-    if (isEndpoint(vertex)) {
-      debugPrint(debug_, "tns", 2, "update tns {}", vertex->to_string(this));
-      SlackSeq slacks(path_count);
-      wnsSlacks(vertex, slacks);
+    debugPrint(debug_, "tns", 2, "update tns {}", vertex->to_string(this));
+    SlackSeq slacks(path_count);
+    wnsSlacks(vertex, slacks);
 
-      if (tns_exists_)
-        updateTns(vertex, slacks);
-      if (worst_slacks_)
-        worst_slacks_->updateWorstSlacks(vertex, slacks);
-    }
+    if (tns_exists_)
+      updateTns(vertex, slacks);
+    if (worst_slacks_)
+      worst_slacks_->updateWorstSlacks(vertex, slacks);
   }
   invalid_tns_.clear();
+}
+
+void
+Search::disconnectVertexBefore(Vertex *vertex)
+{
+  if (isEndpoint(vertex)) {
+    debugPrint(debug_, "tns", 2, "remove tns {}", vertex->to_string(this));
+    if (tns_exists_)
+      tnsNotifyBefore(vertex);
+    if (worst_slacks_)
+      worst_slacks_->worstSlackNotifyBefore(vertex);
+    invalid_endpoints_.erase(vertex);
+  }
 }
 
 void
@@ -3979,9 +3972,10 @@ Search::tnsIncr(Vertex *vertex,
                 PathAPIndex path_ap_index)
 {
   if (delayLess(slack, 0.0, this)) {
-    debugPrint(debug_, "tns", 3, "tns+ {} {}",
+    debugPrint(debug_, "tns", 3, "tns+ {} {} {}",
                delayAsString(slack, this),
-               vertex->to_string(this));
+               vertex->to_string(this),
+               path_ap_index);
     delayIncr(tns_[path_ap_index], slack, this);
     if (tns_slacks_[path_ap_index].contains(vertex))
       report_->critical(1513, "tns incr existing vertex");
@@ -3993,28 +3987,28 @@ void
 Search::tnsDecr(Vertex *vertex,
                 PathAPIndex path_ap_index)
 {
-  Slack slack;
-  bool found;
-  findKeyValue(tns_slacks_[path_ap_index], vertex, slack, found);
-  if (found
-      && delayLess(slack, 0.0, this)) {
-    debugPrint(debug_, "tns", 3, "tns- {} {}",
-               delayAsString(slack, this),
-               vertex->to_string(this));
-    delayDecr(tns_[path_ap_index], slack, this);
-    tns_slacks_[path_ap_index].erase(vertex);
+  VertexSlackMap &slacks = tns_slacks_[path_ap_index];
+  auto itr = slacks.find(vertex);
+  if (itr != slacks.end()) {
+    Slack slack = itr->second;
+    if (delayLess(slack, 0.0, this)) {
+      debugPrint(debug_, "tns", 3, "tns- {} {} {}",
+                 delayAsString(slack, this),
+                 vertex->to_string(this),
+                 path_ap_index);
+      delayDecr(tns_[path_ap_index], slack, this);
+      slacks.erase(itr);
+    }
   }
 }
 
-// Notify tns before updating/deleting slack (arrival/required).
 void
 Search::tnsNotifyBefore(Vertex *vertex)
 {
   if (tns_exists_ && isEndpoint(vertex)) {
     size_t path_count = scenePathCount();
-    for (size_t i = 0; i < path_count; i++) {
+    for (size_t i = 0; i < path_count; i++)
       tnsDecr(vertex, i);
-    }
   }
 }
 

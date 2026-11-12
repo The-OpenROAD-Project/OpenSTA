@@ -1218,7 +1218,7 @@ LibertyReader::makePgPinPort(LibertyCell *cell,
     const std::string &type_name = pg_pin_group->findAttrString("pg_type");
     if (!type_name.empty()) {
       PwrGndType type = findPwrGndType(type_name);
-      PortDirection *dir = PortDirection::unknown();
+      const PortDirection *dir = PortDirection::unknown();
       switch (type) {
       case PwrGndType::primary_ground:
       case PwrGndType::backup_ground:
@@ -1486,7 +1486,7 @@ LibertyReader::readPortDir(const LibertyPortSeq &ports,
   if (dir_attr) {
     const std::string &dir = dir_attr->stringValue();
     if (!dir.empty()) {
-      PortDirection *port_dir = PortDirection::unknown();
+      const PortDirection *port_dir = PortDirection::unknown();
       if (dir == "input")
         port_dir = PortDirection::input();
       else if (dir == "output")
@@ -1854,6 +1854,7 @@ LibertyReader::readCellAttributes(LibertyCell *cell,
 
   readScaleFactors(cell, cell_group);
   readLeakageGrouops(cell, cell_group);
+  readGeneratedClocks(cell, cell_group);
   readStatetable(cell, cell_group);
   readModeDefs(cell, cell_group);
 }
@@ -1959,13 +1960,14 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
                          timing_attrs, timing_group->line());
         }
       }
-      else if (!(timing_type == TimingType::min_pulse_width
-                 || timing_type == TimingType::minimum_period
-                 || timing_type == TimingType::min_clock_tree_path
-                 || timing_type == TimingType::max_clock_tree_path))
-        warn(1243, timing_group, "timing group missing related_pin/related_bus_pin.");
-      else
+      // No related_pin/port required.
+      else if (timing_type == TimingType::min_pulse_width
+               || timing_type == TimingType::minimum_period
+               || timing_type == TimingType::min_clock_tree_path
+               || timing_type == TimingType::max_clock_tree_path)
         makeTimingArcs(cell, to_port, related_output_port, timing_attrs);
+      else
+        warn(1243, timing_group, "timing group missing related_pin/related_bus_pin.");
     }
   }
 }
@@ -2650,8 +2652,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   PortNameBitIterator from_port_iter(cell, from_port_name, this, timing_line);
   if (from_port_iter.size() == 1 && !to_port->hasMembers()) {
     // one -> one
-    if (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    if (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1212, timing_line, "timing group from output port.");
       builder_.makeTimingArcs(cell, from_port, to_port, related_out_port,
@@ -2660,8 +2662,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   }
   else if (from_port_iter.size() > 1 && !to_port->hasMembers()) {
     // bus -> one
-    while (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    while (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1213, timing_line, "timing group from output port.");
       builder_.makeTimingArcs(cell, from_port, to_port, related_out_port,
@@ -2670,8 +2672,8 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
   }
   else if (from_port_iter.size() == 1 && to_port->hasMembers()) {
     // one -> bus
-    if (from_port_iter.PortNameBitIterator::hasNext()) {
-      LibertyPort *from_port = from_port_iter.PortNameBitIterator::next();
+    if (from_port_iter.hasNext()) {
+      LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         warn(1214, timing_line, "timing group from output port.");
       LibertyPortMemberIterator bit_iter(to_port);
@@ -2688,35 +2690,37 @@ LibertyReader::makeTimingArcs(LibertyCell *cell,
       int from_size = from_port_iter.size();
       int to_size = to_port->size();
       LibertyPortMemberIterator to_port_iter(to_port);
-      // warn about different sizes
-      if (from_size != to_size)
-        warn(1216, timing_line,
-                "timing port {} and related port {} are different sizes.",
-                from_port_name,
-                to_port->name());
-      // align to/from iterators for one-to-one mapping
-      while (from_size > to_size) {
-        from_size--;
-        from_port_iter.PortNameBitIterator::next();
-      }
-      while (to_size > from_size) {
-        to_size--;
-        to_port_iter.next();
-      }
-      // make timing arcs
-      while (from_port_iter.PortNameBitIterator::hasNext() && to_port_iter.hasNext()) {
-        LibertyPort *from_port_bit = from_port_iter.PortNameBitIterator::next();
-        LibertyPort *to_port_bit = to_port_iter.next();
-        if (from_port_bit->direction()->isOutput())
-          warn(1215, timing_line, "timing group from output port.");
-        builder_.makeTimingArcs(cell, from_port_bit, to_port_bit,
-                                related_out_port, timing_attrs);
+      if (to_port_iter.hasNext()) {
+        // warn about different sizes
+        if (from_size != to_size)
+          warn(1216, timing_line,
+               "timing port {} and related port {} are different sizes.",
+               from_port_name,
+               to_port->name());
+        // align to/from iterators for one-to-one mapping
+        while (from_size > to_size) {
+          from_size--;
+          from_port_iter.next();
+        }
+        while (to_size > from_size) {
+          to_size--;
+          to_port_iter.next();
+        }
+        // make timing arcs
+        while (from_port_iter.hasNext() && to_port_iter.hasNext()) {
+          LibertyPort *from_port_bit = from_port_iter.next();
+          LibertyPort *to_port_bit = to_port_iter.next();
+          if (from_port_bit->direction()->isOutput())
+            warn(1215, timing_line, "timing group from output port.");
+          builder_.makeTimingArcs(cell, from_port_bit, to_port_bit,
+                                  related_out_port, timing_attrs);
+        }
       }
     }
     else {
       // cross product
-      while (from_port_iter.PortNameBitIterator::hasNext()) {
-        LibertyPort *from_port_bit = from_port_iter.PortNameBitIterator::next();
+      while (from_port_iter.hasNext()) {
+        LibertyPort *from_port_bit = from_port_iter.next();
         LibertyPortMemberIterator to_port_iter(to_port);
         while (to_port_iter.hasNext()) {
           LibertyPort *to_port_bit = to_port_iter.next();
@@ -2765,6 +2769,80 @@ LibertyReader::readLeakageGrouops(LibertyCell *cell,
     else
       warn(1307, leak_group, "leakage_power missing value.");
   }
+}
+
+void
+LibertyReader::readGeneratedClocks(LibertyCell *cell,
+                                   const LibertyGroup *cell_group)
+{
+  for (const LibertyGroup *gen_clk_group : cell_group->findSubgroups("generated_clock"))
+    readGeneratedClock(cell, gen_clk_group);
+}
+
+void
+LibertyReader::readGeneratedClock(LibertyCell *cell,
+                                  const LibertyGroup *gen_clk_group)
+{
+  if (gen_clk_group->hasFirstParam()) {
+    std::string clock_pin = gen_clk_group->findAttrString("clock_pin");
+    trim(clock_pin);
+    if (!clock_pin.empty()) {
+      const std::string &name = gen_clk_group->firstParam();
+      std::string master_pin = gen_clk_group->findAttrString("master_pin");
+      trim(master_pin);
+
+      int divided_by = 1;
+      bool exists;
+      gen_clk_group->findAttrInt("divided_by", divided_by, exists);
+      int multiplied_by = 1;
+      gen_clk_group->findAttrInt("multiplied_by", multiplied_by, exists);
+      float duty_cycle = 0.0f;
+      gen_clk_group->findAttrFloat("duty_cycle", duty_cycle, exists);
+
+      bool invert = false;
+      const LibertySimpleAttr *invert_attr = gen_clk_group->findSimpleAttr("invert");
+      if (invert_attr)
+        getAttrBool(invert_attr, invert, exists);
+
+      IntSeq edges = readGeneratedClockEdges(gen_clk_group);
+      FloatSeq edge_shifts = readGeneratedClockShifts(gen_clk_group);
+      cell->makeLibertyGenClk(name.c_str(),
+                              clock_pin.c_str(),
+                              master_pin.empty() ? nullptr : master_pin.c_str(),
+                              divided_by,
+                              multiplied_by,
+                              duty_cycle,
+                              invert,
+                              edges.empty() ? nullptr : &edges,
+                              edge_shifts.empty() ? nullptr : &edge_shifts);
+    }
+    else
+      warn(1345, gen_clk_group, "generated_clock missing clock_pin.");
+  }
+  else
+    warn(1344, gen_clk_group, "generated_clock missing name.");
+}
+
+IntSeq
+LibertyReader::readGeneratedClockEdges(const LibertyGroup *gen_clk_group)
+{
+  IntSeq edges;
+  const LibertyComplexAttr *edges_attr = gen_clk_group->findComplexAttr("edges");
+  if (edges_attr) {
+    for (float value : readFloatSeq(edges_attr, 1.0F))
+      edges.push_back(static_cast<int>(value));
+  }
+  return edges;
+}
+
+FloatSeq
+LibertyReader::readGeneratedClockShifts(const LibertyGroup *gen_clk_group)
+{
+  FloatSeq edge_shifts;
+  const LibertyComplexAttr *shifts_attr = gen_clk_group->findComplexAttr("shifts");
+  if (shifts_attr)
+    edge_shifts = readFloatSeq(shifts_attr, time_scale_);
+  return edge_shifts;
 }
 
 void
@@ -3162,7 +3240,7 @@ LibertyReader::findPort(LibertyCell *cell,
 float
 LibertyReader::defaultCap(LibertyPort *port)
 {
-  PortDirection *dir = port->direction();
+  const PortDirection *dir = port->direction();
   float cap = 0.0;
   if (dir->isInput())
     cap = library_->defaultInputPinCap();

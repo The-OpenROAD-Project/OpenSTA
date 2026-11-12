@@ -23,7 +23,9 @@ to see the command units.
 ## Timing analysis using SDF
 
 A sample command file that reads a library and a Verilog netlist and
-reports timing checks is shown below.
+reports timing checks is shown below. It uses SDF (Standard Delay Format)
+to annotate gate delays instead of using delay calculation.
+
 
 ```tcl
 read_liberty example1_slow.lib
@@ -245,18 +247,92 @@ ocv_mean_shift_rise_constraint
 ocv_mean_shift_fall_constraint
 ```
 
+## Noise Delay
+
+Delay calculation assumes signal wires that are physically adjacent to
+each other switch independently.  In reality, when signal switching
+times overlap, coupling capacitance between them can induce greater or
+lessor gate and load delays.
+
+The annotate_noise_delays command uses CCS liberty models and the
+Prima delay calculator to simulate simultaneous signal switching and
+annotate gate and wire delays with the resulting increase/decrease in
+delays and slews.  This functionaly is only available with CCS liberty
+models because they are they only timing models that support waveform
+simulation. Nets are filtered by examining their coupling capacitances
+before simulation. This is important because the circuit simulation
+for noise analysis is computationally expensive.
+
+Noise delay analysis uses the following steps.
+
+For each net in the design (the victim net), find nets with coupling
+capacitances such that
+
+  sum(coupling_caps(victim)) / cap_ground(victim) > min_coupling_sum_ratio
+
+The report_victim_nets command can be use to report the design's victim nets.
+
+Next, identify aggressor nets such that
+
+  sum(coupling_caps(victim,aggressor) / cap_ground(victim) > min_coupling_ratio
+
+The report_aggressors command can be used to report the aggressors for a net in
+the design.
+
+For each aggressor, examine the min/max arrival times that define a
+timing window that it can change. Filter the aggressors that do not
+have overlapping min/max arrival times.
+
+Aggressor driving gate input arrivals are adjusted within their timing
+window so that they switch at the same time as the victim.
+
+A circuit simulation for the victim gate and the aggressor gates with
+the aligned input arrivals is run using the Prima delay simulator.
+The noise delays can be reported using the report_noise_delays command.
+
+The victim gate and wire delays and slews are measured. The delta
+delays and slews are then annotated on the delay calculation results.
+
+Noise delays can be reported in timing reports with the -noise field.
+
+Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.
+
+```tcl
+# noise delay example
+suppress_msg 1212 1645
+read_liberty ../test/asap7_simple.lib.gz
+read_verilog noise_delay1.v
+link_design top
+read_spef -keep_capacitive_coupling noise_delay1.spef
+sta::set_delay_calculator prima
+include noise_delay1.sdc
+
+report_checks -from in1 -unconstrained \
+  -path_delay min_max \
+  -fields {input_pin noise_delay}
+
+report_noise_delays
+annotate_noise_delays
+
+report_checks -from in1 -unconstrained \
+  -path_delay min_max \
+  -fields {input_pin noise_delay}
+```
+
+This example can be found in `examples/noise_delay1.tcl`.
+
 ## Power analysis
 
-OpenSTA also supports static power analysis with the `report_power`
-command. Probabilistic switching activities are propagated from the
-input ports to determine switching activities for internal pins.
+Static power analysis is supported.  Probabilistic switching
+activities are propagated from the input ports to determine switching
+activities for internal pins.
 
 ```tcl
 read_liberty sky130hd_tt.lib
-read_verilog gcd_sky130hd.v
+read_verilog gcd_sky130hd.v.gz
 link_design gcd
 read_sdc gcd_sky130hd.sdc
-read_spef gcd_sky130hd.spef
+read_spef gcd_sky130hd.spef.gz
 set_power_activity -input -activity 0.1
 set_power_activity -input_port reset -activity 0
 report_power
@@ -268,10 +344,10 @@ switch during steady state operation.
 
 This example can be found in `examples/power.tcl`.
 
-Gate level simulation results can be used to get a more accurate power
-estimate. For example, the Icarus Verilog simulator can be used to run
-the test bench `examples/gcd_tb.v` for the gcd design in the previous
-example.
+Gate level simulation results can be used for signal activities
+instead of activity/duty propagation. For example, the Icarus Verilog
+simulator can be used to run the test bench `examples/gcd_tb.v` for
+the gcd design in the previous example.
 
 ```tcl
 iverilog -o gcd_tb gcd_tb.v
@@ -283,14 +359,14 @@ The test bench writes the VCD (Value Change Dump) file
 
 ```tcl
 read_liberty sky130hd_tt.lib
-read_verilog gcd_sky130hd.v
+read_verilog gcd_sky130hd.v.gz
 link_design gcd
 read_sdc gcd_sky130hd.sdc
-read_spef gcd_sky130hd.spef
+read_spef gcd_sky130hd.spef.gz
 read_vcd -scope gcd_tb/gcd1 gcd_sky130hd.vcd.gz
 report_power
 ```
-
+>
 This example can be found in `examples/power_vcd.tcl`.
 
 Note that in this simple example design, simulation-based activities

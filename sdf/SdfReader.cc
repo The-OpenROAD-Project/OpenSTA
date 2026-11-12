@@ -231,15 +231,15 @@ Edge *
 SdfReader::findWireEdge(Pin *from_pin,
                         Pin *to_pin)
 {
-  Vertex *to_vertex, *to_vertex_bidirect_drvr;
-  graph_->pinVertices(to_pin, to_vertex, to_vertex_bidirect_drvr);
+  Vertex *to_vertex = graph_->pinLoadVertex(to_pin);
   if (to_vertex) {
     // Fanin < fanout, so search for driver from load.
     VertexInEdgeIterator edge_iter(to_vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       const TimingRole *edge_role = edge->role();
-      if (edge->from(graph_)->pin() == from_pin && edge_role->sdfRole()->isWire())
+      if (edge->from(graph_)->pin() == from_pin
+          && edge_role->sdfRole()->isWire())
         return edge;
     }
   }

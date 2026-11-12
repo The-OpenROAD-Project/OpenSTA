@@ -57,6 +57,8 @@ Total                  3.48e-06   6.72e-08   3.12e-07   3.86e-06 100.0%
     -instances {`instances`: Report the power for each instance of instances. If the instance is hierarchical the total power for the instances inside the hierarchical instance is reported.}
     -highest_power_instances {`count`: Report the power for the count highest power instances.}
     -format {`text`: Print a text table (the default). `json`: Print JSON.}
+    -scene default
+    -digits default
   }
 
 proc_redirect report_power {
@@ -270,35 +272,9 @@ proc unset_power_activity { args } {
 
 ################################################################
 
-# Deprecated 9/2024
-define_cmd_args "read_power_activities" { [-scope scope] -vcd filename } \
-  -help {The `read_power_activities` command is deprecated. Use `read_vcd` instead.} \
-  -arg_help {
-    -scope {The VCD scope of the current design. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
-    -vcd {VCD file to read. Use `read_vcd` instead.}
-    filename {The name of the VCD file to read.}
-  }
-
-proc read_power_activities { args } {
-  parse_key_args "read_power_activities" args \
-    keys {-scope} flags {-vcd}
-
-  check_argc_eq1 "set_power_activity" $args
-  set filename [file nativename [lindex $args 0]]
-  set scope ""
-  if { [info exists keys(-scope)] } {
-    set scope $keys(-scope)
-  }
-  sta_warn 305 "read_power_activities is deprecated. Use read_vcd."
-  read_vcd_file $filename $scope [cmd_mode_name] \
-    $::sta::vcd_null_time $::sta::vcd_null_time
-}
-
-################################################################
-
 define_cmd_args "read_vcd" \
   {[-scope scope] [-mode mode_name] [-begin_time begin_time] [-end_time end_time] filename} \
-  -help {The `read_vcd` command reads a VCD (Value Change Dump) file from a Verilog simulation and extracts pin activities and duty cycles for use in power estimation. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
+  -help {The `read_vcd` command reads a VCD (Value Change Dump) file from a Verilog simulation and extracts activities and duty cycles for use in power estimation. A VCD name that matches a net annotates the pins connected to the net. A pin named by its own VCD variable keeps that variable's activity. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
   -arg_help {
     -scope {The VCD scope of the current design to extract simulation data. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
     -mode {Mode to annotate activities.}
@@ -332,7 +308,7 @@ proc read_vcd { args } {
 ################################################################
 
 define_cmd_args "read_saif" { [-scope scope] filename } \
-  -help {The `read_saif` command reads a SAIF (Switching Activity Interchange Format) file from a Verilog simulation and extracts pin activities and duty cycles for use in power estimation. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
+  -help {The `read_saif` command reads a SAIF (Switching Activity Interchange Format) file from a Verilog simulation and extracts activities and duty cycles for use in power estimation. A SAIF name that matches a net annotates the pins connected to the net. A name that matches a pin but not a net annotates that pin. Files compressed with gzip are supported. Annotated activities are propagated to the fanout of the annotated pins.} \
   -arg_help {
     -scope {The SAIF scope of the current design to extract simulation data. Typically the test bench name and design under test instance name. Scope levels are separated with '/'.}
     filename {The name of the SAIF file to read.}

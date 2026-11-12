@@ -918,17 +918,13 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
   else {
     // Only visit -to filter pins.
     ModeSeq modes = Scene::modes(scenes);
-    VertexSet endpoints = makeVertexSet(this);
+    VertexSet endpoints(graph_);
     PinSet pins = to->allPins(network_);
     for (const Pin *pin : pins) {
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex
-          && search_->isEndpoint(vertex, modes))
-        endpoints.insert(vertex);
-      if (bidirect_drvr_vertex
-          && search_->isEndpoint(bidirect_drvr_vertex, modes))
-        endpoints.insert(bidirect_drvr_vertex);
+      graph_->verticesApply(pin, [this, &modes, &endpoints] (Vertex *vertex) {
+        if (search_->isEndpoint(vertex, modes))
+          endpoints.insert(vertex);
+      });
     }
     makeGroupPathEnds(endpoints, scenes, min_max, visitor);
   }
