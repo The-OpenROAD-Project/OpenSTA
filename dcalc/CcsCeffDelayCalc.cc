@@ -402,7 +402,7 @@ rampElmoreV(double t,
             double &v,
             double &dv_dt)
 {
-  double exp_t = 1.0 - exp2(-t / elmore);
+  double exp_t = 1.0 - std::exp(-t / elmore);
   v = slew * (t - elmore * exp_t);
   // First derivative of loadVl dv/dt.
   dv_dt = slew * exp_t;

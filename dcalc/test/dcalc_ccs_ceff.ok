@@ -1,0 +1,17 @@
+Startpoint: in4 (input port)
+Endpoint: out (output port)
+Path Group: unconstrained
+Path Type: max
+
+     Cap     Slew    Delay     Time   Description
+---------------------------------------------------------------------------
+                     0.000    0.000 ^ input external delay
+   1.260   20.000    0.000    0.000 ^ in4 (in)
+  12.627  190.345   23.428   23.428 v u1/Y (A2O1A1Ixp33_ASAP7_75t_L)
+   0.000   63.500  127.499  150.926 ^ u2/Y (A2O1A1Ixp33_ASAP7_75t_L)
+           63.500    0.000  150.926 ^ out (out)
+                            150.926   data arrival time
+---------------------------------------------------------------------------
+(Path is unconstrained)
+
+
