@@ -117,28 +117,28 @@ protected:
                double elmore);
   void fail(std::string_view reason);
 
-  const Pin *drvr_pin_;
-  const RiseFall *drvr_rf_;
-  double in_slew_;
-  double load_cap_;
-  Parasitics *parasitics_;
-  const Parasitic *parasitic_;
+  const Pin *drvr_pin_{nullptr};
+  const RiseFall *drvr_rf_{nullptr};
+  double in_slew_{0.0};
+  double load_cap_{0.0};
+  Parasitics *parasitics_{nullptr};
+  const Parasitic *parasitic_{nullptr};
 
   OutputWaveforms *output_waveforms_{nullptr};
-  double ref_time_;
-  float vdd_;
-  float vth_;
-  float vl_;
-  float vh_;
+  double ref_time_{0.0};
+  float vdd_{0.0};
+  float vth_{0.0};
+  float vl_{0.0};
+  float vh_{0.0};
 
-  float c2_;
-  float rpi_;
-  float c1_;
+  float c2_{0.0};
+  float rpi_{0.0};
+  float c1_{0.0};
 
   size_t region_count_{0};
-  size_t region_vl_idx_;
-  size_t region_vth_idx_;
-  size_t region_vh_idx_;
+  size_t region_vl_idx_{0};
+  size_t region_vth_idx_{0};
+  size_t region_vh_idx_{0};
 
   Region region_volts_;
   Region region_ceff_;

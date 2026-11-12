@@ -8,3 +8,4 @@ read_spef dcalc_ccs_ceff.spef
 set_input_transition 20 [all_inputs]
 set_delay_calculator ccs_ceff
 report_checks -unconstrained -fields {slew cap} -digits 3
+report_dcalc -from u1/A1 -to u1/Y -digits 3
