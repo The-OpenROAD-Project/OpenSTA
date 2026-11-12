@@ -1323,6 +1323,7 @@ INSTANCE wildcards
     [<a href="#opt-read_spef-keep_capacitive_coupling">-keep_capacitive_coupling</a>]
     [<a href="#opt-read_spef-coupling_reduction_factor">-coupling_reduction_factor</a> factor]
     [<a href="#opt-read_spef-reduce">-reduce</a>]
+    [<a href="#opt-read_spef-replace">-replace</a>]
     filename</code></pre>
 
 The `read_spef` command reads a file of net parasitics in SPEF format. Use the `-report_parasitic_annotation` command to check for nets that are not annotated.
@@ -1354,6 +1355,8 @@ If the SPEF file contains triplet values the first value is used.
 
 Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.
 
+Reading a net that already has a parasitic network adds to the network so that the block and higher level parasitics of a net can be read in any order. Use `-replace` to replace the parasitic network of each net in the file instead, for example to read parasitics that were extracted again.
+
 ### Options
 
 `-name` {: #opt-read_spef-name }
@@ -1382,6 +1385,9 @@ Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-p
 
 `-reduce` {: #opt-read_spef-reduce }
 : Reduce parasitic networks to the form used by the current delay calculator.
+
+`-replace` {: #opt-read_spef-replace }
+: Replace the parasitic network of each net in the file instead of adding to it.
 
 ## read_vcd
 

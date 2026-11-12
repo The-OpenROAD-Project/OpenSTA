@@ -56,3 +56,32 @@ Path Type: max
                 -182.17   slack (VIOLATED)
 
 
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+    Cap   Delay    Time   Description
+----------------------------------------------------------------
+           0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock network delay (ideal)
+           0.00    0.00 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  13.93   70.31   70.31 v r2/Q (DFFHQx4_ASAP7_75t_R)
+ 134.53  163.07  233.39 v u1/Y (BUFx2_ASAP7_75t_R)
+  13.96 1705.93 1939.31 v u2/Y (AND2x2_ASAP7_75t_R)
+          17.24 1956.55 v r3/D (DFFHQx4_ASAP7_75t_R)
+                1956.55   data arrival time
+
+         500.00  500.00   clock clk (rise edge)
+           0.00  500.00   clock network delay (ideal)
+           0.00  500.00   clock reconvergence pessimism
+                 500.00 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+         -24.11  475.89   library setup time
+                 475.89   data required time
+----------------------------------------------------------------
+                 475.89   data required time
+                -1956.55   data arrival time
+----------------------------------------------------------------
+                -1480.66   slack (VIOLATED)
+
+

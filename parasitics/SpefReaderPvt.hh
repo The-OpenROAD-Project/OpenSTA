@@ -54,6 +54,7 @@ public:
              bool keep_coupling_caps,
              float coupling_cap_factor,
              bool reduce,
+             bool replace,
              const Scene *scene,
              const MinMaxAll *min_max,
              Parasitics *parasitics,
@@ -132,6 +133,7 @@ private:
   bool keep_coupling_caps_;
   bool coupling_cap_factor_;
   bool reduce_;
+  bool replace_;
   const Scene *scene_;
   const MinMaxAll *min_max_;
   // Normally no need to keep device names.

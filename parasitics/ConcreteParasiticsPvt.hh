@@ -217,8 +217,8 @@ public:
   ConcreteParasiticNetwork(ConcreteParasiticNetwork &&parasitic) noexcept;
   ~ConcreteParasiticNetwork() override;
   bool isParasiticNetwork() const override { return true; }
-  void init(const Net *net,
-            bool includes_pin_caps);
+  void clear(const Net *net,
+             bool includes_pin_caps);
   const Net *net() const { return net_; }
   bool includesPinCaps() const { return includes_pin_caps_; }
   bool empty() const;

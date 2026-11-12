@@ -4364,7 +4364,8 @@ Sta::readSpef(std::string_view name,
               bool pin_cap_included,
               bool keep_coupling_caps,
               float coupling_cap_factor,
-              bool reduce)
+              bool reduce,
+              bool replace)
 {
   ensureLibLinked();
   Parasitics *parasitics = nullptr;
@@ -4398,7 +4399,7 @@ Sta::readSpef(std::string_view name,
 
   bool success = readSpefFile(filename, instance, pin_cap_included,
                               keep_coupling_caps, coupling_cap_factor, reduce,
-                              scene, min_max, parasitics, this);
+                              replace, scene, min_max, parasitics, this);
   delaysInvalid();
   return success;
 }
