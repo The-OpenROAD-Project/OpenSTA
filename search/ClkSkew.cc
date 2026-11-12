@@ -156,7 +156,7 @@ ClkSkews::findWorstClkSkew(const SceneSeq &scenes,
                            bool include_internal_latency)
 {
   ConstClockSeq clks;
-  for (const Scene *scene : scenes_) {
+  for (const Scene *scene : scenes) {
     for (const Clock *clk : scene->sdc()->clocks())
       clks.push_back(clk);
   }
