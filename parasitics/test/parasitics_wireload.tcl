@@ -143,9 +143,10 @@ foreach net_name {r1q r2q u1z u2z out in1 in2} {
 }
 
 #---------------------------------------------------------------
-# Re-read SPEF (second read exercises re-annotation)
+# Delete parasitics and re-read SPEF (re-annotation)
 #---------------------------------------------------------------
 puts "--- re-read SPEF ---"
+sta::delete_parasitics
 read_spef ../../test/reg1_asap7.spef
 
 report_checks

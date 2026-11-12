@@ -85,7 +85,6 @@ private:
                         TimingSense sense,
                         const ClkDelays &delays);
   void findOutputDelays(const RiseFall *input_rf,
-                        // OpenROAD fork: write_timing_model O(cone) output delays.
                         const VertexSeq &endpoints,
                         OutputPinDelays &output_pin_delays);
   void makeSetupHoldTimingArcs(const Pin *input_pin,

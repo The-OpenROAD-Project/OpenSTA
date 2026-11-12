@@ -34,19 +34,23 @@ report_checks -format full_clock
 
 #---------------------------------------------------------------
 # Test 2: Re-read with coupling_reduction_factor variants
-# Exercises: deleteParasiticNetworks, coupling factor scaling
+# Exercises: coupling factor scaling (delete_parasitics before each read)
 #---------------------------------------------------------------
 puts "--- Test 2: coupling factor variations ---"
 
+sta::delete_parasitics
 read_spef -coupling_reduction_factor 0.0 parasitics_coupling_spef.spef
 report_checks
 
+sta::delete_parasitics
 read_spef -coupling_reduction_factor 0.25 parasitics_coupling_spef.spef
 report_checks
 
+sta::delete_parasitics
 read_spef -coupling_reduction_factor 0.75 parasitics_coupling_spef.spef
 report_checks
 
+sta::delete_parasitics
 read_spef -coupling_reduction_factor 1.0 parasitics_coupling_spef.spef
 report_checks
 
@@ -55,10 +59,12 @@ report_checks
 # Exercises: reduce parameter true path and dspfFinish reduction
 #---------------------------------------------------------------
 puts "--- Test 3: SPEF with -reduce ---"
+sta::delete_parasitics
 read_spef -reduce parasitics_coupling_spef.spef
 
 report_checks
 
+sta::delete_parasitics
 read_spef -reduce ../../test/reg1_asap7.spef
 
 report_checks
@@ -101,9 +107,10 @@ report_checks
 
 #---------------------------------------------------------------
 # Test 6: Re-read GCD SPEF with reduce
-# Exercises: cleanup of large parasitic network
+# Exercises: delete_parasitics on a large parasitic network
 #---------------------------------------------------------------
 puts "--- Test 6: GCD re-read with reduce ---"
+sta::delete_parasitics
 read_spef -reduce ../../examples/gcd_sky130hd.spef.gz
 
 report_checks
