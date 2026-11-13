@@ -62,7 +62,7 @@ public:
               std::string_view title,
               size_t width,
               bool left_justify,
-              Unit *unit,
+              const Unit *unit,
               ReportFieldGetValue get_value);
   void setProperties(std::string_view title,
                      size_t width,
@@ -73,7 +73,7 @@ public:
   size_t width() const { return width_; }
   void setWidth(size_t width);
   bool leftJustify() const { return left_justify_; }
-  Unit *unit() const { return unit_; }
+  const Unit *unit() const { return unit_; }
   const std::string &blank() const { return blank_; }
   void setEnabled(bool enabled);
   bool enabled() const { return enabled_; }
@@ -87,7 +87,7 @@ protected:
   std::string title_;
   size_t width_;
   bool left_justify_;
-  Unit *unit_;
+  const Unit *unit_;
   bool enabled_{false};
   ReportFieldGetValue get_value_;
   std::string blank_;
@@ -209,7 +209,7 @@ public:
                          size_t width,
                          bool left_justify,
                          // nullptr for string fields.
-                         Unit *unit,
+                         const Unit *unit,
                          ReportFieldGetValue get_value);
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }

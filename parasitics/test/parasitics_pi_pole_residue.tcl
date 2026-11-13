@@ -99,7 +99,7 @@ report_checks
 #---------------------------------------------------------------
 puts "--- Test 5: coupling + two-pole ---"
 set_delay_calculator dmp_ceff_two_pole
-read_spef -keep_capacitive_coupling parasitics_coupling_spef.spef
+read_spef -replace -keep_capacitive_coupling parasitics_coupling_spef.spef
 
 report_checks
 
@@ -112,11 +112,11 @@ set_delay_calculator dmp_ceff_elmore
 report_checks
 
 #---------------------------------------------------------------
-# Test 6: Re-read SPEF to exercise cleanup
+# Test 6: Re-read SPEF with -replace
 #---------------------------------------------------------------
 puts "--- Test 6: re-read SPEF ---"
 set_delay_calculator dmp_ceff_two_pole
-read_spef ../../test/reg1_asap7.spef
+read_spef -replace ../../test/reg1_asap7.spef
 report_checks
 
 # Net reports with different calculators

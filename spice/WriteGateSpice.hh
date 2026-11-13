@@ -33,7 +33,7 @@ void
 writeGateSpice(ArcDcalcArgSeq &gates,
                const char *spice_filename,
                const char *subckt_filename,
-               StringSeq lib_subckt_filenames,
+               const StringSeq &lib_subckt_filenames,
                const char *model_filename,
                const char *power_name,
                const char *gnd_name,

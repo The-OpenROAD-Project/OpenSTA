@@ -108,7 +108,7 @@ Wireload::addFanoutLength(float fanout,
   fanout_lengths_.push_back(fanout_length);
   // Keep fanouts sorted for lookup.
   if (fanout_lengths_.size() > 1
-      && fanout < (fanout_lengths_[fanout_lengths_.size() - 2])->first)
+      && fanout < fanout_lengths_[fanout_lengths_.size() - 2]->first)
     sort(fanout_lengths_, FanoutLess());
 }
 
@@ -218,7 +218,7 @@ WireloadSelection::addWireloadFromArea(float min_area,
   wireloads_.push_back(wireload_area);
   // Keep wireloads sorted by area for lookup.
   if (wireloads_.size() > 1
-      && min_area < (wireloads_[wireloads_.size() - 2])->minArea())
+      && min_area < wireloads_[wireloads_.size() - 2]->minArea())
     sort(wireloads_, WireloadForAreaMinLess());
 }
 

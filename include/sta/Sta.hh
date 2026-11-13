@@ -1061,7 +1061,7 @@ public:
                            size_t width,
                            bool left_justify,
                            Unit *unit,
-                           const ReportFieldGetValue &get_value);
+                           ReportFieldGetValue get_value);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void reportPathEnd(PathEnd *end);
@@ -1277,6 +1277,7 @@ public:
   // The parasitic memory footprint is much smaller if parasitic
   // networks (dspf) are reduced and deleted after reading each net
   // with reduce_to and delete_after_reduce.
+  // A net that already has a parasitic network is added to unless replace.
   // Return true if successful.
   bool readSpef(std::string_view name,
                 std::string_view filename,
@@ -1286,7 +1287,8 @@ public:
                 bool pin_cap_included,
                 bool keep_coupling_caps,
                 float coupling_cap_factor,
-                bool reduce);
+                bool reduce,
+                bool replace);
   Parasitics *findParasitics(const std::string &name);
   void reportParasiticAnnotation(const std::string &spef_name,
                                  bool report_unannotated);
@@ -1492,7 +1494,7 @@ public:
   void writePathSpice(const Path *path,
                       std::string_view spice_filename,
                       std::string_view subckt_filename,
-                      StringSeq lib_subckt_filenames,
+                      const StringSeq &lib_subckt_filenames,
                       std::string_view model_filename,
                       std::string_view power_name,
                       std::string_view gnd_name,
@@ -1505,7 +1507,7 @@ public:
   void writeGateSpice(ArcDcalcArgSeq &gates,
                       const char *spice_filename,
                       const char *subckt_filename,
-                      StringSeq lib_subckt_filenames,
+                      const StringSeq &lib_subckt_filenames,
                       const char *model_filename,
                       const char *power_name,
                       const char *gnd_name,
@@ -1522,7 +1524,7 @@ public:
 
   void annotateNoiseDelays(float min_coupling_sum_ratio,
                            float min_coupling_ratio,
-                           const SceneSeq scenes,
+                           const SceneSeq &scenes,
                            const MinMaxAll *min_max);
   void reportNoiseDelays(size_t max_count,
                          const RiseFallBoth *drvr_rf,

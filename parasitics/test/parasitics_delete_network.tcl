@@ -65,9 +65,9 @@ report_checks
 set_delay_calculator dmp_ceff_two_pole
 report_checks
 
-# Now re-read the same SPEF - this triggers deleteParasiticNetworks + deleteReducedParasitics
+# Re-read the same SPEF with -replace
 set_delay_calculator dmp_ceff_elmore
-read_spef ../../test/reg1_asap7.spef
+read_spef -replace ../../test/reg1_asap7.spef
 
 report_checks
 
@@ -150,6 +150,6 @@ report_dcalc -from [get_pins r1/CLK] -to [get_pins r1/Q] -max
 report_dcalc -from [get_pins r2/CLK] -to [get_pins r2/Q] -max
 report_dcalc -from [get_pins r3/CLK] -to [get_pins r3/Q] -max
 
-# Final read SPEF again to exercise re-read cleanup
-read_spef ../../test/reg1_asap7.spef
+# Read the SPEF again with -replace
+read_spef -replace ../../test/reg1_asap7.spef
 report_checks

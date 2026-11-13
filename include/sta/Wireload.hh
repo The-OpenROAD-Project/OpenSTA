@@ -88,7 +88,7 @@ protected:
 class WireloadSelection
 {
 public:
-  WireloadSelection(std::string name);
+  explicit WireloadSelection(std::string name);
   ~WireloadSelection();
   const std::string &name() const { return name_; }
   void addWireloadFromArea(float min_area,

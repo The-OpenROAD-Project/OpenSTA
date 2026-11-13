@@ -70,7 +70,7 @@ class DriverWaveform;
 class ModeValueDef
 {
 public:
-  ModeValueDef(std::string_view value);
+  explicit ModeValueDef(std::string_view value);
   ModeValueDef(ModeValueDef &&other) noexcept;
   ~ModeValueDef();
   const std::string &value() const { return value_; }
@@ -1033,7 +1033,7 @@ protected:
 class OperatingConditions : public Pvt
 {
 public:
-  OperatingConditions(std::string_view name);
+  explicit OperatingConditions(std::string_view name);
   const std::string &name() const { return name_; }
   WireloadTree wireloadTree() const { return wire_load_tree_; }
   void setWireloadTree(WireloadTree tree);
@@ -1046,7 +1046,7 @@ protected:
 class ScaleFactors
 {
 public:
-  ScaleFactors(std::string_view name);
+  explicit ScaleFactors(std::string_view name);
   const std::string &name() const { return name_; }
   float scale(ScaleFactorType type,
               ScaleFactorPvt pvt,
@@ -1090,7 +1090,7 @@ protected:
 class ModeDef
 {
 public:
-  ModeDef(std::string_view name);
+  explicit ModeDef(std::string_view name);
   const std::string &name() const { return name_; }
   ModeValueDef *defineValue(std::string_view value);
   const ModeValueDef *findValueDef(std::string_view value) const;
@@ -1107,7 +1107,7 @@ private:
 class TableTemplate
 {
 public:
-  TableTemplate(std::string_view name);
+  explicit TableTemplate(std::string_view name);
   TableTemplate(std::string_view name,
                 TableTemplateType type);
   TableTemplate(std::string_view name,
@@ -1146,7 +1146,7 @@ public:
 class OcvDerate
 {
 public:
-  OcvDerate(std::string_view name);
+  explicit OcvDerate(std::string_view name);
   const std::string &name() const { return name_; }
   const Table *derateTable(const RiseFall *rf,
                            const EarlyLate *early_late,

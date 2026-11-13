@@ -27,6 +27,7 @@
 #include <algorithm>            // reverse
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "ArcDelayCalc.hh"
 #include "CheckMaxSkews.hh"
@@ -87,14 +88,14 @@ ReportField::ReportField(std::string_view name,
                          std::string_view title,
                          size_t width,
                          bool left_justify,
-                         Unit *unit,
+                         const Unit *unit,
                          ReportFieldGetValue get_value) :
   name_(name),
   name_abrev_(name_abrev),
   title_(title),
   left_justify_(left_justify),
   unit_(unit),
-  get_value_(get_value)
+  get_value_(std::move(get_value))
 {
   setWidth(width);
 }
@@ -180,11 +181,11 @@ ReportPath::makeField(std::string_view name,
                       std::string_view title,
                       size_t width,
                       bool left_justify,
-                      Unit *unit,
+                      const Unit *unit,
                       ReportFieldGetValue get_value)
 {
   ReportField *field = new ReportField(name, name_abrev, title, width, left_justify,
-                                       unit, get_value);
+                                       unit, std::move(get_value));
   fields_.push_back(field);
   field_map_[std::string(name)] = field;
   return field;
@@ -201,7 +202,7 @@ ReportPath::findFieldAbrev(std::string_view name)
 {
   for (ReportField *field : fields_) {
     const std::string &name_abrev = field->nameAbrev();
-    if (name.substr(0, name_abrev.size()) == name_abrev)
+    if (name.starts_with(name_abrev))
       return field;
   }
   return nullptr;
@@ -1147,9 +1148,9 @@ ReportPath::reportJson(const PathEnd *end,
     result += sta::format("  \"slack\": {:.{}e}\n",
                  delayAsFloat(end->slack(this)), digits_);
   }
-  result += "}";
+  result += '}';
   if (!last)
-    result += ",";
+    result += ',';
   report_->reportLine(result);
 }
 
@@ -1717,7 +1718,7 @@ ReportPath::reportLimitVerbose(const ReportField *field,
   if (scene && multiScene()) {
     line += " (corner ";
     line += scene->name();
-    line += ")";
+    line += ')';
   }
   report_->reportLine(line);
 
@@ -1908,7 +1909,7 @@ ReportPath::reportStartEndPoint(std::string_view pt,
 
     line += "  (";
     line += reason;
-    line += ")";
+    line += ')';
     report_->reportLine(line);
   }
   else {
@@ -1917,7 +1918,7 @@ ReportPath::reportStartEndPoint(std::string_view pt,
     line += pt;
     line += " (";
     line += reason;
-    line += ")";
+    line += ')';
     report_->reportLine(line);
   }
 }
@@ -3468,7 +3469,7 @@ ReportPath::reportField(float value,
   if (value == field_blank_)
     reportFieldBlank(field, line);
   else {
-    Unit *unit = field->unit();
+    const Unit *unit = field->unit();
     if (unit) {
       std::string value_str = unit->asString(value, digits_);
       reportField(value_str, field, line);

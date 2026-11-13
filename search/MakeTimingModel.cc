@@ -445,7 +445,6 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       VisitPathEnds visit_ends(sta_);
       for (Vertex *end : endpoints)
         visit_ends.visitPathEnds(end, scenes_, MinMaxAll::all(), true, &end_visitor);
-      // OpenROAD fork: write_timing_model O(cone) output delays.
       findOutputDelays(input_rf, endpoints, output_delays);
       search_->deleteFilteredArrivals();
 
@@ -463,18 +462,17 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
                                   const VertexSeq &endpoints,
                                   OutputPinDelays &output_pin_delays)
 {
-  // ---- OpenROAD fork: write_timing_model O(cone) output delays (begin) ----
   // Top-level output ports have no fanout, so they are endpoints and
   // the filtered endpoints hold every output reached from the input.
   for (Vertex *end : endpoints) {
     const Pin *output_pin = end->pin();
     if (network_->isTopLevelPort(output_pin)
         && network_->direction(output_pin)->isOutput()) {
-      // Only the paths of the model's scene.
-      VertexPathIterator path_iter(end, scene_, nullptr, nullptr, this);
+      VertexPathIterator path_iter(end, this);
       while (path_iter.hasNext()) {
         Path *path = path_iter.next();
-        if (search_->matchesFilter(path, nullptr)) {
+        if (search_->matchesFilter(path, nullptr)
+            && scenes_.contains(path->scene(this))) {
           const RiseFall *output_rf = path->transition(sta_);
           const MinMax *min_max = path->minMax(sta_);
           Arrival delay = path->arrival();
@@ -486,7 +484,6 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
       }
     }
   }
-  // ---- OpenROAD fork: write_timing_model O(cone) output delays (end) ----
 }
 
 void

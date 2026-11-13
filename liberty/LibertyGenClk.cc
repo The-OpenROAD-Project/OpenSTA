@@ -49,10 +49,8 @@ LibertyGenClk::LibertyGenClk(const char *name,
 
 LibertyGenClk::~LibertyGenClk()
 {
-  if (edges_)
-    delete edges_;
-  if (edge_shifts_)
-    delete edge_shifts_;
+  delete edges_;
+  delete edge_shifts_;
 }
 
 } // namespace sta

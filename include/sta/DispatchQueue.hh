@@ -67,7 +67,7 @@ class DispatchQueue
   using fp_t = std::function<void(int thread)>;
 
 public:
-  DispatchQueue(size_t thread_count);
+  explicit DispatchQueue(size_t thread_count);
   ~DispatchQueue();
   void setThreadCount(size_t thread_count);
   size_t getThreadCount() const;

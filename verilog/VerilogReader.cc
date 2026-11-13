@@ -348,12 +348,11 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
 {
   for (auto const &[port_name, dcl] : *module->declarationMap()) {
     const PortDirection *dir = dcl->direction();
-    if (dir->isInput() || dir->isOutput() || dir->isBidirect()) {
-      if (!port_names.contains(port_name))
-        linkWarn(197, module->filename(), module->line(),
-                 "module {} declared signal {} is not in the port list.",
-                 module->name(), port_name);
-    }
+    if ((dir->isInput() || dir->isOutput() || dir->isBidirect())
+        && !port_names.contains(port_name))
+      linkWarn(197, module->filename(), module->line(),
+               "module {} declared signal {} is not in the port list.",
+               module->name(), port_name);
   }
 }
 
@@ -553,7 +552,8 @@ VerilogReader::hasScalarNamedPortRefs(LibertyCell *liberty_cell,
       std::string_view port_name = vpin->name();
       LibertyPort *port = liberty_cell->findLibertyPort(port_name);
       if (port) {
-        if (!(port->size() == 1 && (vpin->isNamedPortRefScalarNet())))
+        if (!(port->size() == 1
+              && vpin->isNamedPortRefScalarNet()))
           return false;
       }
       else
@@ -945,7 +945,7 @@ VerilogNullNetNameIterator::next()
 class VerilogOneNetNameIterator : public VerilogNetNameIterator
 {
 public:
-  VerilogOneNetNameIterator(const std::string &name);
+  explicit VerilogOneNetNameIterator(const std::string &name);
   bool hasNext() override;
   const std::string &next() override;
 
@@ -1299,8 +1299,8 @@ VerilogNetConstant::parseConstant(std::string_view constant,
   value_digit_str[1] = '\0';
   size_t bit = 0;
   size_t idx = constant.size() - 1;
-  while (bit < size) {
-    char ch = (idx > base_idx) ? constant.at(idx--) : '0';
+  while (idx > base_idx) {
+    char ch = constant[idx];
     // Skip underscores.
     if (ch != '_') {
       value_digit_str[0] = ch;
@@ -1312,6 +1312,7 @@ VerilogNetConstant::parseConstant(std::string_view constant,
         mask = mask << 1;
       }
     }
+    idx--;
   }
 }
 

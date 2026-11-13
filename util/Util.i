@@ -361,7 +361,7 @@ set_cmd_unit_suffix(const char *unit_name,
   }
 }
 
-std::string
+std::string_view
 unit_scale_abbreviation (const char *unit_name)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);

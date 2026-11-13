@@ -37,7 +37,7 @@ void
 write_path_spice_cmd(const Path *path,
                      const char *spice_filename,
                      const char *subckt_filename,
-                     StringSeq lib_subckt_filenames,
+                     const StringSeq lib_subckt_filenames,
                      const char *model_filename,
                      const char *power_name,
                      const char *gnd_name,
@@ -45,7 +45,7 @@ write_path_spice_cmd(const Path *path,
 {
   Sta *sta = Sta::sta();
   sta->writePathSpice(path, spice_filename, subckt_filename,
-                      std::move(lib_subckt_filenames), model_filename,
+                      lib_subckt_filenames, model_filename,
                       power_name, gnd_name, ckt_sim);
 }
 
@@ -65,7 +65,7 @@ void
 write_gate_spice_cmd(ArcDcalcArgSeq gates,
                      const char *spice_filename,
                      const char *subckt_filename,
-                     StringSeq lib_subckt_filenames,
+                     const StringSeq lib_subckt_filenames,
                      const char *model_filename,
                      const char *power_name,
                      const char *gnd_name,

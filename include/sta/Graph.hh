@@ -81,7 +81,7 @@ public:
                    Vertex *&bidirect_drvr_vertex) const;
   // Apply func to pin vertices.
   void verticesApply(const Pin *pin,
-                     const std::function<void(Vertex*)> func) const;
+                     const std::function<void(Vertex*)> &func) const;
   // Driver vertex for bidirects.
   Vertex *pinDrvrVertex(const Pin *pin) const;
   // Load vertex for bidirects.

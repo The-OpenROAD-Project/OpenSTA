@@ -269,7 +269,7 @@ public:
                        bool unique_edges,
                        PathEnum *path_enum);
   PathEnumFaninVisitor(const PathEnumFaninVisitor &visitor);
-  virtual ~PathEnumFaninVisitor();
+  ~PathEnumFaninVisitor() override;
   VertexVisitor *copy() const override;
   void visitFaninPathsThru(Path *before_div,
                            Vertex *prev_vertex,
@@ -418,16 +418,16 @@ PathEnumFaninVisitor::visitEdge(const Pin *from_pin,
         TimingArc *arc1, *arc2;
         arc_set->arcsFrom(from_rf, arc1, arc2);
         // Filter arcs by to edge.
-        if (arc1 && arc1->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
-          if (!visitArc(from_pin, from_vertex, from_rf, from_path, edge, arc1,
-                        to_pin, to_vertex, min_max_, mode))
-            return false;
-        }
-        if (arc2 && arc2->toEdge()->asRiseFall()->index() == before_div_rf_index_) {
-          if (!visitArc(from_pin, from_vertex, from_rf, from_path, edge, arc2,
-                        to_pin, to_vertex, min_max_, mode))
-            return false;
-        }
+        if (arc1
+            && arc1->toEdge()->asRiseFall()->index() == before_div_rf_index_
+            && !visitArc(from_pin, from_vertex, from_rf, from_path, edge, arc1,
+                         to_pin, to_vertex, min_max_, mode))
+          return false;
+        if (arc2
+            && arc2->toEdge()->asRiseFall()->index() == before_div_rf_index_
+            && !visitArc(from_pin, from_vertex, from_rf, from_path, edge, arc2,
+                         to_pin, to_vertex, min_max_, mode))
+          return false;
       }
     }
   }

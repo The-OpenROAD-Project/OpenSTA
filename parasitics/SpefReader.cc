@@ -54,13 +54,15 @@ readSpefFile(std::string_view filename,
              bool keep_coupling_caps,
              float coupling_cap_factor,
              bool reduce,
+             bool replace,
              const Scene *scene,
              const MinMaxAll *min_max,
              Parasitics *parasitics,
              StaState *sta)
 {
   SpefReader reader(filename, instance, pin_cap_included, keep_coupling_caps,
-                    coupling_cap_factor, reduce, scene, min_max, parasitics, sta);
+                    coupling_cap_factor, reduce, replace, scene, min_max,
+                    parasitics, sta);
   bool success = reader.read();
   return success;
 }
@@ -71,6 +73,7 @@ SpefReader::SpefReader(std::string_view filename,
                        bool keep_coupling_caps,
                        float coupling_cap_factor,
                        bool reduce,
+                       bool replace,
                        const Scene *scene,
                        const MinMaxAll *min_max,
                        Parasitics *parasitics,
@@ -82,6 +85,7 @@ SpefReader::SpefReader(std::string_view filename,
   keep_coupling_caps_(keep_coupling_caps),
   coupling_cap_factor_(coupling_cap_factor),
   reduce_(reduce),
+  replace_(replace),
   scene_(scene),
   min_max_(min_max),
   parasitics_(parasitics)
@@ -409,16 +413,14 @@ SpefReader::dspfBegin(Net *net,
                       SpefTriple *total_cap)
 {
   if (net) {
-    if (network_->isTopInstance(instance_)) {
-      parasitics_->deleteReducedParasitics(net);
-      parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_);
-    }
-    else {
-      const Net *dspef_net = dspefNet(net);
-      parasitic_ = parasitics_->findParasiticNetwork(dspef_net);
-      if (parasitic_ == nullptr)
-        parasitic_ = parasitics_->makeParasiticNetwork(dspef_net, pin_cap_included_);
-    }
+    const Net *dspef_net = network_->isTopInstance(instance_) ? net : dspefNet(net);
+    // Reduced models made from the network before this read are stale.
+    parasitics_->deleteReducedParasitics(dspef_net);
+    parasitic_ = parasitics_->findParasiticNetwork(dspef_net);
+    if (parasitic_ == nullptr)
+      parasitic_ = parasitics_->makeParasiticNetwork(dspef_net, pin_cap_included_);
+    else if (replace_)
+      parasitics_->clearParasiticNetwork(parasitic_, pin_cap_included_);
     net_ = net;
   }
   else {

@@ -604,8 +604,7 @@ ArnoldiDelayCalc::delay_work_set_thresholds(delay_work *D,
     D->c->vhi = hi;
     D->c->vmid = mid;
     D->c->vlg = log(hi/lo);
-    ra_calc_c(lo,hi,
-              &(D->c->smin), &(D->c->x1),&(D->c->y1));
+    ra_calc_c(lo,hi, &D->c->smin, &D->c->x1, &D->c->y1);
   }
   D->lo_thresh = D->c->vlo;
   D->hi_thresh = D->c->vhi;
@@ -1276,11 +1275,11 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   // solve f(x,y)=0 with f = x*(ptlo(y/x)-pthi(y/x))-(vhi-vlo)
   // (x=0,y=1)
   // (x=x1,y=y1)  c->x1,y1
-  // (x=x2,y=y2)  x2=(vhi-vlo)/log(vhi/vlo)  y2=(c->smin)*x2
+  // (x=x2,y=y2)  x2=(vhi-vlo)/log(vhi/vlo)  y2=c->smin*x2
   double x1 = c->x1;
   double y1 = c->y1;
   double x2 = (vhi-vlo)/c->vlg;
-  double y2 = (c->smin)*x2;
+  double y2 = c->smin*x2;
   double ptlo,dlo;
   double pthi,dhi;
   double f,df,x,y;

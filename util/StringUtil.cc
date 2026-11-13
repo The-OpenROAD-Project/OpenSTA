@@ -78,11 +78,11 @@ stringFloat(const std::string &str)
 #endif
 }
 
-std::pair<long long, bool>
+std::pair<int64_t, bool>
 stringLong(const std::string &str,
            int base)
 {
-  long long value;
+  int64_t value;
 #if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
   auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value, base);
 
@@ -113,7 +113,7 @@ trimRight(std::string &str)
 void
 trimLeft(std::string &str)
 {
-  str.erase(0, str.find_first_not_of(" "));
+  str.erase(0, str.find_first_not_of(' '));
 }
 
 void

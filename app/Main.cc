@@ -25,7 +25,7 @@
 #include "StaMain.hh"
 #include "StaConfig.hh"  // STA_VERSION
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>              // exit
 #include <filesystem>
 #include <string_view>
@@ -148,7 +148,7 @@ staTclAppInit(int argc,
     const char *home = getenv("HOME");
     if (home) {
       std::string init_path = home;
-      init_path += "/";
+      init_path += '/';
       init_path.append(init_filename);
       if (std::filesystem::is_regular_file(init_path.c_str()))
         sourceTclFile(init_path.c_str(), true, true, interp);

@@ -107,7 +107,7 @@ foreach net_obj [get_nets *] {
 # Exercises reduce-during-read path
 ############################################################
 puts "--- Test 6: SPEF with -reduce ---"
-read_spef -reduce ../../examples/gcd_sky130hd.spef.gz
+read_spef -replace -reduce ../../examples/gcd_sky130hd.spef.gz
 
 report_checks -endpoint_count 2
 
@@ -136,10 +136,10 @@ foreach port_name {resp_val resp_rdy} {
 }
 
 ############################################################
-# Test 8: Re-read SPEF after load changes (exercises delete/re-create)
+# Test 8: Re-read SPEF after load changes (read_spef -replace)
 ############################################################
 puts "--- Test 8: SPEF re-read ---"
-read_spef ../../examples/gcd_sky130hd.spef.gz
+read_spef -replace ../../examples/gcd_sky130hd.spef.gz
 
 report_checks -endpoint_count 2
 
