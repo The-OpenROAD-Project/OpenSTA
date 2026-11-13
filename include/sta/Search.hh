@@ -603,6 +603,8 @@ protected:
   bool arrivals_seeded_{false};
   // Vertices with invalid arrival times to update and search from.
   VertexSet invalid_arrivals_;
+  // OpenROAD fork: unused; invalid vertices are added through the
+  // pending_invalid_* ThreadVertexBuffers. Kept for upstream merges.
   std::mutex invalid_arrivals_lock_;
   // OpenROAD fork: per-thread invalid vertex buffers.
   ThreadVertexBuffer pending_invalid_arrivals_;
@@ -628,6 +630,7 @@ protected:
   DelayDblSeq tns_;
   // Indexed by path_ap->index().
   VertexSlackMapSeq tns_slacks_;
+  // OpenROAD fork: unused, see pending_invalid_tns_. Kept for upstream merges.
   std::mutex tns_lock_;
 
   // Indexed by path_ap->index().

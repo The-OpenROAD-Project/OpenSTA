@@ -781,9 +781,10 @@ Search::deleteEdgeBefore(Edge *edge)
 bool
 Search::arrivalsValid()
 {
-  // OpenROAD fork: per-thread invalid vertex buffers.
-  flushInvalidArrivals();
-  return arrivals_exist_ && invalid_arrivals_.empty();
+  // OpenROAD fork: per-thread invalid vertex buffers. Read only; this is a
+  // public query and must not drain while delay calc threads add.
+  return arrivals_exist_ && invalid_arrivals_.empty()
+    && pending_invalid_arrivals_.empty();
 }
 
 void
@@ -1094,6 +1095,11 @@ Search::findArrivals2(Level level)
 {
   Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
+  // OpenROAD fork: per-thread invalid vertex buffers. The buffers do not
+  // de-duplicate; move them into the sets after each search so they stay
+  // bounded by one search worth of vertices.
+  flushInvalidRequireds();
+  flushInvalidTns();
   deleteTagsPrev();
   if (arrival_count > 0)
     deleteUnusedTagGroups();
@@ -3343,6 +3349,8 @@ Search::findRequireds(Level level)
     RequiredVisitor req_visitor(this);
     required_count = required_iter_->visitParallel(level, &req_visitor);
   }
+  // OpenROAD fork: per-thread invalid vertex buffers; keep them bounded.
+  flushInvalidTns();
   deleteTagsPrev();
   requireds_exist_ = true;
   debugPrint(debug_, "search", 1, "found {} requireds", required_count);
