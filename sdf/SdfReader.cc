@@ -570,14 +570,18 @@ SdfReader::timingCheckSetupHold1(SdfPortSpec *data_edge,
                                  const TimingRole *setup_role,
                                  const TimingRole *hold_role)
 {
-  std::string_view data_port_name = data_edge->port();
-  std::string_view clk_port_name = clk_edge->port();
-  Cell *cell = network_->cell(instance_);
-  Port *data_port = findPort(cell, data_port_name);
-  Port *clk_port = findPort(cell, clk_port_name);
-  if (data_port && clk_port) {
-    timingCheck1(setup_role, data_port, data_edge, clk_port, clk_edge, setup_triple);
-    timingCheck1(hold_role, data_port, data_edge, clk_port, clk_edge, hold_triple);
+  // Like the other checks: an instance the netlist does not have was
+  // reported by setInstance and left null, and its checks are skipped
+  if (!(is_incremental_only_ && !in_incremental_) && instance_) {
+    std::string_view data_port_name = data_edge->port();
+    std::string_view clk_port_name = clk_edge->port();
+    Cell *cell = network_->cell(instance_);
+    Port *data_port = findPort(cell, data_port_name);
+    Port *clk_port = findPort(cell, clk_port_name);
+    if (data_port && clk_port) {
+      timingCheck1(setup_role, data_port, data_edge, clk_port, clk_edge, setup_triple);
+      timingCheck1(hold_role, data_port, data_edge, clk_port, clk_edge, hold_triple);
+    }
   }
   delete data_edge;
   delete clk_edge;
