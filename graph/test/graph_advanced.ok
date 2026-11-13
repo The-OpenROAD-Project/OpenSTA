@@ -111,8 +111,8 @@ Path Type: max
 
 
 --- get_timing_edges full combinations ---
-reg1 all edges: 1
-reg2 all edges: 1
+reg1 all edges: 5
+reg2 all edges: 5
 --- report_edges for cells ---
 CK -> Q Reg Clk to Q
   ^ -> ^ 0.08:0.08

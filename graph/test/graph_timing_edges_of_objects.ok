@@ -1,0 +1,24 @@
+--- -of_objects and1 ---
+count: 2
+and1/A1 -> and1/ZN positive_unate
+and1/A2 -> and1/ZN positive_unate
+--- -of_objects {and1 reg1} ---
+count: 7
+and1/A1 -> and1/ZN positive_unate
+and1/A2 -> and1/ZN positive_unate
+reg1/CK -> reg1/QN non_unate
+reg1/CK -> reg1/Q non_unate
+reg1/CK -> reg1/CK unknown
+reg1/CK -> reg1/D unknown
+reg1/CK -> reg1/D unknown
+--- -of_objects -filter ---
+count: 2
+and1/A1 -> and1/ZN positive_unate
+and1/A2 -> and1/ZN positive_unate
+--- -of_objects lib cells ---
+count: 7
+--- set_disable_timing -of_objects edges ---
+and1 A1 ZN constraint
+and1 A2 ZN constraint
+--- -of_objects with -to ---
+Error 540: graph_timing_edges_of_objects.tcl line 1, -from/-to arguments not supported with -of_objects.

@@ -1,5 +1,5 @@
 --- get_timing_edges -of_objects instance ---
-reg1 timing edges count: 1
+reg1 timing edges count: 5
 --- get_timing_edges -from/-to on instance ---
 CK->Q edges count: 1
 --- get_timing_edges -from only ---
@@ -170,7 +170,7 @@ reg2/Q -> q wire
   ^ -> ^ 0.00:0.00
   v -> v 0.00:0.00
 --- get_timing_edges -of_objects reg2 ---
-reg2 timing edges count: 1
+reg2 timing edges count: 5
 --- report_slews on d port ---
 d ^ 0.00:0.00 v 0.00:0.00
 --- report_slews on q port ---
