@@ -23,7 +23,7 @@ RUN apt-get update && \
     libfmt-dev
 
 # Download CUDD
-RUN wget https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz && \
+RUN wget https://github.com/davidkebo/cudd/releases/download/v3.0.0/cudd-3.0.0.tar.gz && \
     tar -xvf cudd-3.0.0.tar.gz && \
     rm cudd-3.0.0.tar.gz
 
