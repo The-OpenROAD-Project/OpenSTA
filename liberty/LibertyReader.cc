@@ -248,6 +248,8 @@ LibertyReader::readLibraryAttributes(const LibertyGroup *library_group)
                            &LibertyLibrary::setDefaultMaxSlew, time_scale_);
   readLibAttrFloatWarnZero(library_group, "default_max_fanout",
                            &LibertyLibrary::setDefaultMaxFanout, 1.0F);
+  readLibAttrFloatWarnZero(library_group, "default_max_capacitance",
+                           &LibertyLibrary::setDefaultMaxCapacitance, cap_scale_);
   readLibAttrFloat(library_group, "default_intrinsic_rise",
                    &LibertyLibrary::setDefaultIntrinsic, RiseFall::rise(),
                    time_scale_);
