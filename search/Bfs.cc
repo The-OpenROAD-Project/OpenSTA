@@ -186,14 +186,18 @@ BfsIterator::visitParallel(Level to_level,
           }
           else {
             // ---- OpenROAD fork: BFS chunked dispatch (begin) ----
-            // OpenROAD fork: per-thread enqueue during parallel levels.
-            parallel_enqueue_.store(true, std::memory_order_relaxed);
+            // Per-thread enqueue during the parallel level; the guard
+            // resets the flag even if the visit throws.
+            ParallelEnqueueGuard guard(parallel_enqueue_);
+            parallel_level_ = level;
             visitLevelChunked(level_vertices, level, visitors);
-            parallel_enqueue_.store(false, std::memory_order_relaxed);
-            flushParallelEnqueues();
             // ---- OpenROAD fork: BFS chunked dispatch (end) ----
           }
           level_vertices.clear();
+          // OpenROAD fork: per-thread enqueue during parallel levels. Flush
+          // after the clear so a vertex enqueued at the visited level is
+          // visited again instead of dropped.
+          flushParallelEnqueues();
           visit_count += vertex_count;
         }
       }
@@ -236,6 +240,9 @@ BfsIterator::flushParallelEnqueues()
 {
   parallel_enqueues_.drain([this](Vertex *vertex) {
     Level level = vertex->level();
+    if (level == parallel_level_)
+      debugPrint(debug_, "bfs", 1, "same level enqueue {} during parallel level {}",
+                 vertex->to_string(this), level);
     queue_[level].push_back(vertex);
     if (levelLess(last_level_, level))
       last_level_ = level;
@@ -358,6 +365,9 @@ BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
   // Tasks read level_vertices in place and unlocked. This relies on
   // visitors never enqueuing at the current level (they only enqueue
   // fanout/fanin, which levelize places at a higher/lower level).
+  // Enqueues during the level go to per-thread buffers that visitParallel
+  // flushes after the level; a same-level enqueue is visited again and
+  // reported by "bfs" debug level 1.
   // Chunk size vs. runtime is U-shaped; 8 is the smallest size at the
   // bottom of the curve.
   // One task per thread claims chunks from a shared counter, so a thread

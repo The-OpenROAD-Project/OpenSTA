@@ -132,6 +132,22 @@ protected:
   void flushParallelEnqueues();
   ThreadVertexBuffer parallel_enqueues_;
   std::atomic<bool> parallel_enqueue_{false};
+  // Level being visited in parallel, for the same-level enqueue check.
+  Level parallel_level_{0};
+  class ParallelEnqueueGuard
+  {
+  public:
+    explicit ParallelEnqueueGuard(std::atomic<bool> &flag) : flag_(flag)
+    {
+      flag_.store(true, std::memory_order_relaxed);
+    }
+    ~ParallelEnqueueGuard() { flag_.store(false, std::memory_order_relaxed); }
+    ParallelEnqueueGuard(const ParallelEnqueueGuard &) = delete;
+    ParallelEnqueueGuard &operator=(const ParallelEnqueueGuard &) = delete;
+
+  private:
+    std::atomic<bool> &flag_;
+  };
   // ---- OpenROAD fork: per-thread enqueue during parallel levels (end) ----
   // Min (max) level of queued vertices.
   Level first_level_;
