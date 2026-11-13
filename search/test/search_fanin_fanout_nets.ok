@@ -1,0 +1,14 @@
+--- get_fanout -from net n1 ---
+buf1/A buf1/Z reg1/D reg2/D
+--- get_fanout -from net n1 -flat -endpoints_only ---
+reg1/D reg2/D
+--- get_fanout -from nets {n1 n3} -flat -endpoints_only ---
+reg1/D reg2/D reg3/D
+--- get_fanout -from net n1 -only_cells ---
+buf1 reg1 reg2
+--- get_fanin -to net n1 ---
+and1/A1 and1/A2 and1/ZN buf1/A in1 in2 reg1/D
+--- get_fanin -to nets {n2 n3} -flat -startpoints_only ---
+in1 in2 in3
+--- get_fanout without -from ---
+Error 161: search_fanin_fanout_nets.tcl line 1, Usage: get_fanout -from source_list [-flat] [-only_cells] [-endpoints_only] [-levels level_count] [-pin_levels pin_count] [-trace_arcs timing|enabled|all]

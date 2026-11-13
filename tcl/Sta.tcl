@@ -242,7 +242,7 @@ proc get_fanin { args } {
   foreach net $nets {
     set net_pins [net_pins $net]
     if { $net_pins != {} } {
-      lappend pins $net_pins
+      set pins [concat $pins $net_pins]
     } else {
       sta_warn 541 "No load pins connected to net [get_full_name $net]."
     }
@@ -309,9 +309,12 @@ proc get_fanout { args } {
   if { [llength $args] != 0 } {
     cmd_usage_error "get_fanout"
   }
+  if { ![info exists keys(-from)] } {
+    cmd_usage_error "get_fanout"
+  }
   parse_port_pin_net_arg $keys(-from) pins nets
   foreach net $nets {
-    lappend pins [net_load_pins $net]
+    set pins [concat $pins [net_load_pins $net]]
   }
   set flat [info exists flags(-flat)]
   set only_insts [info exists flags(-only_cells)]

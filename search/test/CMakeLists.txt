@@ -23,6 +23,7 @@ sta_module_tests("search"
     exception_paths
     fanin_fanout
     fanin_fanout_deep
+    fanin_fanout_nets
     gated_clk
     genclk
     genclk_latch_deep
