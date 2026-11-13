@@ -25,6 +25,9 @@
 
 #include "Bfs.hh"
 
+#include <algorithm>
+#include <atomic>
+
 #include "Debug.hh"
 #include "DispatchQueue.hh"
 #include "Graph.hh"
@@ -331,20 +334,32 @@ BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
   // fanout/fanin, which levelize places at a higher/lower level).
   // Chunk size vs. runtime is U-shaped; 8 is the smallest size at the
   // bottom of the curve.
+  // One task per thread claims chunks from a shared counter, so a thread
+  // that finishes early still picks up more work, without a dispatch
+  // (queue lock + wakeup) per chunk.
   constexpr size_t chunk_size = 8;
   size_t vertex_count = level_vertices.size();
+  size_t chunk_count = (vertex_count + chunk_size - 1) / chunk_size;
+  size_t task_count = std::min(visitors.size(), chunk_count);
+  std::atomic<size_t> next_chunk{0};
   BfsIndex bfs_index = bfs_index_;
-  for (size_t from = 0; from < vertex_count; from += chunk_size) {
-    size_t to = (from + chunk_size < vertex_count) ? from + chunk_size : vertex_count;
-    dispatch_queue_->dispatch([this, &level_vertices, from, to, level,
-                               bfs_index, &visitors](int thread_id) {
+  for (size_t task = 0; task < task_count; task++) {
+    dispatch_queue_->dispatch([this, &level_vertices, &next_chunk, chunk_count,
+                               vertex_count, level, bfs_index,
+                               &visitors](int thread_id) {
       VertexVisitor *thread_visitor = visitors[thread_id];
-      for (size_t i = from; i < to; i++) {
-        Vertex *vertex = level_vertices[i];
-        if (vertex) {
-          checkLevel(vertex, level);
-          vertex->setBfsInQueue(bfs_index, false);
-          thread_visitor->visit(vertex);
+      size_t chunk;
+      while ((chunk = next_chunk.fetch_add(1, std::memory_order_relaxed))
+             < chunk_count) {
+        size_t from = chunk * chunk_size;
+        size_t to = std::min(from + chunk_size, vertex_count);
+        for (size_t i = from; i < to; i++) {
+          Vertex *vertex = level_vertices[i];
+          if (vertex) {
+            checkLevel(vertex, level);
+            vertex->setBfsInQueue(bfs_index, false);
+            thread_visitor->visit(vertex);
+          }
         }
       }
     });
