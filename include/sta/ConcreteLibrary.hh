@@ -115,6 +115,9 @@ public:
 
   // Cell acts as port factory.
   ConcretePort *makePort(std::string_view name);
+  // Scalar port placed ahead of the bus ports, where groupBusPorts puts
+  // scalar ports, instead of appended after them.
+  ConcretePort *makePortBeforeBusPorts(std::string_view name);
   // Bus port.
   ConcretePort *makeBusPort(std::string_view name,
                             int from_index,
