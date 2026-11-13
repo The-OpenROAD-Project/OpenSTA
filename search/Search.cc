@@ -3332,12 +3332,17 @@ Search::findRequireds(Level level)
 {
   Stats stats(debug_, report_);
   debugPrint(debug_, "search", 1, "find requireds to level {}", level);
-  RequiredVisitor req_visitor(this);
   required_iter_->ensureSize();
   if (!requireds_seeded_)
     seedRequireds();
   seedInvalidRequireds();
-  int required_count = required_iter_->visitParallel(level, &req_visitor);
+  int required_count = 0;
+  // OpenROAD fork: per-pin slack queries usually find nothing queued, so
+  // skip building the visitor (heap allocations) when there is no work.
+  if (!required_iter_->empty()) {
+    RequiredVisitor req_visitor(this);
+    required_count = required_iter_->visitParallel(level, &req_visitor);
+  }
   deleteTagsPrev();
   requireds_exist_ = true;
   debugPrint(debug_, "search", 1, "found {} requireds", required_count);
