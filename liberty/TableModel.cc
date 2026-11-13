@@ -1997,11 +1997,36 @@ OutputWaveforms::voltageCurrent(float slew,
   return waveformValue(slew, cap, volt, voltage_currents_);
 }
 
+void
+OutputWaveforms::interpolateCurrents(float slew,
+                                     float cap,
+                                     const float *volts,
+                                     float *currents,
+                                     size_t count)
+{
+  interpolateWaveform(slew, cap, volts, currents, count, voltage_currents_);
+}
+
 float
 OutputWaveforms::waveformValue(float slew,
                                float cap,
                                float axis_value,
                                Table1Seq &waveforms)
+{
+  float value;
+  interpolateWaveform(slew, cap, &axis_value, &value, 1, waveforms);
+  return value;
+}
+
+// Interpolate waveform samples at several axis values with one
+// slew/cap interpolation.
+void
+OutputWaveforms::interpolateWaveform(float slew,
+                                     float cap,
+                                     const float *axis_values,
+                                     float *values,
+                                     size_t count,
+                                     Table1Seq &waveforms)
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
@@ -2016,7 +2041,6 @@ OutputWaveforms::waveformValue(float slew,
   const Table *waveform10 = waveforms[wave_index10];
   const Table *waveform11 = waveforms[wave_index11];
 
-  // Interpolate waveform samples at voltage steps.
   size_t index1 = slew_index;
   size_t index2 = cap_index;
   double x1 = slew;
@@ -2028,13 +2052,16 @@ OutputWaveforms::waveformValue(float slew,
   double x2u = cap_axis_->axisValue(index2 + 1);
   double dx2 = (x2 - x2l) / (x2u - x2l);
 
-  double y00 = waveform00->findValueClip(axis_value);
-  double y01 = waveform01->findValueClip(axis_value);
-  double y10 = waveform10->findValueClip(axis_value);
-  double y11 = waveform11->findValueClip(axis_value);
-  double wave_value = (1 - dx1) * (1 - dx2) * y00 + dx1 * (1 - dx2) * y10
-      + dx1 * dx2 * y11 + (1 - dx1) * dx2 * y01;
-  return wave_value;
+  for (size_t i = 0; i < count; i++) {
+    float axis_value = axis_values[i];
+    double y00 = waveform00->findValueClip(axis_value);
+    double y01 = waveform01->findValueClip(axis_value);
+    double y10 = waveform10->findValueClip(axis_value);
+    double y11 = waveform11->findValueClip(axis_value);
+    double wave_value = (1 - dx1) * (1 - dx2) * y00 + dx1 * (1 - dx2) * y10
+        + dx1 * dx2 * y11 + (1 - dx1) * dx2 * y01;
+    values[i] = wave_value;
+  }
 }
 
 float

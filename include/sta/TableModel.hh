@@ -475,6 +475,12 @@ public:
   float voltageCurrent(float slew,
                        float cap,
                        float volt);
+  // Current at count voltages with one slew/cap interpolation.
+  void interpolateCurrents(float slew,
+                           float cap,
+                           const float *volts,
+                           float *currents,
+                           size_t count);
   float referenceTime(float slew);
   float beginTime(float slew,
                   float cap);
@@ -504,6 +510,12 @@ private:
                       float cap,
                       float axis_value,
                       Table1Seq &waveforms);
+  void interpolateWaveform(float slew,
+                           float cap,
+                           const float *axis_values,
+                           float *values,
+                           size_t count,
+                           Table1Seq &waveforms);
   float beginEndTime(float slew,
                      float cap,
                      bool begin);

@@ -25,6 +25,7 @@
 #pragma once
 
 #include <Eigen/SparseCore>
+#include <Eigen/LU>
 #include <Eigen/SparseLU>
 #include <array>
 #include <limits>
@@ -144,19 +145,24 @@ protected:
     volt_current
   };
   struct DrvrIv {
-    double i;
-    double gm;
-    DrvrRegion region;
+    double i = 0.0;
+    double gm = 0.0;
+    DrvrRegion region = DrvrRegion::time_current;
+    // Key of the evaluation, used to validate cache reuse.
+    double time = 0.0;
+    double ceff = 0.0;
   };
   DrvrIv driverCurrent(size_t drvr_idx,
                        double time,
-                       double v);
-  // Stamp dI/dV for voltage-controlled driver current into A.
+                       double v,
+                       bool need_gm);
   // u_ is the Norton constant I(V*) - gm*V*.
   bool linearizeDrivers(double time,
-                        const Eigen::VectorXd &v_lin,
-                        const Eigen::MatrixXd &x_to_v,
-                        MatrixSd &A);
+                        const Eigen::VectorXd &v_lin);
+  void initMarch(const MatrixSd &G,
+                 const MatrixSd &C,
+                 const Eigen::MatrixXd &x_to_v,
+                 size_t order);
   void integrateStep(const MatrixSd &G,
                      const MatrixSd &C,
                      const Eigen::MatrixXd &B,
@@ -165,6 +171,9 @@ protected:
                      double c_coeff,
                      const Eigen::VectorXd &hist,
                      Eigen::VectorXd &x);
+  void stampDrivers(double c_coeff);
+  void stampDriversSparse(MatrixSd &A);
+  void marchFailed();
   void updateCeffIdrvr(double time);
   void findDriverNodeCaps();
   float holdResistanceBefore(const ArcDcalcArg &dcalc_arg);
@@ -278,6 +287,20 @@ protected:
 
   // Indexed by driver index.
   std::vector<double> ceff_;
+  std::vector<size_t> drvr_node_idx_;
+  // Driver node rows of x_to_v as columns.
+  Eigen::MatrixXd drvr_w_;
+  // Time march state (see initMarch). Dense copies of the reduced
+  // system; the full system of set_prima_reduce_order 0 stays sparse.
+  bool march_dense_ = true;
+  Eigen::MatrixXd march_G_;
+  Eigen::MatrixXd march_C_;
+  Eigen::MatrixXd march_A_;
+  Eigen::PartialPivLU<Eigen::MatrixXd> march_lu_;
+  Eigen::VectorXd march_rhs_;
+  Eigen::VectorXd march_v_lin_;
+  // Driver current from the last driverCurrent call, indexed by driver.
+  std::vector<DrvrIv> drvr_iv_;
   // Grounded capacitance on the driver node. Floor for the Ceff update.
   std::vector<double> drvr_node_cap_;
   // Ceff at Vth
