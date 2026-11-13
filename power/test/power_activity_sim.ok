@@ -1,0 +1,86 @@
+Simulation: 13 cells 9 sequential states 6 sources 0 macros 21 signals, 256 lanes.
+Simulation annotated 13 pins.
+en_r/Q toggles/cycle 0.046 duty 0.501 simulation
+tg_r/Q toggles/cycle 0.050 duty 0.502 simulation
+hq_r/Q toggles/cycle 0.000 duty 0.531 simulation
+p1_r/Q toggles/cycle 0.046 duty 0.503 simulation
+gf_r/Q toggles/cycle 0.100 duty 0.500 simulation
+lt/Q   toggles/cycle 0.249 duty 0.499 simulation
+ar_r/Q toggles/cycle 0.462 duty 0.449 simulation
+simulation     13
+input           6
+unannotated    38
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.66e-05   1.45e-07   6.97e-11   4.67e-05  88.5%
+Combinational          4.13e-07   8.48e-08   1.72e-11   4.98e-07   0.9%
+Clock                  5.37e-06   2.03e-07   1.06e-11   5.57e-06  10.5%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  5.24e-05   4.33e-07   9.74e-11   5.28e-05 100.0%
+                          99.2%       0.8%       0.0%
+Rerun with tg_r/Q set by set_power_activity: it keeps its activity.
+Simulation: 13 cells 9 sequential states 7 sources 0 macros 21 signals, 256 lanes.
+Simulation annotated 12 pins.
+en_r/Q toggles/cycle 0.045 duty 0.502 simulation
+tg_r/Q toggles/cycle 0.200 duty 0.500 user
+tg_xor/A toggles/cycle 0.200 duty 0.500 propagated
+simulation     12
+input           7
+unannotated    38
+Simulation mode, then formulas (the default).
+en_r/Q toggles/cycle 0.044 duty 0.489 simulation
+en_r/Q toggles/cycle 0.465 duty 0.453 propagated
+Pin tied high in the netlist, and a latch + AND clock gate.
+Simulation: 6 cells 5 sequential states 4 sources 0 macros 12 signals, 256 lanes.
+Simulation annotated 6 pins.
+sy_r/Q toggles/cycle 0.050 duty 0.898 simulation
+dg_and/X toggles/cycle 0.401 duty 0.100 simulation
+icg/GCLK toggles/cycle 0.401 duty 0.100 simulation
+dg_r/Q toggles/cycle 0.100 duty 0.502 simulation
+gf_r/Q toggles/cycle 0.100 duty 0.502 simulation
+pins with unknown activity: 0
+Input-less divider, 60 stage pipeline, case analysis and annotation on
+a load pin, pin swap.
+Simulation: 70 cells 67 sequential states 2 sources 0 macros 74 signals, 256 lanes.
+Simulation annotated 70 pins.
+div_r/Q toggles/cycle 1.000 duty 0.500 simulation
+dicg/GCLK toggles/cycle 1.000 duty 0.250 simulation
+dg_r/CLK toggles/cycle 1.000 duty 0.250 propagated
+s0/Q   toggles/cycle 0.501 duty 0.499 simulation
+s49/Q  toggles/cycle 0.501 duty 0.499 simulation
+s50/Q  toggles/cycle 0.501 duty 0.499 simulation
+s59/Q  toggles/cycle 0.501 duty 0.499 simulation
+mx/S   toggles/cycle 0.000 duty 0.000 constant
+mx_r/Q toggles/cycle 0.000 duty 0.488 simulation
+sw/A   toggles/cycle 0.501 duty 0.499 propagated
+sw/B   toggles/cycle 0.020 duty 0.498 propagated
+pins with unknown activity: 0
+Simulation: 70 cells 67 sequential states 3 sources 0 macros 75 signals, 256 lanes.
+Simulation annotated 70 pins.
+mx_r/Q toggles/cycle 0.000 duty 0.488 simulation
+sw/A   toggles/cycle 0.020 duty 0.498 propagated
+sw/B   toggles/cycle 0.501 duty 0.499 propagated
+Clock gate enable fed by a register on the gated clock.
+Simulation: 4 cells 3 sequential states 1 sources 0 macros 7 signals, 256 lanes.
+Simulation annotated 4 pins.
+xr_r/Q toggles/cycle 0.100 duty 0.498 simulation
+a_r/Q  toggles/cycle 0.100 duty 0.498 simulation
+icg/GCLK toggles/cycle 0.200 duty 0.050 simulation
+Clock from a macro (PLL), output without a function, clock on a load
+pin, default input activity with a virtual clock.
+Simulation: 8 cells 5 sequential states 4 sources 1 macros 16 signals, 256 lanes.
+Simulation annotated 8 pins.
+pll/CLKOUT toggles/cycle 2.000 duty 0.500 clock
+pf_r/Q toggles/cycle 0.499 duty 0.500 simulation
+mo/Z   toggles/cycle 0.300 duty 0.500 simulation
+mo_r/Q toggles/cycle 0.300 duty 0.500 simulation
+z      toggles/cycle 0.300 duty 0.500 input
+z_r/Q  toggles/cycle 0.300 duty 0.499 simulation
+dg/X   toggles/cycle 0.376 duty 0.251 simulation
+d_r/Q  toggles/cycle 0.376 duty 0.251 simulation
+lb/A   toggles/cycle 0.376 duty 0.251 propagated
+lf_r/Q toggles/cycle 0.499 duty 0.500 simulation
+pins with unknown activity: 0

@@ -3904,6 +3904,13 @@ set_power_activity -input -activity 0.1 -duty 0.5
 `-clock` {: #opt-set_power_activity-clock }
 : `clock`: The clock to use for the period with `-activity`. This option is ignored if `-density` is used.
 
+## set_power_activity_mode
+
+<pre><code>set_power_activity_mode
+    simulation|vectorless</code></pre>
+
+Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the netlist before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 300 warmup cycles, 1300 measured cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.
+
 ## set_propagated_clock
 
 <pre><code>set_propagated_clock
@@ -4197,6 +4204,30 @@ The `set_wire_load_selection_group` command is parsed but not supported.
 
 `-max` {: #opt-set_wire_load_selection_group-max }
 : Apply to maximum (setup) analysis.
+
+## simulate_power_activity
+
+<pre><code>simulate_power_activity
+    [<a href="#opt-simulate_power_activity-cycles">-cycles</a> cycles]
+    [<a href="#opt-simulate_power_activity-warmup">-warmup</a> cycles]
+    [<a href="#opt-simulate_power_activity-lanes">-lanes</a> lanes]
+    [<a href="#opt-simulate_power_activity-seed">-seed</a> seed]</code></pre>
+
+Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and output pins without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.
+
+### Options
+
+`-cycles` {: #opt-simulate_power_activity-cycles }
+: `cycles`: Number of measured clock cycles. Defaults to 2000.
+
+`-warmup` {: #opt-simulate_power_activity-warmup }
+: `cycles`: Number of clock cycles simulated before counting starts, so the random initial state settles. Defaults to 500.
+
+`-lanes` {: #opt-simulate_power_activity-lanes }
+: `lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.
+
+`-seed` {: #opt-simulate_power_activity-seed }
+: `seed`: Random number generator seed. Defaults to 1.
 
 ## suppress_msg
 

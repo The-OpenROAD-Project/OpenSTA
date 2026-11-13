@@ -101,6 +101,8 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map = {
     {PwrActivityOrigin::user, "user"},
     {PwrActivityOrigin::vcd, "vcd"},
     {PwrActivityOrigin::saif, "saif"},
+    // OpenROAD fork: power activity simulation
+    {PwrActivityOrigin::simulation, "simulation"},
     {PwrActivityOrigin::propagated, "propagated"},
     {PwrActivityOrigin::clock, "clock"},
     {PwrActivityOrigin::constant, "constant"},
@@ -118,6 +120,10 @@ Power::clear()
   global_activity_.init();
   input_activity_.init();
   user_activity_map_.clear();
+  // OpenROAD fork: power activity simulation.
+  activity_sim_valid_ = false;
+  activity_sim_mode_ = nullptr;
+  activity_sim_fallback_warned_ = false;
   clearNonSdc();
 }
 
@@ -134,12 +140,25 @@ Power::clearNonSdc()
 void
 Power::deletePinBefore(const Pin *pin)
 {
-  unsetUserActivity(pin);
+  // OpenROAD fork: power activity simulation. A netlist edit does not
+  // make the simulation stale.
+  user_activity_map_.erase(pin);
+  propagationInvalid();
   activity_map_.erase(pin);
 }
 
 void
 Power::activitiesInvalid()
+{
+  activities_valid_ = false;
+  instance_powers_valid_ = false;
+  // OpenROAD fork: power activity simulation. Inputs or SDC changed.
+  activity_sim_valid_ = false;
+}
+
+// OpenROAD fork: power activity simulation
+void
+Power::propagationInvalid()
 {
   activities_valid_ = false;
   instance_powers_valid_ = false;
@@ -258,7 +277,9 @@ Power::setSeqActivity(const Instance *reg,
                       PwrActivity &activity)
 {
   seq_activity_map_[SeqPin(reg, output)] = activity;
-  activitiesInvalid();
+  // OpenROAD fork: power activity simulation. Propagation bookkeeping, not
+  // an input change.
+  propagationInvalid();
 }
 
 bool
@@ -1033,6 +1054,15 @@ Power::ensureActivities(const Scene *scene)
   }
 
   if (!activities_valid_) {
+    // ---- OpenROAD fork: power activity simulation (begin) ----
+    // In simulation mode, vectorless activities come from a simulation run
+    // when inputs, SDC or the mode changed. Netlist edits keep its
+    // annotations; new pins are propagated from them below.
+    if (simulate_activities_ && !global_activity_.isSet()
+        && (!activity_sim_valid_ || activity_sim_mode_ != scene->mode()))
+      simulateActivities(scene, activity_sim_warmup_, activity_sim_cycles_,
+                         activity_sim_lanes_, activity_sim_seed_, false);
+    // ---- OpenROAD fork: power activity simulation (end) ----
     // No need to propagate activites if global activity is set.
     if (!global_activity_.isSet()) {
       // Clear existing activities.
@@ -1053,6 +1083,8 @@ Power::ensureActivities(const Scene *scene)
       launch_period_cache_.clear();
       seedActivities(bfs);
       seedFuncLessOutputActivities(bfs);
+      // OpenROAD fork: power activity simulation
+      seedSimulationActivities(bfs);
       PropActivityVisitor visitor(this, scene_->mode(), &bfs);
       // Propagate activities through combinational logic.
       bfs.visit(levelize_->maxLevel(), &visitor);
@@ -1312,6 +1344,26 @@ Power::seedFuncLessOutputActivities(BfsFwdIterator &bfs)
   }
   delete inst_iter;
 }
+
+// ---- OpenROAD fork: power activity simulation (begin) ----
+// Simulated drivers are seeded like roots so that propagation reaches pins
+// without a primary input in their fanin (free running dividers, hold loops)
+// and deep register pipelines, and copies driver activity to the loads.
+void
+Power::seedSimulationActivities(BfsFwdIterator &bfs)
+{
+  const Mode *mode = scene_->mode();
+  for (auto &[pin, activity] : user_activity_map_) {
+    if (activity.origin() == PwrActivityOrigin::simulation) {
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (vertex) {
+        setActivity(pin, activity);
+        bfs.enqueueAdjacentVertices(vertex, mode);
+      }
+    }
+  }
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
 
 // Period of the fastest clock launching paths through pin, or of the
 // fastest clock in the design if none does. Zero if there are no clocks.
@@ -1938,6 +1990,7 @@ Power::reportActivityAnnotation(bool report_unannotated,
 {
   size_t vcd_count = 0;
   size_t saif_count = 0;
+  size_t simulation_count = 0;  // OpenROAD fork: power activity simulation
   size_t input_count = 0;
   for (auto const &[pin, activity] : user_activity_map_) {
     PwrActivityOrigin origin = activity.origin();
@@ -1947,6 +2000,10 @@ Power::reportActivityAnnotation(bool report_unannotated,
         break;
       case PwrActivityOrigin::saif:
         saif_count++;
+        break;
+      // OpenROAD fork: power activity simulation
+      case PwrActivityOrigin::simulation:
+        simulation_count++;
         break;
       case PwrActivityOrigin::user:
         input_count++;
@@ -1959,10 +2016,15 @@ Power::reportActivityAnnotation(bool report_unannotated,
     report_->report("vcd         {:>5}", vcd_count);
   if (saif_count > 0)
     report_->report("saif        {:>5}", saif_count);
+  // OpenROAD fork: power activity simulation
+  if (simulation_count > 0)
+    report_->report("simulation  {:>5}", simulation_count);
   if (input_count > 0)
     report_->report("input       {:>5}", input_count);
   size_t pin_count = pinCount();
-  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count;
+  // OpenROAD fork: power activity simulation
+  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count
+      - simulation_count;
   report_->report("unannotated {:>5}", unannotated_count);
 
   if (report_annotated) {
