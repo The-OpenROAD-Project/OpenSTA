@@ -3728,9 +3728,16 @@ Sdc::isDisabledConstraint(const Edge *edge) const
 {
   Pin *from_pin = edge->from(graph_)->pin();
   Pin *to_pin = edge->to(graph_)->pin();
-  const Instance *inst = network_->instance(from_pin);
   TimingArcSet *arc_set = edge->timingArcSet();
-  return isDisabled(inst, from_pin, to_pin, edge->role())
+  const TimingRole *role = edge->role();
+  // OpenROAD fork: skip the instance/cell/port netlist lookups unless an
+  // instance or cell port disable exists; without one isDisabled() can only
+  // be true for wire edges. This runs for every edge the search crosses.
+  bool check_inst = role == TimingRole::wire()
+    || !disabled_inst_ports_.empty()
+    || !disabled_cell_ports_.empty();
+  return (check_inst
+          && isDisabled(network_->instance(from_pin), from_pin, to_pin, role))
     || isDisabled(edge)
     || isDisabledWire(from_pin, to_pin)
     || isDisabled(arc_set);
