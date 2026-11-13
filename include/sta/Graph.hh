@@ -301,6 +301,8 @@ public:
   
   [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
   void setBfsInQueue(BfsIndex index, bool value);
+  // OpenROAD fork: atomically set the in-queue bit; true if it was clear.
+  bool testAndSetBfsInQueue(BfsIndex index);
   [[nodiscard]] bool bfsPredecessorChanged() const { return bfs_predecessor_changed_; }
   void setBfsPredecessorChanged(bool changed);
 

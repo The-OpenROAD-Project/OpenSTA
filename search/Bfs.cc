@@ -186,7 +186,11 @@ BfsIterator::visitParallel(Level to_level,
           }
           else {
             // ---- OpenROAD fork: BFS chunked dispatch (begin) ----
+            // OpenROAD fork: per-thread enqueue during parallel levels.
+            parallel_enqueue_.store(true, std::memory_order_relaxed);
             visitLevelChunked(level_vertices, level, visitors);
+            parallel_enqueue_.store(false, std::memory_order_relaxed);
+            flushParallelEnqueues();
             // ---- OpenROAD fork: BFS chunked dispatch (end) ----
           }
           level_vertices.clear();
@@ -205,6 +209,13 @@ BfsIterator::enqueue(Vertex *vertex)
 {
   debugPrint(debug_, "bfs", 2, "enqueue {}", vertex->to_string(this));
   if (!vertex->bfsInQueue(bfs_index_)) {
+    // ---- OpenROAD fork: per-thread enqueue during parallel levels (begin) ----
+    if (parallel_enqueue_.load(std::memory_order_relaxed)) {
+      if (vertex->testAndSetBfsInQueue(bfs_index_))
+        parallel_enqueues_.add(vertex);
+      return;
+    }
+    // ---- OpenROAD fork: per-thread enqueue during parallel levels (end) ----
     Level level = vertex->level();
     LockGuard lock(queue_lock_);
     if (!vertex->bfsInQueue(bfs_index_)) {
@@ -218,6 +229,21 @@ BfsIterator::enqueue(Vertex *vertex)
     }
   }
 }
+
+// ---- OpenROAD fork: per-thread enqueue during parallel levels (begin) ----
+void
+BfsIterator::flushParallelEnqueues()
+{
+  parallel_enqueues_.drain([this](Vertex *vertex) {
+    Level level = vertex->level();
+    queue_[level].push_back(vertex);
+    if (levelLess(last_level_, level))
+      last_level_ = level;
+    if (levelLess(level, first_level_))
+      first_level_ = level;
+  });
+}
+// ---- OpenROAD fork: per-thread enqueue during parallel levels (end) ----
 
 bool
 BfsIterator::inQueue(Vertex *vertex)
