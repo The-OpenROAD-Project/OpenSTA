@@ -1,0 +1,11 @@
+--- ideal clock ---
+ckbuf/Z max INF min INF
+r1/CK max 0.111912 min 0.111042
+icg/E max 0.145293 min 0.107859
+cg/A2 max 0.193710 min -0.046710
+--- ideal clock, after resizing u1 ---
+ckbuf/Z max INF min INF
+icg/E max 0.142034 min 0.111610
+--- propagated clock ---
+ckbuf/Z max 0.136104 min -0.040213
+icg/E max 0.136104 min 0.115640
