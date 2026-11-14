@@ -1,0 +1,58 @@
+common --enable_bzlmod
+
+# Suppress noise when a transitive module selects a newer version.
+common --check_direct_dependencies=off
+
+# Empty globs are mistakes.
+common --incompatible_disallow_empty_glob
+
+# Refuse to autodetect a local C++ toolchain. The hermetic LLVM toolchain
+# registered in MODULE.bazel is the compiler.
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+common --enable_platform_specific_config
+
+build --workspace_status_command=tools/workspace_status.sh
+
+# C++20, matching CMakeLists.txt (cxx_std_20).
+build --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
+build --cxxopt=-fexceptions --host_cxxopt=-fexceptions
+
+# Optimized by default, same as CMake's default Release build.
+build -c opt
+
+build --copt=-Wall --host_copt=-Wall
+build --copt=-Wextra --host_copt=-Wextra
+build --copt=-pedantic --host_copt=-pedantic
+build --copt=-Wredundant-decls --host_copt=-Wredundant-decls
+build --copt=-Wformat-security --host_copt=-Wformat-security
+build --copt=-Wno-sign-compare --host_copt=-Wno-sign-compare
+build --copt=-Wno-unused-parameter --host_copt=-Wno-unused-parameter
+build --copt=-Wno-deprecated-declarations --host_copt=-Wno-deprecated-declarations
+
+# Third-party sources are not ours to clean up.
+build --per_file_copt=external/.*@-w
+build --host_per_file_copt=external/.*@-w
+
+# Treat external include paths as -isystem so Eigen/Tcl/zlib headers
+# do not fail -Werror-style diagnostics in our translation units.
+build --features=external_include_paths
+build --host_features=external_include_paths
+
+build --incompatible_strict_action_env
+
+# std::format's floating-point std::to_chars needs macOS 13.3.
+build:macos --macos_minimum_os=13.3
+build:macos --host_macos_minimum_os=13.3
+
+# Share downloads and action results with other local Bazel builds
+# (OpenROAD uses the same paths).
+build --disk_cache=~/.cache/bazel-disk-cache
+build --repository_cache=~/.cache/bazel-repository-cache
+
+# Embed STA_GIT_SHA1. Default builds leave it "unknown" so the cache
+# is not invalidated on every commit.
+# Usage: bazelisk build --config=release //:sta
+build:release --stamp
+
+try-import %workspace%/user.bazelrc

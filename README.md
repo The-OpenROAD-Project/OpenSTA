@@ -192,6 +192,72 @@ If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
 
+### Build with CMake on Macos/Darwin
+
+The XCode versions of Tcl, Flex and Bison cannot be used to build OpenSTA.
+Use Homebrew to install them. The following command installs the tools
+required to build OpenSTA in the Brewfile.
+
+```
+brew bundle install
+```
+
+Set these variables before using cmake to cirumvent the Xcode versions.
+
+```
+  # flex/bison override apple version
+  export PATH="$(brew --prefix bison)/bin:${PATH}"
+  export PATH="$(brew --prefix flex)/bin:${PATH}"
+  export CMAKE_INCLUDE_PATH="$(brew --prefix flex)/include"
+  export CMAKE_LIBRARY_PATH="$(brew --prefix flex)/lib;$(brew --prefix bison)/lib"
+```
+
+Homebrew does not support tclreadline, but the macports system does
+(see https://www.macports.org). 
+
+### Building with Bazel
+
+Bazel builds the same `sta` executable without a system install of
+Flex, Bison, SWIG, Tcl, Eigen, CUDD, or zlib. Those libraries and the
+C++ compiler come from the Bazel Central Registry. Bazel itself is pinned in
+`.bazelversion`; the compiler is the `llvm` module in `MODULE.bazel`.
+
+Follow the instrucitons to install [bazelisk](https://github.com/bazelbuild/bazelisk)].
+Then,
+
+```
+bazelisk build //:sta
+```
+
+The executable is `bazel-bin/sta`. Optimized builds are the default.
+`bazel-bin` points at whichever configuration was built last.
+
+A debug build (`-O0 -g`) overrides the optimized default:
+
+```
+bazelisk build -c dbg //:sta
+```
+
+`bazelisk build --config=release //:sta` embeds the git commit in
+`STA_GIT_SHA1` so it appears in the splash header printed on startup. Other builds leave that string as `unknown` so the build cache stays valid.
+
+To delete the workspace build outputs
+
+```
+bazelisk clean
+```
+
+To delete the workspace build outputs and fetched dependencies
+
+```
+bazelisk clean --expunge
+```
+
+The next build downloads the compiler and libraries again. Neither command clears `~/.cache/bazel-disk-cache`, so a rebuild can still be served from that cache.
+
+The bazel build does not link tclreadline. The Tcl interpreter's own
+line reader is used instead.
+
 ## Build with Docker
 
 AN alternative way to build and run OpenSTA is with
@@ -220,29 +286,6 @@ interactively.
 ```
 docker run -i -v $HOME:/data opensta
 ```
-
-## Build on Macos/Darwin
-
-The XCode versions of Tcl, Flex and Bison cannot be used to build OpenSTA.
-Use Homebrew to install them. The following command installs the tools
-required to build OpenSTA in the Brewfile.
-
-```
-brew bundle install
-```
-
-Set these variables before using cmake to cirumvent the Xcode versions.
-
-```
-  # flex/bison override apple version
-  export PATH="$(brew --prefix bison)/bin:${PATH}"
-  export PATH="$(brew --prefix flex)/bin:${PATH}"
-  export CMAKE_INCLUDE_PATH="$(brew --prefix flex)/include"
-  export CMAKE_LIBRARY_PATH="$(brew --prefix flex)/lib;$(brew --prefix bison)/lib"
-```
-
-Homebrew does not support tclreadline, but the macports system does
-(see https://www.macports.org). 
 
 ## Install using a package manager
 

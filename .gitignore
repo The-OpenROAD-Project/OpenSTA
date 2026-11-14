@@ -15,6 +15,10 @@ cmake-build-debug
 build
 pvt
 
+# Bazel
+/bazel-*
+/user.bazelrc
+
 # iverilog turd
 examples/gcd_tb
 

@@ -34,6 +34,9 @@
   #include <tclreadline.h>
 #endif
 
+#ifdef BAZEL_BUILD
+#include "bazel/tcl_library_init.h"
+#endif
 #include "Sta.hh"
 
 namespace sta {
@@ -109,6 +112,12 @@ staTclAppInit(int argc,
               std::string_view init_filename,
               Tcl_Interp *interp)
 {
+#ifdef BAZEL_BUILD
+  // Tcl is linked from the Bazel build, which has no compiled-in
+  // library path. Mount init.tcl from the embedded zip before Tcl_Init.
+  if (in_bazel::SetupTclEnvironment(interp) == TCL_ERROR)
+    return TCL_ERROR;
+#endif
   // source init.tcl
   if (Tcl_Init(interp) == TCL_ERROR)
     return TCL_ERROR;

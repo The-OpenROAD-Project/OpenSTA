@@ -3,6 +3,10 @@
 This file summarizes user visible changes for each release.
 See [API changes](ApiChanges.md) for changes to the STA API.
 
+## 2026/11/12
+
+Building from source using Bazel is now supported. See README.md for instructions. There is no plan to remove support for building with CMake with ridiculously little notice.
+
 ## Release 3.2.0 2026/10/15
 
 Noise delay calculation analysis support.

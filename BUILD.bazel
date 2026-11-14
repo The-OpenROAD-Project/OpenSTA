@@ -1,0 +1,331 @@
+# OpenSTA, Static Timing Analyzer
+# Copyright (c) 2026, Parallax Software, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("//bazel:bison.bzl", "genyacc")
+load("//bazel:flex.bzl", "genlex")
+load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
+load("//bazel:tcl_wrap_cc.bzl", "tcl_wrap_cc")
+
+package(default_visibility = ["//visibility:public"])
+
+# Prefixes match %option prefix in the .ll files, which selects the
+# FlexLexer subclass (LibertyFlexLexer, and so on).
+
+genlex(
+    name = "LibExprLex",
+    src = "liberty/LibExprLex.ll",
+    out = "liberty/LibExprLex.cc",
+    prefix = "LibExpr",
+)
+
+genyacc(
+    name = "LibExprParse",
+    src = "liberty/LibExprParse.yy",
+    header_out = "liberty/LibExprParse.hh",
+    source_out = "liberty/LibExprParse.cc",
+)
+
+genlex(
+    name = "LibertyLex",
+    src = "liberty/LibertyLex.ll",
+    out = "liberty/LibertyLex.cc",
+    prefix = "Liberty",
+)
+
+genyacc(
+    name = "LibertyParser",
+    src = "liberty/LibertyParse.yy",
+    extra_outs = ["liberty/LibertyLocation.hh"],
+    header_out = "liberty/LibertyParse.hh",
+    source_out = "liberty/LibertyParse.cc",
+)
+
+genlex(
+    name = "SpefLex",
+    src = "parasitics/SpefLex.ll",
+    out = "parasitics/SpefLex.cc",
+    prefix = "Spef",
+)
+
+genyacc(
+    name = "SpefParser",
+    src = "parasitics/SpefParse.yy",
+    extra_outs = ["parasitics/SpefLocation.hh"],
+    header_out = "parasitics/SpefParse.hh",
+    source_out = "parasitics/SpefParse.cc",
+)
+
+genlex(
+    name = "VerilogLex",
+    src = "verilog/VerilogLex.ll",
+    out = "verilog/VerilogLex.cc",
+    prefix = "Verilog",
+)
+
+genyacc(
+    name = "VerilogParser",
+    src = "verilog/VerilogParse.yy",
+    extra_outs = ["verilog/VerilogLocation.hh"],
+    header_out = "verilog/VerilogParse.hh",
+    source_out = "verilog/VerilogParse.cc",
+)
+
+genlex(
+    name = "SdfLex",
+    src = "sdf/SdfLex.ll",
+    out = "sdf/SdfLex.cc",
+    prefix = "Sdf",
+)
+
+genyacc(
+    name = "SdfParser",
+    src = "sdf/SdfParse.yy",
+    extra_outs = ["sdf/SdfLocation.hh"],
+    header_out = "sdf/SdfParse.hh",
+    source_out = "sdf/SdfParse.cc",
+)
+
+genlex(
+    name = "SaifLex",
+    src = "power/SaifLex.ll",
+    out = "power/SaifLex.cc",
+    prefix = "Saif",
+)
+
+genyacc(
+    name = "SaifParser",
+    src = "power/SaifParse.yy",
+    extra_outs = ["power/SaifLocation.hh"],
+    header_out = "power/SaifParse.hh",
+    source_out = "power/SaifParse.cc",
+)
+
+# Order matches STA_TCL_FILES in CMakeLists.txt. TclEncode.tcl emits
+# the strings in this order and startup evals them in order.
+tcl_srcs = [
+    "tcl/Init.tcl",
+    "tcl/Util.tcl",
+    "tcl/CmdArgs.tcl",
+    "tcl/CmdUtil.tcl",
+    "tcl/Property.tcl",
+    "tcl/Sta.tcl",
+    "tcl/Splash.tcl",
+    "dcalc/DelayCalc.tcl",
+    "dcalc/DelayNoise.tcl",
+    "graph/Graph.tcl",
+    "liberty/Liberty.tcl",
+    "network/Link.tcl",
+    "network/Network.tcl",
+    "network/NetworkEdit.tcl",
+    "parasitics/Parasitics.tcl",
+    "power/Power.tcl",
+    "sdc/Sdc.tcl",
+    "sdc/Variables.tcl",
+    "sdf/Sdf.tcl",
+    "search/Search.tcl",
+    "spice/WriteSpice.tcl",
+    "verilog/Verilog.tcl",
+]
+
+tcl_encode_sta(
+    name = "StaTclInitVar",
+    srcs = tcl_srcs,
+    char_array_name = "tcl_inits",
+)
+
+genrule(
+    name = "StaConfig",
+    srcs = ["CMakeLists.txt"],
+    outs = ["include/sta/StaConfig.hh"],
+    cmd = """
+        VERSION=$$(sed -n 's/^project(STA VERSION \\([0-9][0-9.]*\\).*/\\1/p' \
+                    $(location CMakeLists.txt) | head -1)
+        [ -z "$$VERSION" ] && VERSION="unknown"
+        SHA1=""
+        if [ -f bazel-out/stable-status.txt ]; then
+            SHA1=$$(grep '^STABLE_STA_GIT_SHA1 ' bazel-out/stable-status.txt \
+                     | cut -d' ' -f2-) || true
+        fi
+        [ -z "$$SHA1" ] && SHA1="unknown"
+        printf '#pragma once\\n' > $@
+        printf '#define STA_VERSION "%s"\\n' "$$VERSION" >> $@
+        printf '#define STA_GIT_SHA1 "%s"\\n' "$$SHA1" >> $@
+        printf '#define ZLIB_FOUND\\n' >> $@
+        printf '#define HAVE_CXX_STD_FORMAT 1\\n' >> $@
+        printf '#define TCL_READLINE 0\\n' >> $@
+    """,
+    # stamp = -1 stamps only when --stamp is set (--config=release).
+    # Otherwise STA_GIT_SHA1 is "unknown" and the action stays cached.
+    stamp = -1,
+)
+
+cc_library(
+    name = "config",
+    hdrs = [":StaConfig"],
+    includes = [
+        "include",
+        "include/sta",
+    ],
+)
+
+filegroup(
+    name = "sta_swig_files",
+    srcs = [
+        "app/StaApp.i",
+        "dcalc/DelayCalc.i",
+        "dcalc/DelayNoise.i",
+        "graph/Graph.i",
+        "liberty/Liberty.i",
+        "network/Network.i",
+        "network/NetworkEdit.i",
+        "parasitics/Parasitics.i",
+        "power/Power.i",
+        "sdc/Sdc.i",
+        "sdf/Sdf.i",
+        "search/Property.i",
+        "search/Search.i",
+        "spice/WriteSpice.i",
+        "tcl/Exception.i",
+        "tcl/StaTclTypes.i",
+        "util/Util.i",
+        "verilog/Verilog.i",
+    ],
+)
+
+tcl_wrap_cc(
+    name = "StaApp",
+    srcs = [":sta_swig_files"],
+    namespace_prefix = "sta",
+    root_swig_src = "app/StaApp.i",
+    swig_includes = ["."],
+)
+
+parser_cc = [
+    ":liberty/LibExprParse.cc",
+    ":liberty/LibExprLex.cc",
+    ":liberty/LibertyLex.cc",
+    ":liberty/LibertyParse.cc",
+    ":parasitics/SpefLex.cc",
+    ":parasitics/SpefParse.cc",
+    ":verilog/VerilogLex.cc",
+    ":verilog/VerilogParse.cc",
+    ":sdf/SdfLex.cc",
+    ":sdf/SdfParse.cc",
+    ":power/SaifLex.cc",
+    ":power/SaifParse.cc",
+]
+
+parser_headers = [
+    ":liberty/LibExprParse.hh",
+    ":liberty/LibertyParse.hh",
+    ":liberty/LibertyLocation.hh",
+    ":parasitics/SpefParse.hh",
+    ":parasitics/SpefLocation.hh",
+    ":verilog/VerilogParse.hh",
+    ":verilog/VerilogLocation.hh",
+    ":sdf/SdfParse.hh",
+    ":sdf/SdfLocation.hh",
+    ":power/SaifParse.hh",
+    ":power/SaifLocation.hh",
+]
+
+# Warnings that flex/bison/SWIG output trips. Hand-written sources are
+# clean under the .bazelrc -Wall/-Wextra/-pedantic set.
+GENERATED_COPTS = [
+    "-Wno-cast-qual",
+    "-Wno-missing-braces",
+    "-Wno-unused-but-set-variable",
+]
+
+cc_library(
+    name = "opensta_lib",
+    srcs = parser_cc + parser_headers + glob(
+        include = [
+            "dcalc/*.cc",
+            "dcalc/*.hh",
+            "graph/*.cc",
+            "liberty/*.cc",
+            "liberty/*.hh",
+            "network/*.cc",
+            "parasitics/*.cc",
+            "parasitics/*.hh",
+            "power/*.cc",
+            "power/*.hh",
+            "sdc/*.cc",
+            "sdc/*.hh",
+            "sdf/*.cc",
+            "sdf/*.hh",
+            "search/*.cc",
+            "search/*.hh",
+            "spice/*.cc",
+            "spice/*.hh",
+            "tcl/*.cc",
+            "util/*.cc",
+            "util/*.hh",
+            "verilog/*.cc",
+            "verilog/*.hh",
+        ],
+        exclude = ["util/Machine*.cc"],
+    ) + [
+        "app/StaMain.cc",
+        ":StaApp",
+        ":StaTclInitVar",
+    ] + select({
+        "@platforms//os:linux": ["util/MachineLinux.cc"],
+        "@platforms//os:macos": ["util/MachineApple.cc"],
+        "@platforms//os:windows": ["util/MachineWin32.cc"],
+        "//conditions:default": ["util/MachineUnknown.cc"],
+    }),
+    hdrs = glob(["include/sta/*.hh"]),
+    copts = GENERATED_COPTS,
+    features = ["-use_header_modules"],
+    includes = [
+        ".",
+        "dcalc",
+        "include",
+        "include/sta",
+        "liberty",
+        "parasitics",
+        "power",
+        "sdf",
+        "util",
+        "verilog",
+    ],
+    linkopts = select({
+        "@platforms//os:linux": ["-pthread"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":config",
+        "@cudd",
+        "@eigen",  # keep. Included as <Eigen/...>
+        "@rules_flex//flex:current_flex_toolchain",
+        "@tcl_lang//:tcl",  # keep. Included as <tcl.h>
+        "@zlib",  # keep. Included as <zlib.h>
+    ],
+)
+
+cc_binary(
+    name = "sta",
+    srcs = ["app/Main.cc"],
+    copts = GENERATED_COPTS,
+    defines = ["BAZEL_BUILD"],
+    features = ["-use_header_modules"],
+    linkopts = select({
+        "@platforms//os:linux": ["-pthread"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":config",
+        ":opensta_lib",
+        "//bazel:tcl_library_init",
+        "@tcl_lang//:tcl",
+    ],
+)

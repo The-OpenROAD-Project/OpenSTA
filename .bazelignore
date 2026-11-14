@@ -1,0 +1,11 @@
+# CMake build trees.
+build
+debug
+cmake-build-debug
+
+# Private regression suite (separate tree, often present in a checkout).
+pvt
+
+# Docs site
+site
+.venv
