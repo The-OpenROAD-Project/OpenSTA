@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <Eigen/LU>
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
 #include <array>
@@ -144,26 +145,48 @@ protected:
     volt_current
   };
   struct DrvrIv {
-    double i;
-    double gm;
-    DrvrRegion region;
+    double i = 0.0;
+    double gm = 0.0;
+    DrvrRegion region = DrvrRegion::time_current;
+    // Key for reusing an evaluation within one step.
+    double time = 0.0;
+    double ceff = 0.0;
+    double v = 0.0;
+    bool gm_valid = false;
+    bool valid = false;
   };
+  // need_gm is false when the caller only uses i (the Ceff update).
   DrvrIv driverCurrent(size_t drvr_idx,
                        double time,
-                       double v);
-  // Stamp dI/dV for voltage-controlled driver current into A.
+                       double v,
+                       bool need_gm);
   // u_ is the Norton constant I(V*) - gm*V*.
+  // Returns true when any driver conductance is nonzero, so the step is
+  // repeated at the solved voltage.
   bool linearizeDrivers(double time,
-                        const Eigen::VectorXd &v_lin,
-                        const Eigen::MatrixXd &x_to_v,
-                        MatrixSd &A);
+                        const Eigen::VectorXd &v_lin);
+  // Factor G + c*C once per c. Driver gm is a rank-1 update solved with
+  // the Sherman-Morrison-Woodbury formula, so the march does not refactor.
+  void ensureMarch(const MatrixSd &G,
+                   const MatrixSd &C,
+                   const Eigen::MatrixXd &x_to_v,
+                   double c_coeff,
+                   size_t order);
+  void formMarchHistory(const MatrixSd &C,
+                        const Eigen::VectorXd &x_prev1,
+                        const Eigen::VectorXd &x_prev2,
+                        double c_coeff,
+                        bool bdf2);
+  void solveMarch(Eigen::VectorXd &x);
   void integrateStep(const MatrixSd &G,
                      const MatrixSd &C,
                      const Eigen::MatrixXd &B,
                      const Eigen::MatrixXd &x_to_v,
                      double time,
                      double c_coeff,
-                     const Eigen::VectorXd &hist,
+                     bool bdf2,
+                     const Eigen::VectorXd &x_prev1,
+                     const Eigen::VectorXd &x_prev2,
                      Eigen::VectorXd &x);
   void updateCeffIdrvr(double time);
   void findDriverNodeCaps();
@@ -284,6 +307,8 @@ protected:
   // Ceff at Vth
   std::vector<double> ceff_vth_;
   std::vector<double> drvr_current_;
+  std::vector<DrvrIv> drvr_iv_;
+  std::vector<size_t> drvr_node_idx_;
   std::vector<double> waveform_begin_;
   std::vector<double> waveform_end_;
 
@@ -291,6 +316,37 @@ protected:
   double time_end_;
   double time_step_;
   double time_step_prev_;
+
+  // Time-march factorization of A0 = G + c*C. Rebuilt when c changes
+  // (backward Euler, then BDF2). Driver gm is applied in solveMarch.
+  // Reduced order is 3 per driver. Above this, factor A0 once and apply
+  // gm with Sherman-Morrison-Woodbury. At or below it, stamp gm into a
+  // stack copy of A0 and factor that; a sparse refactor per Newton step
+  // is what made stiff nets slow.
+  static constexpr size_t stack_march_limit_ = 16;
+  static constexpr size_t dense_march_limit_ = 128;
+  // Column-major G+c*C and C for orders that factor on the stack.
+  std::array<double, stack_march_limit_ * stack_march_limit_> march_a0_s_{};
+  std::array<double, stack_march_limit_ * stack_march_limit_> march_c_s_{};
+  bool march_ready_ = false;
+  bool march_dense_ = true;
+  double march_c_coeff_ = 0.0;
+  size_t march_order_ = 0;
+  Eigen::MatrixXd march_C_;
+  Eigen::MatrixXd march_a0_;
+  Eigen::PartialPivLU<Eigen::MatrixXd> march_lu_;
+  Eigen::SparseLU<MatrixSd> march_solver_;
+  // Column i is the reduced-basis row of driver i, and A0^{-1} times that.
+  Eigen::MatrixXd march_w_;
+  Eigen::MatrixXd march_p_;
+  Eigen::VectorXd march_rhs_;
+  Eigen::VectorXd march_hist_;
+  Eigen::VectorXd march_dx_;
+  Eigen::VectorXd march_z_;
+  Eigen::VectorXd march_v_lin_;
+  Eigen::MatrixXd march_m_;
+  Eigen::VectorXd march_alpha_;
+  std::vector<size_t> march_active_;
 
   // Waveform recording.
   WatchPinValuesMap watch_pin_values_;

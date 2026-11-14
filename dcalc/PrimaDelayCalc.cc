@@ -376,13 +376,15 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   v_prev2_.resize(order);
 
   initCeffIdrvr();
+  // New parasitic system: the cached conductance factor does not apply.
+  march_ready_ = false;
   x = x_prev1 = x_prev2 = x_init;
   v_ = v_prev1_ = v_prev2_ = x_to_v * x_init;
 
   // Backward Euler bootstrap (initial ceff).
   double boot_coeff = 1.0 / time_step_;
-  Eigen::VectorXd hist = boot_coeff * C * x_prev1;
-  integrateStep(G, C, B, x_to_v, time_begin_, boot_coeff, hist, x);
+  integrateStep(G, C, B, x_to_v, time_begin_, boot_coeff, false,
+                x_prev1, x_prev2, x);
 
   updateCeffIdrvr(time_begin_);
   x = x_prev1 = x_prev2 = x_init;
@@ -400,14 +402,9 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
       break;
     debugPrint(debug_, "prima", 3, "{}", delayAsString(time, this));
 
-    double c_coeff = 1.0 / time_step_;
-    if (march_step == 0)
-      hist = c_coeff * C * x_prev1;
-    else {
-      c_coeff = 3.0 / (2.0 * time_step_);
-      hist = (1.0 / (2.0 * time_step_)) * C * (4.0 * x_prev1 - x_prev2);
-    }
-    integrateStep(G, C, B, x_to_v, time, c_coeff, hist, x);
+    bool bdf2 = march_step > 0;
+    double c_coeff = bdf2 ? 3.0 / (2.0 * time_step_) : 1.0 / time_step_;
+    integrateStep(G, C, B, x_to_v, time, c_coeff, bdf2, x_prev1, x_prev2, x);
 
     updateCeffIdrvr(time);
 
@@ -500,6 +497,7 @@ PrimaDelayCalc::initSim()
   ceff_.resize(drvr_count_);
   ceff_vth_.assign(drvr_count_, 0.0);
   drvr_current_.resize(drvr_count_);
+  drvr_iv_.assign(drvr_count_, DrvrIv());
   waveform_begin_.resize(drvr_count_);
   waveform_end_.resize(drvr_count_);
 
@@ -870,17 +868,79 @@ PrimaDelayCalc::findDriverNodeCaps()
 PrimaDelayCalc::DrvrIv
 PrimaDelayCalc::driverCurrent(size_t drvr_idx,
                               double time,
-                              double v)
+                              double v,
+                              bool need_gm)
 {
   const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
   const RiseFall *drvr_rf = dcalc_arg.drvrEdge();
   OutputWaveforms *output_waveform = output_waveforms_[drvr_idx];
   float in_slew = delayAsFloat(dcalc_arg.inSlew());
   double vdd = vdd_;
-  DrvrIv iv{.i = 0.0, .gm = 0.0, .region = DrvrRegion::time_current};
+  double ceff = ceff_[drvr_idx];
+  bool in_wave = time >= waveform_begin_[drvr_idx]
+                 && time <= waveform_end_[drvr_idx];
+  bool time_region = (drvr_rf == RiseFall::rise() && v < vdd * .25)
+                     || (drvr_rf == RiseFall::fall() && v > vdd * .75);
+  // I(t) does not depend on v. A voltage sample is reused at the same v.
+  DrvrIv &cached = drvr_iv_[drvr_idx];
+  if (cached.valid && cached.time == time && cached.ceff == ceff) {
+    if (cached.region == DrvrRegion::time_current && in_wave && time_region)
+      return cached;
+    if (cached.region == DrvrRegion::volt_current
+        && cached.v == v
+        && in_wave
+        && !time_region
+        && (cached.gm_valid || !need_gm))
+      return cached;
+  }
 
-  if (time < waveform_begin_[drvr_idx]
-      || time > waveform_end_[drvr_idx]) {
+  DrvrIv iv;
+  iv.time = time;
+  iv.ceff = ceff;
+  iv.v = v;
+  iv.valid = true;
+
+  if (in_wave && time_region) {
+    iv.i = output_waveform->timeCurrent(in_slew, ceff,
+                                        time - dcalc_arg.inputDelay());
+    iv.region = DrvrRegion::time_current;
+  }
+  else if (in_wave) {
+    iv.region = DrvrRegion::volt_current;
+    auto v_table = [&](double volt) {
+      return static_cast<float>((drvr_rf == RiseFall::rise()) ? volt : vdd - volt);
+    };
+    if (need_gm) {
+      double probe = std::max(vdd * 1e-3, 1e-6);
+      double v_lo = std::clamp(v - probe, 0.0, vdd);
+      double v_hi = std::clamp(v + probe, 0.0, vdd);
+      if (v_hi > v_lo) {
+        OutputWaveforms::LinearCurrent fit =
+          output_waveform->voltageCurrentLinear(in_slew, ceff, v_table(v),
+                                                v_table(v_lo), v_table(v_hi));
+        if (fit.linear) {
+          iv.i = fit.current;
+          iv.gm = (static_cast<double>(fit.current_hi)
+                   - static_cast<double>(fit.current_lo))
+                  / (v_hi - v_lo);
+        }
+        else {
+          iv.i = output_waveform->voltageCurrent(in_slew, ceff, v_table(v));
+          double i_hi = output_waveform->voltageCurrent(in_slew, ceff,
+                                                        v_table(v_hi));
+          double i_lo = output_waveform->voltageCurrent(in_slew, ceff,
+                                                        v_table(v_lo));
+          iv.gm = (i_hi - i_lo) / (v_hi - v_lo);
+        }
+        iv.gm_valid = true;
+      }
+      else
+        iv.i = output_waveform->voltageCurrent(in_slew, ceff, v_table(v));
+    }
+    else
+      iv.i = output_waveform->voltageCurrent(in_slew, ceff, v_table(v));
+  }
+  else {
     bool before = time < waveform_begin_[drvr_idx];
     float hold_r = before ? holdResistanceBefore(dcalc_arg)
                           : holdResistanceAfter(output_waveform);
@@ -888,66 +948,258 @@ PrimaDelayCalc::driverCurrent(size_t drvr_idx,
     if (hold_r > 0.0) {
       iv.gm = -1.0 / hold_r;
       bool pull_down = (before && drvr_rf == RiseFall::rise())
-        || (!before && drvr_rf == RiseFall::fall());
+                       || (!before && drvr_rf == RiseFall::fall());
       iv.i = pull_down ? -v / hold_r : (vdd - v) / hold_r;
+      iv.gm_valid = true;
     }
   }
-  else if ((drvr_rf == RiseFall::rise() && v < vdd * .25)
-           || (drvr_rf == RiseFall::fall() && v > vdd * .75)) {
-    iv.i = output_waveform->timeCurrent(in_slew, ceff_[drvr_idx],
-                                        time - dcalc_arg.inputDelay());
-    iv.region = DrvrRegion::time_current;
-  }
-  else {
-    iv.region = DrvrRegion::volt_current;
-    auto current_at = [&](double volt) {
-      double v_table = (drvr_rf == RiseFall::rise()) ? volt : vdd - volt;
-      return static_cast<double>(output_waveform->voltageCurrent(in_slew,
-                                                                  ceff_[drvr_idx],
-                                                                  v_table));
-    };
-    iv.i = current_at(v);
-    double probe = std::max(vdd * 1e-3, 1e-6);
-    double v_lo = std::clamp(v - probe, 0.0, vdd);
-    double v_hi = std::clamp(v + probe, 0.0, vdd);
-    if (v_hi > v_lo)
-      iv.gm = (current_at(v_hi) - current_at(v_lo)) / (v_hi - v_lo);
-  }
+  cached = iv;
   return iv;
 }
 
-// I(V) = I(V*) + gm*(V - V*). gm*V moves onto A; u_ keeps I(V*) - gm*V*.
+// Add scale * src into a column-major dense buffer.
+static void
+addDense(double *dst,
+         const MatrixSd &src,
+         double scale,
+         int n)
+{
+  for (int col = 0; col < src.outerSize(); col++) {
+    for (MatrixSd::InnerIterator it(src, col); it; ++it) {
+      int row = static_cast<int>(it.row());
+      int dst_col = static_cast<int>(it.col());
+      if (row < n && dst_col < n)
+        dst[dst_col * n + row] += scale * it.value();
+    }
+  }
+}
+
+// I(V) = I(V*) + gm*(V - V*). gm*V is applied in solveMarch; u_ keeps
+// I(V*) - gm*V*.
 bool
 PrimaDelayCalc::linearizeDrivers(double time,
-                                 const Eigen::VectorXd &v_lin,
-                                 const Eigen::MatrixXd &x_to_v,
-                                 MatrixSd &A)
+                                 const Eigen::VectorXd &v_lin)
 {
   bool voltage_controlled = false;
-  A.uncompress();
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+    size_t node_idx = drvr_node_idx_[drvr_idx];
+    double v = v_lin[node_idx];
+    DrvrIv iv = driverCurrent(drvr_idx, time, v, true);
+    u_[drvr_idx] = iv.i - iv.gm * v;
+    if (iv.gm != 0.0)
+      voltage_controlled = true;
+  }
+  return voltage_controlled;
+}
+
+void
+PrimaDelayCalc::ensureMarch(const MatrixSd &G,
+                            const MatrixSd &C,
+                            const Eigen::MatrixXd &x_to_v,
+                            double c_coeff,
+                            size_t order)
+{
+  if (march_ready_ && march_c_coeff_ == c_coeff)
+    return;
+
+  march_order_ = order;
+  march_c_coeff_ = c_coeff;
+  march_dense_ = order <= dense_march_limit_;
+  bool stack = order <= stack_march_limit_;
+  Eigen::Index n = static_cast<Eigen::Index>(order);
+  if (stack) {
+    int nn = static_cast<int>(order * order);
+    for (int i = 0; i < nn; i++) {
+      march_a0_s_[i] = 0.0;
+      march_c_s_[i] = 0.0;
+    }
+    addDense(march_c_s_.data(), C, 1.0, static_cast<int>(order));
+    addDense(march_a0_s_.data(), G, 1.0, static_cast<int>(order));
+    for (int i = 0; i < nn; i++)
+      march_a0_s_[i] += c_coeff * march_c_s_[i];
+  }
+  else if (march_dense_) {
+    march_C_ = Eigen::MatrixXd(C);
+    march_a0_ = Eigen::MatrixXd(G);
+    march_a0_.noalias() += c_coeff * march_C_;
+    march_lu_.compute(march_a0_);
+  }
+  else {
+    MatrixSd a0 = G + c_coeff * C;
+    a0.makeCompressed();
+    march_solver_.compute(a0);
+  }
+
+  march_w_.resize(n, drvr_count_);
+  if (!stack)
+    march_p_.resize(n, drvr_count_);
+  drvr_node_idx_.resize(drvr_count_);
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     const Pin *drvr_pin = (*dcalc_args_)[drvr_idx].drvrPin();
     size_t node_idx = pin_node_map_[drvr_pin];
-    double v = v_lin[node_idx];
-    DrvrIv iv = driverCurrent(drvr_idx, time, v);
-    u_[drvr_idx] = iv.i - iv.gm * v;
-    if (iv.gm != 0.0) {
-      voltage_controlled = true;
-      Eigen::RowVectorXd w = x_to_v.row(node_idx);
-      Eigen::Index cols = w.cols();
-      for (Eigen::Index col = 0; col < cols; col++) {
-        double w_col = w[col];
-        if (w_col != 0.0) {
-          for (Eigen::Index row = 0; row < cols; row++) {
-            double w_row = w[row];
-            if (w_row != 0.0)
-              A.coeffRef(row, col) -= iv.gm * w_row * w_col;
+    drvr_node_idx_[drvr_idx] = node_idx;
+    march_w_.col(drvr_idx) = x_to_v.row(node_idx).transpose();
+    if (!stack) {
+      if (march_dense_)
+        march_p_.col(drvr_idx) = march_lu_.solve(march_w_.col(drvr_idx));
+      else
+        march_p_.col(drvr_idx) = march_solver_.solve(march_w_.col(drvr_idx));
+    }
+  }
+  march_z_.resize(n);
+  march_rhs_.resize(n);
+  march_hist_.resize(n);
+  march_dx_.resize(n);
+  march_v_lin_.resize(x_to_v.rows());
+  march_ready_ = true;
+}
+
+void
+PrimaDelayCalc::formMarchHistory(const MatrixSd &C,
+                                 const Eigen::VectorXd &x_prev1,
+                                 const Eigen::VectorXd &x_prev2,
+                                 double c_coeff,
+                                 bool bdf2)
+{
+  Eigen::Index n = static_cast<Eigen::Index>(march_order_);
+  if (bdf2) {
+    double scale = 1.0 / (2.0 * time_step_);
+    for (Eigen::Index i = 0; i < n; i++)
+      march_dx_[i] = scale * (4.0 * x_prev1[i] - x_prev2[i]);
+  }
+  else {
+    for (Eigen::Index i = 0; i < n; i++)
+      march_dx_[i] = c_coeff * x_prev1[i];
+  }
+  if (n <= static_cast<Eigen::Index>(stack_march_limit_)) {
+    Eigen::Map<const Eigen::MatrixXd> c_dense(march_c_s_.data(), n, n);
+    march_hist_.noalias() = c_dense * march_dx_;
+  }
+  else if (march_dense_)
+    march_hist_.noalias() = march_C_ * march_dx_;
+  else
+    march_hist_.noalias() = C * march_dx_;
+}
+
+// Partial-pivot LU of a column-major matrix. b is replaced by the solution.
+static void
+factorSolve(double *a,
+            double *b,
+            int n)
+{
+  for (int k = 0; k < n; k++) {
+    int piv_row = k;
+    double max_abs = std::abs(a[k * n + k]);
+    for (int row = k + 1; row < n; row++) {
+      double value = std::abs(a[k * n + row]);
+      if (value > max_abs) {
+        max_abs = value;
+        piv_row = row;
+      }
+    }
+    if (piv_row != k) {
+      for (int col = 0; col < n; col++)
+        std::swap(a[col * n + k], a[col * n + piv_row]);
+      std::swap(b[k], b[piv_row]);
+    }
+    double diag = a[k * n + k];
+    for (int row = k + 1; row < n; row++) {
+      double factor = a[k * n + row] / diag;
+      a[k * n + row] = factor;
+      for (int col = k + 1; col < n; col++)
+        a[col * n + row] -= factor * a[col * n + k];
+    }
+  }
+  for (int row = 0; row < n; row++) {
+    double sum = b[row];
+    for (int col = 0; col < row; col++)
+      sum -= a[col * n + row] * b[col];
+    b[row] = sum;
+  }
+  for (int row = n - 1; row >= 0; row--) {
+    double sum = b[row];
+    for (int col = row + 1; col < n; col++)
+      sum -= a[col * n + row] * b[col];
+    b[row] = sum / a[row * n + row];
+  }
+}
+
+// A = A0 - sum gm_i w_i w_i^T. A0 is factored; each gm is a rank-1 correction.
+void
+PrimaDelayCalc::solveMarch(Eigen::VectorXd &x)
+{
+  int n = static_cast<int>(march_order_);
+  if (n <= static_cast<int>(stack_march_limit_)) {
+    double a[stack_march_limit_ * stack_march_limit_];
+    double b[stack_march_limit_];
+    const double *a0 = march_a0_s_.data();
+    int nn = n * n;
+    for (int i = 0; i < nn; i++)
+      a[i] = a0[i];
+    for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+      double gm = drvr_iv_[drvr_idx].gm;
+      if (gm != 0.0) {
+        const double *w = march_w_.col(drvr_idx).data();
+        for (int col = 0; col < n; col++) {
+          double gwc = gm * w[col];
+          if (gwc != 0.0) {
+            for (int row = 0; row < n; row++)
+              a[col * n + row] -= w[row] * gwc;
           }
         }
       }
     }
+    for (int i = 0; i < n; i++)
+      b[i] = march_rhs_[i];
+    factorSolve(a, b, n);
+    for (int i = 0; i < n; i++)
+      x[i] = b[i];
+    return;
   }
-  return voltage_controlled;
+
+  if (march_dense_)
+    march_z_ = march_lu_.solve(march_rhs_);
+  else
+    march_z_ = march_solver_.solve(march_rhs_);
+
+  march_active_.clear();
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
+    if (drvr_iv_[drvr_idx].gm != 0.0)
+      march_active_.push_back(drvr_idx);
+  }
+  size_t active = march_active_.size();
+  x = march_z_;
+  if (active == 1) {
+    size_t drvr_idx = march_active_[0];
+    double gm = drvr_iv_[drvr_idx].gm;
+    double m = march_w_.col(drvr_idx).dot(march_p_.col(drvr_idx)) - 1.0 / gm;
+    double wz = march_w_.col(drvr_idx).dot(march_z_);
+    double alpha = wz / m;
+    const double *p = march_p_.col(drvr_idx).data();
+    for (Eigen::Index i = 0; i < n; i++)
+      x[i] -= alpha * p[i];
+  }
+  else if (active > 1) {
+    Eigen::Index k = static_cast<Eigen::Index>(active);
+    march_m_.resize(k, k);
+    march_alpha_.resize(k);
+    for (Eigen::Index row = 0; row < k; row++) {
+      size_t drvr_i = march_active_[row];
+      for (Eigen::Index col = 0; col < k; col++) {
+        size_t drvr_j = march_active_[col];
+        march_m_(row, col) = march_w_.col(drvr_i).dot(march_p_.col(drvr_j));
+      }
+      march_m_(row, row) -= 1.0 / drvr_iv_[drvr_i].gm;
+      march_alpha_[row] = march_w_.col(drvr_i).dot(march_z_);
+    }
+    march_alpha_ = march_m_.partialPivLu().solve(march_alpha_);
+    for (Eigen::Index col = 0; col < k; col++) {
+      double alpha = march_alpha_[col];
+      const double *p = march_p_.col(march_active_[col]).data();
+      for (Eigen::Index i = 0; i < n; i++)
+        x[i] -= alpha * p[i];
+    }
+  }
 }
 
 void
@@ -957,25 +1209,26 @@ PrimaDelayCalc::integrateStep(const MatrixSd &G,
                               const Eigen::MatrixXd &x_to_v,
                               double time,
                               double c_coeff,
-                              const Eigen::VectorXd &hist,
+                              bool bdf2,
+                              const Eigen::VectorXd &x_prev1,
+                              const Eigen::VectorXd &x_prev2,
                               Eigen::VectorXd &x)
 {
-  MatrixSd A_base = G + c_coeff * C;
-  Eigen::VectorXd v_lin = v_prev1_;
+  ensureMarch(G, C, x_to_v, c_coeff, x.size());
+  formMarchHistory(C, x_prev1, x_prev2, c_coeff, bdf2);
+  march_v_lin_ = v_prev1_;
   // Two Newton steps: the CCS voltage/current table is curved.
   constexpr int newton_steps = 2;
   for (int iter = 0; iter < newton_steps; iter++) {
-    MatrixSd A = A_base;
-    bool voltage_controlled = linearizeDrivers(time, v_lin, x_to_v, A);
-    A.makeCompressed();
-    Eigen::SparseLU<MatrixSd> solver;
-    solver.compute(A);
-    x = solver.solve(B * u_ + hist);
-    v_lin = x_to_v * x;
+    bool voltage_controlled = linearizeDrivers(time, march_v_lin_);
+    march_rhs_.noalias() = B * u_;
+    march_rhs_ += march_hist_;
+    solveMarch(x);
+    march_v_lin_.noalias() = x_to_v * x;
     if (!voltage_controlled)
       break;
   }
-  v_ = v_lin;
+  v_ = march_v_lin_;
 }
 
 void
@@ -986,11 +1239,10 @@ PrimaDelayCalc::updateCeffIdrvr(double time)
   constexpr double ceff_relax = 0.3;
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     const ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
-    const Pin *drvr_pin = dcalc_arg.drvrPin();
-    size_t node_idx = pin_node_map_[drvr_pin];
+    size_t node_idx = drvr_node_idx_[drvr_idx];
     double v1 = voltage(node_idx);
     float in_slew = delayAsFloat(dcalc_arg.inSlew());
-    DrvrIv iv = driverCurrent(drvr_idx, time, v1);
+    DrvrIv iv = driverCurrent(drvr_idx, time, v1, false);
     if (iv.region == DrvrRegion::hold_before
         || iv.region == DrvrRegion::hold_after) {
       float hold_resistance = (iv.region == DrvrRegion::hold_before)

@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -1995,6 +1996,142 @@ OutputWaveforms::voltageCurrent(float slew,
                                 float volt)
 {
   return waveformValue(slew, cap, volt, voltage_currents_);
+}
+
+// findValueClip's linear piece. The upper end of an interior segment belongs
+// to the next segment, except at the last axis point.
+struct CurrentPiece {
+  size_t index = 0;
+  bool below = false;
+  bool above = false;
+  bool constant = false;
+  float lo = 0.0;
+  float hi = 0.0;
+  bool lo_open = false;
+  bool hi_open = false;
+};
+
+static CurrentPiece
+currentPiece(const Table *table,
+             float axis_value)
+{
+  CurrentPiece piece;
+  const TableAxis *axis = table->axis1();
+  size_t size = axis->size();
+  if (size <= 1) {
+    piece.constant = true;
+    piece.lo = -std::numeric_limits<float>::infinity();
+    piece.hi = std::numeric_limits<float>::infinity();
+    return piece;
+  }
+  piece.index = axis->findAxisIndex(axis_value);
+  float x_lo = axis->axisValue(piece.index);
+  float x_hi = axis->axisValue(piece.index + 1);
+  if (axis_value < x_lo) {
+    piece.below = true;
+    piece.lo = -std::numeric_limits<float>::infinity();
+    piece.hi = x_lo;
+    piece.hi_open = true;
+    return piece;
+  }
+  if (axis_value > x_hi) {
+    piece.above = true;
+    piece.lo = x_hi;
+    piece.lo_open = true;
+    piece.hi = std::numeric_limits<float>::infinity();
+    return piece;
+  }
+  piece.lo = x_lo;
+  piece.hi = x_hi;
+  piece.hi_open = piece.index + 2 < size;
+  return piece;
+}
+
+static bool
+inCurrentPiece(const CurrentPiece &piece,
+               float axis_value)
+{
+  if (axis_value < piece.lo || (piece.lo_open && axis_value == piece.lo))
+    return false;
+  if (axis_value > piece.hi || (piece.hi_open && axis_value == piece.hi))
+    return false;
+  return true;
+}
+
+static float
+pieceCurrent(const Table *table,
+             const CurrentPiece &piece,
+             float axis_value)
+{
+  if (piece.constant)
+    return table->value(0);
+  if (piece.below)
+    return 0.0;
+  if (piece.above)
+    return table->value(table->axis1()->size() - 1);
+  double x1 = axis_value;
+  double x1l = table->axis1()->axisValue(piece.index);
+  double x1u = table->axis1()->axisValue(piece.index + 1);
+  double y1 = table->value(piece.index);
+  double y2 = table->value(piece.index + 1);
+  double dx1 = (x1 - x1l) / (x1u - x1l);
+  return (1.0 - dx1) * y1 + dx1 * y2;
+}
+
+OutputWaveforms::LinearCurrent
+OutputWaveforms::voltageCurrentLinear(float slew,
+                                     float cap,
+                                     float volt,
+                                     float v_lo,
+                                     float v_hi)
+{
+  LinearCurrent fit;
+  size_t slew_index = slew_axis_->findAxisIndex(slew);
+  size_t cap_index = cap_axis_->findAxisIndex(cap);
+  size_t cap_count = cap_axis_->size();
+  const Table *waveforms[4] = {
+    voltage_currents_[slew_index * cap_count + cap_index],
+    voltage_currents_[slew_index * cap_count + (cap_index + 1)],
+    voltage_currents_[(slew_index + 1) * cap_count + cap_index],
+    voltage_currents_[(slew_index + 1) * cap_count + (cap_index + 1)]
+  };
+  float axis_lo = std::min(v_lo, v_hi);
+  float axis_hi = std::max(v_lo, v_hi);
+  CurrentPiece pieces[4];
+  for (int i = 0; i < 4; i++) {
+    pieces[i] = currentPiece(waveforms[i], axis_lo);
+    // The probed voltage can sit outside [v_lo, v_hi] when a rail clamp
+    // moves an endpoint. findValueClip is flat there; do not extrapolate.
+    if (!inCurrentPiece(pieces[i], axis_hi)
+        || !inCurrentPiece(pieces[i], volt)
+        || !inCurrentPiece(pieces[i], v_lo)
+        || !inCurrentPiece(pieces[i], v_hi))
+      return fit;
+  }
+
+  double x1l = slew_axis_->axisValue(slew_index);
+  double x1u = slew_axis_->axisValue(slew_index + 1);
+  double dx1 = (slew - x1l) / (x1u - x1l);
+  double x2l = cap_axis_->axisValue(cap_index);
+  double x2u = cap_axis_->axisValue(cap_index + 1);
+  double dx2 = (cap - x2l) / (x2u - x2l);
+  // waveformValue order: y00, y10, y11, y01.
+  const double w00 = (1.0 - dx1) * (1.0 - dx2);
+  const double w10 = dx1 * (1.0 - dx2);
+  const double w11 = dx1 * dx2;
+  const double w01 = (1.0 - dx1) * dx2;
+  auto blend = [&](float axis_value) {
+    double y00 = pieceCurrent(waveforms[0], pieces[0], axis_value);
+    double y01 = pieceCurrent(waveforms[1], pieces[1], axis_value);
+    double y10 = pieceCurrent(waveforms[2], pieces[2], axis_value);
+    double y11 = pieceCurrent(waveforms[3], pieces[3], axis_value);
+    return static_cast<float>(w00 * y00 + w10 * y10 + w11 * y11 + w01 * y01);
+  };
+  fit.current = blend(volt);
+  fit.current_lo = blend(v_lo);
+  fit.current_hi = blend(v_hi);
+  fit.linear = true;
+  return fit;
 }
 
 float
