@@ -777,13 +777,6 @@ define_scene_cmd(const char *name,
                  spef_min_file, spef_max_file);
 }
 
-void
-define_scenes_cmd(StringSeq scene_names)
-{
-  Sta *sta = Sta::sta();
-  sta->makeScenes(scene_names);
-}
-
 Scene *
 cmd_scene()
 {

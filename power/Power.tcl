@@ -65,7 +65,7 @@ proc_redirect report_power {
   global sta_report_default_digits
 
   parse_key_args "report_power" args \
-    keys {-instances -highest_power_instances -corner -scene -format -digits}\
+    keys {-instances -highest_power_instances -scene -format -digits}\
     flags {}
 
   check_argc_eq0 "report_power" $args

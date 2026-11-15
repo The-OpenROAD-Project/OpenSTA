@@ -407,10 +407,6 @@ proc parse_scene { keys_var } {
   upvar 1 $keys_var keys
 
   set scene_arg ""
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_arg $keys(-corner)
-  }
   if { [info exists keys(-scene)] } {
     set scene_arg $keys(-scene)
   }
@@ -445,10 +441,6 @@ proc parse_scene_required { keys_var } {
   if { [info exists keys(-scene)] } {
     set scene_name $keys(-scene)
   }
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_name $keys(-corner)
-  }
   if { $scene_name != "" } {
     set scene [find_scene $scene_name]
     if { $scene == "NULL" } {
@@ -468,10 +460,6 @@ proc parse_scene_or_default { keys_var } {
   if { [info exists keys(-scene)] } {
     set scene_name $keys(-scene)
   }
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_name $keys(-corner)
-  }
   if { $scene_name != "" } {
     set scene [find_scene $scene_name]
     if { $scene == "NULL" } {
@@ -484,17 +472,13 @@ proc parse_scene_or_default { keys_var } {
   }
 }
 
-# If -scene/-corner return scene, else return NULL.
+# If -scene return scene, else return NULL.
 proc parse_scene_or_null { keys_var } {
   upvar 1 $keys_var keys
 
   set scene_name ""
   if { [info exists keys(-scene)] } {
     set scene_name $keys(-scene)
-  }
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_name $keys(-corner)
   }
   if { $scene_name != "" } {
     set scene [find_scene $scene_name]
@@ -508,29 +492,23 @@ proc parse_scene_or_null { keys_var } {
   }
 }
 
-# If -scenes/-corner return scenes, else return default scene.
+# If -scenes return scenes, else return default scene.
 proc parse_scenes_or_default { keys_var } {
   upvar 1 $keys_var keys
 
   if { [info exists keys(-scenes)] } {
     return [find_scenes $keys(-scenes)]
-  } elseif { [info exists keys(-corner)] } {
-    # compabibility 05/29/2025
-    return [find_scenes $keys(-corner)]
   } else {
     return [cmd_scene]
   }
 }
 
-# If -scenes/-corner return scenes, else return all scenes.
+# If -scenes return scenes, else return all scenes.
 proc parse_scenes_or_all { keys_var } {
   upvar 1 $keys_var keys
 
   if { [info exists keys(-scenes)] } {
     return [find_scenes $keys(-scenes)]
-  } elseif { [info exists keys(-corner)] } {
-    # compabibility 05/29/2025
-    return [find_scenes $keys(-corner)]
   } else {
     return [scenes]
   }

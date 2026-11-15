@@ -27,7 +27,7 @@
 namespace eval sta {
 
 define_cmd_args "read_liberty" \
-  {[-corner corner] [-min] [-max] [-infer_latches] filename} \
+  {-min] [-max] [-infer_latches] filename} \
   -help {The `read_liberty` command reads a Liberty format library file. The first library that is read sets the units used by SDC/Tcl commands and reporting. The include_file attribute is supported.
 
 Liberty `generated_clock` groups are installed as generated clocks when the design is linked with `link_design`.
@@ -67,7 +67,6 @@ In this example a positive level-sensitive latch is inferred.
 
 Files compressed with gzip are automatically uncompressed.} \
   -arg_help {
-    -corner {Deprecated. Use `define_scene` to assign Liberty libraries to a scene.}
     -min {Use the library for min-delay (hold) analysis.}
     -max {Use the library for max-delay (setup) analysis.}
     filename {The Liberty file name to read.}
@@ -75,15 +74,13 @@ Files compressed with gzip are automatically uncompressed.} \
   }
 
 proc_redirect read_liberty {
-  parse_key_args "read_liberty" args keys {-corner} \
-    flags {-min -max -infer_latches}
+  parse_key_args "read_liberty" args keys {} \
+    flags {-infer_latches}
   check_argc_eq1 "read_liberty" $args
 
   set filename [file nativename [lindex $args 0]]
-  set corner [parse_scene keys]
-  set min_max [parse_min_max_all_flags flags]
   set infer_latches [info exists flags(-infer_latches)]
-  read_liberty_cmd $filename $corner $min_max $infer_latches
+  read_liberty_cmd $filename $infer_latches
 }
 
 # for regression testing

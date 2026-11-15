@@ -718,12 +718,10 @@ Sta::setCurrentInstance(Instance *inst)
 
 LibertyLibrary *
 Sta::readLiberty(std::string_view filename,
-                 Scene *scene,
-                 const MinMaxAll *min_max,
                  bool infer_latches)
 {
   Stats stats(debug_, report_);
-  LibertyLibrary *library = readLibertyFile(filename, scene, min_max, infer_latches);
+  LibertyLibrary *library = readLibertyFile(filename, infer_latches);
   if (library
       // The default library is the first library read.
       // This corresponds to a link_path of '*'.
@@ -738,28 +736,19 @@ Sta::readLiberty(std::string_view filename,
 
 LibertyLibrary *
 Sta::readLibertyFile(std::string_view filename,
-                     Scene *scene,
-                     const MinMaxAll *min_max,
                      bool infer_latches)
 {
   LibertyLibrary *liberty = sta::readLibertyFile(filename, infer_latches, network_);
   if (liberty) {
-    // Don't map liberty cells if they are redefined by reading another
-    // library with the same cell names.
-    readLibertyAfter(liberty, scene, min_max);
+    if (cmd_scene_->name() == "default") {
+      for (const MinMax *min_max : MinMax::range())
+        cmd_scene_->addLiberty(liberty, min_max);
+      LibertyLibrary::makeSceneMap(liberty, cmd_scene_, MinMaxAll::minMax(),
+                                   network_, report_);
+    }
     network_->readLibertyAfter(liberty);
   }
   return liberty;
-}
-
-void
-Sta::readLibertyAfter(LibertyLibrary *liberty,
-                      Scene *scene,
-                      const MinMaxAll *min_max)
-{
-  for (const MinMax *mm : min_max->range())
-    scene->addLiberty(liberty, mm);
-  LibertyLibrary::makeSceneMap(liberty, scene, min_max, network_, report_);
 }
 
 bool
@@ -2640,27 +2629,6 @@ Sta::makeDefaultScene()
   cmd_mode_ = mode;
 }
 
-// define_corners (before read_liberty).
-void
-Sta::makeScenes(const StringSeq &scene_names)
-{
-  if (scene_names.size() > scene_count_max)
-    report_->error(1553, "maximum scene count exceeded");
-  Parasitics *parasitics = findParasitics("default");
-  Mode *mode = modes_[0];
-  mode->sdc()->makeSceneBefore();
-  mode->clear();
-
-  deleteScenes();
-  for (const std::string &name : scene_names)
-    makeScene(name, mode, parasitics);
-
-  cmd_scene_ = scenes_[0];
-  updateComponentsState();
-  if (graph_)
-    graph_->delayCountChanged();
-}
-
 void
 Sta::makeScene(const std::string &name,
                const std::string &mode_name,
@@ -4359,7 +4327,7 @@ bool
 Sta::readSpef(std::string_view name,
               std::string_view filename,
               Instance *instance,
-              Scene *scene,  // -scene deprecated 11/20/2025
+              Scene *scene,
               const MinMaxAll *min_max,
               bool pin_cap_included,
               bool keep_coupling_caps,

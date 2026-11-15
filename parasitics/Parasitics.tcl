@@ -26,7 +26,7 @@ namespace eval sta {
 
 define_cmd_args "read_spef" \
   {[-name spef_name]
-   [-corner corner]\
+   [-scene scene]\
      [-min]\
      [-max]\
      [-path path]\
@@ -43,8 +43,16 @@ Files compressed with gzip are automatically uncompressed.
 Separate min/max parasitics can be annotated for each scene.
 
 ```
-read_spef -name min spef1
-read_spef -name max spef2
+define_scene scene1
+read_spef -scene scene1 -min spef1
+read_spef -scene scene1 -max spef2
+```
+
+Alternatively, the SPEF files can be read before define_scene and specified to the scene definition.
+
+```
+read_spef -name min spef1.spef
+read_spef -name max spef2.spef
 define_scene scene1 -mode mode1 -spef_min min -spef_max max
 ```
 
@@ -63,12 +71,12 @@ The following SPEF constructs are ignored.
 
 If the SPEF file contains triplet values the first value is used.
 
-Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.
+Parasitic networks (Detailed SPEF/DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.
 
 Reading a net that already has a parasitic network adds to the network so that the block and higher level parasitics of a net can be read in any order. Use `-replace` to replace the parasitic network of each net in the file instead, for example to read parasitics that were extracted again.} \
   -arg_help {
     -name {The name of the SPEF parasitics to use for defining scenes. The default is the base name of filename.}
-    -corner {Process corner to annotate. Deprecated; use `-name` and `define_scene`.}
+    -scene {Process scene to annotate.}
     -pin_cap_included {SPEF pin capacitances are included (library pin capacitances are not added).}
     -reduce {Reduce parasitic networks to the form used by the current delay calculator.}
     -replace {Replace the parasitic network of each net in the file instead of adding to it.}
@@ -76,14 +84,13 @@ Reading a net that already has a parasitic network adds to the network so that t
     -keep_capacitive_coupling {Keep coupling capacitors in parasitic networks rather than converting them to grounded capacitors.}
     -coupling_reduction_factor {`factor`: Factor to multiply coupling capacitance by when reducing parasitic networks. The default value is 1.0.}
     filename {The name of the parasitics file to read.}
-    -min {Annotate minimum parasitics. Deprecated; use `-name` and `define_scene`.}
-    -max {Annotate maximum parasitics. Deprecated; use `-name` and `define_scene`.}
+    -min {Annotate minimum parasitics.}
+    -max {Annotate maximum parasitics.}
   }
 
-# -scene/-min/-max are for compatibilty, Deprecated 11/21/2025
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
-    keys {-name -path -coupling_reduction_factor -corner} \
+    keys {-name -path -coupling_reduction_factor -scene} \
     flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling -reduce \
              -replace}
 

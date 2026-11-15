@@ -45,7 +45,7 @@ proc report_dcalc_cmd { cmd cmd_args digits_key } {
   global sta_report_default_digits
 
   parse_key_args $cmd cmd_args \
-    keys "$digits_key -from -to -scene -corner" \
+    keys "$digits_key -from -to -scene" \
     flags {-min -max}
   set scene [parse_scene keys]
   set min_max [parse_min_max_flags flags]
@@ -166,7 +166,7 @@ define_cmd_args "set_assigned_delay" \
 # Change the delay for timing arcs between from_pins and to_pins matching
 # on cell (instance) or net.
 proc set_assigned_delay { args } {
-  parse_key_args "set_assigned_delay" args keys {-scene -corner -from -to} \
+  parse_key_args "set_assigned_delay" args keys {-scene -from -to} \
     flags {-cell -net -rise -fall -max -min}
   check_argc_eq1 "set_assigned_delay" $args
   set scene [parse_scene keys]
@@ -282,7 +282,7 @@ define_cmd_args "set_assigned_check" \
 
 proc set_assigned_check { args } {
   parse_key_args "set_assigned_check" args \
-    keys {-from -to -scene -corner -clock -cond} \
+    keys {-from -to -scene -clock -cond} \
     flags {-setup -hold -recovery -removal -rise -fall -max -min}
   check_argc_eq1 "set_assigned_check" $args
 
@@ -401,7 +401,7 @@ define_cmd_args "set_assigned_transition" \
 
 # Change the slew on a list of ports.
 proc set_assigned_transition { args } {
-  parse_key_args "set_assigned_transition" args keys {-scene -corner} \
+  parse_key_args "set_assigned_transition" args keys {-scene} \
     flags {-rise -fall -max -min}
 
   set scene [parse_scene keys]
@@ -444,7 +444,7 @@ define_cmd_alias "report_slew" "report_slews"
 proc report_slews { args } {
   global sta_report_default_digits
 
-  parse_key_args "report_slews" args keys {-corner -scenes -digits} \
+  parse_key_args "report_slews" args keys {-scenes -digits} \
     flags {-report_variance}
   check_argc_eq1 "report_slews" $args
 

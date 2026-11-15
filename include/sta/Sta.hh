@@ -125,8 +125,6 @@ public:
   virtual int defaultThreadCount() const;
   void setThreadCount(int thread_count);
 
-  // define_corners compatibility.
-  void makeScenes(const StringSeq &scene_names);
   void makeScene(const std::string &name,
                  const std::string &mode_name,
                  const StringSeq &liberty_min_files,
@@ -150,13 +148,7 @@ public:
   Sdc *cmdSdc() const;
 
   virtual LibertyLibrary *readLiberty(std::string_view filename,
-                                      Scene *scene,
-                                      const MinMaxAll *min_max,
                                       bool infer_latches);
-  // tmp public
-  void readLibertyAfter(LibertyLibrary *liberty,
-                        Scene *scene,
-                        const MinMaxAll *min_max);
   bool readVerilog(std::string_view filename);
   // Network readers call this to notify the Sta to delete any previously
   // linked network.
@@ -1614,8 +1606,6 @@ protected:
   NetworkEdit *networkCmdEdit();
 
   LibertyLibrary *readLibertyFile(std::string_view filename,
-                                  Scene *scene,
-                                  const MinMaxAll *min_max,
                                   bool infer_latches);
   void delayCalcPreamble();
   void delaysInvalidFrom(const Port *port);

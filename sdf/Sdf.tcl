@@ -50,7 +50,7 @@ INSTANCE wildcards
 
 proc_redirect read_sdf {
   parse_key_args "read_sdf" args \
-    keys {-path -corner -scene -cond_use -analysis_type} \
+    keys {-path -scene -cond_use -analysis_type} \
     flags {-unescaped_dividers -incremental_only}
 
   check_argc_eq1 "read_sdf" $args
@@ -100,7 +100,7 @@ define_cmd_args "report_annotated_delay" \
   }
 
 proc_redirect report_annotated_delay {
-  parse_key_args "report_annotated_delay" args keys {-scene -corner -max_lines} \
+  parse_key_args "report_annotated_delay" args keys {-scene -max_lines} \
     flags {-cell -net -from_in_ports -to_out_ports  \
              -report_annotated -report_unannotated -constant_arcs \
              -list_not_annotated -list_annotated}
@@ -238,7 +238,7 @@ define_cmd_args "write_sdf" \
 
 proc_redirect write_sdf {
   parse_key_args "write_sdf" args \
-    keys {-corner -scene -divider -digits} \
+    keys {-scene -divider -digits} \
     flags {-include_typ -gzip -no_timestamp -no_version}
   check_argc_eq1 "write_sdf" $args
   set scene [parse_scene keys]

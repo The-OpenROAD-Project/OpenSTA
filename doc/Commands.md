@@ -341,15 +341,6 @@ Set or report the current design. OpenSTA only supports one design.
 
 Set or report the current instance used for relative name lookup.
 
-## define_corners
-
-<pre><code>define_corners
-    corner1
-    [corner2]
-    ...</code></pre>
-
-The `define_corners` command is deprecated. Use `define_scene` instead. It is supported for compatibility with older scripts that define analysis corners before `read_liberty`, but should not be used with MCMM flows.
-
 ## define_property
 
 <pre><code>define_property
@@ -1178,11 +1169,8 @@ The `make_port` command creates a port on the top-level cell. `direction` is `in
 ## read_liberty
 
 <pre><code>read_liberty
-    [<a href="#opt-read_liberty-corner">-corner</a> corner]
-    [<a href="#opt-read_liberty-min">-min</a>]
-    [<a href="#opt-read_liberty-max">-max</a>]
-    [<a href="#opt-read_liberty-infer_latches">-infer_latches</a>]
-    filename</code></pre>
+    <a href="#opt-read_liberty-min">-min</a>
+    ] [<a href="#opt-read_liberty-max">-max</a>] [<a href="#opt-read_liberty-infer_latches">-infer_latches</a>] filename</code></pre>
 
 The `read_liberty` command reads a Liberty format library file. The first library that is read sets the units used by SDC/Tcl commands and reporting. The include_file attribute is supported.
 
@@ -1224,9 +1212,6 @@ In this example a positive level-sensitive latch is inferred.
 Files compressed with gzip are automatically uncompressed.
 
 ### Options
-
-`-corner` {: #opt-read_liberty-corner }
-: Deprecated. Use `define_scene` to assign Liberty libraries to a scene.
 
 `-min` {: #opt-read_liberty-min }
 : Use the library for min-delay (hold) analysis.
@@ -1315,7 +1300,7 @@ INSTANCE wildcards
 
 <pre><code>read_spef
     [<a href="#opt-read_spef-name">-name</a> spef_name]
-    [<a href="#opt-read_spef-corner">-corner</a> corner]
+    [<a href="#opt-read_spef-scene">-scene</a> scene]
     [<a href="#opt-read_spef-min">-min</a>]
     [<a href="#opt-read_spef-max">-max</a>]
     [<a href="#opt-read_spef-path">-path</a> path]
@@ -1362,8 +1347,8 @@ Reading a net that already has a parasitic network adds to the network so that t
 `-name` {: #opt-read_spef-name }
 : The name of the SPEF parasitics to use for defining scenes. The default is the base name of filename.
 
-`-corner` {: #opt-read_spef-corner }
-: Process corner to annotate. Deprecated; use `-name` and `define_scene`.
+`-scene` {: #opt-read_spef-scene }
+: Process scene to annotate. Deprecated; use `-name` and `define_scene`.
 
 `-min` {: #opt-read_spef-min }
 : Annotate minimum parasitics. Deprecated; use `-name` and `define_scene`.
