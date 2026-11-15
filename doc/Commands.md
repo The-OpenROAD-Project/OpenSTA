@@ -1318,8 +1318,16 @@ Files compressed with gzip are automatically uncompressed.
 Separate min/max parasitics can be annotated for each scene.
 
 ```
-read_spef -name min spef1
-read_spef -name max spef2
+define_scene scene1
+read_spef -scene scene1 -min spef1
+read_spef -scene scene1 -max spef2
+```
+
+Alternatively, the SPEF files can be read before define_scene and specified to the scene definition.
+
+```
+read_spef -name min spef1.spef
+read_spef -name max spef2.spef
 define_scene scene1 -mode mode1 -spef_min min -spef_max max
 ```
 
@@ -1338,7 +1346,7 @@ The following SPEF constructs are ignored.
 
 If the SPEF file contains triplet values the first value is used.
 
-Parasitic networks (DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.
+Parasitic networks (Detailed SPEF/DSPEF) can be annotated on hierarchical blocks using the `-path` argument to specify the instance path to the block. Parasitic networks in the higher level netlist are stitched together at the hierarchical pins of the blocks.
 
 Reading a net that already has a parasitic network adds to the network so that the block and higher level parasitics of a net can be read in any order. Use `-replace` to replace the parasitic network of each net in the file instead, for example to read parasitics that were extracted again.
 
@@ -1348,13 +1356,13 @@ Reading a net that already has a parasitic network adds to the network so that t
 : The name of the SPEF parasitics to use for defining scenes. The default is the base name of filename.
 
 `-scene` {: #opt-read_spef-scene }
-: Process scene to annotate. Deprecated; use `-name` and `define_scene`.
+: Process scene to annotate.
 
 `-min` {: #opt-read_spef-min }
-: Annotate minimum parasitics. Deprecated; use `-name` and `define_scene`.
+: Annotate minimum parasitics.
 
 `-max` {: #opt-read_spef-max }
-: Annotate maximum parasitics. Deprecated; use `-name` and `define_scene`.
+: Annotate maximum parasitics.
 
 `-path` {: #opt-read_spef-path }
 : Hierarchical block instance path to annotate with  parasitics.

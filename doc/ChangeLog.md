@@ -3,7 +3,7 @@
 This file summarizes user visible changes for each release.
 See [API changes](ApiChanges.md) for changes to the STA API.
 
-## 2026/11/12
+## 2026/11/16
 
 The read_liberty command no longer supports -min/-max flags. Use define_scene instead.
 
@@ -15,7 +15,8 @@ is rewritten as
 
 read_liberty nangate45_slow.lib.gz
 read_liberty nangate45_fast.lib.gz
-define_scene default -liberty_min nangate45_fast.lib.gz \
+define_scene default \
+  -liberty_min nangate45_fast.lib.gz \
   -liberty_max nangate45_slow.lib.gz
 ```
 
