@@ -19,6 +19,7 @@ module(
 bazel_dep(name = "bison", version = "3.8.2.bcr.10")
 bazel_dep(name = "cudd", version = "3.0.0.bcr.2")
 bazel_dep(name = "eigen", version = "3.4.0.bcr.3")
+
 # swig depends on pcre2 10.43, whose BUILD overlay calls the native
 # cc_binary rule Bazel 9 removed. 10.46-DEV loads it from @rules_cc.
 # A direct dep so minimal version selection upgrades the whole graph.
