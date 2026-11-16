@@ -1,8 +1,11 @@
 # Test multi-corner liberty reading for code coverage
-define_corners fast slow
 
-read_liberty -corner fast ../../test/nangate45/Nangate45_fast.lib
-read_liberty -corner slow ../../test/nangate45/Nangate45_slow.lib
+read_liberty ../../test/nangate45/Nangate45_fast.lib
+read_liberty ../../test/nangate45/Nangate45_slow.lib
+define_scene fast -liberty ../../test/nangate45/Nangate45_fast.lib
+define_scene slow -liberty ../../test/nangate45/Nangate45_slow.lib
+# define_corners left the first corner as the command scene.
+set_scene fast
 
 # Verify both corners loaded
 set fast_lib [get_libs NangateOpenCellLibrary_fast]
@@ -40,17 +43,17 @@ set_input_delay -clock clk 2.0 [get_ports in1]
 set_output_delay -clock clk 3.0 [get_ports out1]
 
 # Report for each corner
-report_checks -corner fast
+report_checks -scenes fast
 
-report_checks -corner slow
+report_checks -scenes slow
 
 # Report clock properties
 report_clock_properties
 
 # Report with path details
-report_checks -corner fast -path_delay min
+report_checks -scenes fast -path_delay min
 
-report_checks -corner slow -path_delay max
+report_checks -scenes slow -path_delay max
 
 # Query lib cells from both corners
 report_lib_cell NangateOpenCellLibrary_fast/BUF_X1
