@@ -65,8 +65,6 @@ protected:
 
     // Read Nangate45 liberty file
     lib_ = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                             sta_->cmdScene(),
-                             MinMaxAll::min(),
                              false);
   }
 
@@ -135,8 +133,7 @@ static void writeLibContent(const char *content, const std::string &path) {
 static void writeAndReadLib(Sta *sta, const char *content, const char *path = nullptr) {
   std::string tmp_path = path ? std::string(path) : makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
-  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), sta->cmdScene(),
-                                          MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), false);
   EXPECT_NE(lib, nullptr);
   EXPECT_EQ(remove(tmp_path.c_str()), 0);
 }
@@ -145,8 +142,7 @@ static void writeAndReadLib(Sta *sta, const char *content, const char *path = nu
 static LibertyLibrary *writeAndReadLibReturn(Sta *sta, const char *content, const char *path = nullptr) {
   std::string tmp_path = path ? std::string(path) : makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
-  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), sta->cmdScene(),
-                                          MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta->readLiberty(tmp_path.c_str(), false);
   EXPECT_EQ(remove(tmp_path.c_str()), 0);
   return lib;
 }
@@ -3682,8 +3678,7 @@ library(test_r11_latch) {
   // Read with infer_latches = true
   std::string tmp_path = makeUniqueTmpPath();
   writeLibContent(content, tmp_path);
-  LibertyLibrary *lib = sta_->readLiberty(tmp_path.c_str(), sta_->cmdScene(),
-                                           MinMaxAll::min(), true);  // infer_latches=true
+  LibertyLibrary *lib = sta_->readLiberty(tmp_path.c_str(), true);  // infer_latches=true
   EXPECT_NE(lib, nullptr);
   if (lib) {
     LibertyCell *cell = lib->findLibertyCell("LATCH1");
@@ -3874,8 +3869,7 @@ TEST_F(StaLibertyTest, LibertyInclude) {
   fprintf(fm, "}\n");
   fclose(fm);
 
-  LibertyLibrary *lib = sta_->readLiberty(main_path.c_str(), sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty(main_path.c_str(), false);
   EXPECT_NE(lib, nullptr);
   if (lib) {
     LibertyCell *cell = lib->findLibertyCell("INC1");

@@ -1941,28 +1941,23 @@ protected:
     bool infer_latches = false;
 
     LibertyLibrary *lib_seq = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib",
-      scene, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib", infer_latches);
     if (!lib_seq) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_inv = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz",
-      scene, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz", infer_latches);
     if (!lib_inv) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_simple = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz",
-      scene, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_simple) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_oa = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz",
-      scene, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_oa) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_ao = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz",
-      scene, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_ao) { design_loaded_ = false; return; }
 
     bool verilog_ok = sta_->readVerilog("test/reg1_asap7.v");

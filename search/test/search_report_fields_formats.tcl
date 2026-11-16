@@ -161,7 +161,7 @@ report_checks -path_delay min -format json -endpoint_count 5
 ############################################################
 puts "--- corner ---"
 set corner [sta::cmd_scene]
-report_checks -path_delay max -corner $corner -format full_clock_expanded -fields {capacitance slew}
+report_checks -path_delay max -scenes $corner -format full_clock_expanded -fields {capacitance slew}
 
 ############################################################
 # set_input_transition and verify report includes it

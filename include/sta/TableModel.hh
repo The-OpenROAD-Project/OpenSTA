@@ -475,6 +475,19 @@ public:
   float voltageCurrent(float slew,
                        float cap,
                        float volt);
+  // voltageCurrent at volt, v_lo, and v_hi when each corner table is
+  // linear on those three voltages.
+  struct LinearCurrent {
+    float current = 0.0;
+    float current_lo = 0.0;
+    float current_hi = 0.0;
+    bool linear = false;
+  };
+  LinearCurrent voltageCurrentLinear(float slew,
+                                    float cap,
+                                    float volt,
+                                    float v_lo,
+                                    float v_hi);
   float referenceTime(float slew);
   float beginTime(float slew,
                   float cap);

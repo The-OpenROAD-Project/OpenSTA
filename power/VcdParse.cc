@@ -279,7 +279,7 @@ VcdParse::readStmtString()
   std::string token = getToken();
   while (!token.empty() && token != "$end") {
     if (!line.empty())
-      line += " ";
+      line += ' ';
     line += token;
     token = getToken();
   }

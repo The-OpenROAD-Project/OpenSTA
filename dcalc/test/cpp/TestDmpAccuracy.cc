@@ -615,8 +615,7 @@ protected:
   LibertyLibrary *readLibertyText(std::string_view lib_text,
                                   std::string_view file_name = "lib.lib")
   {
-    return sta_->readLiberty(temp_dir_.writeFile(file_name, lib_text),
-                             sta_->cmdScene(), MinMaxAll::all(), false);
+    return sta_->readLiberty(temp_dir_.writeFile(file_name, lib_text), false);
   }
 
   void loadVerilogAndLink(std::string_view verilog_text,

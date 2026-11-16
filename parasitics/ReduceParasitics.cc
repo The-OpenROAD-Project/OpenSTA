@@ -349,13 +349,11 @@ ReduceToPiElmore::reduceElmoreDfs(const Pin *drvr_pin,
                                   Parasitic *pi_elmore)
 {
   const Pin *pin = parasitics_->pin(node);
-  if (from_res && pin) {
-    if (network_->isLoad(pin)) {
-      debugPrint(debug_, "parasitic_reduce", 2, " Load {} elmore={:.3g}",
-                 network_->pathName(pin),
-                 elmore);
-      parasitics_->setElmore(pi_elmore, pin, elmore);
-    }
+  if (from_res && pin && network_->isLoad(pin)) {
+    debugPrint(debug_, "parasitic_reduce", 2, " Load {} elmore={:.3g}",
+               network_->pathName(pin),
+               elmore);
+    parasitics_->setElmore(pi_elmore, pin, elmore);
   }
   visit(node);
   ParasiticResistorSeq &resistors = resistor_map_[node];

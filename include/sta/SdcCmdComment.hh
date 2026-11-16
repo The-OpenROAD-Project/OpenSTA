@@ -33,7 +33,7 @@ class SdcCmdComment
 {
 public:
   SdcCmdComment() = default;
-  SdcCmdComment(std::string_view comment);
+  explicit SdcCmdComment(std::string_view comment);
   const std::string &comment() { return comment_; }
   const std::string &comment() const { return comment_; }
   void setComment(std::string_view comment);

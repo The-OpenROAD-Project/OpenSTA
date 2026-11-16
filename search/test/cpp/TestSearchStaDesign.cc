@@ -106,7 +106,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
     lib_ = lib;
 
@@ -1624,7 +1624,7 @@ TEST_F(StaDesignTest, ReadLibertyFile) {
   ASSERT_NO_THROW(( [&](){
   Scene *corner = sta_->cmdScene();
   LibertyLibrary *lib = sta_->readLiberty(
-    "test/nangate45/Nangate45_slow.lib", corner, MinMaxAll::min(), false);
+    "test/nangate45/Nangate45_slow.lib", false);
   (void)lib;
   // May or may not succeed depending on file existence; just check no crash
   }() ));
