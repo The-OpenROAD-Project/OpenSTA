@@ -1,0 +1,46 @@
+# OpenSTA, Static Timing Analyzer
+# Copyright (c) 2026, Parallax Software, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+"""Bazel module for the standalone OpenSTA build.
+
+Dependency versions match the modules OpenROAD uses to build OpenSTA.
+"""
+
+module(
+    name = "opensta",
+    version = "3.2.0",
+)
+
+bazel_dep(name = "bison", version = "3.8.2.bcr.10")
+bazel_dep(name = "cudd", version = "3.0.0.bcr.2")
+bazel_dep(name = "eigen", version = "3.4.0.bcr.3")
+# swig depends on pcre2 10.43, whose BUILD overlay calls the native
+# cc_binary rule Bazel 9 removed. 10.46-DEV loads it from @rules_cc.
+# A direct dep so minimal version selection upgrades the whole graph.
+bazel_dep(name = "pcre2", version = "10.46-DEV")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_cc", version = "0.2.18")
+bazel_dep(name = "rules_flex", version = "0.4")
+
+# rules_flex only requires rules_m4 0.2.x, whose default m4 toolchain does
+# not build here; 0.3 does.
+bazel_dep(name = "rules_m4", version = "0.3")
+bazel_dep(name = "rules_pkg", version = "1.2.0")
+bazel_dep(name = "swig", version = "4.3.0.bcr.2")
+bazel_dep(name = "tcl_lang", version = "9.0.2.bcr.2")
+bazel_dep(name = "zlib", version = "1.3.1.bcr.8")
+
+# Hermetic clang, so the build does not depend on a host compiler or the
+# Xcode flex/bison/tcl that cannot build OpenSTA. Downstream users of this
+# module register their own C++ toolchain.
+bazel_dep(name = "llvm", version = "0.8.24", dev_dependency = True)
+
+register_toolchains(
+    "@llvm//toolchain:all",
+    dev_dependency = True,
+)

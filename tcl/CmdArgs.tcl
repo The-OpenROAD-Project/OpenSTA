@@ -407,10 +407,6 @@ proc parse_scene { keys_var } {
   upvar 1 $keys_var keys
 
   set scene_arg ""
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_arg $keys(-corner)
-  }
   if { [info exists keys(-scene)] } {
     set scene_arg $keys(-scene)
   }
@@ -445,10 +441,6 @@ proc parse_scene_required { keys_var } {
   if { [info exists keys(-scene)] } {
     set scene_name $keys(-scene)
   }
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_name $keys(-corner)
-  }
   if { $scene_name != "" } {
     set scene [find_scene $scene_name]
     if { $scene == "NULL" } {
@@ -468,10 +460,6 @@ proc parse_scene_or_default { keys_var } {
   if { [info exists keys(-scene)] } {
     set scene_name $keys(-scene)
   }
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_name $keys(-corner)
-  }
   if { $scene_name != "" } {
     set scene [find_scene $scene_name]
     if { $scene == "NULL" } {
@@ -484,17 +472,13 @@ proc parse_scene_or_default { keys_var } {
   }
 }
 
-# If -scene/-corner return scene, else return NULL.
+# If -scene return scene, else return NULL.
 proc parse_scene_or_null { keys_var } {
   upvar 1 $keys_var keys
 
   set scene_name ""
   if { [info exists keys(-scene)] } {
     set scene_name $keys(-scene)
-  }
-  # compabibility 05/29/2025
-  if { [info exists keys(-corner)] } {
-    set scene_name $keys(-corner)
   }
   if { $scene_name != "" } {
     set scene [find_scene $scene_name]
@@ -508,29 +492,23 @@ proc parse_scene_or_null { keys_var } {
   }
 }
 
-# If -scenes/-corner return scenes, else return default scene.
+# If -scenes return scenes, else return default scene.
 proc parse_scenes_or_default { keys_var } {
   upvar 1 $keys_var keys
 
   if { [info exists keys(-scenes)] } {
     return [find_scenes $keys(-scenes)]
-  } elseif { [info exists keys(-corner)] } {
-    # compabibility 05/29/2025
-    return [find_scenes $keys(-corner)]
   } else {
     return [cmd_scene]
   }
 }
 
-# If -scenes/-corner return scenes, else return all scenes.
+# If -scenes return scenes, else return all scenes.
 proc parse_scenes_or_all { keys_var } {
   upvar 1 $keys_var keys
 
   if { [info exists keys(-scenes)] } {
     return [find_scenes $keys(-scenes)]
-  } elseif { [info exists keys(-corner)] } {
-    # compabibility 05/29/2025
-    return [find_scenes $keys(-corner)]
   } else {
     return [scenes]
   }
@@ -746,7 +724,7 @@ proc get_lib_cells_arg { arg_name arglist error_proc } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set lib_cells [concat $lib_cells [get_lib_cells_arg $arg_name $arg $error_proc]]
+      lappend lib_cells {*}[get_lib_cells_arg $arg_name $arg $error_proc]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "LibertyCell" } {
@@ -757,7 +735,7 @@ proc get_lib_cells_arg { arg_name arglist error_proc } {
     } elseif { $arg != {} } {
       set arg_lib_cells [get_lib_cells1 $arg $error_proc]
       if { $arg_lib_cells != {} } {
-        set lib_cells [concat $lib_cells $arg_lib_cells]
+        lappend lib_cells {*}$arg_lib_cells
       }
     }
   }
@@ -783,7 +761,7 @@ proc get_lib_cells1 { patterns error_proc } {
       foreach lib $libs {
         set matches [$lib find_liberty_cells_matching $cell_pattern 0 0]
         if {$matches != {}} {
-          set cells [concat $cells $matches]
+          lappend cells {*}$matches
         }
       }
       if { $cells == {} } {
@@ -821,7 +799,7 @@ proc get_instances_error { arg_name arglist } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set insts [concat $insts [get_instances_error $arg_name $arg]]
+      lappend insts {*}[get_instances_error $arg_name $arg]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Instance" } {
@@ -832,7 +810,7 @@ proc get_instances_error { arg_name arglist } {
     } elseif { $arg != {} } {
       set arg_insts [get_cells -quiet $arg]
       if { $arg_insts != {} } {
-        set insts [concat $insts $arg_insts]
+        lappend insts {*}$arg_insts
       } else {
         sta_error 127 "instance '$arg' not found."
       }
@@ -848,7 +826,7 @@ proc get_libcells_error { arg_name arglist } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set libcells [concat $libcells [get_libcells_error $arg_name $arg]]
+      lappend libcells {*}[get_libcells_error $arg_name $arg]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "LibertyCell" } {
@@ -859,7 +837,7 @@ proc get_libcells_error { arg_name arglist } {
     } elseif { $arg != {} } {
       set arg_libcells [get_lib_cells -quiet $arg]
       if { $arg_libcells != {} } {
-        set libcells [concat $libcells $arg_libcells]
+        lappend libcells {*}$arg_libcells
       } else {
         sta_error 129 "liberty cell '$arg' not found."
       }
@@ -921,7 +899,7 @@ proc get_port_pins_warn_error { arg_name arglist warn_error } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set pins [concat $pins [get_port_pins_warn_error $arg_name $arg $warn_error]]
+      lappend pins {*}[get_port_pins_warn_error $arg_name $arg $warn_error]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Pin" } {
@@ -935,7 +913,7 @@ proc get_port_pins_warn_error { arg_name arglist warn_error } {
     } elseif { $arg != {} } {
       set arg_pins [get_ports_or_pins $arg]
       if { $arg_pins != {} } {
-        set pins [concat $pins $arg_pins]
+        lappend pins {*}$arg_pins
       } else {
         sta_warn_error 132 $warn_error "pin '$arg' not found."
       }
@@ -951,7 +929,7 @@ proc get_ports_error { arg_name arglist } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set ports [concat $ports [get_ports_error $arg_name $arg]]
+      lappend ports {*}[get_ports_error $arg_name $arg]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Port" } {
@@ -962,7 +940,7 @@ proc get_ports_error { arg_name arglist } {
     } elseif { $arg != {} } {
       set arg_ports [get_ports $arg]
       if { $arg_ports != {} } {
-        set ports [concat $ports $arg_ports]
+        lappend ports {*}$arg_ports
       }
     }
   }
@@ -1032,7 +1010,7 @@ proc get_clocks_warn { arg_name arglist } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set clks [concat $clks [get_clocks_warn $arg_name $arg]]
+      lappend clks {*}[get_clocks_warn $arg_name $arg]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Clock" } {
@@ -1043,7 +1021,7 @@ proc get_clocks_warn { arg_name arglist } {
     } elseif { $arg != {} } {
       set arg_clocks [get_clocks $arg]
       if { $arg_clocks != {} } {
-        set clks [concat $clks $arg_clocks]
+        lappend clks {*}$arg_clocks
       }
     }
   }
@@ -1077,7 +1055,7 @@ proc get_nets_arg { arg_name arglist } {
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set nets [concat $nets [get_nets_arg $arg_name $arg]]
+      lappend nets {*}[get_nets_arg $arg_name $arg]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Net" } {
@@ -1088,7 +1066,7 @@ proc get_nets_arg { arg_name arglist } {
     } elseif { $arg != {} } {
       set arg_nets [get_nets $arg]
       if { $arg_nets != {} } {
-        set nets [concat $nets $arg_nets]
+        lappend nets {*}$arg_nets
       }
     }
   }

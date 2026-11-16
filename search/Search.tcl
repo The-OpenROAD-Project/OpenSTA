@@ -154,7 +154,7 @@ proc find_timing_paths_cmd { cmd args_var } {
 
   parse_key_args $cmd args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to \
-            -path_delay -corner -scenes -group_count -endpoint_count \
+            -path_delay -scenes -group_count -endpoint_count \
             -group_path_count -endpoint_path_count \
             -slack_max -slack_min -path_group} \
     flags {-unconstrained -sort_by_slack \
@@ -294,7 +294,7 @@ proc_redirect report_clock_skew {
   global sta_report_default_digits
 
   parse_key_args "report_clock_skew" args \
-    keys {-clocks -corner -scenes -digits} \
+    keys {-clocks -scenes -digits} \
     flags {-setup -hold -include_internal_latency}
   check_argc_eq0 "report_clock_skew" $args
 
@@ -476,7 +476,7 @@ proc_redirect report_check_types {
   variable path_options
 
   parse_key_args "report_check_types" args \
-    keys {-scenes -corner -net -max_count}\
+    keys {-scenes -net -max_count}\
     flags {-violators -verbose -no_line_splits} 0
 
   set violators [info exists flags(-violators)]
@@ -986,11 +986,11 @@ define_hidden_cmd_args "total_negative_slack" \
 
 proc total_negative_slack { args } {
   parse_key_args "total_negative_slack" args \
-    keys {-scene -corner} flags {-min -max}
+    keys {-scene} flags {-min -max}
   check_argc_eq0 "total_negative_slack" $args
   set min_max [parse_min_max_flags flags]
   # compabibility 05/29/2025
-  if { [info exists keys(-scene)] || [info exists keys(-corner)]} {
+  if { [info exists keys(-scene)] } {
     set scene [parse_scene_required keys]
     set tns [total_negative_slack_scene_cmd $scene $min_max]
   } else {
@@ -1025,11 +1025,11 @@ proc worst_slack { args } {
 # arg parsing common to worst_slack/worst_negative_slack
 proc worst_slack1 { cmd args1 } {
   parse_key_args $cmd args1 \
-    keys {-corner -scene} flags {-min -max}
+    keys {-scene} flags {-min -max}
   check_argc_eq0 $cmd $args1
   set min_max [parse_min_max_flags flags]
   # compabibility 05/29/2025
-  if { [info exists keys(-scene)] || [info exists keys(-corner)]} {
+  if { [info exists keys(-scene)] } {
     set scene [parse_scene_required keys]
     set worst_slack [worst_slack_scene $scene $min_max]
   } else {

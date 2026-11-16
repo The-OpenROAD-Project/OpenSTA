@@ -480,7 +480,7 @@ Graph::pinVertices(const Pin *pin,
 
 void
 Graph::verticesApply(const Pin *pin,
-                     const std::function<void(Vertex*)> func) const
+                     const std::function<void(Vertex*)> &func) const
 {
   Vertex *vertex = Graph::vertex(network_->vertexId(pin));
   if (vertex) {
@@ -1396,11 +1396,11 @@ Edge::to_string(const StaState *sta) const
   std::string str = from(graph)->to_string(sta);
   str += " -> ";
   str += to(graph)->to_string(sta);
-  str += " ";
+  str += ' ';
   str += role()->to_string();
   FuncExpr *when = arc_set_->cond();
   if (when) {
-    str += " ";
+    str += ' ';
     str += when->to_string();
   }
   return str;

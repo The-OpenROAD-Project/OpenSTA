@@ -735,12 +735,10 @@ Sta::setCurrentInstance(Instance *inst)
 
 LibertyLibrary *
 Sta::readLiberty(std::string_view filename,
-                 Scene *scene,
-                 const MinMaxAll *min_max,
                  bool infer_latches)
 {
   Stats stats(debug_, report_);
-  LibertyLibrary *library = readLibertyFile(filename, scene, min_max, infer_latches);
+  LibertyLibrary *library = readLibertyFile(filename, infer_latches);
   if (library
       // The default library is the first library read.
       // This corresponds to a link_path of '*'.
@@ -755,28 +753,19 @@ Sta::readLiberty(std::string_view filename,
 
 LibertyLibrary *
 Sta::readLibertyFile(std::string_view filename,
-                     Scene *scene,
-                     const MinMaxAll *min_max,
                      bool infer_latches)
 {
   LibertyLibrary *liberty = sta::readLibertyFile(filename, infer_latches, network_);
   if (liberty) {
-    // Don't map liberty cells if they are redefined by reading another
-    // library with the same cell names.
-    readLibertyAfter(liberty, scene, min_max);
+    if (cmd_scene_->name() == "default") {
+      for (const MinMax *min_max : MinMax::range())
+        cmd_scene_->addLiberty(liberty, min_max);
+      LibertyLibrary::makeSceneMap(liberty, cmd_scene_, MinMaxAll::minMax(),
+                                   network_, report_);
+    }
     network_->readLibertyAfter(liberty);
   }
   return liberty;
-}
-
-void
-Sta::readLibertyAfter(LibertyLibrary *liberty,
-                      Scene *scene,
-                      const MinMaxAll *min_max)
-{
-  for (const MinMax *mm : min_max->range())
-    scene->addLiberty(liberty, mm);
-  LibertyLibrary::makeSceneMap(liberty, scene, min_max, network_, report_);
 }
 
 bool
@@ -2051,12 +2040,11 @@ Sta::setInputDelay(const Pin *pin,
                      network_latency_included, min_max, add, delay);
 
   search_->arrivalInvalid(pin);
-  if (ref_pin) {
+  if (ref_pin && graph_) {
     // reference pins make graph edges from the ref pin to the input pin.
-    if (graph_)
-      graph_->verticesApply(ref_pin, [this] (Vertex *vertex) {
-        levelize_->relevelizeFrom(vertex);
-      });
+    graph_->verticesApply(ref_pin, [this] (Vertex *vertex) {
+      levelize_->relevelizeFrom(vertex);
+    });
   }
 }
 
@@ -2662,27 +2650,6 @@ Sta::makeDefaultScene()
   cmd_mode_ = mode;
 }
 
-// define_corners (before read_liberty).
-void
-Sta::makeScenes(const StringSeq &scene_names)
-{
-  if (scene_names.size() > scene_count_max)
-    report_->error(1553, "maximum scene count exceeded");
-  Parasitics *parasitics = findParasitics("default");
-  Mode *mode = modes_[0];
-  mode->sdc()->makeSceneBefore();
-  mode->clear();
-
-  deleteScenes();
-  for (const std::string &name : scene_names)
-    makeScene(name, mode, parasitics);
-
-  cmd_scene_ = scenes_[0];
-  updateComponentsState();
-  if (graph_)
-    graph_->delayCountChanged();
-}
-
 void
 Sta::makeScene(const std::string &name,
                const std::string &mode_name,
@@ -2956,9 +2923,10 @@ Sta::makeReportPathField(std::string_view name,
                          size_t width,
                          bool left_justify,
                          Unit *unit,
-                         const ReportFieldGetValue &get_value)
+                         ReportFieldGetValue get_value)
 {
-  report_path_->makeField(name, name_abrev, title, width, left_justify, unit, get_value);
+  report_path_->makeField(name, name_abrev, title, width, left_justify, unit,
+                          std::move(get_value));
 }
 
 void
@@ -3745,7 +3713,7 @@ void
 Sta::setArcDelayCalc(std::string_view delay_calc_name)
 {
   delete arc_delay_calc_;
-  arc_delay_calc_ = makeDelayCalc(std::string(delay_calc_name), sta_);
+  arc_delay_calc_ = makeDelayCalc(delay_calc_name, sta_);
   // Update pointers to arc_delay_calc.
   updateComponentsState();
   delaysInvalid();
@@ -3978,7 +3946,7 @@ Sta::makeLibertyGeneratedClocks(Clock *clk,
         if (cell && !cell->libertyGenClks().empty()) {
           for (LibertyGenClk *gen_clk : cell->libertyGenClks()) {
             Pin *master_pin = network->findPin(inst, gen_clk->masterPin());
-            if (master_pin && clk_network_pins.count(master_pin) != 0) {
+            if (master_pin && clk_network_pins.contains(master_pin)) {
               std::string inst_path = network->pathName(inst);
               std::string gen_clk_name = sta::format("{}/{}", inst_path,
                                                     gen_clk->clockPin());
@@ -4405,12 +4373,13 @@ bool
 Sta::readSpef(std::string_view name,
               std::string_view filename,
               Instance *instance,
-              Scene *scene,  // -scene deprecated 11/20/2025
+              Scene *scene,
               const MinMaxAll *min_max,
               bool pin_cap_included,
               bool keep_coupling_caps,
               float coupling_cap_factor,
-              bool reduce)
+              bool reduce,
+              bool replace)
 {
   ensureLibLinked();
   Parasitics *parasitics = nullptr;
@@ -4421,10 +4390,10 @@ Sta::readSpef(std::string_view name,
       if (scene)
         spef_name = scene->name();
       if (min_max != MinMaxAll::minMax()) {
-        spef_name += "_";
+        spef_name += '_';
         spef_name += min_max->to_string();
       }
-      parasitics = makeConcreteParasitics(spef_name, std::string(filename));
+      parasitics = makeConcreteParasitics(spef_name, filename);
     }
     else
       parasitics = findParasitics(spef_name);
@@ -4439,12 +4408,12 @@ Sta::readSpef(std::string_view name,
   else {
     parasitics = findParasitics(std::string(name));
     if (parasitics == nullptr)
-      parasitics = makeConcreteParasitics(std::string(name), std::string(filename));
+      parasitics = makeConcreteParasitics(name, filename);
   }
 
   bool success = readSpefFile(filename, instance, pin_cap_included,
                               keep_coupling_caps, coupling_cap_factor, reduce,
-                              scene, min_max, parasitics, this);
+                              replace, scene, min_max, parasitics, this);
   delaysInvalid();
   return success;
 }
@@ -6518,9 +6487,9 @@ Sta::activity(const Pin *pin,
 
 void
 Sta::annotateNoiseDelays(float min_coupling_sum_ratio,
-                          float min_coupling_ratio,
-                           const SceneSeq scenes,
-                          const MinMaxAll *min_max)
+                         float min_coupling_ratio,
+                         const SceneSeq &scenes,
+                         const MinMaxAll *min_max)
 {
   if (libraryHasCcsModels()) {
     noiseDelayPreamble();
@@ -6655,15 +6624,14 @@ void
 Sta::writePathSpice(const Path *path,
                     std::string_view spice_filename,
                     std::string_view subckt_filename,
-                    StringSeq lib_subckt_filenames,
+                    const StringSeq &lib_subckt_filenames,
                     std::string_view model_filename,
                     std::string_view power_name,
                     std::string_view gnd_name,
                     CircuitSim ckt_sim)
 {
   ensureLibLinked();
-  sta::writePathSpice(path, spice_filename, subckt_filename,
-                      std::move(lib_subckt_filenames),
+  sta::writePathSpice(path, spice_filename, subckt_filename, lib_subckt_filenames,
                       model_filename, power_name, gnd_name, ckt_sim, this);
 }
 
@@ -6671,7 +6639,7 @@ void
 Sta::writeGateSpice(ArcDcalcArgSeq &gates,
                     const char *spice_filename,
                     const char *subckt_filename,
-                    StringSeq lib_subckt_filenames,
+                    const StringSeq &lib_subckt_filenames,
                     const char *model_filename,
                     const char *power_name,
                     const char *gnd_name,

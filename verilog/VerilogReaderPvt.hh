@@ -40,7 +40,7 @@ using VerilogConstantValue = std::vector<bool>;
 class VerilogStmt
 {
 public:
-  VerilogStmt(int line);
+  explicit VerilogStmt(int line);
   virtual ~VerilogStmt() = default;
   virtual bool isInstance() const { return false; }
   virtual bool isModuleInst() const { return false; }
@@ -144,7 +144,7 @@ private:
 class VerilogDclArg
 {
 public:
-  VerilogDclArg(std::string_view net_name);
+  explicit VerilogDclArg(std::string_view net_name);
   VerilogDclArg(VerilogAssign *assign);
   ~VerilogDclArg();
   const std::string &netName();
@@ -257,7 +257,7 @@ private:
 class VerilogNetNamed : public VerilogNet
 {
 public:
-  VerilogNetNamed(std::string_view name);
+  explicit VerilogNetNamed(std::string_view name);
   bool isNamed() const override { return true; }
   virtual bool isScalar() const = 0;
   const std::string &name() const override { return name_; }
@@ -270,7 +270,7 @@ protected:
 class VerilogNetScalar : public VerilogNetNamed
 {
 public:
-  VerilogNetScalar(std::string_view name);
+  explicit VerilogNetScalar(std::string_view name);
   bool isScalar() const override { return true; }
   int size(VerilogModule *module) override;
   VerilogNetNameIterator *nameIterator(VerilogModule *module,
@@ -353,7 +353,7 @@ private:
 class VerilogNetPortRef : public VerilogNetScalar
 {
 public:
-  VerilogNetPortRef(std::string_view name);
+  explicit VerilogNetPortRef(std::string_view name);
   bool isNamedPortRef() override { return true; }
   virtual bool hasNet() = 0;
 };
@@ -365,7 +365,7 @@ public:
 class VerilogNetPortRefScalarNet : public VerilogNetPortRef
 {
 public:
-  VerilogNetPortRefScalarNet(std::string_view name);
+  explicit VerilogNetPortRefScalarNet(std::string_view name);
   VerilogNetPortRefScalarNet(std::string_view name,
                              std::string_view net_name);
   bool isScalar() const override { return true; }

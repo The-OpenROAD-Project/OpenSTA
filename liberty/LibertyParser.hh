@@ -107,8 +107,8 @@ private:
 class LibertyAttrValue
 {
 public:
-  LibertyAttrValue(float value);
-  LibertyAttrValue(std::string &&value);
+  explicit LibertyAttrValue(float value);
+  explicit LibertyAttrValue(std::string &&value);
   bool isString() const;
   bool isFloat() const;
   std::pair<float, bool> floatValue() const;
@@ -121,7 +121,7 @@ public:
   // ---- OpenROAD fork: binary liberty support (end) ----
 
 private:
-  float float_value_ = 0.0f;  // OpenROAD fork: binary liberty support.
+  float float_value_{0};
   std::string string_value_;
   std::vector<float> float_seq_;  // OpenROAD fork: binary liberty support.
 };

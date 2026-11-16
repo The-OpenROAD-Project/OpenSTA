@@ -140,8 +140,11 @@ unencode(const char *inits[])
     size_t init_length = strlen(init);
     for (const char *s = init; s < &init[init_length]; s += 3) {
       char code[4] = {s[0], s[1], s[2], '\0'};
-      char ch = atoi(code);
-      *u++ = ch;
+      char *end = nullptr;
+      int value = static_cast<int>(std::strtol(code, &end, 10));
+      if (end == code || *end != '\0')
+        value = 0;
+      *u++ = static_cast<char>(value);
     }
   }
   *u = '\0';

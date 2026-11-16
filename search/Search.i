@@ -447,13 +447,13 @@ make_report_path_attr_field(std::string attr_name,
                            });
 }
 
-const char *
-find_report_path_field_abrev(const char *name)
+const std::string
+find_report_path_field_abrev(const char *field_name)
 {
   Sta *sta = Sta::sta();
-  ReportField *field = sta->findReportPathFieldAbrev(name);
+  ReportField *field = sta->findReportPathFieldAbrev(field_name);
   if (field)
-    return field->name().c_str();
+    return field->name();
   else
     return "";
 }
@@ -775,13 +775,6 @@ define_scene_cmd(const char *name,
   sta->makeScene(name, mode_name,
                  liberty_min_files, liberty_max_files,
                  spef_min_file, spef_max_file);
-}
-
-void
-define_scenes_cmd(StringSeq scene_names)
-{
-  Sta *sta = Sta::sta();
-  sta->makeScenes(scene_names);
 }
 
 Scene *

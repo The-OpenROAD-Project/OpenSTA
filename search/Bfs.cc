@@ -158,7 +158,7 @@ BfsIterator::visitParallel(Level to_level,
   size_t thread_count = thread_count_;
   int visit_count = 0;
   if (!empty()) {
-    if (thread_count == 1)
+    if (thread_count <= 1)
       visit_count = visit(to_level, visitor);
     else {
       std::vector<VertexVisitor *> visitors;
