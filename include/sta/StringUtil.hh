@@ -107,6 +107,14 @@ isDigits(std::string_view str);
 void
 trimRight(std::string &str);
 
+// Trim left spaces.
+void
+trimLeft(std::string &str);
+
+// Trim both left and right spaces.
+void
+trim(std::string &str);
+
 // Parse text into delimiter separated tokens and skip whitepace.
 StringSeq
 parseTokens(const std::string &text,

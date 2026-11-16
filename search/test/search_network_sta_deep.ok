@@ -268,8 +268,8 @@ Vertex out1
 --- report_arrival_entries ---
 --- report_required_entries ---
 Level 40
- buf1/Z
  buf2/Z
+ buf1/Z
 --- find_requireds ---
 --- report_annotated_delay ---
                                                           Not   

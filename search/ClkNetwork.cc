@@ -137,20 +137,16 @@ ClkNetwork::findClkPins(bool ideal_only,
         clk_pins_map_[clk] = clk_pins;
       }
       std::queue<Vertex *> queue;
-      VertexSet visited = makeVertexSet(this);
-      auto enqueue = [&queue, &visited] (Vertex *vertex) {
-        if (vertex && !visited.contains(vertex)) {
-          visited.insert(vertex);
-          queue.push(vertex);
-        }
-      };
+      VertexSet visited(graph_);
       for (const Pin *pin : clk->leafPins()) {
         if (!ideal_only
             || !sdc->isPropagatedClock(pin)) {
-          Vertex *vertex, *bidirect_drvr_vertex;
-          graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-          enqueue(vertex);
-          enqueue(bidirect_drvr_vertex);
+          graph_->verticesApply(pin, [&queue, &visited] (Vertex *vertex) {
+            if (!visited.contains(vertex)) {
+              visited.insert(vertex);
+              queue.push(vertex);
+            }
+          });
         }
       }
       while (!queue.empty()) {

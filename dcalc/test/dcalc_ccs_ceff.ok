@@ -1,0 +1,73 @@
+Startpoint: in4 (input port)
+Endpoint: out (output port)
+Path Group: unconstrained
+Path Type: max
+
+     Cap     Slew    Delay     Time   Description
+---------------------------------------------------------------------------
+                     0.000    0.000 ^ input external delay
+   1.260   20.000    0.000    0.000 ^ in4 (in)
+  12.627  190.345   23.428   23.428 v u1/Y (A2O1A1Ixp33_ASAP7_75t_L)
+   0.000   63.500  127.499  150.926 ^ u2/Y (A2O1A1Ixp33_ASAP7_75t_L)
+           63.500    0.000  150.926 ^ out (out)
+                            150.926   data arrival time
+---------------------------------------------------------------------------
+(Path is unconstrained)
+
+
+Library: asap7sc7p5t_AO_LVT_FF_ccsn_211120
+Cell: A2O1A1Ixp33_ASAP7_75t_L
+Arc sense: negative_unate
+Arc type: combinational
+A1 ^ -> Y v
+Pi model C2=2.000 Rpi=10.000 C1=10.627, Ceff=4.303
+P = 1.000 V = 0.770 T = 0.000
+------- input_net_transition = 20.000
+|       total_output_net_capacitance = 4.303
+|        2.880     5.760
+v      --------------------
+20.000 | 22.292     36.027
+40.000 | 25.072     39.074
+Table value = 29.080
+PVT scale factor = 1.000
+Delay = 29.080
+
+------- input_net_transition = 20.000
+|       total_output_net_capacitance = 4.303
+|        2.880     5.760
+v      --------------------
+20.000 | 41.211     72.614
+40.000 | 44.248     74.675
+Table value = 56.729
+PVT scale factor = 1.000
+Slew = 56.729
+Driver waveform slew = 158.090
+
+.............................................
+
+A1 v -> Y ^
+Pi model C2=2.000 Rpi=10.000 C1=10.620, Ceff=3.885
+P = 1.000 V = 0.770 T = 0.000
+------- input_net_transition = 20.000
+|       total_output_net_capacitance = 3.885
+|        2.880     5.760
+v      --------------------
+20.000 | 21.134     33.511
+40.000 | 24.371     37.236
+Table value = 25.454
+PVT scale factor = 1.000
+Delay = 25.454
+
+------- input_net_transition = 20.000
+|       total_output_net_capacitance = 3.885
+|        2.880     5.760
+v      --------------------
+20.000 | 35.335     63.421
+40.000 | 38.227     65.490
+Table value = 45.137
+PVT scale factor = 1.000
+Slew = 45.137
+Driver waveform slew = 138.829
+
+.............................................
+

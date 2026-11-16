@@ -95,7 +95,7 @@ public:
 
   static void sort(ArcDcalcArgSeq &gates,
                    const Network *network);
-  static std::string to_string(ArcDcalcArgSeq &gates,
+  static std::string to_string(const ArcDcalcArgSeq &gates,
                                const StaState *sta);
 
 protected:

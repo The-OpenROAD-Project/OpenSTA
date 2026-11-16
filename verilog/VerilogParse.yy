@@ -99,7 +99,7 @@ using VerilogStmtSeq = std::vector<VerilogStmt*>;
 
 %type <std::string> attr_spec_value
 %type <int> parameter_exprs parameter_expr
-%type <sta::PortDirection *> dcl_type port_dcl_type
+%type <const sta::PortDirection *> dcl_type port_dcl_type
 %type <sta::VerilogStmt *> stmt declaration instance parameter parameter_dcls parameter_dcl
 %type <sta::VerilogStmt *> defparam param_values param_value port_dcl
 %type <sta::VerilogStmtSeq *> stmts stmt_seq net_assignments continuous_assign port_dcls

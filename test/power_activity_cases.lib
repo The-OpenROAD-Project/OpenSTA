@@ -125,4 +125,39 @@ library (power_activity_cases) {
       }
     }
   }
+
+  /* Timing arcs with when conds. A constant on SE disables one of the
+     A to Z arcs, so its slew should not be merged at Z. */
+  cell (COND_BUF) {
+    pin (A) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (SE) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (Z) {
+      direction : output;
+      function : "A";
+      timing () {
+        related_pin : "A";
+        timing_sense : positive_unate;
+        when : "!SE";
+        cell_rise (scalar) { values ("0.01"); }
+        cell_fall (scalar) { values ("0.01"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+      timing () {
+        related_pin : "A";
+        timing_sense : positive_unate;
+        when : "SE";
+        cell_rise (scalar) { values ("5.0"); }
+        cell_fall (scalar) { values ("5.0"); }
+        rise_transition (scalar) { values ("9.0"); }
+        fall_transition (scalar) { values ("9.0"); }
+      }
+    }
+  }
 }

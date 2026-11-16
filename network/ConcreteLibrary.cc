@@ -24,6 +24,7 @@
 
 #include "ConcreteLibrary.hh"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
@@ -158,6 +159,19 @@ ConcreteCell::makePort(std::string_view name)
   ConcretePort *port = new ConcretePort(name, false, -1, -1,
                                         false, nullptr, this);
   addPort(port);
+  return port;
+}
+
+ConcretePort *
+ConcreteCell::makePortBeforeBusPorts(std::string_view name)
+{
+  ConcretePort *port = makePort(name);
+  auto first_bus = std::find_if(ports_.begin(), ports_.end(),
+                                [](const ConcretePort *p) { return p->isBus(); });
+  if (first_bus != ports_.end()) {
+    // makePort appended port; move it ahead of the bus ports.
+    std::rotate(first_bus, ports_.end() - 1, ports_.end());
+  }
   return port;
 }
 
@@ -298,13 +312,13 @@ public:
   int to() const { return to_; }
   ConcretePortSeq &members() { return members_; }
   const ConcretePortSeq &members() const { return members_; }
-  void setDirection(PortDirection *direction);
-  PortDirection *direction() const { return direction_; }
+  void setDirection(const PortDirection *direction);
+  const PortDirection *direction() const { return direction_; }
 
 private:
   int from_;
   int to_;
-  PortDirection *direction_;
+  const PortDirection *direction_;
   ConcretePortSeq members_;
 };
 
@@ -315,7 +329,7 @@ BusPort::BusPort() :
 }
 
 void
-BusPort::setDirection(PortDirection *direction)
+BusPort::setDirection(const PortDirection *direction)
 {
   direction_ = direction;
 }
@@ -488,7 +502,7 @@ ConcretePort::setPinIndex(int index)
 }
 
 void
-ConcretePort::setDirection(PortDirection *dir)
+ConcretePort::setDirection(const PortDirection *dir)
 {
   direction_ = dir;
   if (hasMembers()) {

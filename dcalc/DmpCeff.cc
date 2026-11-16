@@ -67,7 +67,7 @@ enum DmpFunc { y20, y50, ipi };
 static const char *dmp_func_index_strings[] = {"y20", "y50", "Ipi"};
 
 static double
-exp2(double x);
+expApprox(double x);
 
 static double
 gateModelRd(const LibertyCell *cell,
@@ -202,7 +202,7 @@ double
 DmpAlg::y0(double t,
            double cl)
 {
-  return t - rd_ * cl * (1.0 - exp2(-t / (rd_ * cl)));
+  return t - rd_ * cl * (1.0 - expApprox(-t / (rd_ * cl)));
 }
 
 std::tuple<double, double, double>
@@ -234,14 +234,14 @@ double
 DmpAlg::y0dt(double t,
              double cl)
 {
-  return 1.0 - exp2(-t / (rd_ * cl));
+  return 1.0 - expApprox(-t / (rd_ * cl));
 }
 
 double
 DmpAlg::y0dcl(double t,
               double cl)
 {
-  return rd_ * ((1.0 + t / (rd_ * cl)) * exp2(-t / (rd_ * cl)) - 1);
+  return rd_ * ((1.0 + t / (rd_ * cl)) * expApprox(-t / (rd_ * cl)) - 1);
 }
 
 void
@@ -657,9 +657,9 @@ DmpPi::evalDmpEqns(Eigen::Vector3d &x,
 
   // Pre-calculate exponential terms to avoid redundant calls to
   // transcendental functions.
-  const double exp_p1_dt = exp2(-p1_ * dt);
-  const double exp_p2_dt = exp2(-p2_ * dt);
-  const double exp_dt_rd_ceff = exp2(-dt / (rd_ * ceff));
+  const double exp_p1_dt = expApprox(-p1_ * dt);
+  const double exp_p2_dt = expApprox(-p2_ * dt);
+  const double exp_dt_rd_ceff = expApprox(-dt / (rd_ * ceff));
 
   // Evaluate function values (residuals).
   const double y50 = y(t_vth, t0, dt, ceff).first;
@@ -718,9 +718,9 @@ DmpPi::ipiIceff(double,
                 double ceff_time,
                 double ceff)
 {
-  double exp_p1_dt = exp2(-p1_ * ceff_time);
-  double exp_p2_dt = exp2(-p2_ * ceff_time);
-  double exp_dt_rd_ceff = exp2(-ceff_time / (rd_ * ceff));
+  double exp_p1_dt = expApprox(-p1_ * ceff_time);
+  double exp_p2_dt = expApprox(-p2_ * ceff_time);
+  double exp_dt_rd_ceff = expApprox(-ceff_time / (rd_ * ceff));
   double ipi = (A_ * ceff_time + (B_ / p1_) * (1.0 - exp_p1_dt)
                 + (D_ / p2_) * (1.0 - exp_p2_dt))
       / (rd_ * ceff_time * dt);
@@ -733,8 +733,8 @@ DmpPi::ipiIceff(double,
 std::pair<double, double>
 DmpPi::V0(double t)
 {
-  double exp_p1 = exp2(-p1_ * t);
-  double exp_p2 = exp2(-p2_ * t);
+  double exp_p1 = expApprox(-p1_ * t);
+  double exp_p2 = expApprox(-p2_ * t);
   double vo = k0_ * (k1_ + k2_ * t + k3_ * exp_p1 + k4_ * exp_p2);
   double dvo_dt = k0_ * (k2_ - k3_ * p1_ * exp_p1 - k4_ * p2_ * exp_p2);
   return {vo, dvo_dt};
@@ -748,9 +748,9 @@ DmpPi::Vl0(double t)
   double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
   double D5 =
       k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_) + p3_ * k4_ / (p2_ - p3_));
-  double exp_p1 = exp2(-p1_ * t);
-  double exp_p2 = exp2(-p2_ * t);
-  double exp_p3 = exp2(-p3_ * t);
+  double exp_p1 = expApprox(-p1_ * t);
+  double exp_p2 = expApprox(-p2_ * t);
+  double exp_p3 = expApprox(-p3_ * t);
   double vl = D1 + t + D3 * exp_p1 + D4 * exp_p2 + D5 * exp_p3;
   double dvl_dt = 1.0 - D3 * p1_ * exp_p1 - D4 * p2_ * exp_p2 - D5 * p3_ * exp_p3;
   return {vl, dvl_dt};
@@ -871,7 +871,7 @@ DmpZeroC2::gateDelaySlew()
 std::pair<double, double>
 DmpZeroC2::V0(double t)
 {
-  double exp_p1 = exp2(-p1_ * t);
+  double exp_p1 = expApprox(-p1_ * t);
   double vo = k0_ * (k1_ + k2_ * t + k3_ * exp_p1);
   double dvo_dt = k0_ * (k2_ - k3_ * p1_ * exp_p1);
   return {vo, dvo_dt};
@@ -883,8 +883,8 @@ DmpZeroC2::Vl0(double t)
   double D1 = k0_ * (k1_ - k2_ / p3_);
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_));
-  double exp_p1 = exp2(-p1_ * t);
-  double exp_p3 = exp2(-p3_ * t);
+  double exp_p1 = expApprox(-p1_ * t);
+  double exp_p3 = expApprox(-p3_ * t);
   double vl = D1 + t + D3 * exp_p1 + D5 * exp_p3;
   double dvl_dt = 1.0 - D3 * p1_ * exp_p1 - D5 * p3_ * exp_p3;
   return {vl, dvl_dt};
@@ -1204,7 +1204,7 @@ DmpCeffDelayCalc::copyState(const StaState *sta)
 // This saves about 2.5% in overall run time on designs with SPEF.
 // https://codingforspeed.com/using-faster-exponential-approximation
 static double
-exp2(double x)
+expApprox(double x)
 {
   if (x < -12.0)
     // exp(-12) = 6.1e-6

@@ -455,20 +455,6 @@ thrusIntersectPts(ExceptionThruSeq *thrus1,
   return true;
 }
 
-void
-ExceptionPath::deleteInstance(const Instance *inst,
-                              const Network *network)
-{
-  if (from_)
-    from_->deleteInstance(inst, network);
-  if (thrus_) {
-    for (ExceptionThru *thru : *thrus_)
-      thru->deleteInstance(inst, network);
-  }
-  if (to_)
-    to_->deleteInstance(inst, network);
-}
-
 ////////////////////////////////////////////////////////////////
 
 PathDelay::PathDelay(ExceptionFrom *from,
@@ -945,6 +931,18 @@ size_t
 ExceptionPt::hash() const
 {
   return hash_;
+}
+
+void
+ExceptionPt::replacePin(const Pin *pin,
+                        const Pin *to_pin,
+                        Network *network)
+{
+  PinSet *pts_pins = pins();
+  if (pts_pins && pts_pins->contains(pin)) {
+    deletePinBefore(pin, network);
+    addPin(to_pin, network);
+  }
 }
 
 ExceptionFromTo::ExceptionFromTo(PinSet *pins,
@@ -1586,7 +1584,7 @@ ExceptionThru::deletePinEdges(const Pin *pin,
                               Network *network)
 {
   // Incrementally delete only edges through (hier) or from/to (leaf) the pin.
-  if (edges_ && network->net(pin)) {
+  if (edges_ && (network->net(pin) || !network->isHierarchical(pin))) {
     if (network->isHierarchical(pin)) {
       // Use driver lookup to minimize potentially expensive calls to
       // deletePinPairsThruHierPin.
@@ -1887,6 +1885,41 @@ ExceptionThru::deleteInstance(const Instance *inst,
       hash_ -= network->id(inst) * hash_inst;
     }
   }
+}
+
+void
+ExceptionThru::replacePin(const Pin *pin,
+                          const Pin *to_pin,
+                          Network *network)
+{
+  if (pins_ && pins_->contains(pin)) {
+    ExceptionPt::replacePin(pin, to_pin, network);
+    // Edges thru hierarchical pins.
+    makePinEdges(to_pin, network);
+  }
+}
+
+void
+ExceptionThru::replaceNet(const Net *net,
+                          const Net *to_net,
+                          const Network *network)
+{
+  if (nets_ && nets_->contains(net)) {
+    deleteNet(net, network);
+    if (to_net)
+      addNet(to_net, network);
+    remakeEdges(network);
+  }
+}
+
+// Edges are derived from the pins, nets and instances, so remake them
+// when one is removed.
+void
+ExceptionThru::remakeEdges(const Network *network)
+{
+  if (edges_)
+    edges_->clear();
+  makeAllEdges(network);
 }
 
 void

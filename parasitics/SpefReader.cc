@@ -289,10 +289,10 @@ SpefReader::nameMapLookup(std::string_view name)
     return name;
 }
 
-PortDirection *
+const PortDirection *
 SpefReader::portDirection(std::string_view spef_dir)
 {
-  PortDirection *direction = PortDirection::unknown();
+  const PortDirection *direction = PortDirection::unknown();
   if (spef_dir == "I")
     direction = PortDirection::input();
   else if (spef_dir == "O")

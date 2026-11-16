@@ -1031,7 +1031,7 @@ ReportPath::pathStartpoint(const PathEnd *end,
   Pin *pin = start->pin(graph_);
   std::string pin_name = cmd_network_->pathName(pin);
   if (network_->isTopLevelPort(pin)) {
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     return sta::format("{} ({})", pin_name, dir->name());
   }
   else {
@@ -1047,7 +1047,7 @@ ReportPath::pathEndpoint(const PathEnd *end) const
   Pin *pin = end->vertex(this)->pin();
   std::string pin_name = cmd_network_->pathName(pin);
   if (network_->isTopLevelPort(pin)) {
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     return sta::format("{} ({})", pin_name, dir->name());
   }
   else {
@@ -2995,7 +2995,7 @@ ReportPath::descriptionField(const Pin *pin) const
 {
   std::string name2;
   if (network_->isTopLevelPort(pin)) {
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     // Translate port direction.  Note that this is intentionally
     // inconsistent with the direction reported for top level ports as
     // startpoints.

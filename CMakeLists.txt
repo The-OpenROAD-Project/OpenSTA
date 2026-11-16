@@ -24,7 +24,7 @@
 
 cmake_minimum_required (VERSION 3.16)
 
-project(STA VERSION 3.1.0
+project(STA VERSION 3.2.0
   LANGUAGES CXX
 )
 
@@ -110,6 +110,7 @@ set(STA_SOURCE
   liberty/LibertyBuilder.cc
   liberty/LibertyBinaryWriter.cc
   liberty/LibertyBinaryReader.cc
+  liberty/LibertyGenClk.cc
   liberty/LibExprReader.cc
   liberty/LibertyParser.cc
   liberty/LibertyReader.cc

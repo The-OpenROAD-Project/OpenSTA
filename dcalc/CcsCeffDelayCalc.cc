@@ -89,6 +89,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
                             const Scene *scene,
                             const MinMax *min_max)
 {
+  drvr_pin_ = drvr_pin;
   in_slew_ = delayAsFloat(in_slew);
   load_cap_ = load_cap;
   parasitics_ = scene->parasitics(min_max);
@@ -402,7 +403,7 @@ rampElmoreV(double t,
             double &v,
             double &dv_dt)
 {
-  double exp_t = 1.0 - exp2(-t / elmore);
+  double exp_t = 1.0 - std::exp(-t / elmore);
   v = slew * (t - elmore * exp_t);
   // First derivative of loadVl dv/dt.
   dv_dt = slew * exp_t;
@@ -663,17 +664,17 @@ CcsCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                   const MinMax *min_max,
                                   int digits)
 {
-  Parasitic *pi_elmore = nullptr;
-  const RiseFall *rf = arc->toEdge()->asRiseFall();
-  if (parasitic && !parasitics_->isPiElmore(parasitic)) {
-    pi_elmore =
-        parasitics_->reduceToPiElmore(parasitic, drvr_pin_, rf, scene, min_max);
+  // gateDelay may not have run on this instance, so use the arguments
+  // rather than member state (parasitics_, drvr_pin_).
+  const Parasitic *pi_elmore = parasitic;
+  if (parasitic && scene->parasitics(min_max)->isParasiticNetwork(parasitic)) {
+    const RiseFall *rf = arc->toEdge()->asRiseFall();
+    // Cached per driver pin; the delay calc owns it, so do not delete it.
+    pi_elmore = reduceParasitic(parasitic, drvr_pin, rf, scene, min_max);
   }
-  std::string report =
-      table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap, pi_elmore,
-                                    load_pin_index_map, scene, min_max, digits);
-  parasitics_->deleteDrvrReducedParasitics(drvr_pin);
-  return report;
+  return table_dcalc_->reportGateDelay(drvr_pin, arc, in_slew, load_cap,
+                                       pi_elmore, load_pin_index_map, scene,
+                                       min_max, digits);
 }
 
 void

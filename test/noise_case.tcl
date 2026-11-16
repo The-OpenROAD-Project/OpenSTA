@@ -2,10 +2,10 @@
 source helpers.tcl
 suppress_msg 198 1579
 read_liberty ../examples/sky130hd_tt.lib.gz
-read_verilog ../examples/gcd_sky130hd.v
+read_verilog ../examples/gcd_sky130hd.v.gz
 link_design gcd
 read_sdc ../examples/gcd_sky130hd.sdc
-read_spef -keep_capacitive_coupling ../examples/gcd_sky130hd.spef
+read_spef -keep_capacitive_coupling ../examples/gcd_sky130hd.spef.gz
 
 # Print the nets of a written case SPEF, skipping the header.
 proc report_case_spef_nets { file } {

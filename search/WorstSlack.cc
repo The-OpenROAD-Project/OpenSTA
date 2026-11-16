@@ -233,7 +233,7 @@ WorstSlack::checkQueue(PathAPIndex path_ap_index)
   WnsSlackLess slack_less(path_ap_index, this);
   sort(ends, slack_less);
 
-  VertexSet end_set = makeVertexSet(this);
+  VertexSet end_set(graph_);
   for (Vertex *end : ends) {
     end_set.insert(end);
     if (!queue_->contains(end)

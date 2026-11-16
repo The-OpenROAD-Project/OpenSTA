@@ -47,7 +47,6 @@ corner-neutral commands:
   make_net
   make_port
   read_liberty
-  read_power_activities
   read_saif
   read_sdc
   read_sdf

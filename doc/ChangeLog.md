@@ -3,9 +3,12 @@
 This file summarizes user visible changes for each release.
 See [API changes](ApiChanges.md) for changes to the STA API.
 
-## 2026/10/15
+## Release 3.2.0 2026/10/15
 
-Delay calculation noise analysis support.
+Noise delay calculation analysis support.
+See the Examples.md section on Noise Delay for details.
+Noise delays are experimental and still under development.
+**NOTE WELL:** Noise delays are NOT updated or supported for netlist edits.
 
 ```tcl
 annotate_noise_delays
@@ -26,9 +29,6 @@ Annotate wire delays on victim nets that have coupling capacitances to aggressor
 Noise delays can be reported in timing reports with the -noise field.
 
 Use the read_spef -keep_capacitive_coupling option to retain coupling capacitors for noise analysis.
-
-The read_spef -keep_capacitive_coupling option must be used to retain
-coupling capacitors for noise analysis.
 
 ```tcl
 report_noise_delays

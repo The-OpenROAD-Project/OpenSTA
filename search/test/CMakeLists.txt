@@ -12,6 +12,7 @@ sta_module_tests("search"
     clk_skew_interclk
     clk_skew_multiclock
     corner_io_gates
+    corner_move_constraints
     corner_scope_audit
     corner_sdc_bundle
     corner_sdc_derate

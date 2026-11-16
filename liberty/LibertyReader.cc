@@ -1218,7 +1218,7 @@ LibertyReader::makePgPinPort(LibertyCell *cell,
     const std::string &type_name = pg_pin_group->findAttrString("pg_type");
     if (!type_name.empty()) {
       PwrGndType type = findPwrGndType(type_name);
-      PortDirection *dir = PortDirection::unknown();
+      const PortDirection *dir = PortDirection::unknown();
       switch (type) {
       case PwrGndType::primary_ground:
       case PwrGndType::backup_ground:
@@ -1486,7 +1486,7 @@ LibertyReader::readPortDir(const LibertyPortSeq &ports,
   if (dir_attr) {
     const std::string &dir = dir_attr->stringValue();
     if (!dir.empty()) {
-      PortDirection *port_dir = PortDirection::unknown();
+      const PortDirection *port_dir = PortDirection::unknown();
       if (dir == "input")
         port_dir = PortDirection::input();
       else if (dir == "output")
@@ -1854,6 +1854,7 @@ LibertyReader::readCellAttributes(LibertyCell *cell,
 
   readScaleFactors(cell, cell_group);
   readLeakageGrouops(cell, cell_group);
+  readGeneratedClocks(cell, cell_group);
   readStatetable(cell, cell_group);
   readModeDefs(cell, cell_group);
 }
@@ -2771,6 +2772,80 @@ LibertyReader::readLeakageGrouops(LibertyCell *cell,
 }
 
 void
+LibertyReader::readGeneratedClocks(LibertyCell *cell,
+                                   const LibertyGroup *cell_group)
+{
+  for (const LibertyGroup *gen_clk_group : cell_group->findSubgroups("generated_clock"))
+    readGeneratedClock(cell, gen_clk_group);
+}
+
+void
+LibertyReader::readGeneratedClock(LibertyCell *cell,
+                                  const LibertyGroup *gen_clk_group)
+{
+  if (gen_clk_group->hasFirstParam()) {
+    std::string clock_pin = gen_clk_group->findAttrString("clock_pin");
+    trim(clock_pin);
+    if (!clock_pin.empty()) {
+      const std::string &name = gen_clk_group->firstParam();
+      std::string master_pin = gen_clk_group->findAttrString("master_pin");
+      trim(master_pin);
+
+      int divided_by = 1;
+      bool exists;
+      gen_clk_group->findAttrInt("divided_by", divided_by, exists);
+      int multiplied_by = 1;
+      gen_clk_group->findAttrInt("multiplied_by", multiplied_by, exists);
+      float duty_cycle = 0.0f;
+      gen_clk_group->findAttrFloat("duty_cycle", duty_cycle, exists);
+
+      bool invert = false;
+      const LibertySimpleAttr *invert_attr = gen_clk_group->findSimpleAttr("invert");
+      if (invert_attr)
+        getAttrBool(invert_attr, invert, exists);
+
+      IntSeq edges = readGeneratedClockEdges(gen_clk_group);
+      FloatSeq edge_shifts = readGeneratedClockShifts(gen_clk_group);
+      cell->makeLibertyGenClk(name.c_str(),
+                              clock_pin.c_str(),
+                              master_pin.empty() ? nullptr : master_pin.c_str(),
+                              divided_by,
+                              multiplied_by,
+                              duty_cycle,
+                              invert,
+                              edges.empty() ? nullptr : &edges,
+                              edge_shifts.empty() ? nullptr : &edge_shifts);
+    }
+    else
+      warn(1345, gen_clk_group, "generated_clock missing clock_pin.");
+  }
+  else
+    warn(1344, gen_clk_group, "generated_clock missing name.");
+}
+
+IntSeq
+LibertyReader::readGeneratedClockEdges(const LibertyGroup *gen_clk_group)
+{
+  IntSeq edges;
+  const LibertyComplexAttr *edges_attr = gen_clk_group->findComplexAttr("edges");
+  if (edges_attr) {
+    for (float value : readFloatSeq(edges_attr, 1.0F))
+      edges.push_back(static_cast<int>(value));
+  }
+  return edges;
+}
+
+FloatSeq
+LibertyReader::readGeneratedClockShifts(const LibertyGroup *gen_clk_group)
+{
+  FloatSeq edge_shifts;
+  const LibertyComplexAttr *shifts_attr = gen_clk_group->findComplexAttr("shifts");
+  if (shifts_attr)
+    edge_shifts = readFloatSeq(shifts_attr, time_scale_);
+  return edge_shifts;
+}
+
+void
 LibertyReader::readInternalPowerGroups(LibertyCell *cell,
                                        const LibertyPortSeq &ports,
                                        const LibertyGroup *port_group)
@@ -3165,7 +3240,7 @@ LibertyReader::findPort(LibertyCell *cell,
 float
 LibertyReader::defaultCap(LibertyPort *port)
 {
-  PortDirection *dir = port->direction();
+  const PortDirection *dir = port->direction();
   float cap = 0.0;
   if (dir->isInput())
     cap = library_->defaultInputPinCap();

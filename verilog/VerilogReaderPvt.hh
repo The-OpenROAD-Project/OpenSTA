@@ -91,11 +91,11 @@ private:
 class VerilogDcl : public VerilogStmt
 {
 public:
-  VerilogDcl(PortDirection *dir,
+  VerilogDcl(const PortDirection *dir,
              VerilogDclArgSeq *args,
              VerilogAttrStmtSeq *attr_stmts,
              int line);
-  VerilogDcl(PortDirection *dir,
+  VerilogDcl(const PortDirection *dir,
              VerilogDclArg *arg,
              VerilogAttrStmtSeq *attr_stmts,
              int line);
@@ -105,12 +105,12 @@ public:
   bool isDeclaration() const override { return true; }
   VerilogDclArgSeq *args() const { return args_; }
   void appendArg(VerilogDclArg *arg);
-  PortDirection *direction() const { return dir_; }
+  const PortDirection *direction() const { return dir_; }
   virtual int size() const { return 1; }
   void check();
 
 private:
-  PortDirection *dir_;
+  const PortDirection *dir_;
   VerilogDclArgSeq *args_;
   VerilogAttrStmtSeq *attr_stmts_;
 };
@@ -118,13 +118,13 @@ private:
 class VerilogDclBus : public VerilogDcl
 {
 public:
-  VerilogDclBus(PortDirection *dir,
+  VerilogDclBus(const PortDirection *dir,
                 int from_index,
                 int to_index,
                 VerilogDclArgSeq *args,
                 VerilogAttrStmtSeq *attr_stmts,
                 int line);
-  VerilogDclBus(PortDirection *dir,
+  VerilogDclBus(const PortDirection *dir,
                 int from_index,
                 int to_index,
                 VerilogDclArg *arg,

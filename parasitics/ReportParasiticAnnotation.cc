@@ -124,7 +124,7 @@ ReportParasiticAnnotation::findCounts()
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
     Pin *pin = vertex->pin();
-    PortDirection *dir = network_->direction(pin);
+    const PortDirection *dir = network_->direction(pin);
     if (vertex->isDriver(network_) && !dir->isInternal()) {
       Parasitic *parasitic = parasitics_->findParasiticNetwork(pin);
       if (parasitic == nullptr)

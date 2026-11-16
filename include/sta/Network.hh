@@ -170,7 +170,7 @@ public:
   virtual ObjectId id(const Port *port) const = 0;
   virtual Cell *cell(const Port *port) const = 0;
   virtual LibertyPort *libertyPort(const Port *port) const = 0;
-  virtual PortDirection *direction(const Port *port) const = 0;
+  virtual const PortDirection *direction(const Port *port) const = 0;
   // Bus port functions.
   virtual bool isBus(const Port *port) const = 0;
   virtual bool isBundle(const Port *port) const = 0;
@@ -253,6 +253,9 @@ public:
   // Iterate over the pins on an instance.
   virtual InstancePinIterator *
   pinIterator(const Instance *instance) const = 0;
+  // Iterate over top level port pins and then leaf instance pins.
+  // Not virtual because it is written in terms of the other primitives.
+  PinIterator *pinIterator() const;
   // Iterate over the nets in an instance.
   // This should include nets that are connected to the
   // instance parent thru pins.
@@ -296,7 +299,7 @@ public:
   virtual Instance *instance(const Pin *pin) const = 0;
   virtual Net *net(const Pin *pin) const = 0;
   virtual Term *term(const Pin *pin) const = 0;
-  virtual PortDirection *direction(const Pin *pin) const = 0;
+  virtual const PortDirection *direction(const Pin *pin) const = 0;
   virtual bool isLeaf(const Pin *pin) const;
   [[nodiscard]] bool isHierarchical(const Pin *pin) const;
   [[nodiscard]] bool isTopLevelPort(const Pin *pin) const;
@@ -565,7 +568,7 @@ public:
   virtual Term *makeTerm(Pin *pin,
                          Net *net) = 0;
   virtual void setDirection(Port *port,
-                            PortDirection *dir) = 0;
+                            const PortDirection *dir) = 0;
   // Instance is the network view for cell.
   virtual void setCellNetworkView(Cell *cell,
                                   Instance *inst) = 0;

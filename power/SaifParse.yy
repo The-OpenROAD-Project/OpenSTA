@@ -44,8 +44,9 @@ void
 sta::SaifParse::error(const location_type &loc,
                       const std::string &msg)
 {
-  reader->report()->fileError(169,reader->filename(),loc.begin.line,{}, msg);
+  reader->report()->fileError(169, reader->filename(), loc.begin.line, "{}", msg);
 }
+
 %}
 
 %require  "3.2"

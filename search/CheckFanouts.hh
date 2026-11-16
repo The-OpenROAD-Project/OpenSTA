@@ -100,10 +100,6 @@ protected:
   void checkAll(bool violators,
                 const ModeSeq &modes,
                 const MinMax *min_max);
-  void checkInst(const Instance *inst,
-                 bool violators,
-                 const ModeSeq &modes,
-                 const MinMax *min_max);
   void checkPin(const Pin *pin,
                 bool violators,
                 const ModeSeq &modes,

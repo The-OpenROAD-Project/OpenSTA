@@ -145,7 +145,7 @@ DcalcNonLatchPred::searchThru(Edge *edge,
 
 GraphDelayCalc::GraphDelayCalc(StaState *sta) :
   StaState(sta),
-  invalid_delays_(makeVertexSet(this)),
+  invalid_delays_(graph_),
   search_pred_(new DcalcPred(sta)),
   search_non_latch_pred_(new DcalcNonLatchPred(sta)),
   iter_(new BfsFwdIterator(BfsIndex::dcalc, search_non_latch_pred_, sta))
@@ -233,14 +233,10 @@ GraphDelayCalc::delayInvalid(const Pin *pin)
         delayInvalid(edge->from(graph_));
       }
     }
-    else {
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
+    else
+      graph_->verticesApply(pin, [this] (Vertex *vertex) {
         delayInvalid(vertex);
-      if (bidirect_drvr_vertex)
-        delayInvalid(bidirect_drvr_vertex);
-    }
+      });
   }
 }
 
@@ -875,7 +871,7 @@ static bool
 isLeafBidirectLoad(const Pin *pin,
                    const Network *network)
 {
-  PortDirection *dir = network->direction(pin);
+  const PortDirection *dir = network->direction(pin);
   const Instance *inst = network->instance(pin);
   return network->isLeaf(inst) && dir->isBidirect();
 }
@@ -898,7 +894,7 @@ static bool
 isLeafDriver(const Pin *pin,
              const Network *network)
 {
-  PortDirection *dir = network->direction(pin);
+  const PortDirection *dir = network->direction(pin);
   const Instance *inst = network->instance(pin);
   return network->isLeaf(inst) && dir->isAnyOutput();
 }
@@ -1050,12 +1046,16 @@ GraphDelayCalc::findDriverEdgeDelays(Vertex *drvr_vertex,
         && search_pred_->searchThru(edge, mode)) {
       for (const MinMax *min_max : MinMax::range()) {
         for (const TimingArc *arc : arc_set->arcs()) {
-          delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
-                                               scene, min_max, arc_delay_calc,
-                                               load_pin_index_map);
-          size_t drvr_rf_index = arc->toEdge()->asRiseFall()->index();
-          drvr_slew_set[drvr_rf_index] = true;
-          load_slew_set[drvr_rf_index] = true;
+          if (searchThru(edge, arc, mode)
+              // Constants disable edge cond expression.
+              && !mode->sim()->isDisabledCond(edge)) {
+            delay_changed |= findDriverArcDelays(drvr_vertex, multi_drvr, edge, arc,
+                                                 scene, min_max, arc_delay_calc,
+                                                 load_pin_index_map);
+            size_t drvr_rf_index = arc->toEdge()->asRiseFall()->index();
+            drvr_slew_set[drvr_rf_index] = true;
+            load_slew_set[drvr_rf_index] = true;
+          }
         }
       }
     }
@@ -1270,7 +1270,10 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
   const Slew drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
   if (delayGreater(gate_slew, drvr_slew, min_max, this)
       && !drvr_vertex->slewAnnotated(drvr_rf, min_max)
-      && !edge->role()->isLatchDtoQ())
+      && !edge->role()->isLatchDtoQ()
+      && searchThru(edge, arc, scene->sdc()->mode())
+      // Constants disable edge cond expression.
+      && !scene->sdc()->mode()->sim()->isDisabledCond(edge))
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
   if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
     const ArcDelay prev_gate_delay = graph_->arcDelay(edge,arc,ap_index);

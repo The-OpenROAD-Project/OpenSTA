@@ -48,19 +48,20 @@ public:
   DcalcResults &operator=(DcalcResults &&rhs) noexcept;
   bool empty() const;
   NetSet nets(const Network *network) const;
+  void clear();
   WireDelayMap &wireDelayMap() { return wire_delay_map_; }
   VertexSlewMap &vertexSlewMap() {return vertex_slew_map_; }
   float wireDelay(Edge *wire_edge,
                   const Scene *scene,
                   const RiseFall *rf,
-                  const MinMax *min_max);
+                  const MinMax *min_max) const;
   void wireDelay(Edge *wire_edge,
                  const Scene *scene,
                  const RiseFall *rf,
                  const MinMax *min_max,
                  // Return values.
                  float &wire_delay,
-                 bool &exists);
+                 bool &exists) const;
   void setWireDelay(Edge *wire_edge,
                     const Scene *scene,
                     const RiseFall *rf,
@@ -69,14 +70,14 @@ public:
   float loadSlew(Vertex *load_vertex,
                  const Scene *scene,
                  const RiseFall *rf,
-                 const MinMax *min_max);
+                 const MinMax *min_max) const;
   void loadSlew(Vertex *load_vertex,
                 const Scene *scene,
                 const RiseFall *rf,
                 const MinMax *min_max,
                 // Return values.
                 float &slew,
-                bool &exists);
+                bool &exists) const;
   void setLoadSlew(Vertex *load_vertex,
                    const Scene *scene,
                    const RiseFall *rf,
@@ -96,12 +97,13 @@ public:
   ~DelayNoise() override;
   void copyState(const StaState *sta) override;
   void clear();
+  void noiseDelaysInvalid();
+  void removeNoiseAnnotations();
 
-  // Annotate noise delays and slews for aggressors with
-  // sum(coupling_caps) / cap_ground > min_coupling_sum_ratio
+  // Annotate noise delays and slews for all design nets.
   void annotateNoiseDelays(float min_coupling_sum_ratio,
                            float min_coupling_ratio,
-                           const Scene *scene,
+                           const SceneSeq scenes,
                            const MinMaxAll *min_max);
   void wireDelayIncr(Edge *wire_edge,
                      const Scene *scene,
@@ -154,7 +156,11 @@ public:
                       bool no_timestamp,
                       const Scene *scene,
                       const MinMax *min_max);
-  size_t primaOrderPerGate() const { return prima_order_per_gate_; }
+  float worstNoiseDelay(const Net *net,
+                        const DcalcResults &noise_delays,
+                        const RiseFallBoth *drvr_rf,
+                        const Scene *scene,
+                        const MinMax *min_max) const;
 
   ////////////////////////////////////////////////////////////////
   // Accessors for tcl debug
@@ -184,16 +190,16 @@ public:
 protected:
   DcalcResults ensureNoiseDelays(float min_coupling_sum_ratio,
                                  float min_coupling_ratio,
-                                 const Scene *scene,
+                                 const SceneSeq scenes,
                                  const MinMaxAll *min_max);
-  DcalcResults findNoiseDelays(float min_coupling_sum_ratio,
-                               float min_coupling_ratio,
-                               const Scene *scene,
-                               const MinMaxAll *min_max);
+  DcalcResults findAllNoiseDelays(float min_coupling_sum_ratio,
+                                  float min_coupling_ratio,
+                                  const SceneSeq scenes,
+                                  const MinMaxAll *min_max);
   void findNoiseDelays(const Net *net,
                        float min_coupling_sum_ratio,
                        float min_coupling_ratio,
-                       const Scene *scene,
+                       const SceneSeq scenes,
                        const MinMaxAll *min_max1,
                        DcalcResults &noise_delays);
   void findNoiseDelays(ArcDcalcArgSeq &gates,
@@ -329,6 +335,11 @@ protected:
                          const MinMaxAll *min_max,
                          DcalcResults &noise_delays,
                          int digits);
+  const Pin *findDriverCheck(const Net *net) const;
+  bool checkDriver(const Pin *drvr_pin) const;
+  bool checkGates(ArcDcalcArgSeq &gates,
+                  const Scene *scene,
+                  const MinMax *min_max) const;
 
   ////////////////////////////////////////////////////////////////
 
@@ -342,7 +353,7 @@ protected:
                      Net *case_net);
   void ensureCasePort(NetworkReader *case_network,
                       Net *case_net,
-                      PortDirection *dir);
+                      const PortDirection *dir);
   bool hasTopLevelPortPin(const Net *net);
 
   void writeCaseSpef(const ArcDcalcArgSeq &gates,
@@ -381,8 +392,8 @@ protected:
 private:
   PrimaDelayCalc *prima_dcalc_;
   DcalcResults noise_delays_;
-  size_t prima_order_per_gate_{3}; // Poles per victim/aggressor gate and parasitics.
   bool found_coupling_caps_{false};
+  bool reported_warning_{false};
 };
 
 } // namespace sta

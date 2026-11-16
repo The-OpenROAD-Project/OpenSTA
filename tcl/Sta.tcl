@@ -67,6 +67,9 @@ proc define_scene { args } {
   set liberty_min_files {}
   set liberty_max_files {}
   if { [info exists keys(-liberty)] } {
+    if { [info exists keys(-liberty_min)] || [info exists keys(-liberty_max)] } {
+      sta_error 485 "-liberty and -liberty_min/-liberty_max are mutually exclusive."
+    }
     set liberty_files $keys(-liberty)
     set liberty_min_files $liberty_files
     set liberty_max_files $liberty_files
@@ -82,6 +85,9 @@ proc define_scene { args } {
   set spef_min_file ""
   set spef_max_file ""
   if { [info exists keys(-spef)] } {
+    if { [info exists keys(-spef_min)] || [info exists keys(-spef_max)] } {
+      sta_error 488 "-spef and -spef_min/-spef_max are mutually exclusive."
+    }
     set spef_file $keys(-spef)
     set spef_min_file $spef_file
     set spef_max_file $spef_file

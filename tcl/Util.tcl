@@ -641,10 +641,13 @@ proc include_file { filename echo verbose } {
         }
         if { $cmd == "" } {
           set cmd_start_line $include_line
+          set check_complete 1
         }
         append cmd $line "\n"
-        if { [string index $line end] != "\\" \
-               && [info complete $cmd] } {
+        if { [string index $line end] == "\\" } {
+          set check_complete 1
+        } elseif { ($check_complete || [regexp {[\]\})"]} $line]) \
+                     && [info complete $cmd] } {
           set error {}
           set error_traceback {}
           set error_code [catch {uplevel \#0 $cmd} result error_options]
@@ -677,6 +680,8 @@ proc include_file { filename echo verbose } {
               break
             }
           }
+        } else {
+          set check_complete 0
         }
         incr include_line
       }

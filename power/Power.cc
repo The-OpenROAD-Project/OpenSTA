@@ -1500,8 +1500,7 @@ Power::getSlew(Vertex *vertex,
 float
 Power::getMinRfSlew(const Pin *pin)
 {
-  Vertex *vertex, *bidir_vertex;
-  graph_->pinVertices(pin, vertex, bidir_vertex);
+  Vertex *vertex = graph_->pinLoadVertex(pin);
   if (vertex) {
     const MinMax *min_max = MinMax::min();
     float mm_slew = min_max->initValue();
@@ -1981,13 +1980,17 @@ Power::reportActivityAnnotation(bool report_unannotated,
   }
   if (report_unannotated) {
     PinSeq unannotated_pins;
-    findUnannotatedPins(network_->topInstance(), unannotated_pins);
-    LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
-    while (inst_iter->hasNext()) {
-      const Instance *inst = inst_iter->next();
-      findUnannotatedPins(inst, unannotated_pins);
+    PinIterator *pin_iter = network_->pinIterator();
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
+      if (!network_->direction(pin)->isInternal()
+          && !network_->direction(pin)->isPowerGround()
+          && !(liberty_port && liberty_port->isPwrGnd())
+          && !user_activity_map_.contains(pin))
+        unannotated_pins.push_back(pin);
     }
-    delete inst_iter;
+    delete pin_iter;
 
     sort(unannotated_pins, PinPathNameLess(sdc_network_));
     report_->report("Unannotated pins:");
@@ -1997,51 +2000,25 @@ Power::reportActivityAnnotation(bool report_unannotated,
   }
 }
 
-void
-Power::findUnannotatedPins(const Instance *inst,
-                           PinSeq &unannotated_pins)
-{
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    const Pin *pin = pin_iter->next();
-    LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
-    if (!network_->direction(pin)->isInternal()
-        && !network_->direction(pin)->isPowerGround()
-        && !(liberty_port && liberty_port->isPwrGnd())
-        && !user_activity_map_.contains(pin))
-      unannotated_pins.push_back(pin);
-  }
-  delete pin_iter;
-}
-
 // leaf pins - internal pins - power/ground pins + top instance pins
 size_t
 Power::pinCount()
 {
   size_t count = 0;
-  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
-  while (leaf_iter->hasNext()) {
-    Instance *leaf = leaf_iter->next();
-    InstancePinIterator *pin_iter = network_->pinIterator(leaf);
-    while (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
+  PinIterator *pin_iter = network_->pinIterator();
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network_->isTopLevelPort(pin))
+      count++;
+    else {
       LibertyPort *liberty_port = sdc_network_->libertyPort(pin);
       if (!network_->direction(pin)->isInternal()
           && !network_->direction(pin)->isPowerGround()
           && !(liberty_port && liberty_port->isPwrGnd()))
         count++;
     }
-    delete pin_iter;
-  }
-  delete leaf_iter;
-
-  InstancePinIterator *pin_iter = network_->pinIterator(network_->topInstance());
-  while (pin_iter->hasNext()) {
-    pin_iter->next();
-    count++;
   }
   delete pin_iter;
-
   return count;
 }
 

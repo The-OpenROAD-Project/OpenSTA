@@ -258,14 +258,14 @@ ArcDcalcArg::sort(ArcDcalcArgSeq &gates,
 }
 
 std::string
-ArcDcalcArg::to_string(ArcDcalcArgSeq &gates,
+ArcDcalcArg::to_string(const ArcDcalcArgSeq &gates,
                        const StaState *sta)
 {
   const Network *network = sta->network();
   std::string result;
   size_t drvr_count = gates.size();
   for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
-    ArcDcalcArg &gate = gates[drvr_idx];
+    const ArcDcalcArg &gate = gates[drvr_idx];
     const Instance *drvr = network->instance(gate.drvrPin());
     std::string gate_str = sta::format("{}{{{} {} {} {} {} {}}}{}",
                                        (drvr_idx == 0) ? "{" : " ",

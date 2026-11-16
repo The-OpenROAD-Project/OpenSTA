@@ -32,16 +32,16 @@ class PortDirection
 {
 public:
   // Singleton accessors.
-  static PortDirection *input() { return &input_; }
-  static PortDirection *output() { return &output_; }
-  static PortDirection *tristate() { return &tristate_; }
-  static PortDirection *bidirect() { return &bidirect_; }
-  static PortDirection *internal() { return &internal_; }
-  static PortDirection *ground() { return &ground_; }
-  static PortDirection *power() { return &power_; }
-  static PortDirection *well() { return &well_; }
-  static PortDirection *unknown() { return &unknown_; }
-  static PortDirection *find(const char *dir_name);
+  static const PortDirection *input() { return &input_; }
+  static const PortDirection *output() { return &output_; }
+  static const PortDirection *tristate() { return &tristate_; }
+  static const PortDirection *bidirect() { return &bidirect_; }
+  static const PortDirection *internal() { return &internal_; }
+  static const PortDirection *ground() { return &ground_; }
+  static const PortDirection *power() { return &power_; }
+  static const PortDirection *well() { return &well_; }
+  static const PortDirection *unknown() { return &unknown_; }
+  static const PortDirection *find(const char *dir_name);
   std::string_view name() const { return name_; }
   size_t index() const { return index_; }
   bool isInput() const { return this == &input_; }
@@ -73,15 +73,15 @@ private:
   const char *name_;
   size_t index_;
 
-  static PortDirection input_;
-  static PortDirection output_;
-  static PortDirection tristate_;
-  static PortDirection bidirect_;
-  static PortDirection internal_;
-  static PortDirection ground_;
-  static PortDirection power_;
-  static PortDirection well_;
-  static PortDirection unknown_;
+  static const PortDirection input_;
+  static const PortDirection output_;
+  static const PortDirection tristate_;
+  static const PortDirection bidirect_;
+  static const PortDirection internal_;
+  static const PortDirection ground_;
+  static const PortDirection power_;
+  static const PortDirection well_;
+  static const PortDirection unknown_;
 };
 
 } // namespace sta
