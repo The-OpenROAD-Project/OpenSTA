@@ -1633,28 +1633,23 @@ protected:
     const MinMaxAll *min_max = MinMaxAll::all();
 
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib",
-      corner, min_max, false);
+      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib", false);
     ASSERT_NE(lib, nullptr);
 
     lib = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz",
-      corner, min_max, false);
+      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz", false);
     ASSERT_NE(lib, nullptr);
 
     lib = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, false);
+      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz", false);
     ASSERT_NE(lib, nullptr);
 
     lib = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, false);
+      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz", false);
     ASSERT_NE(lib, nullptr);
 
     lib = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, false);
+      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("test/reg1_asap7.v");
@@ -1665,7 +1660,7 @@ protected:
     // Read SPEF with reduction (default)
     Instance *top = sta_->network()->topInstance();
     ok = sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                         min_max, false, false, 1.0f, true);
+                         min_max, false, false, 1.0f, true, false);
     ASSERT_TRUE(ok);
 
     // Create clock
@@ -1735,7 +1730,7 @@ TEST_F(DesignDcalcTest, TimingArnoldi) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->updateTiming(true);
   EXPECT_GT(sta_->graph()->vertexCount(), 0);
 }
@@ -1789,7 +1784,7 @@ TEST_F(DesignDcalcTest, TimingPrima) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->updateTiming(true);
   EXPECT_GT(sta_->graph()->vertexCount(), 0);
 }
@@ -1812,7 +1807,7 @@ TEST_F(DesignDcalcTest, ArnoldiReduceParasiticWithDesign) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
 
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
@@ -3023,7 +3018,7 @@ TEST_F(DesignDcalcTest, ReportDelayCalcPrima) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->updateTiming(true);
   Graph *graph = sta_->graph();
   ASSERT_NE(graph, nullptr);
@@ -3165,7 +3160,7 @@ TEST_F(DesignDcalcTest, ArnoldiReduceDesign) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
   Network *network = sta_->network();
@@ -3578,7 +3573,7 @@ TEST_F(DesignDcalcTest, DmpCeffTwoPoleWithParasitics) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("dmp_ceff_two_pole");
   sta_->updateTiming(true);
 
@@ -3837,7 +3832,7 @@ TEST_F(DesignDcalcTest, CcsCeffUnreducedParasitics) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("ccs_ceff");
   sta_->updateTiming(true);
 
@@ -3853,7 +3848,7 @@ TEST_F(DesignDcalcTest, PrimaTimingWithReport) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("prima");
   sta_->updateTiming(true);
 
@@ -3937,7 +3932,7 @@ TEST_F(DesignDcalcTest, ArnoldiLoadCapAndNetCaps) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
   sta_->setArcDelayCalc("arnoldi");
   sta_->updateTiming(true);
 
@@ -4071,7 +4066,7 @@ TEST_F(DesignDcalcTest, ArnoldiReduceAllNets) {
   Scene *corner = sta_->cmdScene();
   Instance *top = sta_->network()->topInstance();
   sta_->readSpef("spef", "test/reg1_asap7.spef", top, corner,
-                  MinMaxAll::all(), false, false, 1.0f, false);
+                  MinMaxAll::all(), false, false, 1.0f, false, false);
 
   ArcDelayCalc *calc = makeDelayCalc("arnoldi", sta_);
   ASSERT_NE(calc, nullptr);
@@ -4151,7 +4146,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("dcalc/test/dcalc_test1.v");
@@ -4395,7 +4390,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("dcalc/test/dcalc_multidriver_test.v");
@@ -4694,26 +4689,24 @@ protected:
       report->setTclInterp(interp_);
     registerDelayCalcs();
 
-    // Define corners
-    StringSeq scene_names;
-    scene_names.push_back("fast");
-    scene_names.push_back("slow");
-    sta_->makeScenes(scene_names);
+    // Read libraries, then define one scene per corner (define_scene).
+    LibertyLibrary *fast_lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_fast.lib", false);
+    ASSERT_NE(fast_lib, nullptr);
+
+    LibertyLibrary *slow_lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_slow.lib", false);
+    ASSERT_NE(slow_lib, nullptr);
+
+    const StringSeq fast_libs{"test/nangate45/Nangate45_fast.lib"};
+    const StringSeq slow_libs{"test/nangate45/Nangate45_slow.lib"};
+    sta_->makeScene("fast", "default", fast_libs, fast_libs, "", "");
+    sta_->makeScene("slow", "default", slow_libs, slow_libs, "", "");
 
     Scene *fast_corner = sta_->findScene("fast");
     Scene *slow_corner = sta_->findScene("slow");
     ASSERT_NE(fast_corner, nullptr);
     ASSERT_NE(slow_corner, nullptr);
-
-    const MinMaxAll *min_max = MinMaxAll::all();
-
-    LibertyLibrary *fast_lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_fast.lib", fast_corner, min_max, false);
-    ASSERT_NE(fast_lib, nullptr);
-
-    LibertyLibrary *slow_lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_slow.lib", slow_corner, min_max, false);
-    ASSERT_NE(slow_lib, nullptr);
 
     bool ok = sta_->readVerilog("dcalc/test/dcalc_test1.v");
     ASSERT_TRUE(ok);

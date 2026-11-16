@@ -885,28 +885,23 @@ protected:
     bool infer_latches = false;
 
     LibertyLibrary *lib_seq = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib", infer_latches);
     if (!lib_seq) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_inv = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz", infer_latches);
     if (!lib_inv) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_simple = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_simple) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_oa = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_oa) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_ao = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_ao) { design_loaded_ = false; return; }
 
     bool verilog_ok = sta_->readVerilog("test/reg1_asap7.v");
@@ -1057,7 +1052,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("graph/test/graph_test2.v");
@@ -1436,7 +1431,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("graph/test/graph_test3.v");
@@ -1647,7 +1642,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("graph/test/graph_test2.v");
@@ -1894,25 +1889,24 @@ protected:
     if (report)
       report->setTclInterp(interp_);
 
-    // Define two corners
-    StringSeq scene_names;
-    scene_names.push_back("fast");
-    scene_names.push_back("slow");
-    sta_->makeScenes(scene_names);
+    // Read libraries, then define one scene per corner (define_scene).
+    LibertyLibrary *fast_lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_fast.lib", false);
+    ASSERT_NE(fast_lib, nullptr);
+
+    LibertyLibrary *slow_lib = sta_->readLiberty(
+      "test/nangate45/Nangate45_slow.lib", false);
+    ASSERT_NE(slow_lib, nullptr);
+
+    const StringSeq fast_libs{"test/nangate45/Nangate45_fast.lib"};
+    const StringSeq slow_libs{"test/nangate45/Nangate45_slow.lib"};
+    sta_->makeScene("fast", "default", fast_libs, fast_libs, "", "");
+    sta_->makeScene("slow", "default", slow_libs, slow_libs, "", "");
 
     Scene *fast_corner = sta_->findScene("fast");
     Scene *slow_corner = sta_->findScene("slow");
     ASSERT_NE(fast_corner, nullptr);
     ASSERT_NE(slow_corner, nullptr);
-
-    const MinMaxAll *min_max = MinMaxAll::all();
-    LibertyLibrary *fast_lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_fast.lib", fast_corner, min_max, false);
-    ASSERT_NE(fast_lib, nullptr);
-
-    LibertyLibrary *slow_lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_slow.lib", slow_corner, min_max, false);
-    ASSERT_NE(slow_lib, nullptr);
 
     bool ok = sta_->readVerilog("graph/test/graph_test2.v");
     ASSERT_TRUE(ok);

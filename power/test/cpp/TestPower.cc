@@ -682,28 +682,23 @@ protected:
     bool infer_latches = false;
 
     LibertyLibrary *lib_seq = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_SEQ_RVT_FF_nldm_220123.lib", infer_latches);
     if (!lib_seq) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_inv = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_INVBUF_RVT_FF_nldm_220122.lib.gz", infer_latches);
     if (!lib_inv) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_simple = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_SIMPLE_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_simple) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_oa = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_OA_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_oa) { design_loaded_ = false; return; }
 
     LibertyLibrary *lib_ao = sta_->readLiberty(
-      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz",
-      corner, min_max, infer_latches);
+      "test/asap7/asap7sc7p5t_AO_RVT_FF_nldm_211120.lib.gz", infer_latches);
     if (!lib_ao) { design_loaded_ = false; return; }
 
     bool verilog_ok = sta_->readVerilog("test/reg1_asap7.v");
@@ -742,7 +737,7 @@ TEST_F(PowerDesignTest, PowerCalculation) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Power calculation exercises many uncovered functions
   PowerResult total, sequential, combinational, clk, macro, pad;
@@ -760,7 +755,7 @@ TEST_F(PowerDesignTest, PowerPerInstance) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -811,7 +806,7 @@ TEST_F(PowerDesignTest, SetGlobalActivity) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Set global activity
   Power *pwr = sta_->power();
@@ -835,7 +830,7 @@ TEST_F(PowerDesignTest, SetPinActivity) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -885,7 +880,7 @@ TEST_F(PowerDesignTest, PowerBreakdown) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   PowerResult total, sequential, combinational, clk, macro, pad;
   sta_->power(corner, total, sequential, combinational, clk, macro, pad);
@@ -904,7 +899,7 @@ TEST_F(PowerDesignTest, PowerPerInstanceBreakdown) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -934,7 +929,7 @@ TEST_F(PowerDesignTest, PowerWithClockConstraint) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Create clock constraints via Tcl
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
@@ -958,7 +953,7 @@ TEST_F(PowerDesignTest, SequentialVsCombinational) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
   Tcl_Eval(interp_, "create_clock -name clk2 -period 1.0 [get_ports clk2]");
@@ -986,7 +981,7 @@ TEST_F(PowerDesignTest, PowerWithActivity) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
   Tcl_Eval(interp_, "create_clock -name clk2 -period 1.0 [get_ports clk2]");
@@ -1021,7 +1016,7 @@ TEST_F(PowerDesignTest, AllInstancesPower) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -1050,7 +1045,7 @@ TEST_F(PowerDesignTest, PowerAfterTimingUpdate) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
   Tcl_Eval(interp_, "create_clock -name clk2 -period 1.0 [get_ports clk2]");
@@ -1077,7 +1072,7 @@ TEST_F(PowerDesignTest, ClockPowerContribution) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
   Tcl_Eval(interp_, "create_clock -name clk2 -period 1.0 [get_ports clk2]");
@@ -1099,7 +1094,7 @@ TEST_F(PowerDesignTest, LeakagePowerNonNegative) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -1123,7 +1118,7 @@ TEST_F(PowerDesignTest, InternalPowerNonNegative) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -1147,7 +1142,7 @@ TEST_F(PowerDesignTest, SwitchingPowerNonNegative) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -1171,7 +1166,7 @@ TEST_F(PowerDesignTest, SetInputActivity) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Power *pwr = sta_->power();
   pwr->setInputActivity(0.2f, 0.5f);
@@ -1193,7 +1188,7 @@ TEST_F(PowerDesignTest, SetInputPortActivity) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Network *network = sta_->network();
   Instance *top = network->topInstance();
@@ -1233,7 +1228,7 @@ TEST_F(PowerDesignTest, HighestPowerInstances) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Power *pwr = sta_->power();
   InstPowers top_inst_powers = pwr->highestInstPowers(3, corner);
@@ -1259,7 +1254,7 @@ TEST_F(PowerDesignTest, HighestPowerInstancesAllInstances) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Power *pwr = sta_->power();
   // Request exactly the total instance count (5 in reg1_asap7)
@@ -1277,7 +1272,7 @@ TEST_F(PowerDesignTest, PinActivityOnInstancePins) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
   Tcl_Eval(interp_, "create_clock -name clk2 -period 1.0 [get_ports clk2]");
@@ -1348,7 +1343,7 @@ TEST_F(PowerDesignTest, PowerClear) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Compute power first
   PowerResult total, sequential, combinational, clk, macro, pad;
@@ -1374,7 +1369,7 @@ TEST_F(PowerDesignTest, PowerInvalid) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Compute power
   PowerResult total1, seq1, comb1, clk1, macro1, pad1;
@@ -1400,7 +1395,7 @@ TEST_F(PowerDesignTest, MacroPadPowerZero) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   PowerResult total, sequential, combinational, clk, macro, pad;
   sta_->power(corner, total, sequential, combinational, clk, macro, pad);
@@ -1419,7 +1414,7 @@ TEST_F(PowerDesignTest, InstancePowerSumsToTotal) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Design-level power
   PowerResult total, sequential, combinational, clk, macro, pad;
@@ -1451,7 +1446,7 @@ TEST_F(PowerDesignTest, PowerWithDifferentClockPeriods) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   // Fast clock (1ns period)
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
@@ -1475,7 +1470,7 @@ TEST_F(PowerDesignTest, ReportActivityAnnotation) {
   Scene *corner = sta_->cmdScene();
   sta_->readSpef("test/reg1_asap7.spef", "test/reg1_asap7.spef",
                   sta_->network()->topInstance(), corner,
-                  MinMaxAll::all(), false, false, 1.0f, true);
+                  MinMaxAll::all(), false, false, 1.0f, true, false);
 
   Tcl_Eval(interp_, "create_clock -name clk1 -period 1.0 [get_ports clk1]");
   Tcl_Eval(interp_, "create_clock -name clk2 -period 1.0 [get_ports clk2]");

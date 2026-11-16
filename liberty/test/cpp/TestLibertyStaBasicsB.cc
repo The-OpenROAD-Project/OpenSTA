@@ -81,8 +81,6 @@ protected:
 
     // Read Nangate45 liberty file
     lib_ = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                             sta_->cmdScene(),
-                             MinMaxAll::min(),
                              false);
   }
 
