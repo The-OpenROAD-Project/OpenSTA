@@ -33,7 +33,7 @@
 
 #ifdef BAZEL_BUILD
   #include "bazel/tcl_library_init.h"
-  #include "src/tcl_readline_setup.h"
+  #include "openroad/tcl_readline_setup.h"
 #endif
 
 #if TCL_READLINE
