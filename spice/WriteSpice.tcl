@@ -178,7 +178,7 @@ define_cmd_args "write_gate_spice" \
 proc write_gate_spice { args } {
   parse_key_args "write_gate_spice" args \
     keys {-gates -spice_file -lib_subckt_files \
-            -model_file -power -ground -simulator -scene -corner}\
+            -model_file -power -ground -simulator -scene}\
     flags {-measure_stmts -min -max}
 
   if { [info exists keys(-gates)] } {
@@ -258,7 +258,7 @@ define_cmd_args "write_gate_gnuplot" \
 
 proc write_gate_gnuplot { args } {
   parse_key_args "write_gate_gnuplot" args \
-    keys {-gates -plot_pins -gnuplot_file -spice_waveforms -corner -scene} \
+    keys {-gates -plot_pins -gnuplot_file -spice_waveforms -scene} \
     flags {-min -max}
 
   if { [info exists keys(-gates)] } {

@@ -15,6 +15,14 @@ set_output_delay 3.0000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
 group_path -default\
     -from [get_ports {in1}]\
     -to [get_ports {out2}]
+group_path -name gp_net\
+    -from [get_ports {in1}]\
+    -through [get_nets {n1}]\
+    -to [get_ports {out1}]
+group_path -name gp_inst\
+    -from [get_ports {in2}]\
+    -through [get_cells {and1}]\
+    -to [get_ports {out1}]
 group_path -name gp_pin\
     -from [get_ports {in3}]\
     -through [get_pins {or1/ZN}]\

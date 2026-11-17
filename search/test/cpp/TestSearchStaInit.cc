@@ -478,7 +478,8 @@ TEST_F(StaInitTest, MakeCorners) {
   StringSeq names;
   names.push_back("fast");
   names.push_back("slow");
-  sta_->makeScenes(names);
+  for (const std::string &scene_name : names)
+    sta_->makeScene(scene_name, "default", {}, {}, "", "");
   EXPECT_NE(sta_->findScene("fast"), nullptr);
   EXPECT_NE(sta_->findScene("slow"), nullptr);
   EXPECT_GT(sta_->scenes().size(), 1u);
@@ -1027,7 +1028,8 @@ TEST_F(StaInitTest, AnalysisTypeFullCycle) {
 TEST_F(StaInitTest, MakeCornersSingle) {
   StringSeq names;
   names.push_back("typical");
-  sta_->makeScenes(names);
+  for (const std::string &scene_name : names)
+    sta_->makeScene(scene_name, "default", {}, {}, "", "");
   Scene *c = sta_->findScene("typical");
   EXPECT_NE(c, nullptr);
   EXPECT_EQ(c->name(), "typical");
@@ -1040,7 +1042,8 @@ TEST_F(StaInitTest, MakeCornersIterate) {
   names.push_back("fast");
   names.push_back("slow");
   names.push_back("typical");
-  sta_->makeScenes(names);
+  for (const std::string &scene_name : names)
+    sta_->makeScene(scene_name, "default", {}, {}, "", "");
   int count = 0;
   for (Scene *scene : sta_->scenes()) {
     EXPECT_NE(scene, nullptr);
@@ -2601,7 +2604,8 @@ TEST_F(StaInitTest, MakeMultipleCorners) {
   StringSeq names;
   names.push_back("fast");
   names.push_back("slow");
-  sta_->makeScenes(names);
+  for (const std::string &scene_name : names)
+    sta_->makeScene(scene_name, "default", {}, {}, "", "");
   const SceneSeq &corners = sta_->scenes();
   EXPECT_EQ(corners.size(), 2u);
   EXPECT_GT(corners.size(), 1u);
@@ -2609,10 +2613,6 @@ TEST_F(StaInitTest, MakeMultipleCorners) {
   EXPECT_NE(fast, nullptr);
   Scene *slow = sta_->findScene("slow");
   EXPECT_NE(slow, nullptr);
-  // Reset to single corner
-  StringSeq reset;
-  reset.push_back("default");
-  sta_->makeScenes(reset);
 }
 
 // SearchClass constants

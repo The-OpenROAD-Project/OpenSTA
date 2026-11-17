@@ -103,7 +103,7 @@ public:
   // Annotate noise delays and slews for all design nets.
   void annotateNoiseDelays(float min_coupling_sum_ratio,
                            float min_coupling_ratio,
-                           const SceneSeq scenes,
+                           const SceneSeq &scenes,
                            const MinMaxAll *min_max);
   void wireDelayIncr(Edge *wire_edge,
                      const Scene *scene,
@@ -190,16 +190,16 @@ public:
 protected:
   DcalcResults ensureNoiseDelays(float min_coupling_sum_ratio,
                                  float min_coupling_ratio,
-                                 const SceneSeq scenes,
+                                 const SceneSeq &scenes,
                                  const MinMaxAll *min_max);
   DcalcResults findAllNoiseDelays(float min_coupling_sum_ratio,
                                   float min_coupling_ratio,
-                                  const SceneSeq scenes,
+                                  const SceneSeq &scenes,
                                   const MinMaxAll *min_max);
   void findNoiseDelays(const Net *net,
                        float min_coupling_sum_ratio,
                        float min_coupling_ratio,
-                       const SceneSeq scenes,
+                       const SceneSeq &scenes,
                        const MinMaxAll *min_max1,
                        DcalcResults &noise_delays);
   void findNoiseDelays(ArcDcalcArgSeq &gates,

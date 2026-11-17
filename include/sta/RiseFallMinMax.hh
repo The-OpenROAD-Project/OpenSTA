@@ -35,7 +35,7 @@ class RiseFallMinMax
 public:
   RiseFallMinMax();
   RiseFallMinMax(const RiseFallMinMax *rfmm);
-  RiseFallMinMax(float init_value);
+  explicit RiseFallMinMax(float init_value);
   float value(const RiseFall *rf,
               const MinMax *min_max) const;
   float value(const MinMax *min_max) const;

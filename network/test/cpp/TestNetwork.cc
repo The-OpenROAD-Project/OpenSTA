@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <string>
 #include <string_view>
+#include <vector>
 #include "VerilogNamespace.hh"
 #include "PortDirection.hh"
 #include "ConcreteLibrary.hh"
@@ -933,6 +934,40 @@ TEST(ConcreteCellTest, GroupBusPorts) {
   // CLK should still be a scalar port
   ConcretePort *clk = cell->findPort("CLK");
   EXPECT_NE(clk, nullptr);
+}
+
+TEST(ConcreteCellTest, MakePortBeforeBusPorts) {
+  ConcreteLibrary lib("test_lib", "test.lib", false);
+  lib.setBusBrkts('[', ']');
+  ConcreteCell *cell = lib.makeCell("top", false, "");
+  cell->makePort("D[0]");
+  cell->makePort("D[1]");
+  cell->makePort("CLK");
+  cell->groupBusPorts('[', ']', [](std::string_view) { return true; });
+
+  // A port made after grouping lands ahead of the bus ports, where
+  // groupBusPorts would have placed it.
+  ConcretePort *late = cell->makePortBeforeBusPorts("LATE");
+  EXPECT_EQ(late, cell->findPort("LATE"));
+  std::vector<std::string> names;
+  ConcreteCellPortIterator *port_iter = cell->portIterator();
+  while (port_iter->hasNext())
+    names.push_back(port_iter->next()->name());
+  delete port_iter;
+  const std::vector<std::string> expected{"CLK", "LATE", "D"};
+  EXPECT_EQ(names, expected);
+
+  // Without bus ports the new port is simply appended.
+  ConcreteCell *scalar_cell = lib.makeCell("scalars", false, "");
+  scalar_cell->makePort("A");
+  scalar_cell->makePortBeforeBusPorts("B");
+  names.clear();
+  port_iter = scalar_cell->portIterator();
+  while (port_iter->hasNext())
+    names.push_back(port_iter->next()->name());
+  delete port_iter;
+  const std::vector<std::string> expected_scalars{"A", "B"};
+  EXPECT_EQ(names, expected_scalars);
 }
 
 ////////////////////////////////////////////////////////////////

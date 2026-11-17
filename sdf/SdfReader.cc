@@ -209,7 +209,7 @@ SdfReader::port(std::string_view to_pin_name,
 {
   // Ignore non-incremental annotations in incremental only mode.
   if (!(is_incremental_only_ && !in_incremental_)) {
-    Pin *to_pin = (instance_)
+    Pin *to_pin = instance_
         ? network_->findPinRelative(instance_, to_pin_name)
         : network_->findPin(to_pin_name);
     if (to_pin == nullptr)

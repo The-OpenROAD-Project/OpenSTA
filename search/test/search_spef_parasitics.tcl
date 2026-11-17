@@ -104,7 +104,7 @@ report_checks -path_delay min
 # Re-read SPEF (exercises setParasiticAnalysisPts path)
 ############################################################
 puts "--- re-read SPEF ---"
-read_spef search_test1.spef
+read_spef -replace search_test1.spef
 report_checks -path_delay max
 
 ############################################################
@@ -127,10 +127,10 @@ unset_propagated_clock [get_clocks clk]
 # read_spef with -min and -max flags
 ############################################################
 puts "--- read_spef -min ---"
-read_spef -min search_test1.spef
+read_spef -replace -min search_test1.spef
 
 puts "--- read_spef -max ---"
-read_spef -max search_test1.spef
+read_spef -replace -max search_test1.spef
 
 ############################################################
 # Report formats after SPEF loading

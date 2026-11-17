@@ -24,6 +24,7 @@
 
 #include "ConcreteLibrary.hh"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
@@ -158,6 +159,19 @@ ConcreteCell::makePort(std::string_view name)
   ConcretePort *port = new ConcretePort(name, false, -1, -1,
                                         false, nullptr, this);
   addPort(port);
+  return port;
+}
+
+ConcretePort *
+ConcreteCell::makePortBeforeBusPorts(std::string_view name)
+{
+  ConcretePort *port = makePort(name);
+  auto first_bus = std::find_if(ports_.begin(), ports_.end(),
+                                [](const ConcretePort *p) { return p->isBus(); });
+  if (first_bus != ports_.end()) {
+    // makePort appended port; move it ahead of the bus ports.
+    std::rotate(first_bus, ports_.end() - 1, ports_.end());
+  }
   return port;
 }
 

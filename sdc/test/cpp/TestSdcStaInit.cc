@@ -167,9 +167,7 @@ TEST_F(SdcInitTest, ClockEdgeNameIndex) {
 // DisabledCellPorts - covers constructor/destructor and methods
 TEST_F(SdcInitTest, DisabledCellPortsBasic) {
   // We need a real liberty cell
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                           sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   ASSERT_NE(lib, nullptr);
   LibertyCell *buf = lib->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -180,9 +178,7 @@ TEST_F(SdcInitTest, DisabledCellPortsBasic) {
 
 // DisabledCellPorts setDisabled/removeDisabled with TimingArcSet
 TEST_F(SdcInitTest, DisabledCellPortsTimingArcSet) {
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                           sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   ASSERT_NE(lib, nullptr);
   LibertyCell *buf = lib->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -198,9 +194,7 @@ TEST_F(SdcInitTest, DisabledCellPortsTimingArcSet) {
 
 // DisabledCellPorts isDisabled for from/to/role
 TEST_F(SdcInitTest, DisabledCellPortsIsDisabled) {
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                           sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   ASSERT_NE(lib, nullptr);
   LibertyCell *buf = lib->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -544,9 +538,7 @@ TEST_F(SdcInitTest, SdcSetOperatingConditionsMinMaxAll) {
 
 // Sdc::disable/removeDisable for LibertyPort
 TEST_F(SdcInitTest, SdcDisableLibertyPort) {
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                           sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   ASSERT_NE(lib, nullptr);
   LibertyCell *buf = lib->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -559,9 +551,7 @@ TEST_F(SdcInitTest, SdcDisableLibertyPort) {
 
 // Sdc::disable/removeDisable for TimingArcSet
 TEST_F(SdcInitTest, SdcDisableTimingArcSet) {
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                           sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   ASSERT_NE(lib, nullptr);
   LibertyCell *buf = lib->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);
@@ -705,9 +695,7 @@ TEST_F(SdcInitTest, CycleAcctingFindDefaultArrivalSrcDelays) {
 
 // DisabledPorts from/to operations
 TEST_F(SdcInitTest, DisabledPortsFromToOps) {
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                           sta_->cmdScene(),
-                                           MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   ASSERT_NE(lib, nullptr);
   LibertyCell *buf = lib->findLibertyCell("BUF_X1");
   ASSERT_NE(buf, nullptr);

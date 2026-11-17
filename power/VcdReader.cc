@@ -333,7 +333,10 @@ VcdCountReader::recordVar(const std::string &name,
                           size_t width,
                           size_t bit_idx)
 {
-  vars_.push_back(Var{name, std::string(id), width, bit_idx});
+  vars_.push_back(Var{.name = name,
+                      .id = std::string(id),
+                      .width = width,
+                      .bit_idx = bit_idx});
 }
 
 void

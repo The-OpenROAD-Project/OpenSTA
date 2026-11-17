@@ -3,6 +3,7 @@
 
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("//bazel:bison.bzl", "genyacc")
 load("//bazel:flex.bzl", "genlex")
 load("//bazel:tcl_encode_sta.bzl", "tcl_encode_sta")
@@ -399,11 +400,11 @@ cc_library(
         "spice/WriteGateGnuplot.hh",
         "spice/WritePathGnuplot.hh",
         "dcalc/PrimaDelayCalc.hh",
-        # Needed by src/dbSta to synthesize LibertyCells programmatically.
+        # Needed by openroad/dbSta to synthesize LibertyCells programmatically.
         "liberty/LibertyBuilder.hh",
         "liberty/LibertyBinaryReader.hh",
         "liberty/LibertyBinaryWriter.hh",
-        # Needed by src/dbSta's DmpCeff-based delay calculator and its
+        # Needed by openroad/dbSta's DmpCeff-based delay calculator and its
         # training data generator.
         "dcalc/DmpCeff.hh",
     ],
@@ -419,6 +420,11 @@ cc_library(
         "-Wno-unused-parameter",
         "-Wno-sign-compare",
     ],
+    # OpenROAD fork: the fork-identity define for dependents' C++, the
+    # counterpart of sta_swig_defs for swig. OpenROAD code that calls
+    # fork-only API guards it with #ifdef STA_OPENROAD_FORK and falls back
+    # to stock behavior, so stock (parallaxsw) OpenSTA still builds it.
+    defines = ["STA_OPENROAD_FORK"],
     features = [
         "-use_header_modules",
     ],
@@ -442,6 +448,24 @@ cc_library(
         "@rules_flex//flex:current_flex_toolchain",
         "@tcl_lang//:tcl",  # keep. Is used, but with <>-includes
         "@zlib",  # keep. Is used, but with <>-includes
+    ],
+)
+
+cc_test(
+    name = "TestDmpAccuracy",
+    size = "small",
+    srcs = ["dcalc/test/cpp/TestDmpAccuracy.cc"],
+    features = ["-use_header_modules"],
+    includes = [
+        ".",
+        "include/sta",
+    ],
+    deps = [
+        ":config",
+        ":opensta_lib",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+        "@tcl_lang//:tcl",
     ],
 )
 

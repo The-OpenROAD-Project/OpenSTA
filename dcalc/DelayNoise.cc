@@ -84,7 +84,7 @@ DelayNoise::noiseDelaysInvalid()
 void
 DelayNoise::annotateNoiseDelays(float min_coupling_sum_ratio,
                                 float min_coupling_ratio,
-                                const SceneSeq scenes,
+                                const SceneSeq &scenes,
                                 const MinMaxAll *min_max1)
 {
   DcalcResults noise_delays = ensureNoiseDelays(min_coupling_sum_ratio,
@@ -186,7 +186,7 @@ DelayNoise::wireDelayIncr(Edge *wire_edge,
 DcalcResults
 DelayNoise::ensureNoiseDelays(float min_coupling_sum_ratio,
                               float min_coupling_ratio,
-                              const SceneSeq scenes,
+                              const SceneSeq &scenes,
                               const MinMaxAll *min_max)
 {
   if (noise_delays_.empty()) {
@@ -204,7 +204,7 @@ DelayNoise::ensureNoiseDelays(float min_coupling_sum_ratio,
 DcalcResults
 DelayNoise::findAllNoiseDelays(float min_coupling_sum_ratio,
                                float min_coupling_ratio,
-                               const SceneSeq scenes,
+                               const SceneSeq &scenes,
                                const MinMaxAll *min_max)
 {
   DcalcResults noise_delays(network_, graph_);
@@ -222,7 +222,7 @@ void
 DelayNoise::findNoiseDelays(const Net *net,
                             float min_coupling_sum_ratio,
                             float min_coupling_ratio,
-                            const SceneSeq scenes,
+                            const SceneSeq &scenes,
                             const MinMaxAll *min_max1,
                             DcalcResults &noise_delays)
 {
@@ -1627,7 +1627,7 @@ dateTimeLocal()
   const auto now = std::chrono::system_clock::now();
   const std::time_t t = std::chrono::system_clock::to_time_t(now);
   std::tm tm{};
-#if defined(_WIN32)
+#ifdef _WIN32
   if (localtime_s(&tm, &t) != 0)
     return {};  // or handle error
 #else

@@ -1117,10 +1117,9 @@ WriteSdc::writeDisabledClockGatingChecks() const
     LibertyCellSeq sorted;
     for (LibertyCell *cell : lib_cells)
       sorted.push_back(cell);
-    std::sort(sorted.begin(), sorted.end(),
-              [] (const LibertyCell *a, const LibertyCell *b) {
-                return a->name() < b->name();
-              });
+    std::ranges::sort(sorted, [] (const LibertyCell *a, const LibertyCell *b) {
+      return a->name() < b->name();
+    });
     for (const LibertyCell *cell : sorted) {
       sta::print(stream_, "set_disable_clock_gating_check ");
       writeGetLibCell(cell);

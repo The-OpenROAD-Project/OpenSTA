@@ -105,7 +105,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
 
     bool ok = sta_->readVerilog("examples/example1.v");
@@ -287,9 +287,7 @@ TEST_F(SdcInitTest, ExceptionPathDestructor) {
 // --- DisabledCellPorts: construct and accessors ---
 
 TEST_F(SdcInitTest, DisabledCellPortsConstruct2) {
-  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib",
-                                          sta_->cmdScene(),
-                                          MinMaxAll::min(), false);
+  LibertyLibrary *lib = sta_->readLiberty("test/nangate45/Nangate45_typ.lib", false);
   if (lib) {
     LibertyCell *buf = lib->findLibertyCell("BUF_X1");
     if (buf) {

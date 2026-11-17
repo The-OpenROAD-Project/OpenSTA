@@ -124,7 +124,7 @@ class ArcDcalcResult
 {
 public:
   ArcDcalcResult();
-  ArcDcalcResult(size_t load_count);
+  explicit ArcDcalcResult(size_t load_count);
   void setLoadCount(size_t load_count);
   ArcDelay &gateDelay() { return gate_delay_; }
   void setGateDelay(const ArcDelay &gate_delay);

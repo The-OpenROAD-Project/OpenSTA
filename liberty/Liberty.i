@@ -117,12 +117,10 @@ private:
 
 bool
 read_liberty_cmd(char *filename,
-                 Scene *scene,
-                 const MinMaxAll *min_max,
                  bool infer_latches)
 {
   Sta *sta = Sta::sta();
-  LibertyLibrary *lib = sta->readLiberty(filename, scene, min_max, infer_latches);
+  LibertyLibrary *lib = sta->readLiberty(filename, infer_latches);
   return (lib != nullptr);
 }
 
