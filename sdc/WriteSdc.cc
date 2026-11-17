@@ -2638,38 +2638,42 @@ WriteSdc::writeRiseFallMinMaxCmd(std::string_view sdc_cmd,
                 rise_min, rise_min_exists);
   values->value(RiseFall::rise(), MinMax::max(),
                 rise_max, rise_max_exists);
-  if (fall_min_exists && fall_max_exists
-      && rise_min_exists && rise_max_exists) {
-    if (fall_min == rise_min
-        && rise_max == rise_min
-        && fall_max == rise_min) {
-      // rise/fall/min/max match.
-      writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-                             RiseFallBoth::riseFall(), MinMaxAll::all(),
-                             write_object);
-    }
-    else if (rise_min == fall_min
-             && rise_max == fall_max) {
-      // rise/fall match.
-      writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-                             RiseFallBoth::riseFall(), MinMaxAll::min(),
-                             write_object);
-      writeRiseFallMinMaxCmd(sdc_cmd, rise_max, scale,
-                             RiseFallBoth::riseFall(), MinMaxAll::max(),
-                             write_object);
-    }
-    else if (rise_min == rise_max
-             && fall_min == fall_max) {
-      // min/max match.
-      writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-                             RiseFallBoth::rise(), MinMaxAll::all(),
-                             write_object);
-      writeRiseFallMinMaxCmd(sdc_cmd, fall_min, scale,
-                             RiseFallBoth::fall(), MinMaxAll::all(),
-                             write_object);
-    }
+  bool all_exist = fall_min_exists && fall_max_exists
+    && rise_min_exists && rise_max_exists;
+  if (all_exist
+      && fall_min == rise_min
+      && rise_max == rise_min
+      && fall_max == rise_min) {
+    // rise/fall/min/max match.
+    writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
+                           RiseFallBoth::riseFall(), MinMaxAll::all(),
+                           write_object);
+  }
+  else if (all_exist
+           && rise_min == fall_min
+           && rise_max == fall_max) {
+    // rise/fall match.
+    writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
+                           RiseFallBoth::riseFall(), MinMaxAll::min(),
+                           write_object);
+    writeRiseFallMinMaxCmd(sdc_cmd, rise_max, scale,
+                           RiseFallBoth::riseFall(), MinMaxAll::max(),
+                           write_object);
+  }
+  else if (all_exist
+           && rise_min == rise_max
+           && fall_min == fall_max) {
+    // min/max match.
+    writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
+                           RiseFallBoth::rise(), MinMaxAll::all(),
+                           write_object);
+    writeRiseFallMinMaxCmd(sdc_cmd, fall_min, scale,
+                           RiseFallBoth::fall(), MinMaxAll::all(),
+                           write_object);
   }
   else {
+    // Some values missing, or all four present but none of the
+    // shared forms above apply: write each existing value on its own.
     if (rise_min_exists)
       writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
                              RiseFallBoth::rise(), MinMaxAll::min(),

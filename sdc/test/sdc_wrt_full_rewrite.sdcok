@@ -16,6 +16,14 @@ set_clock_transition 0.1000 [get_clocks {clk2}]
 create_clock -name vclk -period 8.0000 
 create_generated_clock -name gclk_div -source [get_ports {clk1}] -divide_by 2 [get_pins {reg1/Q}]
 set_clock_latency 0.2000 [get_clocks {clk2}]
+set_clock_latency -source -early -rise -min 0.3000 [get_clocks {clk1}]
+set_clock_latency -source -early -rise -max 0.6500 [get_clocks {clk1}]
+set_clock_latency -source -early -fall -min 0.2500 [get_clocks {clk1}]
+set_clock_latency -source -early -fall -max 0.3000 [get_clocks {clk1}]
+set_clock_latency -source -late -rise -min 0.6000 [get_clocks {clk1}]
+set_clock_latency -source -late -rise -max 0.6500 [get_clocks {clk1}]
+set_clock_latency -source -late -fall -min 0.2500 [get_clocks {clk1}]
+set_clock_latency -source -late -fall -max 0.6000 [get_clocks {clk1}]
 set_clock_uncertainty -rise_from [get_clocks {clk1}] -rise_to [get_clocks {clk2}]  -hold 0.1500
 set_clock_uncertainty -rise_from [get_clocks {clk1}] -rise_to [get_clocks {clk2}]  -setup 0.3000
 set_clock_uncertainty -rise_from [get_clocks {clk1}] -fall_to [get_clocks {clk2}]  -hold 0.1500
