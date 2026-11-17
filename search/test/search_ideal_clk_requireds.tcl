@@ -18,6 +18,13 @@ puts "cg/A2 max [get_property [get_pins cg/A2] slack_max] min [get_property [get
 puts "--- ideal clock, after resizing u1 ---"
 replace_cell u1 BUF_X4
 puts "ckbuf/Z max [get_property [get_pins ckbuf/Z] slack_max] min [get_property [get_pins ckbuf/Z] slack_min]"
+puts "r1/CK max [get_property [get_pins r1/CK] slack_max] min [get_property [get_pins r1/CK] slack_min]"
+puts "icg/E max [get_property [get_pins icg/E] slack_max] min [get_property [get_pins icg/E] slack_min]"
+
+puts "--- ideal clock, after a full timing update (same as above) ---"
+sta::find_timing -full_update
+puts "ckbuf/Z max [get_property [get_pins ckbuf/Z] slack_max] min [get_property [get_pins ckbuf/Z] slack_min]"
+puts "r1/CK max [get_property [get_pins r1/CK] slack_max] min [get_property [get_pins r1/CK] slack_min]"
 puts "icg/E max [get_property [get_pins icg/E] slack_max] min [get_property [get_pins icg/E] slack_min]"
 
 puts "--- propagated clock ---"

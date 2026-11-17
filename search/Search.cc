@@ -2344,9 +2344,10 @@ Search::clkPathArrival(const Path *clk_path) const
 static bool
 isIdealRegClk(const Vertex *vertex,
               bool is_clk,
+              const ClockEdge *clk_edge,
               const ClkInfo *clk_info)
 {
-  return vertex->isRegClk() && is_clk && clk_info->clkEdge()
+  return vertex->isRegClk() && is_clk && clk_edge
     && !clk_info->isPropagated();
 }
 // ---- OpenROAD fork: ideal clock network requireds (end) ----
@@ -2359,7 +2360,8 @@ Search::clkPathArrival(const Path *clk_path,
 {
   const Scene *scene = clk_path->scene(this);
   // OpenROAD fork: shared with ideal clock network requireds.
-  if (isIdealRegClk(clk_path->vertex(this), clk_path->isClock(this), clk_info)) {
+  if (isIdealRegClk(clk_path->vertex(this), clk_path->isClock(this), clk_edge,
+                    clk_info)) {
     // Ideal clock, apply ideal insertion delay and latency.
     const EarlyLate *early_late = min_max;
     Arrival insertion = clockInsertion(clk_edge->clock(), clk_info->clkSrc(),
@@ -3506,14 +3508,18 @@ Search::seedRequiredEnqueueFanin(Vertex *vertex)
 // register, so re-evaluating its required after a change at any one
 // register visits all of them. The trade-off: clock network pins above
 // the register clock pins have INF required/slack instead of the worst
-// slack of the paths through them. Register clock pins keep their
-// required (and slack) from the clk->q arc, and data and clock gating
-// check requireds are unchanged.
+// slack of the paths through them. That includes user constraints that
+// end at a register clock pin (set_max_delay or set_data_check -to the
+// pin): the pin itself has the constrained required and slack, the clock
+// network above it does not. Register clock pins keep their required (and
+// slack) from the clk->q arc, and data and clock gating check requireds
+// are unchanged.
 static bool
 isIdealRegClkPath(const Vertex *vertex,
                   const Tag *tag)
 {
-  return isIdealRegClk(vertex, tag->isClock(), tag->clkInfo());
+  const ClkInfo *clk_info = tag->clkInfo();
+  return isIdealRegClk(vertex, tag->isClock(), clk_info->clkEdge(), clk_info);
 }
 // ---- OpenROAD fork: ideal clock network requireds (end) ----
 
