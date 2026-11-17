@@ -420,6 +420,11 @@ cc_library(
         "-Wno-unused-parameter",
         "-Wno-sign-compare",
     ],
+    # OpenROAD fork: the fork-identity define for dependents' C++, the
+    # counterpart of sta_swig_defs for swig. OpenROAD code that calls
+    # fork-only API guards it with #ifdef STA_OPENROAD_FORK and falls back
+    # to stock behavior, so stock (parallaxsw) OpenSTA still builds it.
+    defines = ["STA_OPENROAD_FORK"],
     features = [
         "-use_header_modules",
     ],
