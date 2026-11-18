@@ -654,7 +654,8 @@ PropActivityVisitor::visit(Vertex *vertex)
              vertex->to_string(this));
   bool changed = false;
   if (power_->hasUserActivity(pin)) {
-    PwrActivity &activity = power_->userActivity(pin);
+    // OpenROAD fork: power activity. Copy so the annotation is not modified.
+    PwrActivity activity = power_->userActivity(pin);
     changed = setActivityCheck(pin, activity);
   }
   else {
@@ -751,14 +752,14 @@ bool
 PropActivityVisitor::setActivityCheck(const Pin *pin,
                                       PwrActivity &activity)
 {
-  float min_rf_slew = power_->getMinRfSlew(pin);
-  float max_density = (min_rf_slew > 0.0) ? 1.0 / min_rf_slew : INF;
-  if (activity.density() > max_density)
-    activity.setDensity(max_density);
-  // The slew limit still allows hundreds of transitions per clock period.
+  // ---- OpenROAD fork: power activity (begin) ----
   // Propagated activity is limited to one transition per launching clock
   // period (two for clock nets). Annotated activities are not limited, and
   // neither are loads, which copy their driver's (already limited) activity.
+  // There is no 1/slew limit: it allowed hundreds of transitions per clock
+  // period on fast nets, and on slow nets (an unbuffered clock gate before
+  // clock tree synthesis) it cut clock and annotated activities.
+  // ---- OpenROAD fork: power activity (end) ----
   if (activity.origin() == PwrActivityOrigin::propagated
       && network_->isDriver(pin)) {
     float max_prop_density = power_->maxPropagatedDensity(pin);
@@ -1495,27 +1496,6 @@ Power::getSlew(Vertex *vertex,
   }
 }
 
-float
-Power::getMinRfSlew(const Pin *pin)
-{
-  Vertex *vertex = graph_->pinLoadVertex(pin);
-  if (vertex) {
-    const MinMax *min_max = MinMax::min();
-    float mm_slew = min_max->initValue();
-    for (DcalcAPIndex ap_index = 0;
-         ap_index < dcalcAnalysisPtCount();
-         ap_index++) {
-      const Slew &slew1 = graph_->slew(vertex, RiseFall::rise(), ap_index);
-      const Slew &slew2 = graph_->slew(vertex, RiseFall::fall(), ap_index);
-      float slew_avg = (delayAsFloat(slew1, min_max, this)
-                        + delayAsFloat(slew2, min_max, this)) / 2.0;
-      if (delayGreater(slew_avg, mm_slew, min_max, this))
-        mm_slew = slew_avg;
-    }
-    return mm_slew;
-  }
-  return 0.0;
-}
 
 void
 Power::findOutputInternalPower(const LibertyPort *to_port,

@@ -204,7 +204,6 @@ protected:
   float getSlew(Vertex *vertex,
                 const RiseFall *rf,
                 const Scene *scene);
-  float getMinRfSlew(const Pin *pin);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   float clockDuty(const Clock *clk);
@@ -250,6 +249,7 @@ protected:
                             float &density);
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
+  // OpenROAD fork: power activity. getMinRfSlew removed with the 1/slew limit.
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
