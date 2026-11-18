@@ -291,6 +291,8 @@ private:
   std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_{
       InstanceIdLess(network_)};
   bool instance_powers_valid_{false};
+  // OpenROAD fork: power cache. Delay calculation version of instance_powers_.
+  uint64_t instance_powers_delays_{0};
 
   static constexpr int max_activity_passes_ = 50;
   std::unordered_map<const Pin*, float> launch_period_cache_;

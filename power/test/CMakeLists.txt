@@ -14,6 +14,7 @@ sta_module_tests("power"
     scene_clk
     tie_when
     slow_slew
+    parasitics_update
 )
 
 add_subdirectory(cpp)

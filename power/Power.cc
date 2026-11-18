@@ -1344,9 +1344,13 @@ Power::maxPropagatedDensity(const Pin *pin)
 void
 Power::ensureInstPowers()
 {
-  if (!instance_powers_valid_) {
+  // OpenROAD fork: power cache. Slews and load capacitances change when
+  // delays are recalculated (parasitics, loads, assigned transitions).
+  uint64_t delays_version = graph_delay_calc_->delaysVersion();
+  if (!instance_powers_valid_ || delays_version != instance_powers_delays_) {
     findInstPowers();
     instance_powers_valid_ = true;
+    instance_powers_delays_ = delays_version;
   }
 }
 
