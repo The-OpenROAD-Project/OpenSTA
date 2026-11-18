@@ -1,0 +1,71 @@
+/* A hard macro with its own clock tree, as write_timing_model writes one:
+   its registers sit 0.30-0.31 ns (min) and 0.40-0.42 ns (max) behind
+   its clock pin. Used by timing_model_clktree_macro.tcl. */
+library (timing_model_clktree_macro) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  capacitive_load_unit (1,ff);
+  pulling_resistance_unit : "1kohm";
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 10;
+  slew_lower_threshold_pct_fall : 10;
+  slew_upper_threshold_pct_rise : 90;
+  slew_upper_threshold_pct_fall : 90;
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.1;
+
+  cell (clktree_macro) {
+    area : 100;
+    is_macro_cell : true;
+    pin (CLK) {
+      direction : input;
+      clock : true;
+      capacitance : 1.0;
+      timing () {
+        timing_sense : positive_unate;
+        timing_type : min_clock_tree_path;
+        cell_rise (scalar) { values ("0.30"); }
+        cell_fall (scalar) { values ("0.31"); }
+      }
+      timing () {
+        timing_sense : positive_unate;
+        timing_type : max_clock_tree_path;
+        cell_rise (scalar) { values ("0.40"); }
+        cell_fall (scalar) { values ("0.42"); }
+      }
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CLK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.05"); }
+        fall_constraint (scalar) { values ("0.05"); }
+      }
+      timing () {
+        related_pin : "CLK";
+        timing_type : hold_rising;
+        rise_constraint (scalar) { values ("0.02"); }
+        fall_constraint (scalar) { values ("0.02"); }
+      }
+    }
+    pin (Q) {
+      direction : output;
+      timing () {
+        related_pin : "CLK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.50"); }
+        cell_fall (scalar) { values ("0.50"); }
+        rise_transition (scalar) { values ("0.05"); }
+        fall_transition (scalar) { values ("0.05"); }
+      }
+    }
+  }
+}
