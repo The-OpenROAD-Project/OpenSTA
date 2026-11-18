@@ -39,14 +39,16 @@ unset_case_analysis [get_ports te]
 set_case_analysis 0 [get_ports g]
 show free/GCLK
 show tied/GCLK
-puts "Unconnected test enable is ignored"
+puts "Unconnected or undriven test enable is ignored"
 set verilog2 [make_result_file power_clock_gate_test2.v]
 set stream [open $verilog2 w]
 puts $stream {module top2 (clk, g, x, q);
   input clk, g, x;
   output q;
-  wire gclk;
+  wire gclk, gclk2;
+  wire se;
   sky130_fd_sc_hd__sdlclkp_1 open_te (.CLK(clk), .GATE(g), .GCLK(gclk));
+  sky130_fd_sc_hd__sdlclkp_1 undriven_te (.CLK(clk), .GATE(g), .SCE(se), .GCLK(gclk2));
   sky130_fd_sc_hd__dfxtp_1 r (.CLK(gclk), .D(x), .Q(q));
 endmodule}
 close $stream
@@ -55,5 +57,7 @@ link_design top2
 create_clock -name clk -period 1 [get_ports clk]
 set_power_activity -input_ports [get_ports {g x}] -activity 0.1 -duty 0.5
 show open_te/GCLK
+show undriven_te/GCLK
 set_case_analysis 0 [get_ports g]
 show open_te/GCLK
+show undriven_te/GCLK

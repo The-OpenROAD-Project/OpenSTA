@@ -31,6 +31,7 @@
 #include <functional>
 #include <limits>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -699,11 +700,8 @@ PropActivityVisitor::visit(Vertex *vertex)
             float p2 = activity2.duty();
             // ---- OpenROAD fork: clock gate test pin (begin) ----
             // The gate is enabled by enable | test (test enable).
-            const Pin *test = power_->clockGateTestPin(inst);
-            if (test) {
-              float p_test = power_->findActivity(test).duty();
-              p2 = 1.0F - (1.0F - p2) * (1.0F - p_test);
-            }
+            float p_test = power_->clockGateTestDuty(inst);
+            p2 = 1.0F - (1.0F - p2) * (1.0F - p_test);
             // ---- OpenROAD fork: clock gate test pin (end) ----
             // The enable is latched, so only clock edges make gated clock edges.
             PwrActivity activity(activity1.density() * p2,
@@ -797,21 +795,25 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-// OpenROAD fork: clock gate test pin. Unconnected test pins are ignored,
-// as in Sim::clockGateOutValue.
-const Pin *
-Power::clockGateTestPin(const Instance *inst) const
+// OpenROAD fork: clock gate test pin. Probability that any test enable is
+// 1. Test pins without a driver are ignored, as in Sim::clockGateOutValue.
+float
+Power::clockGateTestDuty(const Instance *inst)
 {
-  const Pin *test = nullptr;
+  float p_off = 1.0;
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const LibertyPort *port = network_->libertyPort(pin);
-    if (port && port->isClockGateTest() && network_->net(pin))
-      test = pin;
+    if (port && port->isClockGateTest()) {
+      PinSet *drvrs = network_->drivers(pin);
+      LogicValue value = scene_->mode()->sim()->simValue(pin);
+      if ((drvrs && !drvrs->empty()) || value != LogicValue::unknown)
+        p_off *= 1.0F - findActivity(pin).duty();
+    }
   }
   delete pin_iter;
-  return test;
+  return 1.0F - p_off;
 }
 
 void
@@ -1500,8 +1502,9 @@ Power::findInputInternalPower(const Pin *pin,
         float duty = 1.0;      // fallback default
         FuncExpr *when = pwr->when();
         // Weight each group by P(when).
+        // OpenROAD fork: power when. Output pins replaced by their functions.
         if (when)
-          duty = evalActivity(when, inst).duty();
+          duty = whenDuty(when, inst);
         float port_internal = energy * duty * activity.density();
         debugPrint(debug_, "power", 2, " {} {}  {:.2f}  {:.2f} {:9.2e} {:9.2e} {}",
                    port->name(), when ? when->to_string() : "",
@@ -1632,8 +1635,9 @@ Power::findInputDuty(const Instance *inst,
         float duty = evalDiffDuty(func, from_port, when, inst);
         return duty;
       }
+      // OpenROAD fork: power when. Output pins replaced by their functions.
       else if (when)
-        return evalActivity(when, inst).duty();
+        return whenDuty(when, inst);
       else if (scene_->mode()->clkNetwork()->isClock(from_vertex->pin()))
         return 0.5;
       return 0.5;
@@ -1713,27 +1717,49 @@ Power::findSwitchingPower(const Instance *inst,
 
 // Leakage totals for one power/gnd pin.
 // ---- OpenROAD fork: power leakage (begin) ----
-// Probability that a leakage when condition is true. Output pins are
+// Probability that a when condition is true. Output pins are
 // replaced by their functions so conditions such as "!A & Y" on an inverter
 // are not evaluated as if A and Y were independent.
+static bool
+funcHasInternalPort(const FuncExpr *expr)
+{
+  if (expr == nullptr)
+    return false;
+  if (expr->op() == FuncExpr::Op::port)
+    return expr->port()->direction()->isInternal();
+  return funcHasInternalPort(expr->left())
+    || funcHasInternalPort(expr->right());
+}
+
 float
 Power::whenDuty(FuncExpr *when,
                 const Instance *inst)
 {
   DdManager *cudd_mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(when);
-  std::vector<std::pair<const LibertyPort *, DdNode *>> port_vars(
-    bdd_.portVarMap().begin(), bdd_.portVarMap().end());
-  for (const auto &[port, var_node] : port_vars) {
-    FuncExpr *func = port->function();
-    if (port->direction()->isAnyOutput() && func && !func->hasPort(port)) {
-      DdNode *func_bdd = bdd_.funcBdd(func);
-      DdNode *composed = Cudd_bddCompose(cudd_mgr, bdd, func_bdd,
-                                         Cudd_NodeReadIndex(var_node));
-      Cudd_Ref(composed);
-      Cudd_RecursiveDeref(cudd_mgr, bdd);
-      Cudd_RecursiveDeref(cudd_mgr, func_bdd);
-      bdd = composed;
+  // Combinational outputs only: sequential outputs (Q = IQ) keep the pin
+  // activity, which may be annotated. Repeat for outputs whose functions
+  // name other outputs.
+  std::set<const LibertyPort *> substituted;
+  bool changed = true;
+  while (changed) {
+    changed = false;
+    std::vector<std::pair<const LibertyPort *, DdNode *>> port_vars(
+      bdd_.portVarMap().begin(), bdd_.portVarMap().end());
+    for (const auto &[port, var_node] : port_vars) {
+      FuncExpr *func = port->function();
+      if (port->direction()->isAnyOutput() && func && !func->hasPort(port)
+          && !funcHasInternalPort(func) && !substituted.contains(port)) {
+        substituted.insert(port);
+        DdNode *func_bdd = bdd_.funcBdd(func);
+        DdNode *composed = Cudd_bddCompose(cudd_mgr, bdd, func_bdd,
+                                           Cudd_NodeReadIndex(var_node));
+        Cudd_Ref(composed);
+        Cudd_RecursiveDeref(cudd_mgr, bdd);
+        Cudd_RecursiveDeref(cudd_mgr, func_bdd);
+        bdd = composed;
+        changed = true;
+      }
     }
   }
   float duty = evalBddDuty(bdd, inst);

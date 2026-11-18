@@ -261,7 +261,7 @@ protected:
   Pin *findLinkPin(const Instance *inst,
                    const LibertyPort *scene_port);
   // OpenROAD fork: clock gate test pin.
-  const Pin *clockGateTestPin(const Instance *inst) const;
+  float clockGateTestDuty(const Instance *inst);
   void clockGatePins(const Instance *inst,
                      // Return values.
                      const Pin *&enable,
@@ -271,7 +271,7 @@ protected:
                         const Instance *inst);
   float evalBddDuty(DdNode *bdd,
                     const Instance *inst);
-  // OpenROAD fork: power leakage.
+  // OpenROAD fork: power when conditions.
   float whenDuty(FuncExpr *when,
                  const Instance *inst);
   size_t pinCount();

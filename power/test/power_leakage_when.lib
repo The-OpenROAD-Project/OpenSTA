@@ -33,4 +33,35 @@ library (power_leakage_when) {
     pin (A) { direction : input; capacitance : 1.0; }
     pin (Y) { direction : output; function : "A"; }
   }
+  /* Leakage conditions on a flop output use the Q pin activity. */
+  cell (DFF_Q_WHEN) {
+    ff (IQ, IQN) { next_state : "D"; clocked_on : "CK"; }
+    leakage_power () { when : "Q"; value : 10.0; }
+    leakage_power () { when : "!Q"; value : 0.0; }
+    pin (D) { direction : input; capacitance : 1.0; }
+    pin (CK) { direction : input; capacitance : 1.0; clock : true; }
+    pin (Q) { direction : output; function : "IQ"; }
+  }
+  /* Y2 = !Y1 = !A, so "A & Y2" is never true and "!A & Y2" is P(!A). */
+  cell (CHAIN_OUT_WHEN) {
+    leakage_power () { when : "A & Y2"; value : 7.0; }
+    leakage_power () { when : "!A & Y2"; value : 1.0; }
+    leakage_power () { value : 0.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y1) { direction : output; function : "A"; }
+    pin (Y2) { direction : output; function : "!Y1"; }
+  }
+  /* Input internal power when "A & Y" is never true on an inverter. */
+  cell (INV_INTERNAL_WHEN) {
+    pin (A) {
+      direction : input;
+      capacitance : 1.0;
+      internal_power () {
+        when : "A & Y";
+        rise_power (scalar) { values ("100.0"); }
+        fall_power (scalar) { values ("100.0"); }
+      }
+    }
+    pin (Y) { direction : output; function : "!A"; }
+  }
 }
