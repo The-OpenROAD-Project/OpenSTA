@@ -1332,8 +1332,10 @@ float
 Power::maxPropagatedDensity(const Pin *pin)
 {
   float period = launchClkPeriod(pin);
+  // OpenROAD fork: power activity. Without clocks, use the sampling period
+  // of evalBddChangeDensity.
   if (period <= 0.0)
-    return INF;
+    period = units_->timeUnit()->scale();
   float transitions_per_period =
       scene_->mode()->clkNetwork()->isClock(pin) ? 2.0 : 1.0;
   return transitions_per_period / period;
@@ -1499,7 +1501,6 @@ Power::getSlew(Vertex *vertex,
     return delayAsFloat(graph_->slew(vertex, rf, slew_index));
   }
 }
-
 
 void
 Power::findOutputInternalPower(const LibertyPort *to_port,
