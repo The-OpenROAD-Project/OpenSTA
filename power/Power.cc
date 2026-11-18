@@ -797,7 +797,8 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-// OpenROAD fork: clock gate test pin.
+// OpenROAD fork: clock gate test pin. Unconnected test pins are ignored,
+// as in Sim::clockGateOutValue.
 const Pin *
 Power::clockGateTestPin(const Instance *inst) const
 {
@@ -806,7 +807,7 @@ Power::clockGateTestPin(const Instance *inst) const
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const LibertyPort *port = network_->libertyPort(pin);
-    if (port && port->isClockGateTest())
+    if (port && port->isClockGateTest() && network_->net(pin))
       test = pin;
   }
   delete pin_iter;
@@ -827,12 +828,15 @@ Power::clockGatePins(const Instance *inst,
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const LibertyPort *port = network_->libertyPort(pin);
-    if (port->isClockGateEnable())
-      enable = pin;
-    if (port->isClockGateClock())
-      clk = pin;
-    if (port->isClockGateOut())
-      gclk = pin;
+    // OpenROAD fork: power activity. Skip pins without a liberty port.
+    if (port) {
+      if (port->isClockGateEnable())
+        enable = pin;
+      if (port->isClockGateClock())
+        clk = pin;
+      if (port->isClockGateOut())
+        gclk = pin;
+    }
   }
   delete pin_iter;
 }

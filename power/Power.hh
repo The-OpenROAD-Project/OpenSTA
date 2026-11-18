@@ -249,7 +249,6 @@ protected:
                             float &density);
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
-  // OpenROAD fork: power activity. getMinRfSlew removed with the 1/slew limit.
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
