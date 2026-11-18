@@ -271,6 +271,9 @@ protected:
                         const Instance *inst);
   float evalBddDuty(DdNode *bdd,
                     const Instance *inst);
+  // OpenROAD fork: power leakage.
+  float whenDuty(FuncExpr *when,
+                 const Instance *inst);
   size_t pinCount();
 
 private:

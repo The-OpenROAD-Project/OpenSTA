@@ -1,0 +1,3 @@
+inv   leakage 2.00 nW
+and2  leakage 2.50 nW
+buf1  leakage 1.00 nW

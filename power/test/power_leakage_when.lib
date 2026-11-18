@@ -1,0 +1,36 @@
+library (power_leakage_when) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1,ff);
+  pulling_resistance_unit : "1kohm";
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.0;
+  /* Conditions name the output pin; a group without when covers the rest. */
+  cell (INV_OUT_WHEN) {
+    leakage_power () { when : "!A & Y"; value : 1.0; }
+    leakage_power () { when : "A & !Y"; value : 3.0; }
+    leakage_power () { value : 10.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "!A"; }
+  }
+  /* One condition; the group without when covers the other states. */
+  cell (AND_PARTIAL) {
+    leakage_power () { when : "A & B"; value : 4.0; }
+    leakage_power () { value : 2.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (B) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A & B"; }
+  }
+  /* A state with zero leakage is covered; cell_leakage_power is not added. */
+  cell (BUF_ZERO_STATE) {
+    cell_leakage_power : 5.0;
+    leakage_power () { when : "!A"; value : 0.0; }
+    leakage_power () { when : "A"; value : 2.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A"; }
+  }
+}

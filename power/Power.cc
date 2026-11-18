@@ -1712,6 +1712,37 @@ Power::findSwitchingPower(const Instance *inst,
 ////////////////////////////////////////////////////////////////
 
 // Leakage totals for one power/gnd pin.
+// ---- OpenROAD fork: power leakage (begin) ----
+// Probability that a leakage when condition is true. Output pins are
+// replaced by their functions so conditions such as "!A & Y" on an inverter
+// are not evaluated as if A and Y were independent.
+float
+Power::whenDuty(FuncExpr *when,
+                const Instance *inst)
+{
+  DdManager *cudd_mgr = bdd_.cuddMgr();
+  DdNode *bdd = bdd_.funcBdd(when);
+  std::vector<std::pair<const LibertyPort *, DdNode *>> port_vars(
+    bdd_.portVarMap().begin(), bdd_.portVarMap().end());
+  for (const auto &[port, var_node] : port_vars) {
+    FuncExpr *func = port->function();
+    if (port->direction()->isAnyOutput() && func && !func->hasPort(port)) {
+      DdNode *func_bdd = bdd_.funcBdd(func);
+      DdNode *composed = Cudd_bddCompose(cudd_mgr, bdd, func_bdd,
+                                         Cudd_NodeReadIndex(var_node));
+      Cudd_Ref(composed);
+      Cudd_RecursiveDeref(cudd_mgr, bdd);
+      Cudd_RecursiveDeref(cudd_mgr, func_bdd);
+      bdd = composed;
+    }
+  }
+  float duty = evalBddDuty(bdd, inst);
+  Cudd_RecursiveDeref(cudd_mgr, bdd);
+  bdd_.clearVarMap();
+  return duty;
+}
+// ---- OpenROAD fork: power leakage (end) ----
+
 class LeakageSummary
 {
 public:
@@ -1753,8 +1784,9 @@ Power::findLeakagePower(const Instance *inst,
           sum.cond_true_exists = true;
         }
         else {
-          PwrActivity cond_activity = evalActivity(when, inst);
-          float cond_duty = cond_activity.duty();
+          // OpenROAD fork: power leakage. Output pins in the condition are
+          // replaced by their functions.
+          float cond_duty = whenDuty(when, inst);
           debugPrint(debug_, "power", 2, "leakage {} {} {} {:.3e} * {:.2f}",
                      cell->name(),
                      pg_name,
@@ -1762,8 +1794,9 @@ Power::findLeakagePower(const Instance *inst,
                      leakage, cond_duty);
           // Leakage power average weighted by duty.
           sum.cond_leakage += leakage * cond_duty;
-          if (leakage > 0.0)
-            sum.cond_duty_sum += cond_duty;
+          // OpenROAD fork: power leakage. States with zero leakage are
+          // covered too.
+          sum.cond_duty_sum += cond_duty;
           sum.cond_exists = true;
         }
       }
@@ -1789,10 +1822,15 @@ Power::findLeakagePower(const Instance *inst,
         leakage = sum.cond_true_leakage;
       else if (sum.cond_exists) {
         leakage = sum.cond_leakage;
-        if (cell_leakage_exists) {
-          float duty = 1.0 - sum.cond_duty_sum;
+        // ---- OpenROAD fork: power leakage (begin) ----
+        // States no condition covers use the leakage_power group without a
+        // when condition, or else cell_leakage_power.
+        float duty = std::max(1.0F - sum.cond_duty_sum, 0.0F);
+        if (sum.uncond_exists)
+          leakage += sum.uncond_leakage * duty;
+        else if (cell_leakage_exists)
           leakage += cell_leakage * duty;
-        }
+        // ---- OpenROAD fork: power leakage (end) ----
       }
       // Ignore unconditional leakage unless there are no conditional leakage groups.
       else if (sum.uncond_exists)
