@@ -19,6 +19,10 @@ create_generated_clock -name gclk_div3 -source [get_ports {clk2}] -divide_by 3 [
 create_generated_clock -name gclk_mul2 -source [get_ports {clk1}] -multiply_by 2 [get_pins {reg2/Q}]
 set_clock_transition -rise -max 0.1500 [get_clocks {gclk_mul2}]
 set_clock_latency 0.1500 [get_clocks {gclk_div3}]
+set_clock_latency -source -rise -min 0.3000 [get_clocks {gclk_div2}]
+set_clock_latency -source -rise -max 0.4000 [get_clocks {gclk_div2}]
+set_clock_latency -source -fall -min 0.1000 [get_clocks {gclk_div2}]
+set_clock_latency -source -fall -max 0.3000 [get_clocks {gclk_div2}]
 set_clock_uncertainty -rise_from [get_clocks {clk1}] -rise_to [get_clocks {gclk_div2}]  -setup 0.2000
 set_clock_uncertainty -rise_from [get_clocks {clk1}] -fall_to [get_clocks {gclk_div2}]  -setup 0.2000
 set_clock_uncertainty -fall_from [get_clocks {clk1}] -rise_to [get_clocks {gclk_div2}]  -setup 0.2000

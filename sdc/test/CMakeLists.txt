@@ -39,6 +39,7 @@ sta_module_tests("sdc"
     write_disabled_groups
     write_options
     write_read
+    write_rise_fall_min_max
     write_roundtrip
     write_roundtrip_full
 )
