@@ -15,6 +15,7 @@ sta_module_tests("power"
     tie_when
     slow_slew
     parasitics_update
+    clock_gate_test
 )
 
 add_subdirectory(cpp)

@@ -697,16 +697,30 @@ LogicValue
 Sim::clockGateOutValue(const Instance *inst)
 {
   LibertyCell *cell = network_->libertyCell(inst);
+  // ---- OpenROAD fork: clock gate test pin (begin) ----
+  // The gated clock is 0 when the clock is 0, or when the enable and the
+  // test enable (if any) are both 0.
+  bool enable_zero = false;
+  bool test_zero = true;
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
-    if (port->isClockGateClock() || port->isClockGateEnable()) {
-      Pin *gclk_pin = network_->findPin(inst, port);
-      if (gclk_pin && simValue(gclk_pin) == LogicValue::zero)
+    if (port->isClockGateClock() || port->isClockGateEnable()
+        || port->isClockGateTest()) {
+      Pin *pin = network_->findPin(inst, port);
+      bool zero = pin && simValue(pin) == LogicValue::zero;
+      if (port->isClockGateClock() && zero)
         return LogicValue::zero;
+      if (port->isClockGateEnable())
+        enable_zero = zero;
+      if (port->isClockGateTest())
+        test_zero = zero;
     }
   }
+  if (enable_zero && test_zero)
+    return LogicValue::zero;
   return LogicValue::unknown;
+  // ---- OpenROAD fork: clock gate test pin (end) ----
 }
 
 void

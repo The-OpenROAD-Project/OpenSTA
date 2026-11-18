@@ -697,6 +697,14 @@ PropActivityVisitor::visit(Vertex *vertex)
             PwrActivity activity2 = power_->findActivity(enable);
             float p1 = activity1.duty();
             float p2 = activity2.duty();
+            // ---- OpenROAD fork: clock gate test pin (begin) ----
+            // The gate is enabled by enable | test (test enable).
+            const Pin *test = power_->clockGateTestPin(inst);
+            if (test) {
+              float p_test = power_->findActivity(test).duty();
+              p2 = 1.0F - (1.0F - p2) * (1.0F - p_test);
+            }
+            // ---- OpenROAD fork: clock gate test pin (end) ----
             // The enable is latched, so only clock edges make gated clock edges.
             PwrActivity activity(activity1.density() * p2,
                                  p1 * p2, PwrActivityOrigin::propagated);
@@ -788,6 +796,22 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
 }
 
 ////////////////////////////////////////////////////////////////
+
+// OpenROAD fork: clock gate test pin.
+const Pin *
+Power::clockGateTestPin(const Instance *inst) const
+{
+  const Pin *test = nullptr;
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port && port->isClockGateTest())
+      test = pin;
+  }
+  delete pin_iter;
+  return test;
+}
 
 void
 Power::clockGatePins(const Instance *inst,

@@ -261,6 +261,8 @@ protected:
                             const LibertyPort *scene_port);
   Pin *findLinkPin(const Instance *inst,
                    const LibertyPort *scene_port);
+  // OpenROAD fork: clock gate test pin.
+  const Pin *clockGateTestPin(const Instance *inst) const;
   void clockGatePins(const Instance *inst,
                      // Return values.
                      const Pin *&enable,

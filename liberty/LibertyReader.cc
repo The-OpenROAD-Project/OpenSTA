@@ -1277,6 +1277,9 @@ LibertyReader::readPortAttributes(LibertyCell *cell,
                    ports, port_group);
   readPortAttrBool("clock_gate_enable_pin", &LibertyPort::setIsClockGateEnable,
                    ports, port_group);
+  // OpenROAD fork: clock gate test pin.
+  readPortAttrBool("clock_gate_test_pin", &LibertyPort::setIsClockGateTest,
+                   ports, port_group);
   readPortAttrBool("clock_gate_out_pin", &LibertyPort::setIsClockGateOut,
                    ports, port_group);
   readPortAttrBool("is_pll_feedback_pin", &LibertyPort::setIsPllFeedback,
