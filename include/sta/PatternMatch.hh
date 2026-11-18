@@ -51,7 +51,7 @@ public:
                bool nocase,
                Tcl_Interp *interp);
   // Use unix glob style matching.
-  PatternMatch(std::string_view pattern);
+  explicit PatternMatch(std::string_view pattern);
   PatternMatch(std::string_view pattern,
                const PatternMatch *inherit_from);
   bool match(std::string_view str) const;
@@ -76,7 +76,7 @@ private:
 class RegexpCompileError : public Exception
 {
 public:
-  RegexpCompileError(std::string_view pattern);
+  explicit RegexpCompileError(std::string_view pattern);
   ~RegexpCompileError() noexcept override = default;
   const char *what() const noexcept override;
 

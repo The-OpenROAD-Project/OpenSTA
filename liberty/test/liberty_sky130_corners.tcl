@@ -5,12 +5,13 @@ suppress_msg 1140
 ############################################################
 # Define corners and read Sky130HD libraries with explicit -max/-min views
 ############################################################
-define_corners fast slow
 
-read_liberty -corner fast -max ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
-read_liberty -corner fast -min ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
-read_liberty -corner slow -min ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
-read_liberty -corner slow -max ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
+read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+read_liberty ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
+define_scene fast -liberty ../../test/sky130hd/sky130_fd_sc_hd__ff_n40C_1v95.lib
+define_scene slow -liberty ../../test/sky130hd/sky130_fd_sc_hd__ss_n40C_1v40.lib
+# define_corners left the first corner as the command scene.
+set_scene fast
 
 ############################################################
 # Read design and link
@@ -31,28 +32,28 @@ set_output_delay -clock clk 3.0 [get_ports out2]
 # Report timing per corner (shows different delays per corner)
 ############################################################
 puts "--- Fast corner, max ---"
-report_checks -corner fast -path_delay max
+report_checks -scenes fast -path_delay max
 
 puts "--- Slow corner, max ---"
-report_checks -corner slow -path_delay max
+report_checks -scenes slow -path_delay max
 
 puts "--- Fast corner, min ---"
-report_checks -corner fast -path_delay min
+report_checks -scenes fast -path_delay min
 
 puts "--- Slow corner, min ---"
-report_checks -corner slow -path_delay min
+report_checks -scenes slow -path_delay min
 
 # Additional non-printing checks ensure report_checks emits corner-specific paths
 # for both max and min views loaded with -max/-min.
 with_output_to_variable fast_max_rep {
-  report_checks -corner fast -path_delay max
+  report_checks -scenes fast -path_delay max
 }
 if {![regexp {Corner:\s+fast} $fast_max_rep] || ![regexp {Path Type:\s+max} $fast_max_rep]} {
   error "fast corner max report did not include expected corner/path markers"
 }
 
 with_output_to_variable slow_min_rep {
-  report_checks -corner slow -path_delay min
+  report_checks -scenes slow -path_delay min
 }
 if {![regexp {Corner:\s+slow} $slow_min_rep] || ![regexp {Path Type:\s+min} $slow_min_rep]} {
   error "slow corner min report did not include expected corner/path markers"

@@ -1,0 +1,50 @@
+# OpenSTA, Static Timing Analyzer
+# Copyright (c) 2026, Parallax Software, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files", "strip_prefix")
+load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
+
+package(default_visibility = ["//visibility:public"])
+
+# Tcl init scripts embedded in the sta binary. Tcl 9 mounts this zip
+# and reads init.tcl from it (see tcl_library_init.cc).
+pkg_files(
+    name = "tcl_core_files",
+    srcs = ["@tcl_lang//:tcl_core"],
+    strip_prefix = strip_prefix.from_root(),
+)
+
+pkg_zip(
+    name = "tcl_resources_zip",
+    srcs = [":tcl_core_files"],
+)
+
+genrule(
+    name = "tcl_resources_zip_data_h",
+    srcs = [":tcl_resources_zip"],
+    outs = ["tcl_resources_zip_data.h"],
+    cmd = "$(location :embed) kTclResourceZip $< $@",
+    tools = [":embed"],
+)
+
+cc_binary(
+    name = "embed",
+    srcs = ["embed.cc"],
+)
+
+cc_library(
+    name = "tcl_library_init",
+    srcs = [
+        "tcl_library_init.cc",
+        "tcl_resources_zip_data.h",
+    ],
+    hdrs = ["tcl_library_init.h"],
+    deps = ["@tcl_lang//:tcl"],
+)

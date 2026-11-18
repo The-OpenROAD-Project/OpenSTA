@@ -592,11 +592,11 @@ TimingArc::to_string() const
   }
   else {
     std::string str = set_->from()->name();
-    str += " ";
+    str += ' ';
     str += from_rf_->to_string();
     str += " -> ";
     str += set_->to()->name();
-    str += " ";
+    str += ' ';
     str += to_rf_->to_string();
     return str;
   }

@@ -83,7 +83,7 @@ gateModelRd(const LibertyCell *cell,
 class DmpError : public Exception
 {
 public:
-  DmpError(std::string_view what);
+  explicit DmpError(std::string_view what);
   const char *what() const noexcept override { return what_.c_str(); }
 
 private:

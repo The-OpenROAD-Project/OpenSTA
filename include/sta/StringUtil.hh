@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
+#include <cstdint>
 #include <cstring>
 #include <set>
 #include <string>
@@ -91,9 +92,9 @@ stringEqual(std::string_view s1,
 
 std::pair<float, bool>
 stringFloat(const std::string &str);
-std::pair<long long, bool>
+std::pair<int64_t, bool>
 stringLong(const std::string &str,
-          int base = 10);
+           int base = 10);
 
 bool
 isDigits(const char *str);

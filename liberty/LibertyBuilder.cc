@@ -54,7 +54,7 @@ LibertyBuilder::makeCell(LibertyLibrary *library,
                          std::string_view name,
                          std::string_view filename)
 {
-  LibertyCell *cell = new LibertyCell(library, std::string(name), std::string(filename));
+  LibertyCell *cell = new LibertyCell(library, name, filename);
   library->addCell(cell);
   return cell;
 }
@@ -63,7 +63,7 @@ LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
                          std::string_view port_name)
 {
-  LibertyPort *port = new LibertyPort(cell, std::string(port_name), false, nullptr,
+  LibertyPort *port = new LibertyPort(cell, port_name, false, nullptr,
                                       -1, -1, false, nullptr);
   cell->addPort(port);
   return port;
@@ -76,7 +76,7 @@ LibertyBuilder::makeBusPort(LibertyCell *cell,
                             int to_index,
                             BusDcl *bus_dcl)
 {
-  LibertyPort *port = new LibertyPort(cell, std::string(bus_name), true, bus_dcl,
+  LibertyPort *port = new LibertyPort(cell, bus_name, true, bus_dcl,
                                       from_index, to_index,
                                       false, new ConcretePortSeq);
   cell->addPort(port);

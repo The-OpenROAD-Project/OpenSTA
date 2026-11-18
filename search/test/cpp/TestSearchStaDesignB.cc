@@ -138,7 +138,7 @@ protected:
     Scene *corner = sta_->cmdScene();
     const MinMaxAll *min_max = MinMaxAll::all();
     LibertyLibrary *lib = sta_->readLiberty(
-      "test/nangate45/Nangate45_typ.lib", corner, min_max, false);
+      "test/nangate45/Nangate45_typ.lib", false);
     ASSERT_NE(lib, nullptr);
     lib_ = lib;
 

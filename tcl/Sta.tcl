@@ -103,23 +103,6 @@ proc define_scene { args } {
     $spef_min_file $spef_max_file
 }
 
-# deprecated 11/22/2025
-define_cmd_args "define_corners" { corner1 [corner2]... } \
-  -help {The `define_corners` command is deprecated. Use `define_scene` instead. It is supported for compatibility with older scripts that define analysis corners before `read_liberty`, but should not be used with MCMM flows.} \
-  -arg_help {
-    corner1 {Corner/scene name. Additional names may follow.}
-  }
-
-proc define_corners { args } {
-  if { [get_libs -quiet *] != {} } {
-    sta_error 482 "define_corners must be called before read_liberty."
-  }
-  if { [llength $args] == 0 } { 
-    sta_error 577 "define_corners must define at least one corner."
-  }
-  define_scenes_cmd $args
-}
-
 ################################################################
 
 define_cmd_args "set_scene" {scene_name} \

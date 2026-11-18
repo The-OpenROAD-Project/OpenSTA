@@ -8,6 +8,10 @@ current_design sdc_test2
 create_clock -name clk1 -period 10.00000000 [get_ports {clk1}]
 create_clock -name clk2 -period 20.00000000 [get_ports {clk2}]
 create_clock -name vclk -period 8.00000000 
+set_clock_latency -rise -min 0.19999999 [get_clocks {clk1}]
+set_clock_latency -rise -max 0.39999998 [get_clocks {clk1}]
+set_clock_latency -fall -min 0.15000001 [get_clocks {clk1}]
+set_clock_latency -fall -max 0.35000002 [get_clocks {clk1}]
 set_clock_latency -source -early -rise 0.25000000 [get_clocks {clk1}]
 set_clock_latency -source -early -fall 0.19999999 [get_clocks {clk1}]
 set_clock_latency -source -late -rise 0.55000001 [get_clocks {clk1}]
@@ -69,19 +73,19 @@ set_timing_derate -cell_delay -early 0.93000001
 set_timing_derate -net_delay -early 0.92000002
 set_timing_derate -cell_delay -late 1.07000005
 set_timing_derate -net_delay -late 1.08000004
-set_timing_derate -cell_delay -early 0.89999998 [get_cells {buf1}]
-set_timing_derate -cell_delay -late 1.10000002 [get_cells {buf1}]
 set_timing_derate -cell_delay -early 0.88999999 [get_cells {inv1}]
 set_timing_derate -cell_delay -late 1.11000001 [get_cells {inv1}]
+set_timing_derate -cell_delay -early 0.89999998 [get_cells {buf1}]
+set_timing_derate -cell_delay -late 1.10000002 [get_cells {buf1}]
 set_timing_derate -cell_delay -early 0.91000003 [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
 set_timing_derate -cell_delay -late 1.09000003 [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
 set_voltage -min 0.900 1.100
 ###############################################################################
 # Design Rules
 ###############################################################################
-set_min_pulse_width 0.79999995 [get_clocks {clk2}]
 set_min_pulse_width -high 0.60000002 [get_clocks {clk1}]
 set_min_pulse_width -low 0.39999998 [get_clocks {clk1}]
+set_min_pulse_width 0.79999995 [get_clocks {clk2}]
 set_max_time_borrow 1.50000000 [get_pins {reg1/D}]
 set_max_time_borrow 2.00000000 [get_clocks {clk1}]
 set_max_transition 0.50000000 [current_design]

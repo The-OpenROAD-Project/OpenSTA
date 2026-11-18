@@ -25,7 +25,7 @@
 #include "StaMain.hh"
 #include "StaConfig.hh"  // STA_VERSION
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>              // exit
 #include <filesystem>
 #include <string_view>
@@ -33,13 +33,16 @@
 
 #ifdef BAZEL_BUILD
   #include "bazel/tcl_library_init.h"
-  #include "src/tcl_readline_setup.h"
+  #include "openroad/tcl_readline_setup.h"
 #endif
 
 #if TCL_READLINE
   #include <tclreadline.h>
 #endif
 
+#ifdef BAZEL_BUILD
+#include "bazel/tcl_library_init.h"
+#endif
 #include "Sta.hh"
 
 namespace sta {
@@ -116,6 +119,8 @@ staTclAppInit(int argc,
               Tcl_Interp *interp)
 {
 #ifdef BAZEL_BUILD
+  // Tcl is linked from the Bazel build, which has no compiled-in
+  // library path. Mount init.tcl from the embedded zip before Tcl_Init.
     if (in_bazel::SetupTclEnvironment(interp) == TCL_ERROR) {
       return TCL_ERROR;
     }
@@ -148,7 +153,7 @@ staTclAppInit(int argc,
     const char *home = getenv("HOME");
     if (home) {
       std::string init_path = home;
-      init_path += "/";
+      init_path += '/';
       init_path.append(init_filename);
       if (std::filesystem::is_regular_file(init_path.c_str()))
         sourceTclFile(init_path.c_str(), true, true, interp);

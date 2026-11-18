@@ -340,6 +340,11 @@ public:
   std::string_view typeString() const override;
   bool mergeable(ExceptionPath *exception) const override;
   bool overrides(ExceptionPath *exception) const override;
+  bool resetMatch(ExceptionFrom *from,
+                  ExceptionThruSeq *thrus,
+                  ExceptionTo *to,
+                  const MinMaxAll *min_max,
+                  const Network *network) override;
   int typePriority() const override;
   bool tighterThan(ExceptionPath *exception) const override;
   std::string_view name() const override { return name_; }

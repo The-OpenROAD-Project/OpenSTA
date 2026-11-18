@@ -208,6 +208,7 @@ record_public_tests {
   prima_singular
   read_saif_escaped_divider
   read_saif_null_instance
+  read_spef_twice
   report_checks_sorted
   report_checks_src_attr
   report_json1
@@ -226,10 +227,10 @@ record_public_tests {
   set_path_margin6
   slash_port_test
   spef_hier_reduce
-  timing_model1
   suppress_msg
   swig_seq_double_free
   swig_seq_leak
+  unset_path_exceptions
   user_properties
   vcd_begin_end_time
   verilog_assign_alias_loop
@@ -254,7 +255,9 @@ record_public_tests {
   wireload_before_link
   write_path_spice_arc_sense
   write_path_spice_async_set_reset
-  write_timing_model_scenes
+  write_timing_model7
+  write_timing_model8
+  write_timing_model9
 }
 
 define_test_group fast [group_tests all]

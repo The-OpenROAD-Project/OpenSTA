@@ -60,7 +60,7 @@ public:
   WritePathSpice(const Path *path,
                  std::string_view spice_filename,
                  std::string_view subckt_filename,
-                 StringSeq lib_subckt_filenames,
+                 const StringSeq &lib_subckt_filenames,
                  std::string_view model_filename,
                  std::string_view power_name,
                  std::string_view gnd_name,
@@ -121,7 +121,7 @@ void
 writePathSpice(const Path *path,
                std::string_view spice_filename,
                std::string_view subckt_filename,
-               StringSeq lib_subckt_filenames,
+               const StringSeq &lib_subckt_filenames,
                std::string_view model_filename,
                std::string_view power_name,
                std::string_view gnd_name,
@@ -129,7 +129,7 @@ writePathSpice(const Path *path,
                StaState *sta)
 {
   WritePathSpice writer(path, spice_filename, subckt_filename,
-                        std::move(lib_subckt_filenames), model_filename,
+                        lib_subckt_filenames, model_filename,
                         power_name, gnd_name, ckt_sim, sta);
   writer.writeSpice();
 }
@@ -137,13 +137,13 @@ writePathSpice(const Path *path,
 WritePathSpice::WritePathSpice(const Path *path,
                                std::string_view spice_filename,
                                std::string_view subckt_filename,
-                               StringSeq lib_subckt_filenames,
+                               const StringSeq &lib_subckt_filenames,
                                std::string_view model_filename,
                                std::string_view power_name,
                                std::string_view gnd_name,
                                CircuitSim ckt_sim,
                                const StaState *sta) :
-  WriteSpice(spice_filename, subckt_filename, std::move(lib_subckt_filenames),
+  WriteSpice(spice_filename, subckt_filename, lib_subckt_filenames,
              model_filename, power_name, gnd_name, ckt_sim,
              path->scene(sta), path->minMax(sta), sta),
   path_(path),

@@ -159,7 +159,7 @@ define_cmd_args "report_net" {[-scene scene] [-digits digits]\
 proc_redirect report_net {
   global sta_report_default_digits
 
-  parse_key_args "report_net" args keys {-corner -scene -digits} flags {}
+  parse_key_args "report_net" args keys {-scene -digits} flags {}
   check_argc_eq1 "report_net" $args
 
   set scene [parse_scene_or_default keys]

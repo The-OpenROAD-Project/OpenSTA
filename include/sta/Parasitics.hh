@@ -158,6 +158,9 @@ public:
   virtual Parasitic *findParasiticNetwork(const Pin *pin) = 0;
   virtual Parasitic *makeParasiticNetwork(const Net *net,
                                           bool includes_pin_caps) = 0;
+  // Delete the nodes and devices of a parasitic network.
+  virtual void clearParasiticNetwork(Parasitic *parasitic,
+                                     bool includes_pin_caps) = 0;
   virtual ParasiticNodeSeq nodes(const Parasitic *parasitic) const = 0;
   virtual void report(const Parasitic *parasitic) const;
   virtual const Net *net(const Parasitic *parasitic) const = 0;

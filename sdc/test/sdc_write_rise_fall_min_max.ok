@@ -1,0 +1,22 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+set_clock_transition -rise -min 0.0300 [get_clocks {clk1}]
+set_clock_transition -rise -max 0.0400 [get_clocks {clk1}]
+set_clock_transition -fall -min 0.0300 [get_clocks {clk1}]
+set_clock_transition -fall -max 0.0300 [get_clocks {clk1}]
+###############################################################################
+# Environment
+###############################################################################
+set_load -pin_load -rise -min 0.0300 [get_ports {out1}]
+set_load -pin_load -rise -max 0.0500 [get_ports {out1}]
+set_load -pin_load -fall -min 0.0500 [get_ports {out1}]
+set_load -pin_load -fall -max 0.0500 [get_ports {out1}]
+###############################################################################
+# Design Rules
+###############################################################################

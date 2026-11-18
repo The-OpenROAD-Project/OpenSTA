@@ -75,7 +75,7 @@ report_checks -path_delay min_fall -format end
 
 puts "--- report_checks with -corner ---"
 set corner [sta::cmd_scene]
-report_checks -path_delay max -corner $corner
+report_checks -path_delay max -scenes $corner
 
 puts "--- set_report_path_no_split ---"
 sta::set_report_path_no_split 1

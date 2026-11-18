@@ -182,8 +182,8 @@ from the base class `Network`, or `NetworkEdit` if it supports incremental
 editing operations. `network/ConcreteNetwork.cc` is an example of
 a network adapter that supports hierarchy. An example of a network adapter
 for a flat DEF based netlist is in OpenROAD:
-[dbNetwork.hh](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/dbSta/include/db_sta/dbNetwork.hh),
-[dbNetwork.cc](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/dbSta/src/dbNetwork.cc).
+[dbNetwork.hh](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/openroad/dbSta/include/db_sta/dbNetwork.hh),
+[dbNetwork.cc](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/openroad/dbSta/src/dbNetwork.cc).
 
 A network adaptor to interface to an external network database must
 define the virtual functions of the `Network` class (about 45

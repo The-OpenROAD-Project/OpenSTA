@@ -6,10 +6,13 @@ source ../../test/helpers.tcl
 #---------------------------------------------------------------
 # Multi-corner setup for graph coverage
 #---------------------------------------------------------------
-define_corners fast slow
 
-read_liberty -corner fast ../../test/nangate45/Nangate45_fast.lib
-read_liberty -corner slow ../../test/nangate45/Nangate45_slow.lib
+read_liberty ../../test/nangate45/Nangate45_fast.lib
+read_liberty ../../test/nangate45/Nangate45_slow.lib
+define_scene fast -liberty ../../test/nangate45/Nangate45_fast.lib
+define_scene slow -liberty ../../test/nangate45/Nangate45_slow.lib
+# define_corners left the first corner as the command scene.
+set_scene fast
 
 read_verilog graph_test2.v
 link_design graph_test2
@@ -24,87 +27,87 @@ set_input_transition 0.1 [get_ports {d1 d2 en}]
 # across min/max analysis points in Graph)
 #---------------------------------------------------------------
 puts "--- fast corner ---"
-report_checks -corner fast
+report_checks -scenes fast
 
-report_checks -corner fast -path_delay min
+report_checks -scenes fast -path_delay min
 
-report_checks -corner fast -path_delay max
+report_checks -scenes fast -path_delay max
 
 puts "--- slow corner ---"
-report_checks -corner slow
+report_checks -scenes slow
 
-report_checks -corner slow -path_delay min
+report_checks -scenes slow -path_delay min
 
-report_checks -corner slow -path_delay max
+report_checks -scenes slow -path_delay max
 
 #---------------------------------------------------------------
 # Multi-corner report_dcalc (exercises delay subtraction/comparison)
 #---------------------------------------------------------------
 puts "--- report_dcalc per corner ---"
-report_dcalc -corner fast -from [get_pins buf1/A] -to [get_pins buf1/Z]
+report_dcalc -scene fast -from [get_pins buf1/A] -to [get_pins buf1/Z]
 puts "fast buf1 dcalc: done"
 
-report_dcalc -corner slow -from [get_pins buf1/A] -to [get_pins buf1/Z]
+report_dcalc -scene slow -from [get_pins buf1/A] -to [get_pins buf1/Z]
 puts "slow buf1 dcalc: done"
 
-report_dcalc -corner fast -from [get_pins inv1/A] -to [get_pins inv1/ZN]
+report_dcalc -scene fast -from [get_pins inv1/A] -to [get_pins inv1/ZN]
 puts "fast inv1 dcalc: done"
 
-report_dcalc -corner slow -from [get_pins inv1/A] -to [get_pins inv1/ZN]
+report_dcalc -scene slow -from [get_pins inv1/A] -to [get_pins inv1/ZN]
 puts "slow inv1 dcalc: done"
 
-report_dcalc -corner fast -from [get_pins and1/A1] -to [get_pins and1/ZN]
+report_dcalc -scene fast -from [get_pins and1/A1] -to [get_pins and1/ZN]
 puts "fast and1 A1 dcalc: done"
 
-report_dcalc -corner slow -from [get_pins and1/A1] -to [get_pins and1/ZN]
+report_dcalc -scene slow -from [get_pins and1/A1] -to [get_pins and1/ZN]
 puts "slow and1 A1 dcalc: done"
 
-report_dcalc -corner fast -from [get_pins or1/A1] -to [get_pins or1/ZN]
+report_dcalc -scene fast -from [get_pins or1/A1] -to [get_pins or1/ZN]
 puts "fast or1 A1 dcalc: done"
 
-report_dcalc -corner slow -from [get_pins or1/A1] -to [get_pins or1/ZN]
+report_dcalc -scene slow -from [get_pins or1/A1] -to [get_pins or1/ZN]
 puts "slow or1 A1 dcalc: done"
 
 # DFF arcs
-report_dcalc -corner fast -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max
+report_dcalc -scene fast -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max
 puts "fast reg1 CK->Q: done"
 
-report_dcalc -corner slow -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max
+report_dcalc -scene slow -from [get_pins reg1/CK] -to [get_pins reg1/Q] -max
 puts "slow reg1 CK->Q: done"
 
-report_dcalc -corner fast -from [get_pins reg1/CK] -to [get_pins reg1/D] -max
+report_dcalc -scene fast -from [get_pins reg1/CK] -to [get_pins reg1/D] -max
 puts "fast reg1 setup: done"
 
-report_dcalc -corner slow -from [get_pins reg1/CK] -to [get_pins reg1/D] -min
+report_dcalc -scene slow -from [get_pins reg1/CK] -to [get_pins reg1/D] -min
 puts "slow reg1 hold: done"
 
 #---------------------------------------------------------------
 # report_checks with fields across corners (exercises graph slew access)
 #---------------------------------------------------------------
 puts "--- report_checks with fields ---"
-report_checks -corner fast -fields {slew cap input_pins}
+report_checks -scenes fast -fields {slew cap input_pins}
 
-report_checks -corner slow -fields {slew cap input_pins}
+report_checks -scenes slow -fields {slew cap input_pins}
 
-report_checks -corner fast -format full_clock
+report_checks -scenes fast -format full_clock
 
-report_checks -corner slow -format full_clock
+report_checks -scenes slow -format full_clock
 
 #---------------------------------------------------------------
 # Multi-corner paths (different paths in fast vs slow)
 #---------------------------------------------------------------
 puts "--- multi-corner paths ---"
-report_checks -corner fast -from [get_ports d1] -to [get_ports q1]
+report_checks -scenes fast -from [get_ports d1] -to [get_ports q1]
 
-report_checks -corner slow -from [get_ports d1] -to [get_ports q1]
+report_checks -scenes slow -from [get_ports d1] -to [get_ports q1]
 
-report_checks -corner fast -from [get_ports d2] -to [get_ports q2]
+report_checks -scenes fast -from [get_ports d2] -to [get_ports q2]
 
-report_checks -corner slow -from [get_ports d2] -to [get_ports q2]
+report_checks -scenes slow -from [get_ports d2] -to [get_ports q2]
 
-report_checks -corner fast -from [get_ports en] -to [get_ports q1]
+report_checks -scenes fast -from [get_ports en] -to [get_ports q1]
 
-report_checks -corner slow -from [get_ports en] -to [get_ports q1]
+report_checks -scenes slow -from [get_ports en] -to [get_ports q1]
 
 #---------------------------------------------------------------
 # Edge queries with multi-corner
@@ -131,9 +134,9 @@ puts "--- load changes multi-corner ---"
 set_load 0.01 [get_ports q1]
 set_load 0.05 [get_ports q2]
 
-report_checks -corner fast
+report_checks -scenes fast
 
-report_checks -corner slow
+report_checks -scenes slow
 
 set_load 0 [get_ports q1]
 set_load 0 [get_ports q2]
@@ -142,18 +145,18 @@ set_load 0 [get_ports q2]
 # report_checks -unconstrained multi-corner
 #---------------------------------------------------------------
 puts "--- unconstrained multi-corner ---"
-report_checks -corner fast -unconstrained
+report_checks -scenes fast -unconstrained
 
-report_checks -corner slow -unconstrained
+report_checks -scenes slow -unconstrained
 
 #---------------------------------------------------------------
 # Disable/enable with multi-corner
 #---------------------------------------------------------------
 puts "--- disable with multi-corner ---"
 set_disable_timing [get_cells buf1]
-report_checks -corner fast
-report_checks -corner slow
+report_checks -scenes fast
+report_checks -scenes slow
 
 unset_disable_timing [get_cells buf1]
-report_checks -corner fast
-report_checks -corner slow
+report_checks -scenes fast
+report_checks -scenes slow

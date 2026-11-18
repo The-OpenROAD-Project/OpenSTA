@@ -8,6 +8,10 @@ current_design sdc_test2
 create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
 create_clock -name clk2 -period 20.0000 [get_ports {clk2}]
 create_clock -name vclk -period 8.0000 
+set_clock_latency -rise -min 0.2000 [get_clocks {clk1}]
+set_clock_latency -rise -max 0.4000 [get_clocks {clk1}]
+set_clock_latency -fall -min 0.1500 [get_clocks {clk1}]
+set_clock_latency -fall -max 0.3500 [get_clocks {clk1}]
 set_clock_latency -source -early -rise 0.2500 [get_clocks {clk1}]
 set_clock_latency -source -early -fall 0.2000 [get_clocks {clk1}]
 set_clock_latency -source -late -rise 0.5500 [get_clocks {clk1}]
@@ -69,19 +73,19 @@ set_timing_derate -cell_delay -early 0.9300
 set_timing_derate -net_delay -early 0.9200
 set_timing_derate -cell_delay -late 1.0700
 set_timing_derate -net_delay -late 1.0800
-set_timing_derate -cell_delay -early 0.9000 [get_cells {buf1}]
-set_timing_derate -cell_delay -late 1.1000 [get_cells {buf1}]
 set_timing_derate -cell_delay -early 0.8900 [get_cells {inv1}]
 set_timing_derate -cell_delay -late 1.1100 [get_cells {inv1}]
+set_timing_derate -cell_delay -early 0.9000 [get_cells {buf1}]
+set_timing_derate -cell_delay -late 1.1000 [get_cells {buf1}]
 set_timing_derate -cell_delay -early 0.9100 [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
 set_timing_derate -cell_delay -late 1.0900 [get_lib_cells {NangateOpenCellLibrary/INV_X1}]
 set_voltage -min 0.900 1.100
 ###############################################################################
 # Design Rules
 ###############################################################################
-set_min_pulse_width 0.8000 [get_clocks {clk2}]
 set_min_pulse_width -high 0.6000 [get_clocks {clk1}]
 set_min_pulse_width -low 0.4000 [get_clocks {clk1}]
+set_min_pulse_width 0.8000 [get_clocks {clk2}]
 set_max_time_borrow 1.5000 [get_pins {reg1/D}]
 set_max_time_borrow 2.0000 [get_clocks {clk1}]
 set_max_transition 0.5000 [current_design]

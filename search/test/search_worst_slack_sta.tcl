@@ -127,8 +127,8 @@ puts "path groups: $groups"
 
 puts "--- report_checks with -corner ---"
 set corner [sta::cmd_scene]
-report_checks -path_delay max -corner $corner
-report_checks -path_delay min -corner $corner
+report_checks -path_delay max -scenes $corner
+report_checks -path_delay min -scenes $corner
 
 puts "--- design_power ---"
 set pwr [sta::design_power [sta::cmd_scene]]
