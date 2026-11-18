@@ -520,6 +520,10 @@ STA_TESTS = [
         "test/check_setup_launch_edge_modes",
         False,
     ),
+    (
+        "test/sdc_delete_exception_insts",
+        False,
+    ),
 ] + [
     (
         ok.removesuffix(".ok"),

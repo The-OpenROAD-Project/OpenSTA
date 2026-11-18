@@ -1270,6 +1270,7 @@ protected:
   void deleteDataChecks(const Pin *pin);
   void deleteDataCheck(DataCheck *check);
   bool editExceptions(const ExceptionPathSeq &exceptions,
+                      bool removal,
                       const ExceptionPtEdit &edit);
   bool deletePinExceptions(const Pin *pin);
   bool deleteSrcPinClocks(const Pin *pin);

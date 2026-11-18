@@ -48,6 +48,7 @@ endforeach()
 # with no .ok.
 sta_tcl_test(check_setup_launch_edge)
 sta_tcl_test(check_setup_launch_edge_modes)
+sta_tcl_test(sdc_delete_exception_insts)
 
 # Auto-detect example tests: register all *.tcl files in examples/
 file(GLOB example_tcl_files "${EXAMPLES_DIR}/*.tcl")
