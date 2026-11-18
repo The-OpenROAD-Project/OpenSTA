@@ -666,7 +666,12 @@ MakeTimingModel::makeClkTreePaths(LibertyPort *lib_port,
     delays.delay(clk_rf, end_rf, min_max, insertion, delay, lib_clk_delay, latency,
                  clk_path, exists);
     if (exists) {
-      TimingModel *model = makeGateModelScalar(delay, end_rf);
+      // findClkDelays chose this sink on its latency, which for a macro
+      // with its own clock tree is the arrival at its clock pin plus that
+      // tree (lib_clk_delay). The model's clock tree path is that sum; the
+      // pin arrival alone can fall below the other bound (max below min).
+      Delay tree_delay = delaySum(delay, lib_clk_delay, sta_);
+      TimingModel *model = makeGateModelScalar(tree_delay, end_rf);
       if (attrs == nullptr)
         attrs = std::make_shared<TimingArcAttrs>();
       attrs->setModel(end_rf, model);
