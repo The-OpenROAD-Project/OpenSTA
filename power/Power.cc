@@ -809,7 +809,7 @@ Power::clockGateTestDuty(const Instance *inst)
       PinSet *drvrs = network_->drivers(pin);
       LogicValue value = scene_->mode()->sim()->simValue(pin);
       if ((drvrs && !drvrs->empty()) || value != LogicValue::unknown)
-        p_off *= 1.0F - findActivity(pin).duty();
+        p_off *= 1.0F - std::clamp(findActivity(pin).duty(), 0.0F, 1.0F);
     }
   }
   delete pin_iter;
