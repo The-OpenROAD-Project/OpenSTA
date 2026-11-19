@@ -11,3 +11,8 @@ open_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
 undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
 open_te/GCLK transitions/cycle 0.000 duty 0.000 constant
 undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+Test enable driver and pin connected and disconnected (enable held low)
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant

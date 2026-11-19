@@ -61,3 +61,14 @@ show undriven_te/GCLK
 set_case_analysis 0 [get_ports g]
 show open_te/GCLK
 show undriven_te/GCLK
+puts "Test enable driver and pin connected and disconnected (enable held low)"
+make_instance b sky130_fd_sc_hd__buf_1
+connect_pin x b/A
+connect_pin se b/X
+show undriven_te/GCLK
+disconnect_pin se undriven_te/SCE
+show undriven_te/GCLK
+connect_pin se undriven_te/SCE
+show undriven_te/GCLK
+disconnect_pin se b/X
+show undriven_te/GCLK

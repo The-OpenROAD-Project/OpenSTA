@@ -164,6 +164,8 @@ protected:
                          Vertex *vertex);
   
   void removePropagatedValue(const Pin *pin);
+  // OpenROAD fork: clock gate test pin.
+  void invalidateClockGateTestLoads(const Pin *drvr_pin);
   void propagateFromInvalidDrvrsToLoads();
   void propagateToInvalidLoads();
   void propagateDrvrToLoad(const Pin *drvr_pin,

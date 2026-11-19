@@ -449,10 +449,17 @@ Sim::connectPinAfter(const Pin *pin)
 {
   if (incremental_) {
     recordConstPinFunc(pin);
-    if (network_->isLoad(pin))
+    if (network_->isLoad(pin)) {
       invalid_load_pins_.insert(pin);
-    if (network_->isDriver(pin))
+      // OpenROAD fork: clock gate test pin. The pin value can stay unknown
+      // while the gated clock changes, so evaluate the instance again.
+      invalid_insts_.insert(network_->instance(pin));
+    }
+    if (network_->isDriver(pin)) {
       invalid_drvr_pins_.insert(pin);
+      // OpenROAD fork: clock gate test pin.
+      invalidateClockGateTestLoads(pin);
+    }
     valid_ = false;
   }
 }
@@ -465,10 +472,33 @@ Sim::disconnectPinBefore(const Pin *pin)
       invalid_load_pins_.insert(pin);
       removePropagatedValue(pin);
     }
-    if (network_->isDriver(pin))
+    if (network_->isDriver(pin)) {
       invalid_drvr_pins_.insert(pin);
+      // OpenROAD fork: clock gate test pin.
+      invalidateClockGateTestLoads(pin);
+    }
   }
 }
+
+// ---- OpenROAD fork: clock gate test pin (begin) ----
+// Clock gates count a test pin only when it has a driver or a constant
+// (clockGateOutValue), so adding or removing a driver can change the gated
+// clock without changing the test pin value.
+void
+Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
+{
+  PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port && port->isClockGateTest()) {
+      invalid_insts_.insert(network_->instance(pin));
+      valid_ = false;
+    }
+  }
+  delete pin_iter;
+}
+// ---- OpenROAD fork: clock gate test pin (end) ----
 
 void
 Sim::pinSetFuncAfter(const Pin *pin)
