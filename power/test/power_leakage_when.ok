@@ -3,4 +3,6 @@ and2  leakage 2.50 nW
 buf1  leakage 1.00 nW
 dff   leakage 8.00 nW
 chain leakage 0.50 nW
+order leakage 2.00 nW
+buf2  leakage 2.00 nW
 inv2  internal 0.00

@@ -31,7 +31,6 @@
 #include <functional>
 #include <limits>
 #include <map>
-#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -1737,28 +1736,34 @@ Power::whenDuty(FuncExpr *when,
 {
   DdManager *cudd_mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(when);
+  const Sim *sim = scene_->mode()->sim();
   // Combinational outputs only: sequential outputs (Q = IQ) keep the pin
-  // activity, which may be annotated. Repeat for outputs whose functions
-  // name other outputs.
-  std::set<const LibertyPort *> substituted;
+  // activity, which may be annotated. Outputs held constant (case analysis)
+  // keep the constant. Repeat until nothing changes, because a function can
+  // name other outputs; the pass limit stops cyclic functions.
+  LibertyCell *cell = network_->libertyCell(inst);
+  size_t passes = cell ? cell->portCount() : 1;
   bool changed = true;
-  while (changed) {
+  while (changed && passes > 0) {
     changed = false;
+    passes--;
     std::vector<std::pair<const LibertyPort *, DdNode *>> port_vars(
       bdd_.portVarMap().begin(), bdd_.portVarMap().end());
     for (const auto &[port, var_node] : port_vars) {
       FuncExpr *func = port->function();
+      const Pin *pin = findLinkPin(inst, port);
+      bool constant = pin && sim->simValue(pin) != LogicValue::unknown;
       if (port->direction()->isAnyOutput() && func && !func->hasPort(port)
-          && !funcHasInternalPort(func) && !substituted.contains(port)) {
-        substituted.insert(port);
+          && !funcHasInternalPort(func) && !constant) {
         DdNode *func_bdd = bdd_.funcBdd(func);
         DdNode *composed = Cudd_bddCompose(cudd_mgr, bdd, func_bdd,
                                            Cudd_NodeReadIndex(var_node));
         Cudd_Ref(composed);
+        if (composed != bdd)
+          changed = true;
         Cudd_RecursiveDeref(cudd_mgr, bdd);
         Cudd_RecursiveDeref(cudd_mgr, func_bdd);
         bdd = composed;
-        changed = true;
       }
     }
   }

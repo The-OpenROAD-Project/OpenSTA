@@ -64,4 +64,19 @@ library (power_leakage_when) {
     }
     pin (Y) { direction : output; function : "!A"; }
   }
+  /* Y2 names Y1, and the condition names both; it reduces to A. */
+  cell (CHAIN_ORDER_WHEN) {
+    leakage_power () { when : "(Y1 & A) | (!Y1 & !Y2)"; value : 4.0; }
+    leakage_power () { value : 0.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y1) { direction : output; function : "A"; }
+    pin (Y2) { direction : output; function : "!Y1"; }
+  }
+  /* Output held at 0 by case analysis. */
+  cell (BUF_CASE_WHEN) {
+    leakage_power () { when : "Y"; value : 6.0; }
+    leakage_power () { value : 2.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A"; }
+  }
 }
