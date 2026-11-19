@@ -1079,14 +1079,16 @@ Search::findArrivalsSeed()
 ////////////////////////////////////////////////////////////////
 
 ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
-  PathVisitor(nullptr, false, sta)
+  PathVisitor(nullptr, false, sta),
+  tag_group_cache_(nullptr)
 {
   init0();
   init(true, false, nullptr);
 }
 
 ArrivalVisitor::ArrivalVisitor(const ArrivalVisitor &arrival_visitor) :
-  PathVisitor(arrival_visitor.pred_, true, &arrival_visitor)
+  PathVisitor(arrival_visitor.pred_, true, &arrival_visitor),
+  tag_group_cache_(new TagGroupSet(128))
 {
   init0();
   init(arrival_visitor.always_to_endpoints_,
@@ -1130,6 +1132,7 @@ ArrivalVisitor::~ArrivalVisitor()
 {
   delete tag_bldr_;
   delete tag_bldr_no_crpr_;
+  delete tag_group_cache_;
   delete search_adj_;
 }
 
@@ -1195,7 +1198,7 @@ ArrivalVisitor::visit(Vertex *vertex,
   }
   if (arrivals_changed) {
     debugPrint(debug_, "search", 4, "arrivals changed");
-    search_->setVertexArrivals(vertex, tag_bldr_);
+    search_->setVertexArrivals(vertex, tag_bldr_, tag_group_cache_);
     search_->tnsInvalid(vertex);
     constrainedRequiredsInvalid(vertex, is_clk);
   }
@@ -2784,9 +2787,16 @@ Search::mutateTag(Tag *from_tag,
 }
 
 TagGroup *
-Search::findTagGroup(TagGroupBldr *tag_bldr)
+Search::findTagGroup(TagGroupBldr *tag_bldr,
+                     TagGroupSet *tag_group_cache)
 {
   TagGroup probe(tag_bldr, this);
+  if (tag_group_cache) {
+    TagGroup *tag_group = findKey(*tag_group_cache, &probe);
+    if (tag_group)
+      return tag_group;
+  }
+
   LockGuard lock(tag_group_lock_);
   TagGroup *tag_group = findKey(*tag_group_set_, &probe);
   if (tag_group == nullptr) {
@@ -2815,19 +2825,22 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
     if (tag_group_next_ > tag_group_index_max)
       report_->critical(1510, "max tag group index exceeded");
   }
+  if (tag_group_cache)
+    tag_group_cache->insert(tag_group);
   return tag_group;
 }
 
 void
 Search::setVertexArrivals(Vertex *vertex,
-                          TagGroupBldr *tag_bldr)
+                          TagGroupBldr *tag_bldr,
+                          TagGroupSet *tag_group_cache)
 {
   if (tag_bldr->empty())
     deletePathsIncr(vertex);
   else {
     TagGroup *prev_tag_group = tagGroup(vertex);
     Path *prev_paths = vertex->paths();
-    TagGroup *tag_group = findTagGroup(tag_bldr);
+    TagGroup *tag_group = findTagGroup(tag_bldr, tag_group_cache);
     if (tag_group == prev_tag_group) {
       tag_bldr->copyPaths(tag_group, prev_paths);
       requiredInvalid(vertex);

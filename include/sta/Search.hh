@@ -266,7 +266,8 @@ public:
                        const Mode *mode,
                        TagGroupBldr *tag_bldr);
   void setVertexArrivals(Vertex *vertex,
-                         TagGroupBldr *tag_bldr);
+                         TagGroupBldr *tag_bldr,
+                         TagGroupSet *tag_group_cache = nullptr);
   void tnsInvalid(Vertex *vertex);
   [[nodiscard]] bool arrivalsChanged(Vertex *vertex,
                                      TagGroupBldr *tag_bldr);
@@ -543,7 +544,8 @@ protected:
   void deletePaths();
   // Delete with incremental tns/wns update.
   void deletePathsIncr(Vertex *vertex);
-  TagGroup *findTagGroup(TagGroupBldr *tag_bldr);
+  TagGroup *findTagGroup(TagGroupBldr *tag_bldr,
+                         TagGroupSet *tag_group_cache);
   void deleteFilterTags();
   void deleteFilterTagGroups();
   void deleteFilterClkInfos();
@@ -805,6 +807,10 @@ protected:
   bool clks_only_;
   TagGroupBldr *tag_bldr_;
   TagGroupBldr *tag_bldr_no_crpr_;
+  // Tag groups this thread has found, so that it takes tag_group_lock_
+  // only for a group it has not seen. Copies made for a parallel visit
+  // have one; tag groups are not deleted while they live.
+  TagGroupSet *tag_group_cache_;
   SearchPred *search_adj_;
   bool crpr_active_;
   bool has_fanin_one_;
