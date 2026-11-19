@@ -654,6 +654,7 @@ protected:
   static constexpr size_t tag_group_shard_count_ = 64;
   std::array<TagGroupShard, tag_group_shard_count_> tag_group_shards_;
   TagGroupShard &tagGroupShard(size_t hash);
+  const TagGroupShard &tagGroupShard(size_t hash) const;
   void addTagGroup(TagGroup *tag_group);
   std::vector<TagGroup **> tag_groups_prev_;
   TagGroupIndex tag_group_next_{0};

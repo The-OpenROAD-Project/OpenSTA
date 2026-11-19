@@ -2835,12 +2835,24 @@ Search::findTagGroup(TagGroupBldr *tag_bldr,
   return tag_group;
 }
 
+// The high bits of a multiplicative mix, so that the shard does not
+// depend on the hash's low bits alone.
+static size_t
+tagGroupShardIndex(size_t hash)
+{
+  return (hash * 0x9E3779B97F4A7C15ull) >> 58;
+}
+
 Search::TagGroupShard &
 Search::tagGroupShard(size_t hash)
 {
-  // The high bits of a multiplicative mix, so that the shard does not
-  // depend on the hash's low bits alone.
-  return tag_group_shards_[(hash * 0x9E3779B97F4A7C15ull) >> 58];
+  return tag_group_shards_[tagGroupShardIndex(hash)];
+}
+
+const Search::TagGroupShard &
+Search::tagGroupShard(size_t hash) const
+{
+  return tag_group_shards_[tagGroupShardIndex(hash)];
 }
 
 // Give tag_group an index and put it in tag_groups_.
@@ -3036,7 +3048,7 @@ Search::reportTagGroups() const
     TagGroup *tag_group = tag_groups_[i];
     if (tag_group) {
       const TagGroupSet &tag_groups =
-        *const_cast<Search*>(this)->tagGroupShard(tag_group->hash()).tag_groups;
+        *tagGroupShard(tag_group->hash()).tag_groups;
       report_->report("Group {:4} hash = {:4} ({:4})", i, tag_group->hash(),
                       tag_group->hash() % tag_groups.bucket_count());
       tag_group->reportArrivalMap(this);
