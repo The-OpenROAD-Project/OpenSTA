@@ -597,8 +597,8 @@ Search::deleteTagGroup(TagGroup *group)
 void
 Search::deleteFilterTags()
 {
-  // Tag slots are not reused, so each filter tag is listed once.
-  std::ranges::sort(filter_tags_);
+  // Tag slots are not reused, so each filter tag is listed once, and the
+  // order they are deleted in changes nothing.
   for (TagIndex i : filter_tags_) {
     Tag *tag = tags_[i];
     if (tag && (tag->isFilter() || tag->clkInfo()->crprPathRefsFilter())) {
