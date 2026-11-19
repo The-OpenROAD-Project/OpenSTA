@@ -520,6 +520,10 @@ STA_TESTS = [
         "test/check_setup_launch_edge_modes",
         False,
     ),
+    (
+        "test/timing_model_clktree_macro",
+        False,
+    ),
 ] + [
     (
         ok.removesuffix(".ok"),

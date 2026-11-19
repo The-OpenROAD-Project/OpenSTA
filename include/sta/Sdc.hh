@@ -1271,6 +1271,12 @@ protected:
   void deleteDataCheck(DataCheck *check);
   bool editExceptions(const ExceptionPathSeq &exceptions,
                       const ExceptionPtEdit &edit);
+  bool editException(ExceptionPath *exception,
+                     const ExceptionPtEdit &edit);
+  bool editExceptionPts(ExceptionPath *exception,
+                        const ExceptionPtEdit &edit);
+  bool deleteFromExceptions(const ExceptionPathSeq &exceptions,
+                            const ExceptionPtEdit &edit);
   bool deletePinExceptions(const Pin *pin);
   bool deleteSrcPinClocks(const Pin *pin);
   bool moveClockConstraints(const Pin *from,
