@@ -1080,7 +1080,8 @@ Search::findArrivalsSeed()
 
 ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
   PathVisitor(nullptr, false, sta),
-  tag_group_cache_(nullptr)
+  tag_group_cache_(nullptr),
+  filtered_arrivals_(nullptr)
 {
   init0();
   init(true, false, nullptr);
@@ -1088,7 +1089,8 @@ ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
 
 ArrivalVisitor::ArrivalVisitor(const ArrivalVisitor &arrival_visitor) :
   PathVisitor(arrival_visitor.pred_, true, &arrival_visitor),
-  tag_group_cache_(new TagGroupSet(128))
+  tag_group_cache_(new TagGroupSet(128)),
+  filtered_arrivals_(new VertexSeq)
 {
   init0();
   init(arrival_visitor.always_to_endpoints_,
@@ -1133,6 +1135,10 @@ ArrivalVisitor::~ArrivalVisitor()
   delete tag_bldr_;
   delete tag_bldr_no_crpr_;
   delete tag_group_cache_;
+  if (filtered_arrivals_) {
+    search_->insertFilteredArrivals(*filtered_arrivals_);
+    delete filtered_arrivals_;
+  }
   delete search_adj_;
 }
 
@@ -1198,7 +1204,8 @@ ArrivalVisitor::visit(Vertex *vertex,
   }
   if (arrivals_changed) {
     debugPrint(debug_, "search", 4, "arrivals changed");
-    search_->setVertexArrivals(vertex, tag_bldr_, tag_group_cache_);
+    search_->setVertexArrivals(vertex, tag_bldr_, tag_group_cache_,
+                               filtered_arrivals_);
     search_->tnsInvalid(vertex);
     constrainedRequiredsInvalid(vertex, is_clk);
   }
@@ -2833,7 +2840,8 @@ Search::findTagGroup(TagGroupBldr *tag_bldr,
 void
 Search::setVertexArrivals(Vertex *vertex,
                           TagGroupBldr *tag_bldr,
-                          TagGroupSet *tag_group_cache)
+                          TagGroupSet *tag_group_cache,
+                          VertexSeq *filtered_arrivals)
 {
   if (tag_bldr->empty())
     deletePathsIncr(vertex);
@@ -2858,10 +2866,21 @@ Search::setVertexArrivals(Vertex *vertex,
       tag_group->incrRefCount();
     }
     if (tag_group->hasFilterTag()) {
-      LockGuard lock(filtered_arrivals_lock_);
-      filtered_arrivals_.insert(vertex);
+      if (filtered_arrivals)
+        filtered_arrivals->push_back(vertex);
+      else {
+        LockGuard lock(filtered_arrivals_lock_);
+        filtered_arrivals_.insert(vertex);
+      }
     }
   }
+}
+
+void
+Search::insertFilteredArrivals(const VertexSeq &vertices)
+{
+  LockGuard lock(filtered_arrivals_lock_);
+  filtered_arrivals_.insert(vertices.begin(), vertices.end());
 }
 
 void

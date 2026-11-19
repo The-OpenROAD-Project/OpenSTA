@@ -267,7 +267,9 @@ public:
                        TagGroupBldr *tag_bldr);
   void setVertexArrivals(Vertex *vertex,
                          TagGroupBldr *tag_bldr,
-                         TagGroupSet *tag_group_cache = nullptr);
+                         TagGroupSet *tag_group_cache = nullptr,
+                         VertexSeq *filtered_arrivals = nullptr);
+  void insertFilteredArrivals(const VertexSeq &vertices);
   void tnsInvalid(Vertex *vertex);
   [[nodiscard]] bool arrivalsChanged(Vertex *vertex,
                                      TagGroupBldr *tag_bldr);
@@ -811,6 +813,9 @@ protected:
   // only for a group it has not seen. Copies made for a parallel visit
   // have one; tag groups are not deleted while they live.
   TagGroupSet *tag_group_cache_;
+  // Vertices with a filter tag this thread set arrivals on, added to
+  // Search's filtered arrivals when the copy is deleted, after the visit.
+  VertexSeq *filtered_arrivals_;
   SearchPred *search_adj_;
   bool crpr_active_;
   bool has_fanin_one_;
