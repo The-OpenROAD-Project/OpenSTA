@@ -1,0 +1,311 @@
+Warning 198: ../examples/gcd_sky130hd.v.gz line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Warning 1551: path_delay_to_sets.tcl line 1, '_197_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_198_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_199_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_200_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_201_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_202_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_203_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_204_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_205_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_206_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_207_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_208_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_209_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_210_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_211_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_212_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_213_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_214_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_220_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_221_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_222_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_223_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_224_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_225_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_226_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_227_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_228_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_229_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_230_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_231_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_232_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_233_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_234_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_235_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_236_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_237_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_238_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_239_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_240_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_241_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_242_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_243_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_244_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_245_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_246_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_247_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_248_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_249_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_252_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_253_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_254_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_256_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_258_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_259_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_260_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_261_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_262_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_263_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_264_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_265_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_266_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_267_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_268_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_269_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_270_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_272_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_273_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_274_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_275_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_277_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_278_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_279_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_282_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_283_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_284_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_286_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_288_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_289_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_291_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_295_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_297_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_301_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_302_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_303_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_304_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_305_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_307_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_308_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_309_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_310_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_311_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_312_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_313_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_315_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_316_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_317_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_318_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_319_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_320_/Y' is not a valid endpoint.
+Warning 1551: path_delay_to_sets.tcl line 1, '_321_/Y' is not a valid endpoint.
+max_delay/setup group path delay
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_252_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    2.38   -1.98 (VIOLATED)
+_222_/Y (sky130_fd_sc_hd__o211ai_4)     0.40    2.20   -1.80 (VIOLATED)
+_249_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    2.13   -1.73 (VIOLATED)
+_248_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    2.02   -1.62 (VIOLATED)
+_246_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    1.44   -1.04 (VIOLATED)
+_244_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    1.36   -0.96 (VIOLATED)
+_242_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    1.03   -0.63 (VIOLATED)
+_277_/Y (sky130_fd_sc_hd__nor4_2)       0.40    1.02   -0.62 (VIOLATED)
+_295_/Y (sky130_fd_sc_hd__o31ai_4)      0.40    0.88   -0.48 (VIOLATED)
+_301_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.74   -0.34 (VIOLATED)
+_274_/Y (sky130_fd_sc_hd__nor4_2)       0.40    0.73   -0.33 (VIOLATED)
+_317_/Y (sky130_fd_sc_hd__mux2i_1)      0.40    0.73   -0.33 (VIOLATED)
+_308_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.66   -0.26 (VIOLATED)
+_235_/Y (sky130_fd_sc_hd__nor2b_2)      0.40    0.66   -0.26 (VIOLATED)
+_229_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.65   -0.25 (VIOLATED)
+_224_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.63   -0.23 (VIOLATED)
+_199_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    0.62   -0.22 (VIOLATED)
+_223_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.62   -0.22 (VIOLATED)
+_286_/Y (sky130_fd_sc_hd__inv_8)        0.40    0.61   -0.21 (VIOLATED)
+_282_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.61   -0.21 (VIOLATED)
+_204_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    0.61   -0.21 (VIOLATED)
+_303_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.60   -0.20 (VIOLATED)
+_310_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.60   -0.20 (VIOLATED)
+_320_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.60   -0.20 (VIOLATED)
+_284_/Y (sky130_fd_sc_hd__nor2_8)       0.40    0.59   -0.19 (VIOLATED)
+_230_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.59   -0.19 (VIOLATED)
+_207_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.59   -0.19 (VIOLATED)
+_291_/Y (sky130_fd_sc_hd__nand2_2)      0.40    0.59   -0.19 (VIOLATED)
+_203_/Y (sky130_fd_sc_hd__nor2b_4)      0.40    0.58   -0.18 (VIOLATED)
+_239_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.57   -0.17 (VIOLATED)
+_245_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.57   -0.17 (VIOLATED)
+_273_/Y (sky130_fd_sc_hd__nor4_1)       0.40    0.57   -0.17 (VIOLATED)
+_241_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.56   -0.16 (VIOLATED)
+_201_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.55   -0.15 (VIOLATED)
+_288_/Y (sky130_fd_sc_hd__a21oi_1)      0.40    0.55   -0.15 (VIOLATED)
+_220_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.55   -0.15 (VIOLATED)
+_243_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.55   -0.15 (VIOLATED)
+_247_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.54   -0.14 (VIOLATED)
+_198_/Y (sky130_fd_sc_hd__nor2b_2)      0.40    0.53   -0.13 (VIOLATED)
+_197_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.53   -0.13 (VIOLATED)
+_226_/Y (sky130_fd_sc_hd__nand2b_2)     0.40    0.52   -0.12 (VIOLATED)
+_200_/Y (sky130_fd_sc_hd__nand2b_2)     0.40    0.52   -0.12 (VIOLATED)
+_227_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.52   -0.12 (VIOLATED)
+_221_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.50   -0.10 (VIOLATED)
+_304_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.49   -0.09 (VIOLATED)
+_297_/Y (sky130_fd_sc_hd__nand2_8)      0.40    0.48   -0.08 (VIOLATED)
+_233_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.48   -0.08 (VIOLATED)
+_321_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.47   -0.07 (VIOLATED)
+_311_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.47   -0.07 (VIOLATED)
+_236_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.47   -0.07 (VIOLATED)
+_206_/Y (sky130_fd_sc_hd__nand2_2)      0.40    0.47   -0.07 (VIOLATED)
+_279_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.45   -0.05 (VIOLATED)
+_214_/Y (sky130_fd_sc_hd__nor2b_4)      0.40    0.44   -0.04 (VIOLATED)
+_307_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.42   -0.02 (VIOLATED)
+_313_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.42   -0.02 (VIOLATED)
+_272_/Y (sky130_fd_sc_hd__nor2_1)       0.40    0.40    0.00 (VIOLATED)
+_211_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_212_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_213_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_209_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_318_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.38    0.02 (MET)
+_205_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.37    0.03 (MET)
+_210_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.37    0.03 (MET)
+max_delay/setup group clk
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_424_/D (sky130_fd_sc_hd__dfxtp_2)      0.37    1.56   -1.19 (VIOLATED)
+resp_msg[0] (output)                   -0.40    0.71   -1.11 (VIOLATED)
+_434_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.35   -0.99 (VIOLATED)
+_435_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.35   -0.99 (VIOLATED)
+_440_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.36   -0.98 (VIOLATED)
+req_rdy (output)                       -0.40    0.52   -0.92 (VIOLATED)
+_445_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.27   -0.89 (VIOLATED)
+_426_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.25   -0.87 (VIOLATED)
+_432_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.24   -0.86 (VIOLATED)
+_436_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_438_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.24   -0.86 (VIOLATED)
+_442_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.24   -0.86 (VIOLATED)
+_441_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_443_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_444_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_431_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.22   -0.85 (VIOLATED)
+_430_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.22   -0.85 (VIOLATED)
+_422_/D (sky130_fd_sc_hd__dfxtp_2)      0.36    1.20   -0.84 (VIOLATED)
+_437_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.20   -0.83 (VIOLATED)
+_433_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.20   -0.82 (VIOLATED)
+_423_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.20   -0.82 (VIOLATED)
+_427_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.20   -0.82 (VIOLATED)
+_439_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.20   -0.82 (VIOLATED)
+resp_val (output)                      -0.40    0.40   -0.80 (VIOLATED)
+_421_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.74 (VIOLATED)
+_429_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.74 (VIOLATED)
+_425_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.12   -0.74 (VIOLATED)
+_428_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.73 (VIOLATED)
+_412_/D (sky130_fd_sc_hd__dfxtp_1)      4.88    0.58    4.30 (MET)
+max_delay/setup group path delay
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_199_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    0.62   -0.22 (VIOLATED)
+tns max -42.63
+wns max -1.98
+tags 154 tag groups 8
+max_delay/setup group path delay
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_252_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    2.38   -1.98 (VIOLATED)
+_222_/Y (sky130_fd_sc_hd__o211ai_4)     0.40    2.20   -1.80 (VIOLATED)
+_249_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    2.13   -1.73 (VIOLATED)
+_248_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    2.02   -1.62 (VIOLATED)
+_246_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    1.44   -1.04 (VIOLATED)
+_244_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    1.36   -0.96 (VIOLATED)
+_242_/Y (sky130_fd_sc_hd__xnor2_2)      0.40    1.03   -0.63 (VIOLATED)
+_277_/Y (sky130_fd_sc_hd__nor4_2)       0.40    1.02   -0.62 (VIOLATED)
+_295_/Y (sky130_fd_sc_hd__o31ai_4)      0.40    0.88   -0.48 (VIOLATED)
+_301_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.74   -0.34 (VIOLATED)
+_274_/Y (sky130_fd_sc_hd__nor4_2)       0.40    0.73   -0.33 (VIOLATED)
+_317_/Y (sky130_fd_sc_hd__mux2i_1)      0.40    0.73   -0.33 (VIOLATED)
+_308_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.66   -0.26 (VIOLATED)
+_235_/Y (sky130_fd_sc_hd__nor2b_2)      0.40    0.66   -0.26 (VIOLATED)
+_229_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.65   -0.25 (VIOLATED)
+_224_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.63   -0.23 (VIOLATED)
+_199_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    0.62   -0.22 (VIOLATED)
+_223_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.62   -0.22 (VIOLATED)
+_286_/Y (sky130_fd_sc_hd__inv_8)        0.40    0.61   -0.21 (VIOLATED)
+_282_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.61   -0.21 (VIOLATED)
+_204_/Y (sky130_fd_sc_hd__xnor2_4)      0.40    0.61   -0.21 (VIOLATED)
+_303_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.60   -0.20 (VIOLATED)
+_310_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.60   -0.20 (VIOLATED)
+_320_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.60   -0.20 (VIOLATED)
+_284_/Y (sky130_fd_sc_hd__nor2_8)       0.40    0.59   -0.19 (VIOLATED)
+_230_/Y (sky130_fd_sc_hd__nor2b_1)      0.40    0.59   -0.19 (VIOLATED)
+_207_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.59   -0.19 (VIOLATED)
+_291_/Y (sky130_fd_sc_hd__nand2_2)      0.40    0.59   -0.19 (VIOLATED)
+_203_/Y (sky130_fd_sc_hd__nor2b_4)      0.40    0.58   -0.18 (VIOLATED)
+_239_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.57   -0.17 (VIOLATED)
+_245_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.57   -0.17 (VIOLATED)
+_273_/Y (sky130_fd_sc_hd__nor4_1)       0.40    0.57   -0.17 (VIOLATED)
+_241_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.56   -0.16 (VIOLATED)
+_201_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.55   -0.15 (VIOLATED)
+_288_/Y (sky130_fd_sc_hd__a21oi_1)      0.40    0.55   -0.15 (VIOLATED)
+_220_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.55   -0.15 (VIOLATED)
+_243_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.55   -0.15 (VIOLATED)
+_247_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.54   -0.14 (VIOLATED)
+_198_/Y (sky130_fd_sc_hd__nor2b_2)      0.40    0.53   -0.13 (VIOLATED)
+_197_/Y (sky130_fd_sc_hd__xnor2_1)      0.40    0.53   -0.13 (VIOLATED)
+_226_/Y (sky130_fd_sc_hd__nand2b_2)     0.40    0.52   -0.12 (VIOLATED)
+_200_/Y (sky130_fd_sc_hd__nand2b_2)     0.40    0.52   -0.12 (VIOLATED)
+_227_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.52   -0.12 (VIOLATED)
+_221_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.50   -0.10 (VIOLATED)
+_304_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.49   -0.09 (VIOLATED)
+_297_/Y (sky130_fd_sc_hd__nand2_8)      0.40    0.48   -0.08 (VIOLATED)
+_233_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.48   -0.08 (VIOLATED)
+_321_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.47   -0.07 (VIOLATED)
+_311_/Y (sky130_fd_sc_hd__a22oi_1)      0.40    0.47   -0.07 (VIOLATED)
+_236_/Y (sky130_fd_sc_hd__nand2b_1)     0.40    0.47   -0.07 (VIOLATED)
+_206_/Y (sky130_fd_sc_hd__nand2_2)      0.40    0.47   -0.07 (VIOLATED)
+_279_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.45   -0.05 (VIOLATED)
+_214_/Y (sky130_fd_sc_hd__nor2b_4)      0.40    0.44   -0.04 (VIOLATED)
+_307_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.42   -0.02 (VIOLATED)
+_313_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.42   -0.02 (VIOLATED)
+_272_/Y (sky130_fd_sc_hd__nor2_1)       0.40    0.40    0.00 (VIOLATED)
+_211_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_212_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_213_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_209_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.39    0.01 (MET)
+_318_/Y (sky130_fd_sc_hd__nand2_1)      0.40    0.38    0.02 (MET)
+_205_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.37    0.03 (MET)
+_210_/Y (sky130_fd_sc_hd__inv_1)        0.40    0.37    0.03 (MET)
+max_delay/setup group clk
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+resp_msg[0] (output)                   -0.80    0.71   -1.51 (VIOLATED)
+req_rdy (output)                       -0.80    0.52   -1.32 (VIOLATED)
+resp_val (output)                      -0.80    0.40   -1.20 (VIOLATED)
+_424_/D (sky130_fd_sc_hd__dfxtp_2)      0.37    1.56   -1.19 (VIOLATED)
+_434_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.35   -0.99 (VIOLATED)
+_435_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.35   -0.99 (VIOLATED)
+_440_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.36   -0.98 (VIOLATED)
+_445_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.27   -0.89 (VIOLATED)
+_426_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.25   -0.87 (VIOLATED)
+_432_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.24   -0.86 (VIOLATED)
+_436_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_438_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.24   -0.86 (VIOLATED)
+_442_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.24   -0.86 (VIOLATED)
+_441_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_443_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_444_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.24   -0.86 (VIOLATED)
+_431_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.22   -0.85 (VIOLATED)
+_430_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.22   -0.85 (VIOLATED)
+_422_/D (sky130_fd_sc_hd__dfxtp_2)      0.36    1.20   -0.84 (VIOLATED)
+_437_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.20   -0.83 (VIOLATED)
+_433_/D (sky130_fd_sc_hd__dfxtp_1)      0.37    1.20   -0.82 (VIOLATED)
+_423_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.20   -0.82 (VIOLATED)
+_427_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.20   -0.82 (VIOLATED)
+_439_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.20   -0.82 (VIOLATED)
+_421_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.74 (VIOLATED)
+_429_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.74 (VIOLATED)
+_425_/D (sky130_fd_sc_hd__dfxtp_2)      0.38    1.12   -0.74 (VIOLATED)
+_428_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.73 (VIOLATED)
+_412_/D (sky130_fd_sc_hd__dfxtp_1)      4.88    0.58    4.30 (MET)
+tns max -43.83
+wns max -1.98
