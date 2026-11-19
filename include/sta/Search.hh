@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <mutex>
 #include <unordered_set>
@@ -642,11 +643,24 @@ protected:
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
   std::atomic<TagGroup **> tag_groups_;
-  TagGroupSet *tag_group_set_;
+  // The tag groups by hash, in shards that each have a lock of their own,
+  // so that threads finding or making different tag groups do not wait on
+  // each other.
+  struct TagGroupShard
+  {
+    TagGroupSet *tag_groups;
+    std::mutex lock;
+  };
+  static constexpr size_t tag_group_shard_count_ = 64;
+  std::array<TagGroupShard, tag_group_shard_count_> tag_group_shards_;
+  TagGroupShard &tagGroupShard(size_t hash);
+  void addTagGroup(TagGroup *tag_group);
   std::vector<TagGroup **> tag_groups_prev_;
   TagGroupIndex tag_group_next_{0};
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;
+  // Guards tag_groups_, its growth, tag_group_next_ and the free indices;
+  // a shard's lock guards its set.
   std::mutex tag_group_lock_;
 
   // Arrivals to queue on the next search pass.

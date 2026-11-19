@@ -243,7 +243,6 @@ Search::Search(StaState *sta) :
                       TagEqual(this))),
   tag_group_capacity_(tag_capacity_),
   tag_groups_(new TagGroup *[tag_group_capacity_]),
-  tag_group_set_(new TagGroupSet(tag_group_capacity_)),
   pending_arrivals_(graph_),
   endpoints_(graph_),
   invalid_endpoints_(graph_),
@@ -254,6 +253,8 @@ Search::Search(StaState *sta) :
   gated_clk_(new GatedClk(this)),
   check_crpr_(new CheckCrpr(this))
 {
+  for (TagGroupShard &shard : tag_group_shards_)
+    shard.tag_groups = new TagGroupSet(tag_group_capacity_ / tag_group_shard_count_);
   initVars();
 }
 
@@ -275,7 +276,8 @@ Search::~Search()
   delete clk_info_set_;
   delete[] tags_;
   delete[] tag_groups_;
-  delete tag_group_set_;
+  for (TagGroupShard &shard : tag_group_shards_)
+    delete shard.tag_groups;
   delete search_adj_;
   delete eval_pred_;
   delete arrival_visitor_;
@@ -351,7 +353,8 @@ Search::deleteTags()
     delete group;
   }
   tag_group_next_ = 0;
-  tag_group_set_->clear();
+  for (TagGroupShard &shard : tag_group_shards_)
+    shard.tag_groups->clear();
   tag_group_free_indices_.clear();
 
   tag_next_ = 0;
@@ -580,7 +583,7 @@ Search::deleteFilterTagGroups()
 void
 Search::deleteTagGroup(TagGroup *group)
 {
-  tag_group_set_->erase(group);
+  tagGroupShard(group->hash()).tag_groups->erase(group);
   tag_groups_[group->index()] = nullptr;
   tag_group_free_indices_.push_back(group->index());
   delete group;
@@ -2804,37 +2807,69 @@ Search::findTagGroup(TagGroupBldr *tag_bldr,
       return tag_group;
   }
 
-  LockGuard lock(tag_group_lock_);
-  TagGroup *tag_group = findKey(*tag_group_set_, &probe);
+  TagGroupShard &shard = tagGroupShard(probe.hash());
+  TagGroup *tag_group;
+  {
+    LockGuard shard_lock(shard.lock);
+    tag_group = findKey(*shard.tag_groups, &probe);
+  }
   if (tag_group == nullptr) {
-    TagGroupIndex tag_group_index;
-    if (tag_group_free_indices_.empty())
-      tag_group_index = tag_group_next_++;
-    else {
-      tag_group_index = tag_group_free_indices_.back();
-      tag_group_free_indices_.pop_back();
+    // Made without a lock; another thread may have made the same group
+    // meanwhile, and the one in the shard first is kept.
+    TagGroup *new_group = tag_bldr->makeTagGroup(0, this);
+    {
+      LockGuard shard_lock(shard.lock);
+      tag_group = findKey(*shard.tag_groups, &probe);
+      if (tag_group == nullptr) {
+        // tag_group_lock_ is taken only to give it an index.
+        addTagGroup(new_group);
+        shard.tag_groups->insert(new_group);
+        tag_group = new_group;
+        new_group = nullptr;
+      }
     }
-    tag_group = tag_bldr->makeTagGroup(tag_group_index, this);
-    tag_groups_[tag_group_index] = tag_group;
-    tag_group_set_->insert(tag_group);
-    // If tag_groups_ needs to grow make the new array and copy the
-    // contents into it before updating tags_groups_ so that other threads
-    // can use Search::tagGroup(TagGroupIndex) without returning gubbish.
-    if (tag_group_next_ == tag_group_capacity_) {
-      TagGroupIndex tag_capacity = tag_group_capacity_ * 2;
-      TagGroup **tag_groups = new TagGroup *[tag_capacity];
-      std::copy_n(tag_groups_.load(), tag_group_capacity_, tag_groups);
-      tag_groups_prev_.push_back(tag_groups_);
-      tag_groups_ = tag_groups;
-      tag_group_capacity_ = tag_capacity;
-      tag_group_set_->reserve(tag_capacity);
-    }
-    if (tag_group_next_ > tag_group_index_max)
-      report_->critical(1510, "max tag group index exceeded");
+    delete new_group;
   }
   if (tag_group_cache)
     tag_group_cache->insert(tag_group);
   return tag_group;
+}
+
+Search::TagGroupShard &
+Search::tagGroupShard(size_t hash)
+{
+  // The high bits of a multiplicative mix, so that the shard does not
+  // depend on the hash's low bits alone.
+  return tag_group_shards_[(hash * 0x9E3779B97F4A7C15ull) >> 58];
+}
+
+// Give tag_group an index and put it in tag_groups_.
+void
+Search::addTagGroup(TagGroup *tag_group)
+{
+  LockGuard lock(tag_group_lock_);
+  TagGroupIndex tag_group_index;
+  if (tag_group_free_indices_.empty())
+    tag_group_index = tag_group_next_++;
+  else {
+    tag_group_index = tag_group_free_indices_.back();
+    tag_group_free_indices_.pop_back();
+  }
+  tag_group->setIndex(tag_group_index);
+  tag_groups_[tag_group_index] = tag_group;
+  // If tag_groups_ needs to grow make the new array and copy the
+  // contents into it before updating tags_groups_ so that other threads
+  // can use Search::tagGroup(TagGroupIndex) without returning gubbish.
+  if (tag_group_next_ == tag_group_capacity_) {
+    TagGroupIndex tag_capacity = tag_group_capacity_ * 2;
+    TagGroup **tag_groups = new TagGroup *[tag_capacity];
+    std::copy_n(tag_groups_.load(), tag_group_capacity_, tag_groups);
+    tag_groups_prev_.push_back(tag_groups_);
+    tag_groups_ = tag_groups;
+    tag_group_capacity_ = tag_capacity;
+  }
+  if (tag_group_next_ > tag_group_index_max)
+    report_->critical(1510, "max tag group index exceeded");
 }
 
 void
@@ -2988,7 +3023,10 @@ Search::tagGroup(const Vertex *vertex) const
 TagGroupIndex
 Search::tagGroupCount() const
 {
-  return tag_group_set_->size();
+  TagGroupIndex count = 0;
+  for (const TagGroupShard &shard : tag_group_shards_)
+    count += shard.tag_groups->size();
+  return count;
 }
 
 void
@@ -2997,18 +3035,27 @@ Search::reportTagGroups() const
   for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
     TagGroup *tag_group = tag_groups_[i];
     if (tag_group) {
+      const TagGroupSet &tag_groups =
+        *const_cast<Search*>(this)->tagGroupShard(tag_group->hash()).tag_groups;
       report_->report("Group {:4} hash = {:4} ({:4})", i, tag_group->hash(),
-                      tag_group->hash() % tag_group_set_->bucket_count());
+                      tag_group->hash() % tag_groups.bucket_count());
       tag_group->reportArrivalMap(this);
     }
   }
+  // The longest bucket of any shard.
+  size_t long_length = 0;
   size_t long_hash = 0;
-  for (size_t i = 0; i < tag_group_set_->bucket_count(); i++) {
-    if (tag_group_set_->bucket_size(i) > long_hash)
-      long_hash = i;
+  for (const TagGroupShard &shard : tag_group_shards_) {
+    const TagGroupSet &tag_groups = *shard.tag_groups;
+    for (size_t i = 0; i < tag_groups.bucket_count(); i++) {
+      if (tag_groups.bucket_size(i) > long_length) {
+        long_length = tag_groups.bucket_size(i);
+        long_hash = i;
+      }
+    }
   }
-  report_->report("Longest hash bucket length {} hash={}",
-                  tag_group_set_->bucket_size(long_hash), long_hash);
+  report_->report("Longest hash bucket length {} hash={}", long_length,
+                  long_hash);
 }
 
 void
