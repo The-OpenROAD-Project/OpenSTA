@@ -28,6 +28,7 @@
 #include <array>
 #include <cmath>      // abs
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <limits>
 #include <map>
@@ -795,7 +796,9 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
 ////////////////////////////////////////////////////////////////
 
 // OpenROAD fork: clock gate test pin. Probability that any test enable is
-// 1. Test pins without a driver are ignored, as in Sim::clockGateOutValue.
+// 1. Test pins without a driver or a constant are ignored, as in
+// Sim::clockGateOutValue, even with set_power_activity on the pin; use
+// set_case_analysis to hold an undriven test pin.
 float
 Power::clockGateTestDuty(const Instance *inst)
 {
@@ -876,7 +879,8 @@ Power::evalDiffDuty(FuncExpr *expr,
   Cudd_Ref(diff);
   // Weight state dependent internal power groups by P(when).
   if (when) {
-    DdNode *when_bdd = bdd_.funcBdd(when);
+    // OpenROAD fork: power when. Output pins replaced by their functions.
+    DdNode *when_bdd = whenBdd(when, inst);
     DdNode *diff_when = Cudd_bddAnd(bdd_.cuddMgr(), diff, when_bdd);
     Cudd_Ref(diff_when);
     Cudd_RecursiveDeref(bdd_.cuddMgr(), when_bdd);
@@ -1716,48 +1720,74 @@ Power::findSwitchingPower(const Instance *inst,
 
 // Leakage totals for one power/gnd pin.
 // ---- OpenROAD fork: power leakage (begin) ----
-// Probability that a when condition is true. Output pins are
-// replaced by their functions so conditions such as "!A & Y" on an inverter
-// are not evaluated as if A and Y were independent.
 static bool
 funcHasInternalPort(const FuncExpr *expr)
 {
-  if (expr == nullptr)
-    return false;
-  if (expr->op() == FuncExpr::Op::port)
-    return expr->port()->direction()->isInternal();
-  return funcHasInternalPort(expr->left())
-    || funcHasInternalPort(expr->right());
+  bool has_internal = false;
+  if (expr) {
+    if (expr->op() == FuncExpr::Op::port)
+      has_internal = expr->port()->direction()->isInternal();
+    else
+      has_internal = funcHasInternalPort(expr->left())
+        || funcHasInternalPort(expr->right());
+  }
+  return has_internal;
 }
 
 float
 Power::whenDuty(FuncExpr *when,
                 const Instance *inst)
 {
+  DdNode *bdd = whenBdd(when, inst);
+  float duty = evalBddDuty(bdd, inst);
+  Cudd_RecursiveDeref(bdd_.cuddMgr(), bdd);
+  bdd_.clearVarMap();
+  return duty;
+}
+
+DdNode *
+Power::whenBdd(FuncExpr *when,
+               const Instance *inst)
+{
   DdManager *cudd_mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(when);
   const Sim *sim = scene_->mode()->sim();
   // Combinational outputs only: sequential outputs (Q = IQ) keep the pin
   // activity, which may be annotated. Outputs held constant (case analysis)
-  // keep the constant. Repeat until nothing changes, because a function can
-  // name other outputs; the pass limit stops cyclic functions.
-  LibertyCell *cell = network_->libertyCell(inst);
-  size_t passes = cell ? cell->portCount() : 1;
+  // keep the constant. Tristate and bidirect pins can differ from their
+  // functions, so they are kept too.
+  std::map<const LibertyPort *, bool> substitutable;
+  auto canSubstitute = [&](const LibertyPort *port) {
+    bool can;
+    auto itr = substitutable.find(port);
+    if (itr != substitutable.end())
+      can = itr->second;
+    else {
+      FuncExpr *func = port->function();
+      const Pin *pin = findLinkPin(inst, port);
+      can = port->direction()->isOutput() && port->tristateEnable() == nullptr
+        && func && !func->hasPort(port) && !funcHasInternalPort(func)
+        && !(pin && sim->isConstant(pin));
+      substitutable.emplace(port, can);
+    }
+    return can;
+  };
+  // Repeat until nothing changes, because a function can name other
+  // outputs; the pass limit stops cyclic functions.
+  size_t passes = network_->libertyCell(inst)->portBitCount() + 1;
   bool changed = true;
   while (changed && passes > 0) {
     changed = false;
     passes--;
     std::vector<std::pair<const LibertyPort *, DdNode *>> port_vars(
       bdd_.portVarMap().begin(), bdd_.portVarMap().end());
+    int *support = Cudd_SupportIndex(cudd_mgr, bdd);
     for (const auto &[port, var_node] : port_vars) {
-      FuncExpr *func = port->function();
-      const Pin *pin = findLinkPin(inst, port);
-      bool constant = pin && sim->simValue(pin) != LogicValue::unknown;
-      if (port->direction()->isAnyOutput() && func && !func->hasPort(port)
-          && !funcHasInternalPort(func) && !constant) {
-        DdNode *func_bdd = bdd_.funcBdd(func);
+      unsigned var_index = Cudd_NodeReadIndex(var_node);
+      if (support[var_index] && canSubstitute(port)) {
+        DdNode *func_bdd = bdd_.funcBdd(port->function());
         DdNode *composed = Cudd_bddCompose(cudd_mgr, bdd, func_bdd,
-                                           Cudd_NodeReadIndex(var_node));
+                                           var_index);
         Cudd_Ref(composed);
         if (composed != bdd)
           changed = true;
@@ -1766,11 +1796,9 @@ Power::whenDuty(FuncExpr *when,
         bdd = composed;
       }
     }
+    free(support);
   }
-  float duty = evalBddDuty(bdd, inst);
-  Cudd_RecursiveDeref(cudd_mgr, bdd);
-  bdd_.clearVarMap();
-  return duty;
+  return bdd;
 }
 // ---- OpenROAD fork: power leakage (end) ----
 
@@ -1863,7 +1891,8 @@ Power::findLeakagePower(const Instance *inst,
           leakage += cell_leakage * duty;
         // ---- OpenROAD fork: power leakage (end) ----
       }
-      // Ignore unconditional leakage unless there are no conditional leakage groups.
+      // OpenROAD fork: power leakage. Without conditional leakage groups,
+      // use the unconditional group.
       else if (sum.uncond_exists)
         leakage = sum.uncond_leakage;
       debugPrint(debug_, "power", 2, "leakage {}/{} {:.3e}",

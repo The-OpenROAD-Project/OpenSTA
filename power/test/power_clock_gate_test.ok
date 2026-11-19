@@ -16,3 +16,11 @@ undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
 undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
 undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
 undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+Test enable tied high, then the tie cell disconnected
+undriven_te/GCLK transitions/cycle 2.000 duty 0.500 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+Case analysis on the undriven test pin itself
+undriven_te/GCLK transitions/cycle 2.000 duty 0.500 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant

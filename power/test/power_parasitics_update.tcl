@@ -1,5 +1,5 @@
-# Power is recalculated after changes that only affect delays, slews and
-# load capacitances: read_spef, set_load and set_assigned_transition.
+# Power is recalculated after delay, slew and load changes.
+# Covers read_spef, set_load and set_assigned_transition.
 read_liberty ../../examples/sky130hd_tt.lib.gz
 suppress_msg 198
 read_verilog ../../examples/gcd_sky130hd.v.gz

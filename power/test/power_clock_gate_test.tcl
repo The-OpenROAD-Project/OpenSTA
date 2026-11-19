@@ -1,5 +1,5 @@
-# Clock gate test enable (clock_gate_test_pin) enables the gated clock
-# with the enable: GCLK duty = clk duty x P(GATE | SCE). Clock period 1ns,
+# Clock gate test enable (clock_gate_test_pin) in gated clock activity.
+# The test enable enables the gated clock with the enable: GCLK duty = clk duty x P(GATE | SCE). Clock period 1ns,
 # so 2e9 is two transitions per cycle.
 source ../../test/helpers.tcl
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
@@ -71,4 +71,19 @@ show undriven_te/GCLK
 connect_pin se undriven_te/SCE
 show undriven_te/GCLK
 disconnect_pin se b/X
+show undriven_te/GCLK
+connect_pin se b/X
+show undriven_te/GCLK
+delete_instance b
+show undriven_te/GCLK
+puts "Test enable tied high, then the tie cell disconnected"
+make_instance tie sky130_fd_sc_hd__conb_1
+connect_pin se tie/HI
+show undriven_te/GCLK
+disconnect_pin se tie/HI
+show undriven_te/GCLK
+puts "Case analysis on the undriven test pin itself"
+set_case_analysis 1 [get_pins undriven_te/SCE]
+show undriven_te/GCLK
+unset_case_analysis [get_pins undriven_te/SCE]
 show undriven_te/GCLK

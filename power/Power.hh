@@ -261,6 +261,7 @@ protected:
   Pin *findLinkPin(const Instance *inst,
                    const LibertyPort *scene_port);
   // OpenROAD fork: clock gate test pin.
+  // Probability that any clock gate test enable of inst is 1.
   float clockGateTestDuty(const Instance *inst);
   void clockGatePins(const Instance *inst,
                      // Return values.
@@ -272,8 +273,15 @@ protected:
   float evalBddDuty(DdNode *bdd,
                     const Instance *inst);
   // OpenROAD fork: power when conditions.
+  // Probability that a when condition is true. Output pins are replaced by
+  // their functions so conditions such as "!A & Y" on an inverter are not
+  // evaluated as if A and Y were independent.
   float whenDuty(FuncExpr *when,
                  const Instance *inst);
+  // Referenced BDD of a when condition with output pins replaced by their
+  // functions. The caller dereferences it and clears the BDD variable map.
+  DdNode *whenBdd(FuncExpr *when,
+                  const Instance *inst);
   size_t pinCount();
 
 private:

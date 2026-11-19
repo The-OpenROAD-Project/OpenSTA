@@ -79,4 +79,41 @@ library (power_leakage_when) {
     pin (A) { direction : input; capacitance : 1.0; }
     pin (Y) { direction : output; function : "A"; }
   }
+  /* Output internal power: "Z & B" is never true (Z = !B), so only the
+     second group applies, as on OUT_INTERNAL_REF. */
+  cell (OUT_INTERNAL_WHEN) {
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (B) { direction : input; capacitance : 1.0; }
+    pin (Z) { direction : output; function : "!B"; }
+    pin (Y) {
+      direction : output;
+      function : "A";
+      internal_power () {
+        related_pin : "A";
+        when : "Z & B";
+        rise_power (scalar) { values ("100.0"); }
+        fall_power (scalar) { values ("100.0"); }
+      }
+      internal_power () {
+        related_pin : "A";
+        when : "!(Z & B)";
+        rise_power (scalar) { values ("1.0"); }
+        fall_power (scalar) { values ("1.0"); }
+      }
+    }
+  }
+  cell (OUT_INTERNAL_REF) {
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (B) { direction : input; capacitance : 1.0; }
+    pin (Z) { direction : output; function : "!B"; }
+    pin (Y) {
+      direction : output;
+      function : "A";
+      internal_power () {
+        related_pin : "A";
+        rise_power (scalar) { values ("1.0"); }
+        fall_power (scalar) { values ("1.0"); }
+      }
+    }
+  }
 }

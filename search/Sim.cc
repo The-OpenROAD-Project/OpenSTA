@@ -442,6 +442,9 @@ Sim::deletePinBefore(const Pin *pin)
   invalid_load_pins_.erase(pin);
   invalid_drvr_pins_.erase(pin);
   invalid_insts_.insert(network_->instance(pin));
+  // OpenROAD fork: clock gate test pin.
+  if (incremental_ && network_->isDriver(pin))
+    invalidateClockGateTestLoads(pin);
 }
 
 void
@@ -453,7 +456,9 @@ Sim::connectPinAfter(const Pin *pin)
       invalid_load_pins_.insert(pin);
       // OpenROAD fork: clock gate test pin. The pin value can stay unknown
       // while the gated clock changes, so evaluate the instance again.
-      invalid_insts_.insert(network_->instance(pin));
+      const LibertyPort *port = network_->libertyPort(pin);
+      if (port && port->isClockGateTest())
+        invalid_insts_.insert(network_->instance(pin));
     }
     if (network_->isDriver(pin)) {
       invalid_drvr_pins_.insert(pin);
@@ -483,7 +488,9 @@ Sim::disconnectPinBefore(const Pin *pin)
 // ---- OpenROAD fork: clock gate test pin (begin) ----
 // Clock gates count a test pin only when it has a driver or a constant
 // (clockGateOutValue), so adding or removing a driver can change the gated
-// clock without changing the test pin value.
+// clock without changing the test pin value. The test pin value is cleared
+// and found again from the remaining drivers; a test pin left without a
+// driver would otherwise keep the old driver's constant.
 void
 Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
 {
@@ -492,8 +499,8 @@ Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
     const Pin *pin = pin_iter->next();
     const LibertyPort *port = network_->libertyPort(pin);
     if (port && port->isClockGateTest()) {
-      invalid_insts_.insert(network_->instance(pin));
-      valid_ = false;
+      invalid_load_pins_.insert(pin);
+      removePropagatedValue(pin);
     }
   }
   delete pin_iter;
@@ -754,9 +761,12 @@ Sim::clockGateOutValue(const Instance *inst)
       }
     }
   }
+  LogicValue value;
   if (has_enable && enable_zero && test_zero)
-    return LogicValue::zero;
-  return LogicValue::unknown;
+    value = LogicValue::zero;
+  else
+    value = LogicValue::unknown;
+  return value;
   // ---- OpenROAD fork: clock gate test pin (end) ----
 }
 

@@ -1,5 +1,5 @@
-# Activities on nets with slow slews are not limited by 1/slew. An
-# unbuffered clock gate output (before clock tree synthesis) keeps
+# Activities on nets with slow slews are not limited by 1/slew.
+# An unbuffered clock gate output (before clock tree synthesis) keeps
 # clock density x enable duty, and annotations keep their values.
 # Clock period 1ns, so 2e9 is two transitions per cycle.
 source ../../test/helpers.tcl
