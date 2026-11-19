@@ -309,3 +309,23 @@ _428_/D (sky130_fd_sc_hd__dfxtp_1)      0.38    1.12   -0.73 (VIOLATED)
 _412_/D (sky130_fd_sc_hd__dfxtp_1)      4.88    0.58    4.30 (MET)
 tns max -43.83
 wns max -1.98
+max_delay/setup group clk
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_411_/D (sky130_fd_sc_hd__dfxtp_4)     -0.08    1.25   -1.32 (VIOLATED)
+max_delay/setup group clk
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_412_/D (sky130_fd_sc_hd__dfxtp_1)      4.88    1.28    3.60 (MET)
+max_delay/setup group clk
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_411_/D (sky130_fd_sc_hd__dfxtp_4)      4.87    1.25    3.63 (MET)
+max_delay/setup group clk
+                                     Required  Actual
+Endpoint                               Delay   Delay   Slack
+------------------------------------------------------------
+_412_/D (sky130_fd_sc_hd__dfxtp_1)     -0.07    1.28   -1.35 (VIOLATED)

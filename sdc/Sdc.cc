@@ -382,6 +382,7 @@ Sdc::editExceptions(const ExceptionPathSeq &exceptions,
     unrecordMergeHashes(exception);
     unrecordExceptionFirstPts(exception);
     unrecordExceptionPins(exception);
+    unrecordExceptionTo(exception);
     ExceptionTo *to = exception->to();
     bool to_had_objects = to && to->hasObjects();
     ExceptionPtIterator pt_iter(exception);
@@ -396,6 +397,7 @@ Sdc::editExceptions(const ExceptionPathSeq &exceptions,
       recordMergeHashes(exception);
       recordExceptionFirstPts(exception);
       recordExceptionPins(exception);
+      recordExceptionTo(exception);
       checkForThruHpins(exception);
     }
   }

@@ -37,3 +37,17 @@ set_max_delay 0.2 -from [all_registers] -to $outs
 report_checks -group_path_count 1000 -endpoint_path_count 1 -format end
 report_tns
 report_wns
+
+# constraints moved from one pin to another (Sdc::moveConstraints): the
+# -to follows them, and the path delay ends at the new pin
+set d_pins [lsort [lmap p [all_registers -data_pins] { get_full_name $p }]]
+set moved_from [get_pins [lindex $d_pins 0]]
+set moved_to [get_pins [lindex $d_pins 1]]
+unset_path_exceptions -from $ins
+unset_path_exceptions -from [all_registers]
+set_max_delay 0.05 -from $ins -to $moved_from
+report_checks -to $moved_from -format end
+report_checks -to $moved_to -format end
+sta::move_pin_constraints_cmd $moved_from $moved_to
+report_checks -to $moved_from -format end
+report_checks -to $moved_to -format end
