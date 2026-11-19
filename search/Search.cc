@@ -40,6 +40,7 @@
 #include "DataCheck.hh"
 #include "Debug.hh"
 #include "Delay.hh"
+#include "DispatchQueue.hh"
 #include "ExceptionPath.hh"
 #include "Fuzzy.hh"
 #include "GatedClk.hh"
@@ -675,9 +676,30 @@ VertexSeq
 Search::filteredEndpoints()
 {
   VertexSeq ends;
-  for (Vertex *vertex : filtered_arrivals_) {
-    if (isEndpoint(vertex))
-      ends.push_back(vertex);
+  if (thread_count_ == 1) {
+    for (Vertex *vertex : filtered_arrivals_) {
+      if (isEndpoint(vertex))
+        ends.push_back(vertex);
+    }
+  }
+  else {
+    // isEndpoint on every thread, the endpoints gathered in
+    // filtered_arrivals_'s order.
+    VertexSeq vertices(filtered_arrivals_.begin(), filtered_arrivals_.end());
+    std::vector<char> is_end(vertices.size());
+    constexpr size_t chunk_size = 256;
+    for (size_t from = 0; from < vertices.size(); from += chunk_size) {
+      size_t to = std::min(from + chunk_size, vertices.size());
+      dispatch_queue_->dispatch([this, &vertices, &is_end, from, to](size_t) {
+        for (size_t i = from; i < to; i++)
+          is_end[i] = isEndpoint(vertices[i]);
+      });
+    }
+    dispatch_queue_->finishTasks();
+    for (size_t i = 0; i < vertices.size(); i++) {
+      if (is_end[i])
+        ends.push_back(vertices[i]);
+    }
   }
   return ends;
 }
