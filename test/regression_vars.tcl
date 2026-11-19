@@ -195,6 +195,7 @@ record_public_tests {
   non_seq_timing
   package_require
   parasitic_network_new_net
+  path_delay_to_sets
   path_group_names
   port_delay_delete_inst
   port_delay_hier_pin
