@@ -17,6 +17,7 @@ sta_module_tests("power"
     parasitics_update
     clock_gate_test
     leakage_when
+    unset_case
 )
 
 add_subdirectory(cpp)

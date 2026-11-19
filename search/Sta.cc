@@ -2021,6 +2021,8 @@ Sta::removeCaseAnalysis(Pin *pin,
   // fails.  This could be handled incrementally by invalidating delays
   // on the output of gates one level downstream.
   delaysInvalid();
+  // OpenROAD fork: power. Activities through the pin change too.
+  power_->activitiesInvalid();
 }
 
 void
