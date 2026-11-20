@@ -33,6 +33,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #include "ArcDelayCalc.hh"
 #include "ClkDelays.hh"
@@ -40,6 +41,7 @@
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Delay.hh"
+#include "DispatchQueue.hh"
 #include "FuncExpr.hh"
 #include "Graph.hh"
 #include "GraphClass.hh"
@@ -341,6 +343,8 @@ public:
   void visit(PathEnd *path_end) override;
   void setInputRf(const RiseFall *input_rf);
   const ClockEdgeDelays &margins() const { return margins_; }
+  // Take the larger margin of this and other's, as visit does.
+  void mergeMargins(const MakeEndTimingArcs &other);
 
 private:
   const RiseFall *input_rf_{nullptr};
@@ -400,6 +404,28 @@ MakeEndTimingArcs::visit(PathEnd *path_end)
   }
 }
 
+void
+MakeEndTimingArcs::mergeMargins(const MakeEndTimingArcs &other)
+{
+  for (const auto &[clk_edge, other_margins] : other.margins_) {
+    RiseFallMinMax &margins = margins_[clk_edge];
+    for (const RiseFall *rf : RiseFall::range()) {
+      for (const MinMax *min_max : MinMax::range()) {
+        float other_margin;
+        bool other_exists;
+        other_margins.value(rf, min_max, other_margin, other_exists);
+        if (other_exists) {
+          float margin;
+          bool exists;
+          margins.value(rf, min_max, margin, exists);
+          margins.setValue(rf, min_max,
+                           exists ? std::max(margin, other_margin) : other_margin);
+        }
+      }
+    }
+  }
+}
+
 // input -> register setup/hold
 // input -> output combinational paths
 // Use default input arrival (set_input_delay with no clock) from inputs
@@ -442,9 +468,31 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
 
       end_visitor.setInputRf(input_rf);
       VertexSeq endpoints = search_->filteredEndpoints();
-      VisitPathEnds visit_ends(sta_);
-      for (Vertex *end : endpoints)
-        visit_ends.visitPathEnds(end, scenes_, MinMaxAll::all(), true, &end_visitor);
+      if (thread_count_ == 1) {
+        VisitPathEnds visit_ends(sta_);
+        for (Vertex *end : endpoints)
+          visit_ends.visitPathEnds(end, scenes_, MinMaxAll::all(), true,
+                                   &end_visitor);
+      }
+      else {
+        // One visitor per thread, merged after: a margin is the max over
+        // the path ends, whichever thread found them.
+        std::vector<MakeEndTimingArcs> end_visitors(thread_count_,
+                                                    MakeEndTimingArcs(sta_));
+        std::vector<VisitPathEnds> visit_ends(thread_count_,
+                                              VisitPathEnds(sta_));
+        for (MakeEndTimingArcs &visitor : end_visitors)
+          visitor.setInputRf(input_rf);
+        for (Vertex *end : endpoints) {
+          dispatch_queue_->dispatch([this, end, &end_visitors, &visit_ends](size_t i) {
+            visit_ends[i].visitPathEnds(end, scenes_, MinMaxAll::all(), true,
+                                        &end_visitors[i]);
+          });
+        }
+        dispatch_queue_->finishTasks();
+        for (const MakeEndTimingArcs &visitor : end_visitors)
+          end_visitor.mergeMargins(visitor);
+      }
       findOutputDelays(input_rf, endpoints, output_delays);
       search_->deleteFilteredArrivals();
 
