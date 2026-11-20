@@ -230,13 +230,19 @@ define_cmd_args "with_output_to_variable" { var { cmds }} \
   }
 
 # with_output_to_variable variable { command args... }
+# The commands are evaluated in the caller's scope. Errors are passed
+# on to the caller after the output redirection is ended.
 proc with_output_to_variable { var_name args } {
+  global errorCode errorInfo
   upvar 1 $var_name var
 
   set body [lindex $args 0]
   sta::redirect_string_begin;
-  catch $body ret
+  set code [catch { uplevel 1 $body } ret]
   set var [sta::redirect_string_end]
+  if { $code == 1 } {
+    return -code $code -errorcode $errorCode -errorinfo $errorInfo $ret
+  }
   return $ret
 }
 
