@@ -625,6 +625,9 @@ protected:
   // Use pointer to clk_info set so Tag.hh does not need to be included.
   ClkInfoSet *clk_info_set_;
   std::mutex clk_info_lock_;
+  // A clock info that refers to a filter was made since the last
+  // deleteFilterClkInfos, which otherwise has nothing to look for.
+  bool made_filter_clk_info_{false};
 
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_{128};
@@ -644,6 +647,11 @@ protected:
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;
   std::mutex tag_group_lock_;
+  // Indices of the tag groups with a filter tag made, and the tags_ slots
+  // of the filter tags made, so that deleting a filter's leftovers visits
+  // them and not every tag group and tag.
+  std::vector<TagGroupIndex> filter_tag_groups_;
+  std::vector<TagIndex> filter_tags_;
 
   // Arrivals to queue on the next search pass.
   VertexSet pending_arrivals_;
