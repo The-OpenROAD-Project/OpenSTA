@@ -1325,6 +1325,14 @@ Vertex::setBfsInQueue(BfsIndex index,
     bfs_in_queue_ &= ~(1 << static_cast<unsigned>(index));
 }
 
+// OpenROAD fork: per-thread enqueue during parallel BFS levels.
+bool
+Vertex::testAndSetBfsInQueue(BfsIndex index)
+{
+  const uint8_t mask = 1 << static_cast<unsigned>(index);
+  return !(bfs_in_queue_.fetch_or(mask) & mask);
+}
+
 void
 Vertex::setBfsPredecessorChanged(bool changed)
 {

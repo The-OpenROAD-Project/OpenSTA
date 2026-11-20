@@ -3642,9 +3642,11 @@ Sta::findRequired(Vertex *vertex)
 {
   searchPreamble();
   search_->findAllArrivals();
-  if (search_->isEndpoint(vertex)
-      // Need to include downstream required times if there is fanout.
-      && !hasFanout(vertex, search_->evalPred(), graph_, cmd_mode_))
+  // Need to include downstream required times if there is fanout.
+  // OpenROAD fork: test fanout first; isEndpoint is much more expensive
+  // and most queried pins have fanout.
+  if (!hasFanout(vertex, search_->evalPred(), graph_, cmd_mode_)
+      && search_->isEndpoint(vertex))
     search_->seedRequired(vertex);
   else
     search_->findRequireds(vertex->level());

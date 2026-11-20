@@ -31,6 +31,7 @@
 #include "GraphClass.hh"
 #include "Iterator.hh"
 #include "StaState.hh"
+#include "ThreadVertexBuffer.hh"
 #include "VertexVisitor.hh"
 
 namespace sta {
@@ -124,6 +125,30 @@ protected:
   SearchPred *search_pred_;
   LevelQueue queue_;
   std::mutex queue_lock_;
+  // ---- OpenROAD fork: per-thread enqueue during parallel levels (begin) ----
+  // While a level is visited in parallel, enqueue() claims the in-queue bit
+  // atomically and appends to the calling thread's buffer instead of taking
+  // queue_lock_. The buffer is moved into queue_ after the level.
+  void flushParallelEnqueues();
+  ThreadVertexBuffer parallel_enqueues_;
+  std::atomic<bool> parallel_enqueue_{false};
+  // Level being visited in parallel, for the same-level enqueue check.
+  Level parallel_level_{0};
+  class ParallelEnqueueGuard
+  {
+  public:
+    explicit ParallelEnqueueGuard(std::atomic<bool> &flag) : flag_(flag)
+    {
+      flag_.store(true, std::memory_order_relaxed);
+    }
+    ~ParallelEnqueueGuard() { flag_.store(false, std::memory_order_relaxed); }
+    ParallelEnqueueGuard(const ParallelEnqueueGuard &) = delete;
+    ParallelEnqueueGuard &operator=(const ParallelEnqueueGuard &) = delete;
+
+  private:
+    std::atomic<bool> &flag_;
+  };
+  // ---- OpenROAD fork: per-thread enqueue during parallel levels (end) ----
   // Min (max) level of queued vertices.
   Level first_level_;
   // Max (min) level of queued vertices.
