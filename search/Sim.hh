@@ -164,7 +164,11 @@ protected:
                          Vertex *vertex);
   
   void removePropagatedValue(const Pin *pin);
-  // OpenROAD fork: clock gate test pin.
+  // OpenROAD fork: clock gate test pin. Clock gates count a test pin only
+  // when it has a driver or a constant (clockGateOutValue), so adding or
+  // removing a driver can change the gated clock without changing the test
+  // pin value. Clear the values of the clock gate test pins on drvr_pin's
+  // net so they are found again from the remaining drivers.
   void invalidateClockGateTestLoads(const Pin *drvr_pin);
   void propagateFromInvalidDrvrsToLoads();
   void propagateToInvalidLoads();

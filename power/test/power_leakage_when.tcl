@@ -1,5 +1,6 @@
 # Leakage and internal power when conditions that name output pins.
-# Also groups without when and zero-leakage states. Inputs have duty 0.5. Expected leakage (nW):
+# Also groups without when and zero-leakage states. Inputs have duty 0.5.
+# Expected leakage (nW):
 # INV_OUT_WHEN 0.5*1 + 0.5*3 = 2.0, AND_PARTIAL 0.25*4 + 0.75*2 = 2.5,
 # BUF_ZERO_STATE 0.5*0 + 0.5*2 = 1.0, DFF_Q_WHEN with Q annotated at duty
 # 0.8: 8.0, CHAIN_OUT_WHEN 0.5*1 = 0.5, CHAIN_ORDER_WHEN 0.5*4 = 2.0,

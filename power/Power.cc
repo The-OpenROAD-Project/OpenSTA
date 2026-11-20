@@ -699,7 +699,7 @@ PropActivityVisitor::visit(Vertex *vertex)
             float p1 = activity1.duty();
             float p2 = activity2.duty();
             // ---- OpenROAD fork: clock gate test pin (begin) ----
-            // The gate is enabled by enable | test (test enable).
+            // The gate is enabled when the enable or the test enable is 1.
             float p_test = power_->clockGateTestDuty(inst);
             p2 = 1.0F - (1.0F - p2) * (1.0F - p_test);
             // ---- OpenROAD fork: clock gate test pin (end) ----

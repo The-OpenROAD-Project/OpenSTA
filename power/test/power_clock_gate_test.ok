@@ -1,4 +1,4 @@
-Test enable tied low, and on a port (P(GATE | SCE) = 0.75)
+Test enable tied low, and on a port (P(EN or SE) = 0.75)
 tied/GCLK  transitions/cycle 1.000 duty 0.250 propagated
 free/GCLK  transitions/cycle 1.500 duty 0.375 propagated
 Test enable held low by case analysis

@@ -486,11 +486,6 @@ Sim::disconnectPinBefore(const Pin *pin)
 }
 
 // ---- OpenROAD fork: clock gate test pin (begin) ----
-// Clock gates count a test pin only when it has a driver or a constant
-// (clockGateOutValue), so adding or removing a driver can change the gated
-// clock without changing the test pin value. The test pin value is cleared
-// and found again from the remaining drivers; a test pin left without a
-// driver would otherwise keep the old driver's constant.
 void
 Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
 {

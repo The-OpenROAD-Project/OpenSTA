@@ -1,6 +1,6 @@
 # Clock gate test enable (clock_gate_test_pin) in gated clock activity.
-# The test enable enables the gated clock with the enable: GCLK duty = clk duty x P(GATE | SCE). Clock period 1ns,
-# so 2e9 is two transitions per cycle.
+# GCLK duty = clk duty x P(EN or SE), with EN = GATE and SE = SCE on
+# sky130 clock gates. Clock period 1ns, so 2e9 is two transitions per cycle.
 source ../../test/helpers.tcl
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
 
@@ -28,7 +28,7 @@ proc show { pin } {
   puts [format "%-10s transitions/cycle %.3f duty %.3f %s" \
           $pin [expr {$density * 1e-9}] $duty $origin]
 }
-puts "Test enable tied low, and on a port (P(GATE | SCE) = 0.75)"
+puts "Test enable tied low, and on a port (P(EN or SE) = 0.75)"
 show tied/GCLK
 show free/GCLK
 puts "Test enable held low by case analysis"
