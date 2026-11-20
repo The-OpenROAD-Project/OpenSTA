@@ -202,9 +202,10 @@ report_clock_min_period -include_port_paths
 puts "--- report_clock_skew ---"
 report_clock_skew -setup
 report_clock_skew -hold
-# TODO: report_clock_skew -clock has a source bug ($clks used before set)
-puts "report_clock_skew -clock clk1: skipped (source bug)"
-puts "report_clock_skew -clock clk2: skipped (source bug)"
+puts "--- report_clock_skew -clocks clk1 ---"
+report_clock_skew -clocks clk1
+puts "--- report_clock_skew -clocks clk2 ---"
+report_clock_skew -clocks clk2
 
 ############################################################
 # report_tns/wns/worst_slack for both min and max
