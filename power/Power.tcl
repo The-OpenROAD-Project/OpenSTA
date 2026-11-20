@@ -328,6 +328,62 @@ proc read_saif { args } {
 
 ################################################################
 
+# ---- OpenROAD fork: power activity simulation (begin) ----
+define_cmd_args "simulate_power_activity" { [-cycles cycles] [-warmup cycles] \
+                                              [-lanes lanes] [-seed seed] } \
+  -help {Annotate activities from a random zero-delay simulation of the netlist. Primary inputs toggle at their set_power_activity or default activity, clocks follow the SDC clocks and output pins without a function (macros) toggle at the default input activity. Each lane is an independent random copy of the design. The driver of each simulated net is annotated and its loads get the driver activity by propagation. Clocks are simulated with a 50% duty cycle, and clock gate test pins are not modeled.} \
+  -arg_help {
+    -cycles {`cycles`: Number of measured clock cycles. Defaults to 2000.}
+    -warmup {`cycles`: Number of clock cycles simulated before counting starts, so the random initial state settles. Defaults to 500.}
+    -lanes {`lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.}
+    -seed {`seed`: Random number generator seed. Defaults to 1.}
+  }
+
+proc simulate_power_activity { args } {
+  parse_key_args "simulate_power_activity" args \
+    keys {-cycles -warmup -lanes -seed} flags {}
+  check_argc_eq0 "simulate_power_activity" $args
+  set cycles 2000
+  if { [info exists keys(-cycles)] } {
+    set cycles $keys(-cycles)
+    check_cardinal "-cycles" $cycles
+  }
+  set warmup 500
+  if { [info exists keys(-warmup)] } {
+    set warmup $keys(-warmup)
+    check_positive_integer "-warmup" $warmup
+  }
+  set lanes 256
+  if { [info exists keys(-lanes)] } {
+    set lanes $keys(-lanes)
+    check_cardinal "-lanes" $lanes
+  }
+  set seed 1
+  if { [info exists keys(-seed)] } {
+    set seed $keys(-seed)
+    check_positive_integer "-seed" $seed
+  }
+  simulate_power_activity_cmd [cmd_scene] $warmup $cycles $lanes $seed
+}
+
+define_cmd_args "set_power_activity_mode" { simulation|vectorless } \
+  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the netlist before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 300 warmup cycles, 1300 measured cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.}
+
+proc set_power_activity_mode { args } {
+  check_argc_eq1 "set_power_activity_mode" $args
+  set mode [lindex $args 0]
+  if { $mode == "simulation" } {
+    set_power_activity_mode_cmd 1
+  } elseif { $mode == "vectorless" } {
+    set_power_activity_mode_cmd 0
+  } else {
+    sta_error 312 "set_power_activity_mode must be simulation or vectorless."
+  }
+}
+# ---- OpenROAD fork: power activity simulation (end) ----
+
+################################################################
+
 define_cmd_args "report_activity_annotation" { [-report_unannotated] \
                                                  [-report_annotated] } \
   -help {Report a summary of pins that are annotated by `read_vcd`, `read_saif` or `set_power_activity`. Sequential internal pins and hierarchical pins are ignored.} \

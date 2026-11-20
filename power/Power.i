@@ -27,6 +27,7 @@
 %{
 #include "power/Power.hh"
 
+#include "ClkNetwork.hh"
 #include "Mode.hh"
 #include "Sdc.hh"
 #include "Sta.hh"
@@ -226,6 +227,29 @@ read_saif_file(const char *filename,
   sta->ensureLibLinked();
   return readSaif(filename, scope, sta);
 }
+
+// ---- OpenROAD fork: power activity simulation (begin) ----
+void
+simulate_power_activity_cmd(const Scene *scene,
+                            int warmup,
+                            int cycles,
+                            int lanes,
+                            int seed)
+{
+  Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
+  // Constants are propagated by searchPreamble.
+  sta->searchPreamble();
+  scene->mode()->clkNetwork()->ensureClkNetwork();
+  sta->power()->simulateActivities(scene, warmup, cycles, lanes, seed, true);
+}
+
+void
+set_power_activity_mode_cmd(bool simulate)
+{
+  Sta::sta()->power()->setSimulateActivities(simulate);
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
 
 void
 report_activity_annotation_cmd(bool report_unannotated,
