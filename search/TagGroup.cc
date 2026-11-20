@@ -168,6 +168,8 @@ TagGroupBldr::init(Vertex *vertex)
   vertex_ = vertex;
   path_index_map_.clear();
   paths_.clear();
+  insert_pos_ = no_insert_pos_;  // OpenROAD-fork: tag-match
+  insert_tag_ = nullptr;
   has_clk_tag_ = false;
   has_genclk_src_tag_ = false;
   has_filter_tag_ = false;
@@ -198,13 +200,22 @@ TagGroupBldr::tagMatchPath(Tag *tag,
   // Find matching group tag.
   // Match is not necessarily equal to original tag because it
   // must only satisfy tagMatch.
-  bool exists;
-  findKeyValue(path_index_map_, tag, path_index, exists);
-  if (exists)
+  // OpenROAD-fork: tag-match
+  // findInsertHint() records the sorted insertion position so a following
+  // insertPath() (when match == nullptr) can skip a second binary search.
+  size_t pos;
+  auto it = path_index_map_.findInsertHint(tag, pos);
+  if (it != path_index_map_.end()) {
+    path_index = it->second;
     match = &paths_[path_index];
+    insert_pos_ = no_insert_pos_;
+    insert_tag_ = nullptr;
+  }
   else {
     match = nullptr;
     path_index = 0;
+    insert_pos_ = pos;
+    insert_tag_ = tag;
   }
 }
 
@@ -258,7 +269,19 @@ TagGroupBldr::insertPath(Tag *tag,
 
 {
   size_t path_index = paths_.size();
-  path_index_map_[tag] = path_index;
+  // OpenROAD-fork: tag-match
+  // Reuse the insertion position recorded by the immediately preceding
+  // tagMatchPath() (which found no match) to avoid a redundant binary search.
+  // The hint is only valid when no map mutation happened in between, which is
+  // the case for all setArrival()/setMatchPath() call sites. Fall back to a
+  // full sorted insert otherwise.
+  if (insert_pos_ != no_insert_pos_ && insert_tag_ == tag) {
+    path_index_map_.insertAtPos(insert_pos_, tag, path_index);
+    insert_pos_ = no_insert_pos_;
+    insert_tag_ = nullptr;
+  }
+  else
+    path_index_map_[tag] = path_index;
   paths_.emplace_back(vertex_, tag, arrival, prev_path, prev_edge, prev_arc, sta_);
 
   if (tag->isClock())
@@ -276,6 +299,11 @@ TagGroupBldr::insertPath(Tag *tag,
 void
 TagGroupBldr::insertPath(const Path &path)
 {
+  // OpenROAD-fork: tag-match
+  // This overload has no preceding tagMatchPath(), so clear any stale hint to
+  // force a full sorted insert.
+  insert_pos_ = no_insert_pos_;
+  insert_tag_ = nullptr;
   insertPath(path.tag(sta_), path.arrival(), path.prevPath(), path.prevEdge(sta_),
              path.prevArc(sta_));
 }
