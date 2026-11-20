@@ -12,14 +12,29 @@ No launch/capture paths found.
 Clock clk2
 No launch/capture paths found.
 
---- report_clock_skew -clock clk1 -setup ---
-report_clock_skew -clock: skipped (source bug)
---- report_clock_skew -clock clk2 -setup ---
-report_clock_skew -clock: skipped (source bug)
---- report_clock_skew -clock clk1 -hold ---
-report_clock_skew -clock: skipped (source bug)
---- report_clock_skew -clock clk2 -hold ---
-report_clock_skew -clock: skipped (source bug)
+--- report_clock_skew -clocks clk1 -setup ---
+Clock clk1
+No launch/capture paths found.
+
+--- report_clock_skew -clocks clk2 -setup ---
+Clock clk2
+No launch/capture paths found.
+
+--- report_clock_skew -clocks clk1 -hold ---
+Clock clk1
+No launch/capture paths found.
+
+--- report_clock_skew -clocks clk2 -hold ---
+Clock clk2
+No launch/capture paths found.
+
+--- report_clock_skew -clocks {clk1 clk2} -setup ---
+Clock clk1
+No launch/capture paths found.
+
+Clock clk2
+No launch/capture paths found.
+
 --- report_clock_skew -digits 6 ---
 Clock clk1
 No launch/capture paths found.

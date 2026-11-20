@@ -310,7 +310,7 @@ proc_redirect report_clock_skew {
 
   set scenes [parse_scenes_or_all keys]
   if [info exists keys(-clocks)] {
-    puts "clks1 = [get_object_names $clks]"
+    set clks [get_clocks_warn "-clocks" $keys(-clocks)]
   } else {
     set clks [get_scene_clocks $scenes]
   }

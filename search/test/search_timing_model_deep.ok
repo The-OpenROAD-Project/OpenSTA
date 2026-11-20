@@ -37,8 +37,14 @@ Clock clk
 --------------
 0.000000 setup skew
 
---- report_clock_skew -clock clk ---
-report_clock_skew -clock: skipped (source bug)
+--- report_clock_skew -clocks clk ---
+Clock clk
+   0.00 source latency reg1/CK ^
+   0.00 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+   0.00 setup skew
+
 --- report_clock_skew -include_internal_latency ---
 Clock clk
    0.00 source latency reg1/CK ^
