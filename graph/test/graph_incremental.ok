@@ -231,10 +231,10 @@ Path Type: max
 
 through buf3/Z: done
 --- timing edges for multi-input cells ---
-and1 edges: 1
-or1 edges: 1
-reg1 edges: 1
-reg2 edges: 1
+and1 edges: 2
+or1 edges: 2
+reg1 edges: 5
+reg2 edges: 5
 and1 A1->ZN edges: 1
 and1 A2->ZN edges: 1
 or1 A1->ZN edges: 1
