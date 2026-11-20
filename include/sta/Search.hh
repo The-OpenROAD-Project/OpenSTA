@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <mutex>
 #include <unordered_set>
@@ -266,7 +267,10 @@ public:
                        const Mode *mode,
                        TagGroupBldr *tag_bldr);
   void setVertexArrivals(Vertex *vertex,
-                         TagGroupBldr *tag_bldr);
+                         TagGroupBldr *tag_bldr,
+                         TagGroupSet *tag_group_cache = nullptr,
+                         VertexSeq *filtered_arrivals = nullptr);
+  void insertFilteredArrivals(const VertexSeq &vertices);
   void tnsInvalid(Vertex *vertex);
   [[nodiscard]] bool arrivalsChanged(Vertex *vertex,
                                      TagGroupBldr *tag_bldr);
@@ -543,7 +547,8 @@ protected:
   void deletePaths();
   // Delete with incremental tns/wns update.
   void deletePathsIncr(Vertex *vertex);
-  TagGroup *findTagGroup(TagGroupBldr *tag_bldr);
+  TagGroup *findTagGroup(TagGroupBldr *tag_bldr,
+                         TagGroupSet *tag_group_cache);
   void deleteFilterTags();
   void deleteFilterTagGroups();
   void deleteFilterClkInfos();
@@ -638,11 +643,25 @@ protected:
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
   std::atomic<TagGroup **> tag_groups_;
-  TagGroupSet *tag_group_set_;
+  // The tag groups by hash, in shards that each have a lock of their own,
+  // so that threads finding or making different tag groups do not wait on
+  // each other.
+  struct TagGroupShard
+  {
+    TagGroupSet *tag_groups;
+    std::mutex lock;
+  };
+  static constexpr size_t tag_group_shard_count_ = 64;
+  std::array<TagGroupShard, tag_group_shard_count_> tag_group_shards_;
+  TagGroupShard &tagGroupShard(size_t hash);
+  const TagGroupShard &tagGroupShard(size_t hash) const;
+  void addTagGroup(TagGroup *tag_group);
   std::vector<TagGroup **> tag_groups_prev_;
   TagGroupIndex tag_group_next_{0};
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;
+  // Guards tag_groups_, its growth, tag_group_next_ and the free indices;
+  // a shard's lock guards its set.
   std::mutex tag_group_lock_;
 
   // Arrivals to queue on the next search pass.
@@ -805,6 +824,13 @@ protected:
   bool clks_only_;
   TagGroupBldr *tag_bldr_;
   TagGroupBldr *tag_bldr_no_crpr_;
+  // Tag groups this thread has found, so that it takes tag_group_lock_
+  // only for a group it has not seen. Copies made for a parallel visit
+  // have one; tag groups are not deleted while they live.
+  TagGroupSet *tag_group_cache_;
+  // Vertices with a filter tag this thread set arrivals on, added to
+  // Search's filtered arrivals when the copy is deleted, after the visit.
+  VertexSeq *filtered_arrivals_;
   SearchPred *search_adj_;
   bool crpr_active_;
   bool has_fanin_one_;
