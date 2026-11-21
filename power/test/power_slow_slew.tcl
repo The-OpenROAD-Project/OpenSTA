@@ -1,6 +1,6 @@
-# Activities on nets with slow slews are not limited by 1/slew.
-# An unbuffered clock gate output (before clock tree synthesis) keeps
-# clock density x enable duty, and annotations keep their values.
+# Propagated activity is limited to 1/slew, except on ideal clocks and
+# annotated pins. An unbuffered clock gate output on an ideal clock (before
+# clock tree synthesis) keeps clock density x enable duty.
 # Clock period 1ns, so 2e9 is two transitions per cycle.
 source ../../test/helpers.tcl
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
@@ -41,3 +41,7 @@ foreach pin {icg/GCLK r/CLK b/X b2/A} {
 foreach pin {icg/GCLK r/CLK b/X b2/A} {
   show $pin
 }
+# A propagated clock uses the gclk slew, which limits its activity to
+# 1/slew (warning).
+set_propagated_clock [get_ports clk]
+show icg/GCLK

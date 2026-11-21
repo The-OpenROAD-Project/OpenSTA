@@ -25,7 +25,6 @@
 #pragma once
 
 #include <array>
-#include <cstdint>
 #include <map>
 #include <mutex>
 #include <vector>
@@ -74,9 +73,6 @@ public:
   void findDelays(Level level);
   // Find and annotate drvr_vertex gate and load delays/slews.
   void findDelays(Vertex *drvr_vertex);
-  // OpenROAD fork: power cache. Incremented whenever delays or slews are
-  // recalculated, so results that depend on them can tell they are stale.
-  uint64_t delaysVersion() const { return delays_version_; }
   // Returned string is owned by the caller.
   std::string reportDelayCalc(const Edge *edge,
                               const TimingArc *arc,
@@ -316,8 +312,6 @@ protected:
   DelayCalcObserver *observer_{nullptr};
   bool delays_seeded_{false};
   bool delays_exist_{false};
-  // OpenROAD fork: power cache.
-  uint64_t delays_version_{0};
   // Vertices with invalid -to delays.
   VertexSet invalid_delays_;
   // Timing check edges with invalid delays.
@@ -347,6 +341,9 @@ public:
   virtual void delayChangedFrom(Vertex *vertex) = 0;
   virtual void delayChangedTo(Vertex *vertex) = 0;
   virtual void checkDelayChangedTo(Vertex *vertex) = 0;
+  // OpenROAD fork: power cache. Called after delays or slews are
+  // recalculated.
+  virtual void delaysChanged() = 0;
 };
 
 // Nets with multiple drivers (tristate, bidirect or output).

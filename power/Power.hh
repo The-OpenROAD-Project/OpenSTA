@@ -204,6 +204,10 @@ protected:
   float getSlew(Vertex *vertex,
                 const RiseFall *rf,
                 const Scene *scene);
+  // OpenROAD fork: power activity. Average rise/fall slew of pin in the
+  // current scene (getSlew). Ideal clocks use their ideal slew, not the
+  // unbuffered graph slew.
+  float getAvgRfSlew(const Pin *pin);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   float clockDuty(const Clock *clk);
@@ -303,12 +307,12 @@ private:
   std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_{
       InstanceIdLess(network_)};
   bool instance_powers_valid_{false};
-  // OpenROAD fork: power cache. Delay calculation version of instance_powers_.
-  uint64_t instance_powers_delays_{0};
 
   static constexpr int max_activity_passes_ = 50;
   std::unordered_map<const Pin*, float> launch_period_cache_;
   bool convergence_warned_{false};
+  // OpenROAD fork: power activity.
+  bool slew_limit_warned_{false};
 
   friend class PropActivityVisitor;
 };

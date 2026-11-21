@@ -489,16 +489,24 @@ Sim::disconnectPinBefore(const Pin *pin)
 void
 Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
 {
-  PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
-  while (pin_iter->hasNext()) {
-    const Pin *pin = pin_iter->next();
-    const LibertyPort *port = network_->libertyPort(pin);
-    if (port && port->isClockGateTest()) {
-      invalid_load_pins_.insert(pin);
-      removePropagatedValue(pin);
+  // Skip the net walk when no library has clock gate test pins.
+  bool has_clk_gate_test = false;
+  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
+  while (lib_iter->hasNext() && !has_clk_gate_test)
+    has_clk_gate_test = lib_iter->next()->hasClockGateTest();
+  delete lib_iter;
+  if (has_clk_gate_test) {
+    PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      const LibertyPort *port = network_->libertyPort(pin);
+      if (port && port->isClockGateTest()) {
+        invalid_load_pins_.insert(pin);
+        removePropagatedValue(pin);
+      }
     }
+    delete pin_iter;
   }
-  delete pin_iter;
 }
 // ---- OpenROAD fork: clock gate test pin (end) ----
 
@@ -730,10 +738,9 @@ Sim::clockGateOutValue(const Instance *inst)
 {
   LibertyCell *cell = network_->libertyCell(inst);
   // ---- OpenROAD fork: clock gate test pin (begin) ----
-  // The gated clock is 0 when the clock is 0, or when the enables and the
+  // The gated clock is 0 when the clock is 0, or when an enable is 0 and the
   // driven test enables (if any) are all 0.
-  bool enable_zero = true;
-  bool has_enable = false;
+  bool enable_zero = false;
   bool test_zero = true;
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
@@ -744,10 +751,8 @@ Sim::clockGateOutValue(const Instance *inst)
       bool zero = pin && simValue(pin) == LogicValue::zero;
       if (port->isClockGateClock() && zero)
         return LogicValue::zero;
-      if (port->isClockGateEnable()) {
-        has_enable = true;
-        enable_zero &= zero;
-      }
+      if (port->isClockGateEnable() && zero)
+        enable_zero = true;
       if (port->isClockGateTest() && pin) {
         PinSet *drvrs = network_->drivers(pin);
         if ((drvrs && !drvrs->empty())
@@ -757,7 +762,7 @@ Sim::clockGateOutValue(const Instance *inst)
     }
   }
   LogicValue value;
-  if (has_enable && enable_zero && test_zero)
+  if (enable_zero && test_zero)
     value = LogicValue::zero;
   else
     value = LogicValue::unknown;
