@@ -1,0 +1,3 @@
+fresh    g2/X transitions/cycle 0.375 duty 0.250 propagated
+a = 0    g2/X transitions/cycle 0.000 duty 0.000 constant
+unset    g2/X transitions/cycle 0.375 duty 0.250 propagated

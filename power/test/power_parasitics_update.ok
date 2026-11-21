@@ -1,0 +1,8 @@
+No parasitics
+internal 4.3471e-04 switching 1.3702e-04 total 5.7174e-04
+After read_spef
+internal 4.3607e-04 switching 2.7795e-04 total 7.1402e-04
+After set_load
+internal 4.3607e-04 switching 2.7864e-04 total 7.1471e-04
+After set_assigned_transition
+internal 4.4690e-04 switching 2.7864e-04 total 7.2553e-04

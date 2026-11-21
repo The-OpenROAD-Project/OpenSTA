@@ -146,17 +146,26 @@ pinInstances(PinSet &pins,
 class StaDelayCalcObserver : public DelayCalcObserver
 {
 public:
-  StaDelayCalcObserver(Search *search);
+  // OpenROAD fork: power cache. power is invalidated when delays change.
+  StaDelayCalcObserver(Search *search,
+                       Power *power);
   void delayChangedFrom(Vertex *vertex) override;
   void delayChangedTo(Vertex *vertex) override;
   void checkDelayChangedTo(Vertex *vertex) override;
+  // OpenROAD fork: power cache.
+  void delaysChanged() override;
 
 private:
   Search *search_;
+  // OpenROAD fork: power cache.
+  Power *power_;
 };
 
-StaDelayCalcObserver::StaDelayCalcObserver(Search *search) :
-  search_(search)
+// OpenROAD fork: power cache.
+StaDelayCalcObserver::StaDelayCalcObserver(Search *search,
+                                           Power *power) :
+  search_(search),
+  power_(power)
 {
 }
 
@@ -176,6 +185,14 @@ void
 StaDelayCalcObserver::checkDelayChangedTo(Vertex *vertex)
 {
   search_->requiredInvalid(vertex);
+}
+
+// OpenROAD fork: power cache. Power depends on slews and load
+// capacitances.
+void
+StaDelayCalcObserver::delaysChanged()
+{
+  power_->powerInvalid();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -312,7 +329,7 @@ Sta::makeComponents()
 void
 Sta::makeObservers()
 {
-  graph_delay_calc_->setObserver(new StaDelayCalcObserver(search_));
+  graph_delay_calc_->setObserver(new StaDelayCalcObserver(search_, power_));
   for (Mode *mode : modes_)
     mode->sim()->setObserver(new StaSimObserver(this));
   levelize_->setObserver(new StaLevelizeObserver(search_, graph_delay_calc_));
@@ -2021,6 +2038,8 @@ Sta::removeCaseAnalysis(Pin *pin,
   // fails.  This could be handled incrementally by invalidating delays
   // on the output of gates one level downstream.
   delaysInvalid();
+  // OpenROAD fork: power. Activities through the pin change too.
+  power_->activitiesInvalid();
 }
 
 void

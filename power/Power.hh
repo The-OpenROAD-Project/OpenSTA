@@ -204,7 +204,10 @@ protected:
   float getSlew(Vertex *vertex,
                 const RiseFall *rf,
                 const Scene *scene);
-  float getMinRfSlew(const Pin *pin);
+  // OpenROAD fork: power activity. Average rise/fall slew of pin in the
+  // current scene (getSlew). Ideal clocks use their ideal slew, not the
+  // unbuffered graph slew.
+  float getAvgRfSlew(const Pin *pin);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   float clockDuty(const Clock *clk);
@@ -261,6 +264,9 @@ protected:
                             const LibertyPort *scene_port);
   Pin *findLinkPin(const Instance *inst,
                    const LibertyPort *scene_port);
+  // OpenROAD fork: clock gate test pin.
+  // Probability that any clock gate test enable of inst is 1.
+  float clockGateTestDuty(const Instance *inst);
   void clockGatePins(const Instance *inst,
                      // Return values.
                      const Pin *&enable,
@@ -270,6 +276,16 @@ protected:
                         const Instance *inst);
   float evalBddDuty(DdNode *bdd,
                     const Instance *inst);
+  // OpenROAD fork: power when conditions.
+  // Probability that a when condition is true. Output pins are replaced by
+  // their functions so conditions such as "!A & Y" on an inverter are not
+  // evaluated as if A and Y were independent.
+  float whenDuty(FuncExpr *when,
+                 const Instance *inst);
+  // Referenced BDD of a when condition with output pins replaced by their
+  // functions. The caller dereferences it and clears the BDD variable map.
+  DdNode *whenBdd(FuncExpr *when,
+                  const Instance *inst);
   size_t pinCount();
 
 private:
@@ -295,6 +311,8 @@ private:
   static constexpr int max_activity_passes_ = 50;
   std::unordered_map<const Pin*, float> launch_period_cache_;
   bool convergence_warned_{false};
+  // OpenROAD fork: power activity.
+  bool slew_limit_warned_{false};
 
   friend class PropActivityVisitor;
 };

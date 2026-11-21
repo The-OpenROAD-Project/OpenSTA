@@ -28,6 +28,7 @@
 #include <array>
 #include <cmath>      // abs
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <limits>
 #include <map>
@@ -602,6 +603,9 @@ public:
   void init();
   float maxChange() const { return max_change_; }
   const Pin *maxChangePin() const { return max_change_pin_; }
+  // OpenROAD fork: power activity. A pin whose propagated activity was
+  // limited to 1/slew, if any.
+  const Pin *slewLimitedPin() const { return slew_limited_pin_; }
 
 private:
   bool setActivityCheck(const Pin *pin,
@@ -611,6 +615,8 @@ private:
   InstanceSet visited_regs_;
   float max_change_{0.0};
   const Pin *max_change_pin_{nullptr};
+  // OpenROAD fork: power activity.
+  const Pin *slew_limited_pin_{nullptr};
   BfsFwdIterator *bfs_;
   Power *power_;
   const Mode *mode_;
@@ -654,7 +660,8 @@ PropActivityVisitor::visit(Vertex *vertex)
              vertex->to_string(this));
   bool changed = false;
   if (power_->hasUserActivity(pin)) {
-    PwrActivity &activity = power_->userActivity(pin);
+    // OpenROAD fork: power activity. Copy so the annotation is not modified.
+    PwrActivity activity = power_->userActivity(pin);
     changed = setActivityCheck(pin, activity);
   }
   else {
@@ -696,6 +703,11 @@ PropActivityVisitor::visit(Vertex *vertex)
             PwrActivity activity2 = power_->findActivity(enable);
             float p1 = activity1.duty();
             float p2 = activity2.duty();
+            // ---- OpenROAD fork: clock gate test pin (begin) ----
+            // The gate is enabled when the enable or the test enable is 1.
+            float p_test = power_->clockGateTestDuty(inst);
+            p2 = 1.0F - (1.0F - p2) * (1.0F - p_test);
+            // ---- OpenROAD fork: clock gate test pin (end) ----
             // The enable is latched, so only clock edges make gated clock edges.
             PwrActivity activity(activity1.density() * p2,
                                  p1 * p2, PwrActivityOrigin::propagated);
@@ -751,14 +763,12 @@ bool
 PropActivityVisitor::setActivityCheck(const Pin *pin,
                                       PwrActivity &activity)
 {
-  float min_rf_slew = power_->getMinRfSlew(pin);
-  float max_density = (min_rf_slew > 0.0) ? 1.0 / min_rf_slew : INF;
-  if (activity.density() > max_density)
-    activity.setDensity(max_density);
-  // The slew limit still allows hundreds of transitions per clock period.
+  // ---- OpenROAD fork: power activity (begin) ----
   // Propagated activity is limited to one transition per launching clock
-  // period (two for clock nets). Annotated activities are not limited, and
-  // neither are loads, which copy their driver's (already limited) activity.
+  // period (two for clock nets), and to 1/slew. Annotated activities are not
+  // limited, and neither are loads, which copy their driver's (already
+  // limited) activity.
+  // ---- OpenROAD fork: power activity (end) ----
   if (activity.origin() == PwrActivityOrigin::propagated
       && network_->isDriver(pin)) {
     float max_prop_density = power_->maxPropagatedDensity(pin);
@@ -767,6 +777,13 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
                  network_->pathName(pin), activity.density(), max_prop_density);
       activity.setDensity(max_prop_density);
     }
+    // ---- OpenROAD fork: power activity (begin) ----
+    float slew = power_->getAvgRfSlew(pin);
+    if (slew > 0.0 && activity.density() > 1.0 / slew) {
+      activity.setDensity(1.0 / slew);
+      slew_limited_pin_ = pin;
+    }
+    // ---- OpenROAD fork: power activity (end) ----
   }
   PwrActivity &prev_activity = power_->activity(pin);
   float density_delta = percentChange(activity.density(), prev_activity.density());
@@ -788,6 +805,29 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
+// OpenROAD fork: clock gate test pin. Probability that any test enable is
+// 1. Test pins without a driver or a constant are ignored, as in
+// Sim::clockGateOutValue, even with set_power_activity on the pin; use
+// set_case_analysis to hold an undriven test pin.
+float
+Power::clockGateTestDuty(const Instance *inst)
+{
+  float p_off = 1.0;
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port && port->isClockGateTest()) {
+      PinSet *drvrs = network_->drivers(pin);
+      LogicValue value = scene_->mode()->sim()->simValue(pin);
+      if ((drvrs && !drvrs->empty()) || value != LogicValue::unknown)
+        p_off *= 1.0F - std::clamp(findActivity(pin).duty(), 0.0F, 1.0F);
+    }
+  }
+  delete pin_iter;
+  return 1.0F - p_off;
+}
+
 void
 Power::clockGatePins(const Instance *inst,
                      // Return values.
@@ -802,12 +842,15 @@ Power::clockGatePins(const Instance *inst,
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const LibertyPort *port = network_->libertyPort(pin);
-    if (port->isClockGateEnable())
-      enable = pin;
-    if (port->isClockGateClock())
-      clk = pin;
-    if (port->isClockGateOut())
-      gclk = pin;
+    // OpenROAD fork: power activity. Skip pins without a liberty port.
+    if (port) {
+      if (port->isClockGateEnable())
+        enable = pin;
+      if (port->isClockGateClock())
+        clk = pin;
+      if (port->isClockGateOut())
+        gclk = pin;
+    }
   }
   delete pin_iter;
 }
@@ -846,7 +889,8 @@ Power::evalDiffDuty(FuncExpr *expr,
   Cudd_Ref(diff);
   // Weight state dependent internal power groups by P(when).
   if (when) {
-    DdNode *when_bdd = bdd_.funcBdd(when);
+    // OpenROAD fork: power when. Output pins replaced by their functions.
+    DdNode *when_bdd = whenBdd(when, inst);
     DdNode *diff_when = Cudd_bddAnd(bdd_.cuddMgr(), diff, when_bdd);
     Cudd_Ref(diff_when);
     Cudd_RecursiveDeref(bdd_.cuddMgr(), when_bdd);
@@ -1079,6 +1123,14 @@ Power::ensureActivities(const Scene *scene)
                       "not converge after {} passes.", max_activity_passes_);
         convergence_warned_ = true;
       }
+      // ---- OpenROAD fork: power activity (begin) ----
+      const Pin *slew_limited_pin = visitor.slewLimitedPin();
+      if (slew_limited_pin && !slew_limit_warned_) {
+        report_->warn(2403, "propagated activity limited to 1/slew on some "
+                      "pins, e.g. {}.", network_->pathName(slew_limited_pin));
+        slew_limit_warned_ = true;
+      }
+      // ---- OpenROAD fork: power activity (end) ----
     }
     activities_valid_ = true;
   }
@@ -1331,8 +1383,10 @@ float
 Power::maxPropagatedDensity(const Pin *pin)
 {
   float period = launchClkPeriod(pin);
+  // OpenROAD fork: power activity. Without clocks, use the sampling period
+  // of evalBddChangeDensity.
   if (period <= 0.0)
-    return INF;
+    period = units_->timeUnit()->scale();
   float transitions_per_period =
       scene_->mode()->clkNetwork()->isClock(pin) ? 2.0 : 1.0;
   return transitions_per_period / period;
@@ -1465,8 +1519,9 @@ Power::findInputInternalPower(const Pin *pin,
         float duty = 1.0;      // fallback default
         FuncExpr *when = pwr->when();
         // Weight each group by P(when).
+        // OpenROAD fork: power when. Output pins replaced by their functions.
         if (when)
-          duty = evalActivity(when, inst).duty();
+          duty = whenDuty(when, inst);
         float port_internal = energy * duty * activity.density();
         debugPrint(debug_, "power", 2, " {} {}  {:.2f}  {:.2f} {:9.2e} {:9.2e} {}",
                    port->name(), when ? when->to_string() : "",
@@ -1495,26 +1550,16 @@ Power::getSlew(Vertex *vertex,
   }
 }
 
+// OpenROAD fork: power activity.
 float
-Power::getMinRfSlew(const Pin *pin)
+Power::getAvgRfSlew(const Pin *pin)
 {
+  float slew = 0.0;
   Vertex *vertex = graph_->pinLoadVertex(pin);
-  if (vertex) {
-    const MinMax *min_max = MinMax::min();
-    float mm_slew = min_max->initValue();
-    for (DcalcAPIndex ap_index = 0;
-         ap_index < dcalcAnalysisPtCount();
-         ap_index++) {
-      const Slew &slew1 = graph_->slew(vertex, RiseFall::rise(), ap_index);
-      const Slew &slew2 = graph_->slew(vertex, RiseFall::fall(), ap_index);
-      float slew_avg = (delayAsFloat(slew1, min_max, this)
-                        + delayAsFloat(slew2, min_max, this)) / 2.0;
-      if (delayGreater(slew_avg, mm_slew, min_max, this))
-        mm_slew = slew_avg;
-    }
-    return mm_slew;
-  }
-  return 0.0;
+  if (vertex)
+    slew = (getSlew(vertex, RiseFall::rise(), scene_)
+            + getSlew(vertex, RiseFall::fall(), scene_)) / 2.0;
+  return slew;
 }
 
 void
@@ -1619,8 +1664,9 @@ Power::findInputDuty(const Instance *inst,
         float duty = evalDiffDuty(func, from_port, when, inst);
         return duty;
       }
+      // OpenROAD fork: power when. Output pins replaced by their functions.
       else if (when)
-        return evalActivity(when, inst).duty();
+        return whenDuty(when, inst);
       else if (scene_->mode()->clkNetwork()->isClock(from_vertex->pin()))
         return 0.5;
       return 0.5;
@@ -1699,6 +1745,89 @@ Power::findSwitchingPower(const Instance *inst,
 ////////////////////////////////////////////////////////////////
 
 // Leakage totals for one power/gnd pin.
+// ---- OpenROAD fork: power leakage (begin) ----
+static bool
+funcHasInternalPort(const FuncExpr *expr)
+{
+  bool has_internal = false;
+  if (expr) {
+    if (expr->op() == FuncExpr::Op::port)
+      has_internal = expr->port()->direction()->isInternal();
+    else
+      has_internal = funcHasInternalPort(expr->left())
+        || funcHasInternalPort(expr->right());
+  }
+  return has_internal;
+}
+
+float
+Power::whenDuty(FuncExpr *when,
+                const Instance *inst)
+{
+  DdNode *bdd = whenBdd(when, inst);
+  float duty = evalBddDuty(bdd, inst);
+  Cudd_RecursiveDeref(bdd_.cuddMgr(), bdd);
+  bdd_.clearVarMap();
+  return duty;
+}
+
+DdNode *
+Power::whenBdd(FuncExpr *when,
+               const Instance *inst)
+{
+  DdManager *cudd_mgr = bdd_.cuddMgr();
+  DdNode *bdd = bdd_.funcBdd(when);
+  const Sim *sim = scene_->mode()->sim();
+  // Combinational outputs only: sequential outputs (Q = IQ) keep the pin
+  // activity, which may be annotated. Outputs held constant (case analysis)
+  // keep the constant. Tristate and bidirect pins can differ from their
+  // functions, so they are kept too.
+  std::map<const LibertyPort *, bool> substitutable;
+  auto canSubstitute = [&](const LibertyPort *port) {
+    bool can;
+    auto itr = substitutable.find(port);
+    if (itr != substitutable.end())
+      can = itr->second;
+    else {
+      FuncExpr *func = port->function();
+      const Pin *pin = findLinkPin(inst, port);
+      can = port->direction()->isOutput() && port->tristateEnable() == nullptr
+        && func && !func->hasPort(port) && !funcHasInternalPort(func)
+        && !(pin && sim->isConstant(pin));
+      substitutable.emplace(port, can);
+    }
+    return can;
+  };
+  // Repeat until nothing changes, because a function can name other
+  // outputs; the pass limit stops cyclic functions.
+  size_t passes = network_->libertyCell(inst)->portBitCount() + 1;
+  bool changed = true;
+  while (changed && passes > 0) {
+    changed = false;
+    passes--;
+    std::vector<std::pair<const LibertyPort *, DdNode *>> port_vars(
+      bdd_.portVarMap().begin(), bdd_.portVarMap().end());
+    int *support = Cudd_SupportIndex(cudd_mgr, bdd);
+    for (const auto &[port, var_node] : port_vars) {
+      unsigned var_index = Cudd_NodeReadIndex(var_node);
+      if (support[var_index] && canSubstitute(port)) {
+        DdNode *func_bdd = bdd_.funcBdd(port->function());
+        DdNode *composed = Cudd_bddCompose(cudd_mgr, bdd, func_bdd,
+                                           var_index);
+        Cudd_Ref(composed);
+        if (composed != bdd)
+          changed = true;
+        Cudd_RecursiveDeref(cudd_mgr, bdd);
+        Cudd_RecursiveDeref(cudd_mgr, func_bdd);
+        bdd = composed;
+      }
+    }
+    free(support);
+  }
+  return bdd;
+}
+// ---- OpenROAD fork: power leakage (end) ----
+
 class LeakageSummary
 {
 public:
@@ -1740,8 +1869,9 @@ Power::findLeakagePower(const Instance *inst,
           sum.cond_true_exists = true;
         }
         else {
-          PwrActivity cond_activity = evalActivity(when, inst);
-          float cond_duty = cond_activity.duty();
+          // OpenROAD fork: power leakage. Output pins in the condition are
+          // replaced by their functions.
+          float cond_duty = whenDuty(when, inst);
           debugPrint(debug_, "power", 2, "leakage {} {} {} {:.3e} * {:.2f}",
                      cell->name(),
                      pg_name,
@@ -1749,8 +1879,9 @@ Power::findLeakagePower(const Instance *inst,
                      leakage, cond_duty);
           // Leakage power average weighted by duty.
           sum.cond_leakage += leakage * cond_duty;
-          if (leakage > 0.0)
-            sum.cond_duty_sum += cond_duty;
+          // OpenROAD fork: power leakage. States with zero leakage are
+          // covered too.
+          sum.cond_duty_sum += cond_duty;
           sum.cond_exists = true;
         }
       }
@@ -1776,12 +1907,18 @@ Power::findLeakagePower(const Instance *inst,
         leakage = sum.cond_true_leakage;
       else if (sum.cond_exists) {
         leakage = sum.cond_leakage;
-        if (cell_leakage_exists) {
-          float duty = 1.0 - sum.cond_duty_sum;
+        // ---- OpenROAD fork: power leakage (begin) ----
+        // States no condition covers use the leakage_power group without a
+        // when condition, or else cell_leakage_power.
+        float duty = std::max(1.0F - sum.cond_duty_sum, 0.0F);
+        if (sum.uncond_exists)
+          leakage += sum.uncond_leakage * duty;
+        else if (cell_leakage_exists)
           leakage += cell_leakage * duty;
-        }
+        // ---- OpenROAD fork: power leakage (end) ----
       }
-      // Ignore unconditional leakage unless there are no conditional leakage groups.
+      // OpenROAD fork: power leakage. Without conditional leakage groups,
+      // use the unconditional group.
       else if (sum.uncond_exists)
         leakage = sum.uncond_leakage;
       debugPrint(debug_, "power", 2, "leakage {}/{} {:.3e}",

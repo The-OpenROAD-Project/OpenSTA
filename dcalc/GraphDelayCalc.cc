@@ -358,6 +358,9 @@ GraphDelayCalc::findDelays(Level level)
     FindVertexDelays visitor(this);
     dcalc_count += iter_->visitParallel(level, &visitor);
   }
+  // OpenROAD fork: power cache.
+  if (dcalc_count > 0 && observer_)
+    observer_->delaysChanged();
 
   // Timing checks require slews at both ends of the arc,
   // so find their delays after all slews are known.
@@ -678,6 +681,9 @@ GraphDelayCalc::findDelays(Vertex *drvr_vertex)
 {
   iter_->ensureSize();
   findVertexDelay(drvr_vertex, arc_delay_calc_);
+  // OpenROAD fork: power cache.
+  if (observer_)
+    observer_->delaysChanged();
 }
 
 void

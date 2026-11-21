@@ -1,0 +1,10 @@
+icg/GCLK slew 4.89ns
+r/CLK    slew 4.89ns
+b/X      slew 5.77ns
+b2/A     slew 5.77ns
+icg/GCLK transitions/cycle 1.000 duty 0.250 propagated
+r/CLK    transitions/cycle 1.000 duty 0.250 propagated
+b/X      transitions/cycle 0.900 duty 0.500 user
+b2/A     transitions/cycle 0.900 duty 0.500 propagated
+Warning 2403: propagated activity limited to 1/slew on some pins, e.g. icg/GCLK.
+icg/GCLK transitions/cycle 0.280 duty 0.250 propagated

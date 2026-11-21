@@ -442,6 +442,9 @@ Sim::deletePinBefore(const Pin *pin)
   invalid_load_pins_.erase(pin);
   invalid_drvr_pins_.erase(pin);
   invalid_insts_.insert(network_->instance(pin));
+  // OpenROAD fork: clock gate test pin.
+  if (incremental_ && network_->isDriver(pin))
+    invalidateClockGateTestLoads(pin);
 }
 
 void
@@ -449,10 +452,19 @@ Sim::connectPinAfter(const Pin *pin)
 {
   if (incremental_) {
     recordConstPinFunc(pin);
-    if (network_->isLoad(pin))
+    if (network_->isLoad(pin)) {
       invalid_load_pins_.insert(pin);
-    if (network_->isDriver(pin))
+      // OpenROAD fork: clock gate test pin. The pin value can stay unknown
+      // while the gated clock changes, so evaluate the instance again.
+      const LibertyPort *port = network_->libertyPort(pin);
+      if (port && port->isClockGateTest())
+        invalid_insts_.insert(network_->instance(pin));
+    }
+    if (network_->isDriver(pin)) {
       invalid_drvr_pins_.insert(pin);
+      // OpenROAD fork: clock gate test pin.
+      invalidateClockGateTestLoads(pin);
+    }
     valid_ = false;
   }
 }
@@ -465,10 +477,38 @@ Sim::disconnectPinBefore(const Pin *pin)
       invalid_load_pins_.insert(pin);
       removePropagatedValue(pin);
     }
-    if (network_->isDriver(pin))
+    if (network_->isDriver(pin)) {
       invalid_drvr_pins_.insert(pin);
+      // OpenROAD fork: clock gate test pin.
+      invalidateClockGateTestLoads(pin);
+    }
   }
 }
+
+// ---- OpenROAD fork: clock gate test pin (begin) ----
+void
+Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
+{
+  // Skip the net walk when no library has clock gate test pins.
+  bool has_clk_gate_test = false;
+  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
+  while (lib_iter->hasNext() && !has_clk_gate_test)
+    has_clk_gate_test = lib_iter->next()->hasClockGateTest();
+  delete lib_iter;
+  if (has_clk_gate_test) {
+    PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      const LibertyPort *port = network_->libertyPort(pin);
+      if (port && port->isClockGateTest()) {
+        invalid_load_pins_.insert(pin);
+        removePropagatedValue(pin);
+      }
+    }
+    delete pin_iter;
+  }
+}
+// ---- OpenROAD fork: clock gate test pin (end) ----
 
 void
 Sim::pinSetFuncAfter(const Pin *pin)
@@ -697,16 +737,37 @@ LogicValue
 Sim::clockGateOutValue(const Instance *inst)
 {
   LibertyCell *cell = network_->libertyCell(inst);
+  // ---- OpenROAD fork: clock gate test pin (begin) ----
+  // The gated clock is 0 when the clock is 0, or when an enable is 0 and the
+  // driven test enables (if any) are all 0.
+  bool enable_zero = false;
+  bool test_zero = true;
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
-    if (port->isClockGateClock() || port->isClockGateEnable()) {
-      Pin *gclk_pin = network_->findPin(inst, port);
-      if (gclk_pin && simValue(gclk_pin) == LogicValue::zero)
+    if (port->isClockGateClock() || port->isClockGateEnable()
+        || port->isClockGateTest()) {
+      Pin *pin = network_->findPin(inst, port);
+      bool zero = pin && simValue(pin) == LogicValue::zero;
+      if (port->isClockGateClock() && zero)
         return LogicValue::zero;
+      if (port->isClockGateEnable() && zero)
+        enable_zero = true;
+      if (port->isClockGateTest() && pin) {
+        PinSet *drvrs = network_->drivers(pin);
+        if ((drvrs && !drvrs->empty())
+            || simValue(pin) != LogicValue::unknown)
+          test_zero &= zero;
+      }
     }
   }
-  return LogicValue::unknown;
+  LogicValue value;
+  if (enable_zero && test_zero)
+    value = LogicValue::zero;
+  else
+    value = LogicValue::unknown;
+  return value;
+  // ---- OpenROAD fork: clock gate test pin (end) ----
 }
 
 void

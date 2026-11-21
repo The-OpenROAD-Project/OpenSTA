@@ -341,6 +341,9 @@ public:
   virtual void delayChangedFrom(Vertex *vertex) = 0;
   virtual void delayChangedTo(Vertex *vertex) = 0;
   virtual void checkDelayChangedTo(Vertex *vertex) = 0;
+  // OpenROAD fork: power cache. Called after delays or slews are
+  // recalculated.
+  virtual void delaysChanged() = 0;
 };
 
 // Nets with multiple drivers (tristate, bidirect or output).
