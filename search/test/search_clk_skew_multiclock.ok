@@ -14,8 +14,32 @@ Clock clk
 --------------
   -0.03 hold skew
 
---- report_clock_skew -clock clk ---
-report_clock_skew -clock: skipped (source bug)
+--- report_clock_skew -clocks clk ---
+Clock clk
+   0.05 source latency reg1/CK ^
+  -0.08 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+  -0.03 setup skew
+
+--- report_clock_skew -clocks clk -hold ---
+Clock clk
+   0.05 source latency reg1/CK ^
+  -0.08 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+  -0.03 hold skew
+
+--- report_clock_skew -clocks [get_clocks clk] ---
+Clock clk
+   0.05 source latency reg1/CK ^
+  -0.08 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+  -0.03 setup skew
+
+--- report_clock_skew -clocks bogus ---
+Warning 351: search_clk_skew_multiclock.tcl line 1, clock 'bogus' not found.
 --- report_clock_skew -digits 6 ---
 Clock clk
 0.051447 source latency reg1/CK ^

@@ -33,9 +33,17 @@ report_clock_skew -setup
 puts "--- report_clock_skew -hold ---"
 report_clock_skew -hold
 
-puts "--- report_clock_skew -clock clk ---"
-# TODO: report_clock_skew -clock has a source bug ($clks used before set)
-puts "report_clock_skew -clock: skipped (source bug)"
+puts "--- report_clock_skew -clocks clk ---"
+report_clock_skew -clocks clk
+
+puts "--- report_clock_skew -clocks clk -hold ---"
+report_clock_skew -clocks clk -hold
+
+puts "--- report_clock_skew -clocks \[get_clocks clk\] ---"
+report_clock_skew -clocks [get_clocks clk]
+
+puts "--- report_clock_skew -clocks bogus ---"
+report_clock_skew -clocks bogus
 
 puts "--- report_clock_skew -digits 6 ---"
 report_clock_skew -setup -digits 6
