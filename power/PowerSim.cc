@@ -617,12 +617,12 @@ void
 ActivitySim::lower()
 {
   size_t signal_count = signal_drvr_.size();
-  std::vector<int> sperm(signal_count, -1);
+  std::vector<int> sig_perm(signal_count, -1);
   int next_sig = 0;
   auto mapSig = [&](int old) {
-    if (sperm[old] < 0)
-      sperm[old] = next_sig++;
-    return sperm[old];
+    if (sig_perm[old] < 0)
+      sig_perm[old] = next_sig++;
+    return sig_perm[old];
   };
   mapSig(0);
   for (const SimSource &source : sources_)
@@ -641,12 +641,12 @@ ActivitySim::lower()
       else {
         for (TapeInstr instr : output.func) {
           if (instr.op == TapeOp::sig)
-            instr.arg = sperm[instr.arg];
+            instr.arg = sig_perm[instr.arg];
           tape_.push_back(instr);
         }
       }
       tape_.push_back({TapeOp::store,
-                       static_cast<uint32_t>(sperm[output.signal])});
+                       static_cast<uint32_t>(sig_perm[output.signal])});
     }
   }
 
@@ -655,15 +655,15 @@ ActivitySim::lower()
   std::vector<int8_t> forced(signal_count);
   std::vector<bool> pinned(signal_count);
   for (size_t old = 0; old < signal_count; old++) {
-    drvrs[sperm[old]] = signal_drvr_[old];
-    forced[sperm[old]] = forced_[old];
-    pinned[sperm[old]] = pinned_[old];
+    drvrs[sig_perm[old]] = signal_drvr_[old];
+    forced[sig_perm[old]] = forced_[old];
+    pinned[sig_perm[old]] = pinned_[old];
   }
   signal_drvr_ = std::move(drvrs);
   forced_ = std::move(forced);
   pinned_ = std::move(pinned);
   for (SimSource &source : sources_)
-    source.signal = sperm[source.signal];
+    source.signal = sig_perm[source.signal];
   nodes_ = {};
   drvr_signal_ = {};
   load_signal_ = {};
@@ -767,12 +767,13 @@ ActivitySim::runCycles(int cycles)
 void
 ActivitySim::run(int cycles)
 {
+  // words_ is 1, 2, 4, 8 or 16 (Power::simulateActivities).
   switch (words_) {
   case 1: runCycles<1>(cycles); break;
   case 2: runCycles<2>(cycles); break;
   case 4: runCycles<4>(cycles); break;
   case 8: runCycles<8>(cycles); break;
-  default: runCycles<16>(cycles); break;
+  case 16: runCycles<16>(cycles); break;
   }
   // Only the counts are needed to annotate.
   signals_ = {};
