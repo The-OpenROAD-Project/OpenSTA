@@ -369,6 +369,22 @@ hasEmptyPt(ExceptionPath *exception,
   return to && to_had_objects && !to->hasObjects();
 }
 
+// True if a -through of exception has pin pairs derived from its
+// nets, instances or hierarchical pins.
+static bool
+hasThruEdges(const ExceptionPath *exception)
+{
+  bool has_edges = false;
+  ExceptionThruSeq *thrus = exception->thrus();
+  if (thrus) {
+    for (ExceptionThru *thru : *thrus) {
+      if (thru->edges())
+        has_edges = true;
+    }
+  }
+  return has_edges;
+}
+
 // Apply edit to the from/thru/to points of exceptions.
 // Exceptions left with an empty from/thru/to no longer apply to any
 // path and are deleted. Return true if any exception was deleted.
@@ -377,28 +393,69 @@ Sdc::editExceptions(const ExceptionPathSeq &exceptions,
                     const ExceptionPtEdit &edit)
 {
   bool deleted = false;
+  for (ExceptionPath *exception : exceptions)
+    deleted |= editException(exception, edit);
+  return deleted;
+}
+
+bool
+Sdc::editException(ExceptionPath *exception,
+                   const ExceptionPtEdit &edit)
+{
+  // The indices and merge hashes depend on the exception points.
+  unrecordMergeHashes(exception);
+  unrecordExceptionFirstPts(exception);
+  unrecordExceptionPins(exception);
+  unrecordExceptionTo(exception);
+  bool deleted = editExceptionPts(exception, edit);
+  if (!deleted) {
+    recordMergeHashes(exception);
+    recordExceptionFirstPts(exception);
+    recordExceptionPins(exception);
+    recordExceptionTo(exception);
+    checkForThruHpins(exception);
+  }
+  return deleted;
+}
+
+// Apply edit to the points of exception and delete it if a point is
+// left empty. Return true if it was deleted.
+bool
+Sdc::editExceptionPts(ExceptionPath *exception,
+                      const ExceptionPtEdit &edit)
+{
+  ExceptionTo *to = exception->to();
+  bool to_had_objects = to && to->hasObjects();
+  ExceptionPtIterator pt_iter(exception);
+  while (pt_iter.hasNext())
+    edit(pt_iter.next());
+  // The report path filter is owned and deleted by deleteFilter.
+  bool deleted = !exception->isFilter()
+    && hasEmptyPt(exception, to_had_objects);
+  if (deleted)
+    deleteException(exception);
+  return deleted;
+}
+
+// Delete objects from the points of exceptions. The index entries of
+// the objects that remain are unchanged and the caller erases the
+// deleted object's, so only the merge hashes are recorded again.
+bool
+Sdc::deleteFromExceptions(const ExceptionPathSeq &exceptions,
+                          const ExceptionPtEdit &edit)
+{
+  bool deleted = false;
   for (ExceptionPath *exception : exceptions) {
-    // The indices and merge hashes depend on the exception points.
-    unrecordMergeHashes(exception);
-    unrecordExceptionFirstPts(exception);
-    unrecordExceptionPins(exception);
-    unrecordExceptionTo(exception);
-    ExceptionTo *to = exception->to();
-    bool to_had_objects = to && to->hasObjects();
-    ExceptionPtIterator pt_iter(exception);
-    while (pt_iter.hasNext())
-      edit(pt_iter.next());
-    // The report path filter is owned and deleted by deleteFilter.
-    if (!exception->isFilter() && hasEmptyPt(exception, to_had_objects)) {
-      deleteException(exception);
-      deleted = true;
-    }
+    if (hasThruEdges(exception))
+      // Pin pairs derived from -through objects are keyed by pins the
+      // caller does not erase.
+      deleted |= editException(exception, edit);
     else {
-      recordMergeHashes(exception);
-      recordExceptionFirstPts(exception);
-      recordExceptionPins(exception);
-      recordExceptionTo(exception);
-      checkForThruHpins(exception);
+      unrecordMergeHashes(exception);
+      if (editExceptionPts(exception, edit))
+        deleted = true;
+      else
+        recordMergeHashes(exception);
     }
   }
   return deleted;
@@ -448,7 +505,7 @@ Sdc::deleteNetBefore(const Net *net)
       NetSet *nets = pt->nets();
       return nets && nets->contains(net);
     });
-  bool deleted = editExceptions(exceptions, [this, net](ExceptionPt *pt) {
+  bool deleted = deleteFromExceptions(exceptions, [this, net](ExceptionPt *pt) {
     pt->replaceNet(net, nullptr, network_);
   });
   first_thru_net_exceptions_.erase(net);
@@ -479,7 +536,7 @@ Sdc::deleteInstanceBefore(const Instance *inst)
       InstanceSet *insts = pt->instances();
       return insts && insts->contains(inst);
     });
-  bool deleted = editExceptions(exceptions, [this, inst](ExceptionPt *pt) {
+  bool deleted = deleteFromExceptions(exceptions, [this, inst](ExceptionPt *pt) {
     pt->deleteInstance(inst, network_);
   });
   first_from_inst_exceptions_.erase(inst);
@@ -4899,15 +4956,8 @@ Sdc::recordException(ExceptionPath *exception)
 void
 Sdc::checkForThruHpins(ExceptionPath *exception)
 {
-  ExceptionThruSeq *thrus = exception->thrus();
-  if (thrus) {
-    for (ExceptionThru *thru : *thrus) {
-      if (thru->edges()) {
-        have_thru_hpin_exceptions_ = true;
-        break;
-      }
-    }
-  }
+  if (hasThruEdges(exception))
+    have_thru_hpin_exceptions_ = true;
 }
 
 void
@@ -6100,7 +6150,7 @@ Sdc::deletePinExceptions(const Pin *pin)
         exceptions.push_back(exception);
     }
   }
-  bool deleted = editExceptions(exceptions, [this, pin](ExceptionPt *pt) {
+  bool deleted = deleteFromExceptions(exceptions, [this, pin](ExceptionPt *pt) {
     pt->deletePinBefore(pin, network_);
   });
   first_from_pin_exceptions_.erase(pin);

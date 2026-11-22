@@ -1230,8 +1230,18 @@ Clock clk1
 Clock clk2
 No launch/capture paths found.
 
-report_clock_skew -clock clk1: skipped (source bug)
-report_clock_skew -clock clk2: skipped (source bug)
+--- report_clock_skew -clocks clk1 ---
+Clock clk1
+   0.03 source latency reg1/CK ^
+  -0.05 target latency reg2/CK ^
+   0.00 CRPR
+--------------
+  -0.03 setup skew
+
+--- report_clock_skew -clocks clk2 ---
+Clock clk2
+No launch/capture paths found.
+
 --- tns/wns ---
 tns max 0.00
 tns min 0.00
