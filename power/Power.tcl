@@ -328,6 +328,56 @@ proc read_saif { args } {
 
 ################################################################
 
+# ---- OpenROAD fork: power activity simulation (begin) ----
+define_cmd_args "simulate_power_activity" { [-cycles cycles] [-lanes lanes] \
+                                              [-seed seed] } \
+  -help {Annotate activities of combinational logic from a random zero-delay simulation. Activities are first propagated with the formulas. Primary inputs and the outputs of registers, latches, clock gates, macros and cells on the clock network then toggle once per clock cycle at most, at that activity, and the combinational cells between them are evaluated each cycle, so reconvergent fanout and correlated cell inputs are seen. Each lane is an independent random copy of the design. The driver of each net is annotated (sources with the activity they were simulated with) and its loads get the driver activity by propagation. The annotations are removed when inputs, clocks or case analysis change; set_power_activity_mode simulation runs the simulation again instead.} \
+  -arg_help {
+    -cycles {`cycles`: Number of measured clock cycles. Defaults to 2000.}
+    -lanes {`lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.}
+    -seed {`seed`: Random number generator seed. Defaults to 1.}
+  }
+
+proc simulate_power_activity { args } {
+  parse_key_args "simulate_power_activity" args \
+    keys {-cycles -lanes -seed} flags {}
+  check_argc_eq0 "simulate_power_activity" $args
+  set cycles 2000
+  if { [info exists keys(-cycles)] } {
+    set cycles $keys(-cycles)
+    check_cardinal "-cycles" $cycles
+  }
+  set lanes 256
+  if { [info exists keys(-lanes)] } {
+    set lanes $keys(-lanes)
+    check_cardinal "-lanes" $lanes
+  }
+  set seed 1
+  if { [info exists keys(-seed)] } {
+    set seed $keys(-seed)
+    check_positive_integer "-seed" $seed
+  }
+  simulate_power_activity_cmd [cmd_scene] $cycles $lanes $seed
+}
+
+define_cmd_args "set_power_activity_mode" { simulation|vectorless } \
+  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the combinational logic before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.}
+
+proc set_power_activity_mode { args } {
+  check_argc_eq1 "set_power_activity_mode" $args
+  set mode [lindex $args 0]
+  if { $mode == "simulation" } {
+    set_power_activity_mode_cmd 1
+  } elseif { $mode == "vectorless" } {
+    set_power_activity_mode_cmd 0
+  } else {
+    sta_error 312 "set_power_activity_mode must be simulation or vectorless."
+  }
+}
+# ---- OpenROAD fork: power activity simulation (end) ----
+
+################################################################
+
 define_cmd_args "report_activity_annotation" { [-report_unannotated] \
                                                  [-report_annotated] } \
   -help {Report a summary of pins that are annotated by `read_vcd`, `read_saif` or `set_power_activity`. Sequential internal pins and hierarchical pins are ignored.} \

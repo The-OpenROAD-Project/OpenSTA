@@ -13,6 +13,7 @@ sta_module_tests("power"
     enable_flop
     scene_clk
     tie_when
+    activity_sim
     slow_slew
     parasitics_update
     clock_gate_test

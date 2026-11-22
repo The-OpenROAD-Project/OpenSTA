@@ -3903,6 +3903,13 @@ set_power_activity -input -activity 0.1 -duty 0.5
 `-clock` {: #opt-set_power_activity-clock }
 : `clock`: The clock to use for the period with `-activity`. This option is ignored if `-density` is used.
 
+## set_power_activity_mode
+
+<pre><code>set_power_activity_mode
+    simulation|vectorless</code></pre>
+
+Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the combinational logic before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.
+
 ## set_propagated_clock
 
 <pre><code>set_propagated_clock
@@ -4196,6 +4203,26 @@ The `set_wire_load_selection_group` command is parsed but not supported.
 
 `-max` {: #opt-set_wire_load_selection_group-max }
 : Apply to maximum (setup) analysis.
+
+## simulate_power_activity
+
+<pre><code>simulate_power_activity
+    [<a href="#opt-simulate_power_activity-cycles">-cycles</a> cycles]
+    [<a href="#opt-simulate_power_activity-lanes">-lanes</a> lanes]
+    [<a href="#opt-simulate_power_activity-seed">-seed</a> seed]</code></pre>
+
+Annotate activities of combinational logic from a random zero-delay simulation. Activities are first propagated with the formulas. Primary inputs and the outputs of registers, latches, clock gates, macros and cells on the clock network then toggle once per clock cycle at most, at that activity, and the combinational cells between them are evaluated each cycle, so reconvergent fanout and correlated cell inputs are seen. Each lane is an independent random copy of the design. The driver of each net is annotated (sources with the activity they were simulated with) and its loads get the driver activity by propagation. The annotations are removed when inputs, clocks or case analysis change; set_power_activity_mode simulation runs the simulation again instead.
+
+### Options
+
+`-cycles` {: #opt-simulate_power_activity-cycles }
+: `cycles`: Number of measured clock cycles. Defaults to 2000.
+
+`-lanes` {: #opt-simulate_power_activity-lanes }
+: `lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.
+
+`-seed` {: #opt-simulate_power_activity-seed }
+: `seed`: Random number generator seed. Defaults to 1.
 
 ## suppress_msg
 

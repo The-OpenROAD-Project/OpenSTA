@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -136,8 +137,25 @@ public:
   float clockMinPeriod(const Sdc *sdc);
   float clockMinPeriod();
   void powerInvalid();
+  // ---- OpenROAD fork: power activity simulation (begin) ----
+  // Annotate combinational activities from a random zero-delay simulation
+  // whose sources have their formula activities. A command run reports
+  // statistics and simulates clocks with different periods at the fastest
+  // period (with a warning); the automatic run in simulation mode is silent
+  // and leaves such designs to the formulas.
+  void simulateActivities(const Scene *scene,
+                          int cycles,
+                          int lanes,
+                          uint64_t seed,
+                          bool command);
+  // Vectorless activities come from simulation or are
+  // propagated with per-cell formulas (default).
+  void setSimulateActivities(bool simulate);
+  // ---- OpenROAD fork: power activity simulation (end) ----
 
 protected:
+  // ---- OpenROAD fork: power activity simulation ----
+  friend class ActivitySim;
   PwrActivity &activity(const Pin *pin);
   bool inClockNetwork(const Instance *inst,
                       const ClkNetwork *clk_network);
@@ -253,6 +271,8 @@ protected:
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
+  // OpenROAD fork: power activity simulation
+  void seedSimulationActivities(BfsFwdIterator &bfs);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,
@@ -300,6 +320,23 @@ private:
                                         SeqPinHash(network_),
                                         SeqPinEqual()};
   bool activities_valid_{false};
+  // ---- OpenROAD fork: power activity simulation (begin) ----
+  bool simulate_activities_{false};
+  // The simulation annotations match the current inputs and SDC.
+  bool activity_sim_valid_{false};
+  const Mode *activity_sim_mode_{nullptr};
+  bool activity_sim_fallback_warned_{false};
+  // Automatic run in simulation mode (shorter than the command defaults).
+  static constexpr int activity_sim_cycles_ = 1300;
+  static constexpr int activity_sim_lanes_ = 64;
+  static constexpr uint64_t activity_sim_seed_ = 1;
+  void clearActivitySimResults();
+  // A generated clock whose source pin is driven by a cell with a function
+  // or a clock gate, so it comes from the design logic.
+  bool simulatedClockSource(const Clock *clk);
+  // Activities must be propagated again; the simulation is still valid.
+  void propagationInvalid();
+  // ---- OpenROAD fork: power activity simulation (end) ----
   Bdd bdd_;
   std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_{
       InstanceIdLess(network_)};
