@@ -369,8 +369,7 @@ public:
                      // Return value.
                      float &voltage,
                      bool &exists) const;
-  // OpenROAD fork: clock gate test pin. True when a cell port has
-  // clock_gate_test_pin.
+  // True when a cell port has clock_gate_test_pin.
   bool hasClockGateTest() const { return has_clk_gate_test_; }
   void setHasClockGateTest() { has_clk_gate_test_ = true; }
 
@@ -434,7 +433,6 @@ protected:
   bool default_max_fanout_exists_{false};
   float default_max_slew_{0.0F};
   bool default_max_slew_exists_{false};
-  // OpenROAD fork: clock gate test pin.
   bool has_clk_gate_test_{false};
   float input_threshold_[RiseFall::index_count]{input_threshold_default_,
                                                 input_threshold_default_};
@@ -860,7 +858,6 @@ public:
   void setIsClockGateClock(bool is_clk_gate_clk);
   bool isClockGateEnable() const { return is_clk_gate_enable_; }
   void setIsClockGateEnable(bool is_clk_gate_enable);
-  // OpenROAD fork: clock gate test pin.
   bool isClockGateTest() const { return is_clk_gate_test_; }
   void setIsClockGateTest(bool is_clk_gate_test);
   bool isClockGateOut() const { return is_clk_gate_out_; }
@@ -988,7 +985,6 @@ protected:
   bool is_check_clk_:1 {false};
   bool is_clk_gate_clk_:1 {false};
   bool is_clk_gate_enable_:1 {false};
-  // OpenROAD fork: clock gate test pin.
   bool is_clk_gate_test_:1 {false};
   bool is_clk_gate_out_:1 {false};
   bool is_pll_feedback_:1 {false};
