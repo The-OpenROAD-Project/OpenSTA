@@ -107,9 +107,8 @@ report_clock_skew -hold
 puts "--- report_clock_skew -digits 6 ---"
 report_clock_skew -setup -digits 6
 
-puts "--- report_clock_skew -clock clk ---"
-# TODO: report_clock_skew -clock has a source bug ($clks used before set)
-puts "report_clock_skew -clock: skipped (source bug)"
+puts "--- report_clock_skew -clocks clk ---"
+report_clock_skew -clocks clk
 
 puts "--- report_clock_skew -include_internal_latency ---"
 report_clock_skew -setup -include_internal_latency

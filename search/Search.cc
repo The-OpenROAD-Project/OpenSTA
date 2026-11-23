@@ -40,6 +40,7 @@
 #include "DataCheck.hh"
 #include "Debug.hh"
 #include "Delay.hh"
+#include "DispatchQueue.hh"
 #include "ExceptionPath.hh"
 #include "Fuzzy.hh"
 #include "GatedClk.hh"
@@ -356,6 +357,9 @@ Search::deleteTags()
   for (TagGroupShard &shard : tag_group_shards_)
     shard.tag_groups->clear();
   tag_group_free_indices_.clear();
+  filter_tag_groups_.clear();
+  filter_tags_.clear();
+  made_filter_clk_info_ = false;
 
   tag_next_ = 0;
   deleteContents(tag_set_);
@@ -573,11 +577,16 @@ Search::deleteFilteredArrivals()
 void
 Search::deleteFilterTagGroups()
 {
-  for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
-    TagGroup *group = tag_groups_[i];
+  // In index order, as a scan of tag_groups_ would, so that the free
+  // indices are reused in the same order. An index can be listed twice,
+  // or hold a group made since, so the group is checked again.
+  std::ranges::sort(filter_tag_groups_);
+  for (TagGroupIndex i : filter_tag_groups_) {
+    TagGroup *group = i < tag_group_next_ ? tag_groups_[i] : nullptr;
     if (group && group->hasFilterTag())
       deleteTagGroup(group);
   }
+  filter_tag_groups_.clear();
 }
 
 void
@@ -592,7 +601,9 @@ Search::deleteTagGroup(TagGroup *group)
 void
 Search::deleteFilterTags()
 {
-  for (TagIndex i = 0; i < tag_next_; i++) {
+  // Tag slots are not reused, so each filter tag is listed once, and the
+  // order they are deleted in changes nothing.
+  for (TagIndex i : filter_tags_) {
     Tag *tag = tags_[i];
     if (tag && (tag->isFilter() || tag->clkInfo()->crprPathRefsFilter())) {
       tags_[i] = nullptr;
@@ -600,11 +611,16 @@ Search::deleteFilterTags()
       delete tag;
     }
   }
+  filter_tags_.clear();
 }
 
 void
 Search::deleteFilterClkInfos()
 {
+  // Erased by iterator: a filter clock info's crpr path has a filter tag,
+  // deleted by now, that comparing it would read.
+  if (!made_filter_clk_info_)
+    return;
   for (auto itr = clk_info_set_->cbegin(); itr != clk_info_set_->cend();) {
     const ClkInfo *clk_info = *itr;
     if (clk_info->crprPathRefsFilter()) {
@@ -614,6 +630,7 @@ Search::deleteFilterClkInfos()
     else
       itr++;
   }
+  made_filter_clk_info_ = false;
 }
 
 void
@@ -678,9 +695,30 @@ VertexSeq
 Search::filteredEndpoints()
 {
   VertexSeq ends;
-  for (Vertex *vertex : filtered_arrivals_) {
-    if (isEndpoint(vertex))
-      ends.push_back(vertex);
+  if (thread_count_ == 1) {
+    for (Vertex *vertex : filtered_arrivals_) {
+      if (isEndpoint(vertex))
+        ends.push_back(vertex);
+    }
+  }
+  else {
+    // isEndpoint on every thread, the endpoints gathered in
+    // filtered_arrivals_'s order.
+    VertexSeq vertices(filtered_arrivals_.begin(), filtered_arrivals_.end());
+    std::vector<char> is_end(vertices.size());
+    constexpr size_t chunk_size = 256;
+    for (size_t from = 0; from < vertices.size(); from += chunk_size) {
+      size_t to = std::min(from + chunk_size, vertices.size());
+      dispatch_queue_->dispatch([this, &vertices, &is_end, from, to](size_t) {
+        for (size_t i = from; i < to; i++)
+          is_end[i] = isEndpoint(vertices[i]);
+      });
+    }
+    dispatch_queue_->finishTasks();
+    for (size_t i = 0; i < vertices.size(); i++) {
+      if (is_end[i])
+        ends.push_back(vertices[i]);
+    }
   }
   return ends;
 }
@@ -2869,6 +2907,8 @@ Search::addTagGroup(TagGroup *tag_group)
   }
   tag_group->setIndex(tag_group_index);
   tag_groups_[tag_group_index] = tag_group;
+  if (tag_group->hasFilterTag())
+    filter_tag_groups_.push_back(tag_group_index);
   // If tag_groups_ needs to grow make the new array and copy the
   // contents into it before updating tags_groups_ so that other threads
   // can use Search::tagGroup(TagGroupIndex) without returning gubbish.
@@ -3142,6 +3182,8 @@ Search::findTag(Scene *scene,
       // Make sure tag can be indexed in tags_ before it is visible to
       // other threads via tag_set_.
       tags_[tagsTableRfIndex(tag_index, rf1)] = tag1;
+      if (tag1->isFilter() || clk_info->crprPathRefsFilter())
+        filter_tags_.push_back(tagsTableRfIndex(tag_index, rf1));
       tag_set_->insert(tag1);
       if (tag_cache)
         tag_cache->insert(tag1);
@@ -3224,6 +3266,8 @@ Search::findClkInfo(Scene *scene,
                            gen_clk_src_path, pulse_clk_sense, insertion, latency,
                            uncertainties, min_max, crpr_clk_path, this);
     clk_info_set_->insert(clk_info);
+    if (clk_info->crprPathRefsFilter())
+      made_filter_clk_info_ = true;
   }
   return clk_info;
 }
