@@ -369,7 +369,6 @@ public:
                      // Return value.
                      float &voltage,
                      bool &exists) const;
-
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
   LibertyCell *makeScaledCell(std::string_view name,
                               std::string_view filename);
@@ -854,6 +853,8 @@ public:
   void setIsClockGateClock(bool is_clk_gate_clk);
   bool isClockGateEnable() const { return is_clk_gate_enable_; }
   void setIsClockGateEnable(bool is_clk_gate_enable);
+  bool isClockGateTest() const { return is_clk_gate_test_; }
+  void setIsClockGateTest(bool is_clk_gate_test);
   bool isClockGateOut() const { return is_clk_gate_out_; }
   void setIsClockGateOut(bool is_clk_gate_out);
   bool isPllFeedback() const { return is_pll_feedback_; }
@@ -979,6 +980,7 @@ protected:
   bool is_check_clk_:1 {false};
   bool is_clk_gate_clk_:1 {false};
   bool is_clk_gate_enable_:1 {false};
+  bool is_clk_gate_test_:1 {false};
   bool is_clk_gate_out_:1 {false};
   bool is_pll_feedback_:1 {false};
   bool isolation_cell_data_:1 {false};

@@ -164,6 +164,12 @@ protected:
                          Vertex *vertex);
   
   void removePropagatedValue(const Pin *pin);
+  // Clock gates count a test pin only when it has a driver or a constant
+  // (clockGateOutValue), so removing a driver can change the gated clock
+  // without changing the test pin value. Clear the values of the clock gate
+  // test pins on drvr_pin's net so they are found again from the remaining
+  // drivers. Adding a driver is handled by propagateFromInvalidDrvrsToLoads.
+  void invalidateClockGateTestLoads(const Pin *drvr_pin);
   void propagateFromInvalidDrvrsToLoads();
   void propagateToInvalidLoads();
   void propagateDrvrToLoad(const Pin *drvr_pin,

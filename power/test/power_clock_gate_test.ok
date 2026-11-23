@@ -1,0 +1,26 @@
+Test enable tied low, and on a port (P(EN or SE) = 0.75)
+tied/GCLK  transitions/cycle 1.000 duty 0.250 propagated
+free/GCLK  transitions/cycle 1.500 duty 0.375 propagated
+Test enable held low by case analysis
+free/GCLK  transitions/cycle 1.000 duty 0.250 propagated
+Enable held low, test enable on a port: the clock still reaches r1
+free/GCLK  transitions/cycle 1.000 duty 0.250 propagated
+tied/GCLK  transitions/cycle 0.000 duty 0.000 constant
+Unconnected or undriven test enable is ignored
+open_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+open_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+Test enable driver and pin connected and disconnected (enable held low)
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+undriven_te/GCLK transitions/cycle 1.000 duty 0.250 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+Test enable tied high, then the tie cell disconnected
+undriven_te/GCLK transitions/cycle 2.000 duty 0.500 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant
+Case analysis on the undriven test pin itself
+undriven_te/GCLK transitions/cycle 2.000 duty 0.500 propagated
+undriven_te/GCLK transitions/cycle 0.000 duty 0.000 constant

@@ -1,0 +1,119 @@
+library (power_leakage_when) {
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1,ff);
+  pulling_resistance_unit : "1kohm";
+  nom_process : 1.0;
+  nom_temperature : 25.0;
+  nom_voltage : 1.0;
+  /* Conditions name the output pin; a group without when covers the rest. */
+  cell (INV_OUT_WHEN) {
+    leakage_power () { when : "!A & Y"; value : 1.0; }
+    leakage_power () { when : "A & !Y"; value : 3.0; }
+    leakage_power () { value : 10.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "!A"; }
+  }
+  /* One condition; the group without when covers the other states. */
+  cell (AND_PARTIAL) {
+    leakage_power () { when : "A & B"; value : 4.0; }
+    leakage_power () { value : 2.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (B) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A & B"; }
+  }
+  /* A state with zero leakage is covered; cell_leakage_power is not added. */
+  cell (BUF_ZERO_STATE) {
+    cell_leakage_power : 5.0;
+    leakage_power () { when : "!A"; value : 0.0; }
+    leakage_power () { when : "A"; value : 2.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A"; }
+  }
+  /* Leakage conditions on a flop output use the Q pin activity. */
+  cell (DFF_Q_WHEN) {
+    ff (IQ, IQN) { next_state : "D"; clocked_on : "CK"; }
+    leakage_power () { when : "Q"; value : 10.0; }
+    leakage_power () { when : "!Q"; value : 0.0; }
+    pin (D) { direction : input; capacitance : 1.0; }
+    pin (CK) { direction : input; capacitance : 1.0; clock : true; }
+    pin (Q) { direction : output; function : "IQ"; }
+  }
+  /* Y2 = !Y1 = !A, so "A & Y2" is never true and "!A & Y2" is P(!A). */
+  cell (CHAIN_OUT_WHEN) {
+    leakage_power () { when : "A & Y2"; value : 7.0; }
+    leakage_power () { when : "!A & Y2"; value : 1.0; }
+    leakage_power () { value : 0.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y1) { direction : output; function : "A"; }
+    pin (Y2) { direction : output; function : "!Y1"; }
+  }
+  /* Input internal power when "A & Y" is never true on an inverter. */
+  cell (INV_INTERNAL_WHEN) {
+    pin (A) {
+      direction : input;
+      capacitance : 1.0;
+      internal_power () {
+        when : "A & Y";
+        rise_power (scalar) { values ("100.0"); }
+        fall_power (scalar) { values ("100.0"); }
+      }
+    }
+    pin (Y) { direction : output; function : "!A"; }
+  }
+  /* Y2 names Y1, and the condition names both; it reduces to A. */
+  cell (CHAIN_ORDER_WHEN) {
+    leakage_power () { when : "(Y1 & A) | (!Y1 & !Y2)"; value : 4.0; }
+    leakage_power () { value : 0.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y1) { direction : output; function : "A"; }
+    pin (Y2) { direction : output; function : "!Y1"; }
+  }
+  /* Output held at 0 by case analysis. */
+  cell (BUF_CASE_WHEN) {
+    leakage_power () { when : "Y"; value : 6.0; }
+    leakage_power () { value : 2.0; }
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (Y) { direction : output; function : "A"; }
+  }
+  /* Output internal power: "Z & B" is never true (Z = !B), so only the
+     second group applies, as on OUT_INTERNAL_REF. */
+  cell (OUT_INTERNAL_WHEN) {
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (B) { direction : input; capacitance : 1.0; }
+    pin (Z) { direction : output; function : "!B"; }
+    pin (Y) {
+      direction : output;
+      function : "A";
+      internal_power () {
+        related_pin : "A";
+        when : "Z & B";
+        rise_power (scalar) { values ("100.0"); }
+        fall_power (scalar) { values ("100.0"); }
+      }
+      internal_power () {
+        related_pin : "A";
+        when : "!(Z & B)";
+        rise_power (scalar) { values ("1.0"); }
+        fall_power (scalar) { values ("1.0"); }
+      }
+    }
+  }
+  cell (OUT_INTERNAL_REF) {
+    pin (A) { direction : input; capacitance : 1.0; }
+    pin (B) { direction : input; capacitance : 1.0; }
+    pin (Z) { direction : output; function : "!B"; }
+    pin (Y) {
+      direction : output;
+      function : "A";
+      internal_power () {
+        related_pin : "A";
+        rise_power (scalar) { values ("1.0"); }
+        fall_power (scalar) { values ("1.0"); }
+      }
+    }
+  }
+}
