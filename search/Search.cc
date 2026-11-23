@@ -302,6 +302,10 @@ Search::clear()
   arrival_iter_->clear();
   invalid_requireds_.clear();
   invalid_tns_.clear();
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  pending_invalid_arrivals_.clear();
+  pending_invalid_requireds_.clear();
+  pending_invalid_tns_.clear();
   required_iter_->clear();
   endpointsInvalid();
   deletePathGroups();
@@ -756,6 +760,10 @@ Search::seedFilterStarts()
 void
 Search::deleteVertexBefore(Vertex *vertex)
 {
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  flushInvalidArrivals();
+  flushInvalidRequireds();
+  flushInvalidTns();
   if (arrivals_exist_) {
     deletePathsIncr(vertex);
     arrival_iter_->deleteVertexBefore(vertex);
@@ -789,7 +797,10 @@ Search::deleteEdgeBefore(Edge *edge)
 bool
 Search::arrivalsValid()
 {
-  return arrivals_exist_ && invalid_arrivals_.empty();
+  // OpenROAD fork: per-thread invalid vertex buffers. Read only; this is a
+  // public query and must not drain while delay calc threads add.
+  return arrivals_exist_ && invalid_arrivals_.empty()
+    && pending_invalid_arrivals_.empty();
 }
 
 void
@@ -817,6 +828,10 @@ Search::arrivalsInvalid()
     tns_exists_ = false;
     clearWorstSlack();
     invalid_tns_.clear();
+    // OpenROAD fork: per-thread invalid vertex buffers.
+    pending_invalid_arrivals_.clear();
+    pending_invalid_requireds_.clear();
+    pending_invalid_tns_.clear();
   }
 }
 
@@ -830,6 +845,9 @@ Search::requiredsInvalid()
   tns_exists_ = false;
   clearWorstSlack();
   invalid_tns_.clear();
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  pending_invalid_requireds_.clear();
+  pending_invalid_tns_.clear();
 }
 
 void
@@ -838,11 +856,10 @@ Search::arrivalInvalid(Vertex *vertex)
   if (arrivals_exist_) {
     debugPrint(debug_, "search", 2, "arrival invalid {}",
                vertex->to_string(this));
-    if (!arrival_iter_->inQueue(vertex)) {
-      // Lock for StaDelayCalcObserver called by delay calc threads.
-      LockGuard lock(invalid_arrivals_lock_);
-      invalid_arrivals_.insert(vertex);
-    }
+    if (!arrival_iter_->inQueue(vertex))
+      // OpenROAD fork: per-thread invalid vertex buffers. Called by delay
+      // calc threads.
+      pending_invalid_arrivals_.add(vertex);
     tnsInvalid(vertex);
   }
 }
@@ -925,14 +942,33 @@ Search::requiredInvalid(Vertex *vertex)
   if (requireds_exist_) {
     debugPrint(debug_, "search", 2, "required invalid {}",
                vertex->to_string(this));
-    if (!required_iter_->inQueue(vertex)) {
-      // Lock for StaDelayCalcObserver called by delay calc threads.
-      LockGuard lock(invalid_arrivals_lock_);
-      invalid_requireds_.insert(vertex);
-    }
+    if (!required_iter_->inQueue(vertex))
+      // OpenROAD fork: per-thread invalid vertex buffers. Called by delay
+      // calc and arrival search threads.
+      pending_invalid_requireds_.add(vertex);
     tnsInvalid(vertex);
   }
 }
+
+// ---- OpenROAD fork: per-thread invalid vertex buffers (begin) ----
+void
+Search::flushInvalidArrivals()
+{
+  pending_invalid_arrivals_.moveTo(invalid_arrivals_);
+}
+
+void
+Search::flushInvalidRequireds()
+{
+  pending_invalid_requireds_.moveTo(invalid_requireds_);
+}
+
+void
+Search::flushInvalidTns()
+{
+  pending_invalid_tns_.moveTo(invalid_tns_);
+}
+// ---- OpenROAD fork: per-thread invalid vertex buffers (end) ----
 
 ////////////////////////////////////////////////////////////////
 
@@ -963,6 +999,8 @@ Search::enqueueClkRoots()
 void
 Search::enqueueInvalidClks()
 {
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  flushInvalidArrivals();
   if (!invalid_arrivals_.empty()) {
     for (Mode *mode : modes_)
       mode->clkNetwork()->ensureClkNetwork();
@@ -1073,6 +1111,11 @@ Search::findArrivals2(Level level)
 {
   Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
+  // OpenROAD fork: per-thread invalid vertex buffers. The buffers do not
+  // de-duplicate; move them into the sets after each search so they stay
+  // bounded by one search worth of vertices.
+  flushInvalidRequireds();
+  flushInvalidTns();
   deleteTagsPrev();
   if (arrival_count > 0)
     deleteUnusedTagGroups();
@@ -1491,6 +1534,8 @@ Search::findClockVertices(VertexSet &vertices)
 void
 Search::seedInvalidArrivals()
 {
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  flushInvalidArrivals();
   for (Vertex *vertex : invalid_arrivals_)
     arrival_iter_->enqueue(vertex);
   invalid_arrivals_.clear();
@@ -3315,12 +3360,19 @@ Search::findRequireds(Level level)
 {
   Stats stats(debug_, report_);
   debugPrint(debug_, "search", 1, "find requireds to level {}", level);
-  RequiredVisitor req_visitor(this);
   required_iter_->ensureSize();
   if (!requireds_seeded_)
     seedRequireds();
   seedInvalidRequireds();
-  int required_count = required_iter_->visitParallel(level, &req_visitor);
+  int required_count = 0;
+  // OpenROAD fork: per-pin slack queries usually find nothing queued, so
+  // skip building the visitor (heap allocations) when there is no work.
+  if (!required_iter_->empty()) {
+    RequiredVisitor req_visitor(this);
+    required_count = required_iter_->visitParallel(level, &req_visitor);
+  }
+  // OpenROAD fork: per-thread invalid vertex buffers; keep them bounded.
+  flushInvalidTns();
   deleteTagsPrev();
   requireds_exist_ = true;
   debugPrint(debug_, "search", 1, "found {} requireds", required_count);
@@ -3448,6 +3500,8 @@ Search::endpointsInvalid()
 void
 Search::seedInvalidRequireds()
 {
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  flushInvalidRequireds();
   for (Vertex *vertex : invalid_requireds_)
     required_iter_->enqueue(vertex);
   invalid_requireds_.clear();
@@ -3929,8 +3983,8 @@ Search::tnsInvalid(Vertex *vertex)
 {
   if ((tns_exists_ || worst_slacks_) && isEndpoint(vertex)) {
     debugPrint(debug_, "tns", 2, "tns invalid {}", vertex->to_string(this));
-    LockGuard lock(tns_lock_);
-    invalid_tns_.insert(vertex);
+    // OpenROAD fork: per-thread invalid vertex buffers.
+    pending_invalid_tns_.add(vertex);
   }
 }
 
@@ -3938,6 +3992,8 @@ void
 Search::updateInvalidTns()
 {
   size_t path_count = scenePathCount();
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  flushInvalidTns();
   for (Vertex *vertex : invalid_tns_) {
     // Network edits can change endpointedness since tnsInvalid was called.
     debugPrint(debug_, "tns", 2, "update tns {}", vertex->to_string(this));
@@ -4077,6 +4133,8 @@ void
 Search::wnsTnsPreamble()
 {
   findAllArrivals();
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  flushInvalidRequireds();
   // Required times are only needed at endpoints.
   if (requireds_seeded_) {
     for (auto itr = invalid_requireds_.begin(); itr != invalid_requireds_.end();) {

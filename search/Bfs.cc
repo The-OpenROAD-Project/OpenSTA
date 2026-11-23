@@ -25,6 +25,9 @@
 
 #include "Bfs.hh"
 
+#include <algorithm>
+#include <atomic>
+
 #include "Debug.hh"
 #include "DispatchQueue.hh"
 #include "Graph.hh"
@@ -183,10 +186,18 @@ BfsIterator::visitParallel(Level to_level,
           }
           else {
             // ---- OpenROAD fork: BFS chunked dispatch (begin) ----
+            // Per-thread enqueue during the parallel level; the guard
+            // resets the flag even if the visit throws.
+            ParallelEnqueueGuard guard(parallel_enqueue_);
+            parallel_level_ = level;
             visitLevelChunked(level_vertices, level, visitors);
             // ---- OpenROAD fork: BFS chunked dispatch (end) ----
           }
           level_vertices.clear();
+          // OpenROAD fork: per-thread enqueue during parallel levels. Flush
+          // after the clear so a vertex enqueued at the visited level is
+          // visited again instead of dropped.
+          flushParallelEnqueues();
           visit_count += vertex_count;
         }
       }
@@ -202,6 +213,13 @@ BfsIterator::enqueue(Vertex *vertex)
 {
   debugPrint(debug_, "bfs", 2, "enqueue {}", vertex->to_string(this));
   if (!vertex->bfsInQueue(bfs_index_)) {
+    // ---- OpenROAD fork: per-thread enqueue during parallel levels (begin) ----
+    if (parallel_enqueue_.load(std::memory_order_relaxed)) {
+      if (vertex->testAndSetBfsInQueue(bfs_index_))
+        parallel_enqueues_.add(vertex);
+      return;
+    }
+    // ---- OpenROAD fork: per-thread enqueue during parallel levels (end) ----
     Level level = vertex->level();
     LockGuard lock(queue_lock_);
     if (!vertex->bfsInQueue(bfs_index_)) {
@@ -215,6 +233,24 @@ BfsIterator::enqueue(Vertex *vertex)
     }
   }
 }
+
+// ---- OpenROAD fork: per-thread enqueue during parallel levels (begin) ----
+void
+BfsIterator::flushParallelEnqueues()
+{
+  parallel_enqueues_.drain([this](Vertex *vertex) {
+    Level level = vertex->level();
+    if (level == parallel_level_)
+      debugPrint(debug_, "bfs", 1, "same level enqueue {} during parallel level {}",
+                 vertex->to_string(this), level);
+    queue_[level].push_back(vertex);
+    if (levelLess(last_level_, level))
+      last_level_ = level;
+    if (levelLess(level, first_level_))
+      first_level_ = level;
+  });
+}
+// ---- OpenROAD fork: per-thread enqueue during parallel levels (end) ----
 
 bool
 BfsIterator::inQueue(Vertex *vertex)
@@ -329,22 +365,37 @@ BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
   // Tasks read level_vertices in place and unlocked. This relies on
   // visitors never enqueuing at the current level (they only enqueue
   // fanout/fanin, which levelize places at a higher/lower level).
+  // Enqueues during the level go to per-thread buffers that visitParallel
+  // flushes after the level; a same-level enqueue is visited again and
+  // reported by "bfs" debug level 1.
   // Chunk size vs. runtime is U-shaped; 8 is the smallest size at the
   // bottom of the curve.
+  // One task per thread claims chunks from a shared counter, so a thread
+  // that finishes early still picks up more work, without a dispatch
+  // (queue lock + wakeup) per chunk.
   constexpr size_t chunk_size = 8;
   size_t vertex_count = level_vertices.size();
+  size_t chunk_count = (vertex_count + chunk_size - 1) / chunk_size;
+  size_t task_count = std::min(visitors.size(), chunk_count);
+  std::atomic<size_t> next_chunk{0};
   BfsIndex bfs_index = bfs_index_;
-  for (size_t from = 0; from < vertex_count; from += chunk_size) {
-    size_t to = (from + chunk_size < vertex_count) ? from + chunk_size : vertex_count;
-    dispatch_queue_->dispatch([this, &level_vertices, from, to, level,
-                               bfs_index, &visitors](int thread_id) {
+  for (size_t task = 0; task < task_count; task++) {
+    dispatch_queue_->dispatch([this, &level_vertices, &next_chunk, chunk_count,
+                               vertex_count, level, bfs_index,
+                               &visitors](int thread_id) {
       VertexVisitor *thread_visitor = visitors[thread_id];
-      for (size_t i = from; i < to; i++) {
-        Vertex *vertex = level_vertices[i];
-        if (vertex) {
-          checkLevel(vertex, level);
-          vertex->setBfsInQueue(bfs_index, false);
-          thread_visitor->visit(vertex);
+      size_t chunk;
+      while ((chunk = next_chunk.fetch_add(1, std::memory_order_relaxed))
+             < chunk_count) {
+        size_t from = chunk * chunk_size;
+        size_t to = std::min(from + chunk_size, vertex_count);
+        for (size_t i = from; i < to; i++) {
+          Vertex *vertex = level_vertices[i];
+          if (vertex) {
+            checkLevel(vertex, level);
+            vertex->setBfsInQueue(bfs_index, false);
+            thread_visitor->visit(vertex);
+          }
         }
       }
     });

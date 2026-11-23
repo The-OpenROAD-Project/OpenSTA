@@ -39,6 +39,7 @@
 #include "SearchPred.hh"
 #include "StaState.hh"
 #include "StringUtil.hh"
+#include "ThreadVertexBuffer.hh"
 #include "Transition.hh"
 #include "VertexVisitor.hh"
 
@@ -529,6 +530,10 @@ protected:
                              const MinMax *min_max) const;
   void seedRequireds();
   void seedInvalidRequireds();
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  void flushInvalidArrivals();
+  void flushInvalidRequireds();
+  void flushInvalidTns();
   void findFilteredArrivals(bool thru_latches);
   void findArrivalsSeed();
   void seedFilterStarts();
@@ -598,7 +603,11 @@ protected:
   bool arrivals_seeded_{false};
   // Vertices with invalid arrival times to update and search from.
   VertexSet invalid_arrivals_;
+  // OpenROAD fork: unused; invalid vertices are added through the
+  // pending_invalid_* ThreadVertexBuffers. Kept for upstream merges.
   std::mutex invalid_arrivals_lock_;
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  ThreadVertexBuffer pending_invalid_arrivals_;
   BfsFwdIterator *arrival_iter_;
   ArrivalVisitor *arrival_visitor_;
 
@@ -608,15 +617,20 @@ protected:
   bool requireds_seeded_{false};
   // Vertices with invalid required times to update and search from.
   VertexSet invalid_requireds_;
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  ThreadVertexBuffer pending_invalid_requireds_;
   BfsBkwdIterator *required_iter_;
 
   bool tns_exists_{false};
   // Endpoint vertices with slacks that have changed since tns was found.
   VertexSet invalid_tns_;
+  // OpenROAD fork: per-thread invalid vertex buffers.
+  ThreadVertexBuffer pending_invalid_tns_;
   // Indexed by path_ap->index().
   DelayDblSeq tns_;
   // Indexed by path_ap->index().
   VertexSlackMapSeq tns_slacks_;
+  // OpenROAD fork: unused, see pending_invalid_tns_. Kept for upstream merges.
   std::mutex tns_lock_;
 
   // Indexed by path_ap->index().
