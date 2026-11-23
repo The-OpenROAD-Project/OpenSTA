@@ -619,14 +619,14 @@ Path Type: max
 buf1 edges: 1
 buf2 edges: 1
 inv1 edges: 1
-and1 edges: 1
-or1 edges: 1
-nand1 edges: 1
-nor1 edges: 1
-reg1 edges: 1
-reg2 edges: 1
-reg3 edges: 1
-reg4 edges: 1
+and1 edges: 2
+or1 edges: 2
+nand1 edges: 2
+nor1 edges: 2
+reg1 edges: 5
+reg2 edges: 5
+reg3 edges: 5
+reg4 edges: 5
 d1 ^ 0.10:0.10 v 0.10:0.10
 d2 ^ 0.10:0.10 v 0.10:0.10
 d3 ^ 0.10:0.10 v 0.10:0.10

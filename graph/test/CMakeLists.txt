@@ -8,6 +8,7 @@ sta_module_tests("graph"
     modify
     operations
     timing_edges
+    timing_edges_of_objects
     vertex_edge_ops
     wire_inst_edges
 )

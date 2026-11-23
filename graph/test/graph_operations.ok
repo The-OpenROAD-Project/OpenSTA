@@ -505,15 +505,15 @@ buf1 edges: 1
 buf2 edges: 1
 inv1 edges: 1
 inv2 edges: 1
-and1 edges: 1
-or1 edges: 1
-nand1 edges: 1
-nor1 edges: 1
-and2 edges: 1
-or2 edges: 1
-reg1 edges: 1
-reg2 edges: 1
-reg3 edges: 1
+and1 edges: 2
+or1 edges: 2
+nand1 edges: 2
+nor1 edges: 2
+and2 edges: 2
+or2 edges: 2
+reg1 edges: 5
+reg2 edges: 5
+reg3 edges: 5
 buf3 edges: 1
 buf4 edges: 1
 --- specific edge queries ---
