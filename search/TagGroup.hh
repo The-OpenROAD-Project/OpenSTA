@@ -153,6 +153,15 @@ protected:
   int default_path_count_;
   PathIndexMap path_index_map_;
   std::vector<Path>  paths_;
+  // OpenROAD-fork: tag-match
+  // Insertion position recorded by tagMatchPath() when a tag is absent, so the
+  // following insertPath() can skip a redundant binary search. no_insert_pos_
+  // means "no valid hint" (callers that insert without a preceding lookup).
+  static constexpr size_t no_insert_pos_ = ~static_cast<size_t>(0);
+  size_t insert_pos_{no_insert_pos_};
+  // Tag the hint was recorded for; the hint is only reused when the following
+  // insertPath() is for this same tag (guards against a stale hint).
+  Tag *insert_tag_{nullptr};
   bool has_clk_tag_{false};
   bool has_genclk_src_tag_{false};
   bool has_filter_tag_{false};
