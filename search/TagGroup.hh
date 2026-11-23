@@ -53,6 +53,8 @@ public:
            const StaState *sta);
   ~TagGroup();
   TagGroupIndex index() const { return index_; }
+  // Search sets it once the group is known to be new.
+  void setIndex(TagGroupIndex index) { index_ = index; }
   size_t hash() const { return hash_; }
   void report(const StaState *sta) const;
   void reportArrivalMap(const StaState *sta) const;
