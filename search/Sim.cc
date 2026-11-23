@@ -364,8 +364,15 @@ Sim::propagateFromInvalidDrvrsToLoads()
     PinConnectedPinIterator *load_iter = network_->connectedPinIterator(drvr_pin);
     while (load_iter->hasNext()) {
       const Pin *load_pin = load_iter->next();
-      if (load_pin != drvr_pin && network_->isLoad(load_pin))
+      if (load_pin != drvr_pin && network_->isLoad(load_pin)) {
         setPinValue(load_pin, value);
+        // A clock gate counts a test pin only when it has a driver
+        // (clockGateOutValue), so the gate is evaluated again even when the
+        // test pin value is unchanged.
+        const LibertyPort *port = network_->libertyPort(load_pin);
+        if (port && port->isClockGateTest())
+          eval_queue_.push(network_->instance(load_pin));
+      }
     }
     delete load_iter;
   }
@@ -459,10 +466,8 @@ Sim::connectPinAfter(const Pin *pin)
       if (port && port->isClockGateTest())
         invalid_insts_.insert(network_->instance(pin));
     }
-    if (network_->isDriver(pin)) {
+    if (network_->isDriver(pin))
       invalid_drvr_pins_.insert(pin);
-      invalidateClockGateTestLoads(pin);
-    }
     valid_ = false;
   }
 }
@@ -485,24 +490,16 @@ Sim::disconnectPinBefore(const Pin *pin)
 void
 Sim::invalidateClockGateTestLoads(const Pin *drvr_pin)
 {
-  // Skip the net walk when no library has clock gate test pins.
-  bool has_clk_gate_test = false;
-  LibertyLibraryIterator *lib_iter = network_->libertyLibraryIterator();
-  while (lib_iter->hasNext() && !has_clk_gate_test)
-    has_clk_gate_test = lib_iter->next()->hasClockGateTest();
-  delete lib_iter;
-  if (has_clk_gate_test) {
-    PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
-    while (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
-      const LibertyPort *port = network_->libertyPort(pin);
-      if (port && port->isClockGateTest()) {
-        invalid_load_pins_.insert(pin);
-        removePropagatedValue(pin);
-      }
+  PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port && port->isClockGateTest()) {
+      invalid_load_pins_.insert(pin);
+      removePropagatedValue(pin);
     }
-    delete pin_iter;
   }
+  delete pin_iter;
 }
 
 void

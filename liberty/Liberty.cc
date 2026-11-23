@@ -2534,8 +2534,6 @@ void
 LibertyPort::setIsClockGateTest(bool is_clk_gate_test)
 {
   is_clk_gate_test_ = is_clk_gate_test;
-  if (is_clk_gate_test)
-    libertyLibrary()->setHasClockGateTest();
 }
 
 void

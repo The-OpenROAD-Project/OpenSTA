@@ -369,10 +369,6 @@ public:
                      // Return value.
                      float &voltage,
                      bool &exists) const;
-  // True when a cell port has clock_gate_test_pin.
-  bool hasClockGateTest() const { return has_clk_gate_test_; }
-  void setHasClockGateTest() { has_clk_gate_test_ = true; }
-
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
   LibertyCell *makeScaledCell(std::string_view name,
                               std::string_view filename);
@@ -433,7 +429,6 @@ protected:
   bool default_max_fanout_exists_{false};
   float default_max_slew_{0.0F};
   bool default_max_slew_exists_{false};
-  bool has_clk_gate_test_{false};
   float input_threshold_[RiseFall::index_count]{input_threshold_default_,
                                                 input_threshold_default_};
   float output_threshold_[RiseFall::index_count]{output_threshold_default_,
