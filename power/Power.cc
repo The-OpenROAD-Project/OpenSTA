@@ -774,7 +774,8 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
       activity.setDensity(max_prop_density);
     }
     float slew = power_->getAvgRfSlew(pin);
-    if (slew > 0.0 && activity.density() > 1.0 / slew) {
+    if (slew > 0.0 && !delayInf(slew, this)
+        && activity.density() > 1.0 / slew) {
       activity.setDensity(1.0 / slew);
       slew_limited_pin_ = pin;
     }
@@ -1734,7 +1735,6 @@ Power::findSwitchingPower(const Instance *inst,
 
 ////////////////////////////////////////////////////////////////
 
-// Leakage totals for one power/gnd pin.
 static bool
 funcHasInternalPort(const FuncExpr *expr)
 {
@@ -1816,6 +1816,7 @@ Power::whenBdd(FuncExpr *when,
   return bdd;
 }
 
+// Leakage totals for one power/gnd pin.
 class LeakageSummary
 {
 public:
