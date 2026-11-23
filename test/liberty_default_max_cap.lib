@@ -1,0 +1,22 @@
+library(default_max_cap) {
+  technology(cmos);
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  capacitive_load_unit(1, pf);
+  default_max_capacitance : 0.05;
+  cell(BUF) {
+    pin(A) { direction : input; capacitance : 0.002; }
+    pin(Y) { direction : output;
+      function : "A";
+      timing() {
+        related_pin : "A";
+        cell_rise(scalar) { values("0.1"); }
+        cell_fall(scalar) { values("0.1"); }
+        rise_transition(scalar) { values("0.05"); }
+        fall_transition(scalar) { values("0.05"); }
+      }
+    }
+  }
+}
