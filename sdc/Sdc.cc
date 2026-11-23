@@ -406,11 +406,13 @@ Sdc::editException(ExceptionPath *exception,
   unrecordMergeHashes(exception);
   unrecordExceptionFirstPts(exception);
   unrecordExceptionPins(exception);
+  unrecordExceptionTo(exception);
   bool deleted = editExceptionPts(exception, edit);
   if (!deleted) {
     recordMergeHashes(exception);
     recordExceptionFirstPts(exception);
     recordExceptionPins(exception);
+    recordExceptionTo(exception);
     checkForThruHpins(exception);
   }
   return deleted;
@@ -540,6 +542,7 @@ Sdc::deleteInstanceBefore(const Instance *inst)
   first_from_inst_exceptions_.erase(inst);
   first_thru_inst_exceptions_.erase(inst);
   first_to_inst_exceptions_.erase(inst);
+  to_inst_exceptions_.erase(inst);
   return deleted;
 }
 
@@ -4946,6 +4949,7 @@ Sdc::recordException(ExceptionPath *exception)
   recordMergeHashes(exception);
   recordExceptionFirstPts(exception);
   recordExceptionPins(exception);
+  recordExceptionTo(exception);
   checkForThruHpins(exception);
 }
 
@@ -5164,6 +5168,8 @@ Sdc::findMergeMatch(ExceptionPath *exception)
           unrecordMergeHashes(match);
           missing_pt->mergeInto(match_missing_pt, network_);
           recordMergeHashes(match);
+          // The merge adds to match's points, its -to's among them.
+          recordExceptionTo(match);
           // The merged objects are recorded in the first point maps
           // (all -through nets) and the pin map.
           recordExceptionFirstPts(match);
@@ -5205,6 +5211,8 @@ Sdc::deleteExceptions()
   path_delay_internal_to_.clear();
   path_delay_internal_to_break_.clear();
   pin_exceptions_.clear();
+  to_pin_exceptions_.clear();
+  to_inst_exceptions_.clear();
 
   exception_merge_hash_.clear();
   exception_merge_hash_.clear();
@@ -5271,6 +5279,7 @@ Sdc::unrecordException(ExceptionPath *exception)
   unrecordMergeHashes(exception);
   unrecordExceptionFirstPts(exception);
   unrecordExceptionPins(exception);
+  unrecordExceptionTo(exception);
   exceptions_.erase(exception);
 }
 
@@ -5361,6 +5370,26 @@ unrecordMapException(ExceptionsMap &exception_map,
     exceptions.erase(exception);
     if (exceptions.empty())
       exception_map.erase(itr);
+  }
+}
+
+void
+Sdc::recordExceptionTo(ExceptionPath *exception)
+{
+  ExceptionTo *to = exception->to();
+  if (to) {
+    recordExceptionPins(exception, to->pins(), to_pin_exceptions_);
+    recordExceptionInsts(exception, to->instances(), to_inst_exceptions_);
+  }
+}
+
+void
+Sdc::unrecordExceptionTo(ExceptionPath *exception)
+{
+  ExceptionTo *to = exception->to();
+  if (to) {
+    unrecordExceptionPins(exception, to->pins(), to_pin_exceptions_);
+    unrecordExceptionInsts(exception, to->instances(), to_inst_exceptions_);
   }
 }
 
@@ -5822,6 +5851,10 @@ Sdc::exceptionMatchesTo(ExceptionPath *exception,
     && ((to == nullptr
          && !require_to_pin)
         || (to
+            // A -to with clocks, or with no objects, is not in the hash.
+            && (to->clks()
+                || (to->pins() == nullptr && to->instances() == nullptr)
+                || mayCompleteTo(exception, pin))
             && to->matches(pin, clk_edge, rf, network_)));
 }
 
@@ -5850,7 +5883,24 @@ Sdc::isCompleteTo(ExceptionState *state,
   return state->nextThru() == nullptr
     && to
     && exception->matches(min_max, true)
+    && mayCompleteTo(exception, pin)
     && to->matches(pin, rf, network_);
+}
+
+bool
+Sdc::mayCompleteTo(const ExceptionPath *exception,
+                   const Pin *pin) const
+{
+  ExceptionPath *path = const_cast<ExceptionPath*>(exception);
+  const ExceptionPathSet *exceptions = findKeyValuePtr(to_pin_exceptions_, pin);
+  if (exceptions && exceptions->contains(path))
+    return true;
+  if (!to_inst_exceptions_.empty()) {
+    exceptions = findKeyValuePtr(to_inst_exceptions_, network_->instance(pin));
+    if (exceptions && exceptions->contains(path))
+      return true;
+  }
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -6107,6 +6157,7 @@ Sdc::deletePinExceptions(const Pin *pin)
   first_thru_pin_exceptions_.erase(pin);
   first_to_pin_exceptions_.erase(pin);
   pin_exceptions_.erase(pin);
+  to_pin_exceptions_.erase(pin);
   return deleted;
 }
 

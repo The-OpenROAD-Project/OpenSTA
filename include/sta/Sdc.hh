@@ -1055,6 +1055,12 @@ public:
                     const Pin *pin,
                     const RiseFall *rf,
                     const MinMax *min_max) const;
+  // False when pin cannot complete the exception's -to: neither the pin
+  // nor its instance is one of the -to's objects. Hashed, so a search
+  // step that is not at a -to object does not look into the -to's
+  // ordered sets.
+  bool mayCompleteTo(const ExceptionPath *exception,
+                     const Pin *pin) const;
   bool isPathDelayInternalFrom(const Pin *pin) const;
   bool isPathDelayInternalFromBreak(const Pin *pin) const;
   const PinSet &pathDelayInternalFrom() const;
@@ -1183,6 +1189,8 @@ protected:
   void recordMergeHashes(ExceptionPath *exception);
   void unrecordExceptionFirstPts(ExceptionPath *exception);
   void unrecordExceptionPins(ExceptionPath *exception);
+  void recordExceptionTo(ExceptionPath *exception);
+  void unrecordExceptionTo(ExceptionPath *exception);
   void unrecordExceptionClks(ExceptionPath *exception,
                              ClockSet *clks,
                              ClockExceptionsMap &exception_map);
@@ -1463,6 +1471,10 @@ protected:
   ClockExceptionsMap first_to_clk_exceptions_;
   InstanceExceptionsMap first_to_inst_exceptions_;
   PinExceptionsMap pin_exceptions_;
+  // -to pin/instance to the exceptions with it in their -to, for
+  // mayCompleteTo.
+  PinExceptionsMap to_pin_exceptions_;
+  InstanceExceptionsMap to_inst_exceptions_;
   // Edges that traverse hierarchical exception pins.
   EdgeExceptionsMap first_thru_edge_exceptions_;
   // Exception hash with one missing from/thru/to point, used for merging.
