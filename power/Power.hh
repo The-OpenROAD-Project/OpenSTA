@@ -138,19 +138,22 @@ public:
   float clockMinPeriod();
   void powerInvalid();
   // ---- OpenROAD fork: power activity simulation (begin) ----
-  // Annotate combinational activities from a random zero-delay simulation
-  // whose sources have their formula activities. A command run reports
+  // Annotate activities from a random zero-delay simulation of the
+  // combinational logic between sources with their formula activities, or
+  // (full) of the whole netlist after the settle cycles. A command run reports
   // statistics and simulates clocks with different periods at the fastest
-  // period (with a warning); the automatic run in simulation mode is silent
-  // and leaves such designs to the formulas.
+  // period (with a warning); the automatic run in a simulation mode is
+  // silent and leaves such designs to the formulas.
   void simulateActivities(const Scene *scene,
+                          bool full,
+                          int settle_cycles,
                           int cycles,
                           int lanes,
                           uint64_t seed,
                           bool command);
-  // Vectorless activities come from simulation or are
-  // propagated with per-cell formulas (default).
-  void setSimulateActivities(bool simulate);
+  // Vectorless activities are propagated with per-cell formulas (default)
+  // or come from a simulation run before power is reported.
+  void setActivityMode(PwrActivityMode mode);
   // ---- OpenROAD fork: power activity simulation (end) ----
 
 protected:
@@ -321,12 +324,13 @@ private:
                                         SeqPinEqual()};
   bool activities_valid_{false};
   // ---- OpenROAD fork: power activity simulation (begin) ----
-  bool simulate_activities_{false};
+  PwrActivityMode activity_mode_{PwrActivityMode::vectorless};
   // The simulation annotations match the current inputs and SDC.
   bool activity_sim_valid_{false};
   const Mode *activity_sim_mode_{nullptr};
   bool activity_sim_fallback_warned_{false};
-  // Automatic run in simulation mode (shorter than the command defaults).
+  // Automatic run in a simulation mode (shorter than the command defaults).
+  static constexpr int activity_sim_settle_cycles_ = 300;
   static constexpr int activity_sim_cycles_ = 1300;
   static constexpr int activity_sim_lanes_ = 64;
   static constexpr uint64_t activity_sim_seed_ = 1;

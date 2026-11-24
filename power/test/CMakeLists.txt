@@ -14,6 +14,7 @@ sta_module_tests("power"
     scene_clk
     tie_when
     activity_sim
+    activity_sim_full
     slow_slew
     parasitics_update
     clock_gate_test

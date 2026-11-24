@@ -31,6 +31,7 @@
 #include "Mode.hh"
 #include "Sdc.hh"
 #include "Sta.hh"
+#include "StringUtil.hh"
 #include "power/SaifReader.hh"
 #include "power/VcdParse.hh"
 #include "power/VcdReader.hh"
@@ -231,6 +232,8 @@ read_saif_file(const char *filename,
 // ---- OpenROAD fork: power activity simulation (begin) ----
 void
 simulate_power_activity_cmd(const Scene *scene,
+                            bool full,
+                            int settle_cycles,
                             int cycles,
                             int lanes,
                             int seed)
@@ -242,13 +245,20 @@ simulate_power_activity_cmd(const Scene *scene,
   sta->searchPreamble();
   sta->search()->findAllArrivals();
   scene->mode()->clkNetwork()->ensureClkNetwork();
-  sta->power()->simulateActivities(scene, cycles, lanes, seed, true);
+  sta->power()->simulateActivities(scene, full, settle_cycles, cycles, lanes,
+                                   seed,
+                                   true);
 }
 
+// mode is vectorless, combinational or full (checked by the tcl command).
 void
-set_power_activity_mode_cmd(bool simulate)
+set_power_activity_mode_cmd(const char *mode)
 {
-  Sta::sta()->power()->setSimulateActivities(simulate);
+  PwrActivityMode activity_mode = stringEq(mode, "combinational")
+    ? PwrActivityMode::combinational
+    : stringEq(mode, "full") ? PwrActivityMode::full
+    : PwrActivityMode::vectorless;
+  Sta::sta()->power()->setActivityMode(activity_mode);
 }
 // ---- OpenROAD fork: power activity simulation (end) ----
 

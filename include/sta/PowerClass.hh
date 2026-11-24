@@ -46,6 +46,17 @@ enum class PwrActivityOrigin
  unknown
 };
 
+// OpenROAD fork: power activity simulation. How activities without
+// annotations are found: per-cell formulas, a simulation of the
+// combinational logic between formula sources, or a simulation of the
+// whole netlist.
+enum class PwrActivityMode
+{
+ vectorless,
+ combinational,
+ full
+};
+
 class PwrActivity
 {
 public:

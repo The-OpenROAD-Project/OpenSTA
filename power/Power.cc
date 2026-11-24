@@ -125,6 +125,7 @@ Power::clear()
   activity_sim_valid_ = false;
   activity_sim_mode_ = nullptr;
   activity_sim_fallback_warned_ = false;
+  activity_mode_ = PwrActivityMode::vectorless;
   clearNonSdc();
 }
 
@@ -1096,15 +1097,16 @@ Power::ensureActivities(const Scene *scene)
     // No need to propagate activites if global activity is set.
     if (!global_activity_.isSet()) {
       // ---- OpenROAD fork: power activity simulation (begin) ----
-      // In simulation mode, vectorless activities come from a simulation
+      // In a simulation mode, vectorless activities come from a simulation
       // run when inputs, SDC or the mode changed. Netlist edits keep its
       // annotations; new pins are propagated from them below. In vectorless
       // mode the annotations of a simulate_power_activity run are removed
       // when inputs or SDC change, so they do not go stale.
-      if (simulate_activities_) {
+      if (activity_mode_ != PwrActivityMode::vectorless) {
         if (!activity_sim_valid_ || activity_sim_mode_ != scene->mode())
-          simulateActivities(scene, activity_sim_cycles_, activity_sim_lanes_,
-                             activity_sim_seed_, false);
+          simulateActivities(scene, activity_mode_ == PwrActivityMode::full,
+                             activity_sim_settle_cycles_, activity_sim_cycles_,
+                             activity_sim_lanes_, activity_sim_seed_, false);
       }
       else if (!activity_sim_valid_)
         clearActivitySimResults();

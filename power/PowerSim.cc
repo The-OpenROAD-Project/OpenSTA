@@ -26,24 +26,35 @@
 
 // ---- OpenROAD fork: power activity simulation (whole file) ----
 
-// Vectorless activities of combinational logic from a random zero-delay
-// simulation. Activities are first propagated with the formulas. Primary
-// inputs and the outputs of registers, latches, clock gates, macros and
-// cells on the clock network are then two state processes with that
-// activity, and the combinational cells between them are evaluated once per
-// clock cycle. Each net holds a few 64 bit words, one bit per independent
-// random copy (lane) of the design. Reconvergent fanout and correlation
-// between the inputs of a cell are seen by the simulation, which the
-// formulas, with independent inputs, do not see. Toggles and ones counted
-// over the cycles annotate the driver of each combinational net; source
-// drivers are annotated with the activity they were simulated with, so
-// propagation keeps register outputs at that activity and copies driver
-// activity to the loads.
+// Vectorless activities from a random zero-delay simulation. Activities are
+// first propagated with the formulas. Each net holds a few 64 bit words, one
+// bit per independent random copy (lane) of the design. Reconvergent fanout
+// and correlation between the inputs of a cell are seen by the simulation,
+// which the formulas, with independent inputs, do not see.
+//
+// Combinational mode: primary inputs and the outputs of registers, latches,
+// clock gates, macros and cells on the clock network are two state
+// processes with their formula activity, and the combinational cells
+// between them are evaluated once per clock cycle.
+//
+// Full mode: registers, latches and clock gates are simulated too. Primary
+// inputs and macro outputs are the two state processes; clock ports follow
+// their clock. Every clock cycle is evaluated as a high phase then a low
+// phase so flops capture on a rising edge of their own clock function and
+// latches are transparent while enabled. Clock gate cells are a latch on
+// the enable (or any driven test enable), transparent while the clock is
+// low (high for negative edge gates).
+//
+// Toggles and ones counted over the measured cycles annotate the driver of
+// each evaluated net; source drivers are annotated with the activity they
+// were simulated with, so propagation keeps them at that activity and
+// copies driver activity to the loads.
 
 #include <algorithm>
 #include <bit>
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -59,6 +70,7 @@
 #include "Report.hh"
 #include "Scene.hh"
 #include "Sdc.hh"
+#include "Sequential.hh"
 #include "Units.hh"
 #include "search/Sim.hh"
 
@@ -82,13 +94,20 @@ wordOnes(Word x)
 enum class TapeOp : uint8_t
 {
   sig,
+  state,
+  state_inv,
   one,
   zero,
   not_,
   and_,
   or_,
   xor_,
-  store
+  store,
+  store_next,
+  flop,
+  latch,
+  clear,
+  preset
 };
 
 struct TapeInstr
@@ -97,9 +116,16 @@ struct TapeInstr
   uint32_t arg;
 };
 
-// Cell function program; sig arguments are renumbered when the programs are
-// lowered to the tape.
+// Cell function program; sig and state arguments are renumbered when the
+// programs are lowered to the tapes.
 using SimProgram = std::vector<TapeInstr>;
+
+enum class SimNodeKind
+{
+  comb,
+  flop,
+  latch
+};
 
 struct SimOutput
 {
@@ -107,12 +133,19 @@ struct SimOutput
   SimProgram func;
 };
 
-// A combinational cell.
 struct SimNode
 {
-  // Signals that must be evaluated before this node.
+  SimNodeKind kind = SimNodeKind::comb;
+  // Signals that must be evaluated before this node in a phase.
   std::vector<int> deps;
   std::vector<SimOutput> outputs;
+  int state = -1;
+  // Flop clock, latch enable.
+  SimProgram clock;
+  // Flop next_state, latch data_in.
+  SimProgram next;
+  SimProgram clear;
+  SimProgram preset;
 };
 
 // Two state process driving a source signal.
@@ -166,13 +199,16 @@ class ActivitySim
 public:
   ActivitySim(Power *power,
               const Scene *scene,
+              bool full,
               int words,
               uint64_t seed,
               bool verbose,
               const StaState *sta);
   void build(const PwrActivity &input_activity,
-             float period);
-  void run(int cycles);
+             float period,
+             const std::vector<const Clock *> &clocks);
+  void run(int settle_cycles,
+           int cycles);
   void annotate(int cycles,
                 float period);
 
@@ -180,40 +216,55 @@ private:
   int signal(const Pin *drvr);
   int loadSignal(const Pin *load);
   int sourceSignal(const PwrActivity &activity);
+  PwrActivity sourceActivity(const Pin *drvr) const;
   int constOneSignal();
   bool sameActivity(const PwrActivity &activity,
                     const Pin *drvr) const;
   SimProgram compile(const FuncExpr *expr,
                      const Instance *inst,
-                     std::vector<int> &deps);
+                     const std::map<const LibertyPort *, int> &states,
+                     std::vector<int> *deps);
   void addInstance(const Instance *inst);
+  void addCombInstance(const Instance *inst);
+  void addClockGate(const Instance *inst,
+                    const LibertyCell *cell);
+  void addSequential(const Instance *inst,
+                     const LibertyCell *cell,
+                     const LibertyCell *seq_cell);
   void addSource(int sig,
                  const PwrActivity &activity,
                  float period);
   void sortNodes();
+  void markUnknown();
   std::vector<int> loopNodes(const std::vector<std::vector<int>> &fanout);
   void lower();
   template <int W>
-  void runTape();
+  void runTape(const std::vector<TapeInstr> &tape);
   template <int W>
-  void runCycles(int cycles);
+  void runCycles(int settle_cycles,
+                 int cycles);
   Word *sig(int index) { return &signals_[index * words_]; }
 
   Power *power_;
-  const Scene *scene_;
   Network *network_;
   Report *report_;
   const Sim *sim_;
   const ClkNetwork *clk_network_;
+  // Registers, latches and clock gates are simulated (not sources).
+  bool full_;
   int words_;
   bool verbose_;
   SimRng rng_;
 
   std::unordered_map<const Pin *, int> drvr_signal_;
   std::unordered_map<const Pin *, int> load_signal_;
-  // Signals not evaluated from a cell function: sources.
+  // Signals not evaluated from a cell function: sources and clocks.
   std::vector<bool> pinned_;
+  // Combinational mode: signals that depend on a source the formulas did
+  // not reach, which are left to the formulas.
+  std::vector<bool> unknown_;
   int cell_count_ = 0;
+  int clock_gate_other_ = 0;
   // Constant 1 for undriven pins tied high, created on first use.
   int const_one_ = -1;
   // Sources for loads without a driver (floating or black box nets).
@@ -225,12 +276,19 @@ private:
   std::vector<SimNode> nodes_;
   std::vector<int> order_;
   std::vector<SimSource> sources_;
+  // Full mode: signals that follow the clock phases.
+  std::vector<int> clock_signals_;
+  int state_count_ = 0;
   int loop_count_ = 0;
 
   std::vector<Word> signals_;
   std::vector<Word> prev_signals_;
+  std::vector<Word> states_;
+  std::vector<Word> next_states_;  // flop next_state sampled at phase start
+  std::vector<Word> prev_clocks_;  // flop clock function in previous phase
   std::vector<Word> stack_;
-  std::vector<TapeInstr> tape_;
+  std::vector<TapeInstr> eval_tape_;
+  std::vector<TapeInstr> next_tape_;
   size_t max_stack_ = 1;
   std::vector<uint64_t> toggles_;
   std::vector<uint64_t> ones_;
@@ -238,16 +296,17 @@ private:
 
 ActivitySim::ActivitySim(Power *power,
                          const Scene *scene,
+                         bool full,
                          int words,
                          uint64_t seed,
                          bool verbose,
                          const StaState *sta) :
   power_(power),
-  scene_(scene),
   network_(sta->network()),
   report_(sta->report()),
   sim_(scene->mode()->sim()),
   clk_network_(scene->mode()->clkNetwork()),
+  full_(full),
   words_(words),
   verbose_(verbose),
   rng_(seed)
@@ -331,6 +390,21 @@ ActivitySim::sameActivity(const PwrActivity &activity,
     && itr->second.duty() == activity.duty();
 }
 
+// Drivers that are not evaluated are sources with their propagated
+// activity. In full mode they are primary inputs, macro outputs and
+// annotated pins, which the formulas seed from the same values.
+PwrActivity
+ActivitySim::sourceActivity(const Pin *drvr) const
+{
+  PwrActivity activity;
+  if (full_)
+    activity = power_->hasUserActivity(drvr)
+      ? power_->userActivity(drvr) : input_activity_;
+  else
+    activity = power_->findActivity(drvr);
+  return activity;
+}
+
 // A signal without a driver pin, driven as a source with activity.
 int
 ActivitySim::sourceSignal(const PwrActivity &activity)
@@ -357,7 +431,8 @@ ActivitySim::constOneSignal()
 SimProgram
 ActivitySim::compile(const FuncExpr *expr,
                      const Instance *inst,
-                     std::vector<int> &deps)
+                     const std::map<const LibertyPort *, int> &states,
+                     std::vector<int> *deps)
 {
   SimProgram prog;
   size_t depth = 0;
@@ -370,10 +445,21 @@ ActivitySim::compile(const FuncExpr *expr,
   std::function<void(const FuncExpr *)> walk = [&](const FuncExpr *expr) {
     switch (expr->op()) {
     case FuncExpr::Op::port: {
-      const Pin *pin = network_->findPin(inst, expr->port());
-      int sig = pin ? loadSignal(pin) : 0;
-      push({TapeOp::sig, static_cast<uint32_t>(sig)});
-      deps.push_back(sig);
+      LibertyPort *port = expr->port();
+      auto state_itr = states.find(port);
+      if (state_itr != states.end()) {
+        int state_index = state_itr->second;
+        push({state_index < 0 ? TapeOp::state_inv : TapeOp::state,
+              static_cast<uint32_t>(state_index < 0 ? -state_index - 1
+                                    : state_index)});
+      }
+      else {
+        const Pin *pin = network_->findPin(inst, port);
+        int sig = pin ? loadSignal(pin) : 0;
+        push({TapeOp::sig, static_cast<uint32_t>(sig)});
+        if (deps)
+          deps->push_back(sig);
+      }
       break;
     }
     case FuncExpr::Op::not_:
@@ -399,41 +485,195 @@ ActivitySim::compile(const FuncExpr *expr,
       break;
     }
   };
-  walk(expr);
+  if (expr)
+    walk(expr);
+  else
+    push({TapeOp::zero, 0});
   max_stack_ = std::max(max_stack_, max_depth);
   return prog;
 }
 
-// Combinational cells are evaluated. The outputs of registers, latches,
-// clock gates and macros, and outputs on the clock network or annotated
-// by the user, stay sources.
+// Combinational cells are evaluated in both modes. Registers, latches and
+// clock gates are evaluated in full mode and stay sources in combinational
+// mode, as do macros and outputs annotated by the user. In combinational
+// mode outputs on the clock network stay sources too.
 void
 ActivitySim::addInstance(const Instance *inst)
 {
   LibertyCell *cell = network_->libertyCell(inst);
-  const LibertyCell *test_cell = cell ? cell->testCell() : nullptr;
-  bool comb = cell && !cell->isClockGate() && cell->sequentials().empty()
-    && !(test_cell && !test_cell->sequentials().empty());
-  if (comb) {
+  if (cell) {
+    const LibertyCell *test_cell = cell->testCell();
+    const LibertyCell *seq_cell = !cell->sequentials().empty() ? cell
+      : (test_cell && !test_cell->sequentials().empty()) ? test_cell
+      : nullptr;
+    if (cell->isClockGate()) {
+      if (full_)
+        addClockGate(inst, cell);
+    }
+    else if (seq_cell) {
+      if (full_)
+        addSequential(inst, cell, seq_cell);
+    }
+    else
+      addCombInstance(inst);
+  }
+}
+
+void
+ActivitySim::addCombInstance(const Instance *inst)
+{
+  SimNode node;
+  std::map<const LibertyPort *, int> no_states;
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    LibertyPort *port = network_->libertyPort(pin);
+    if (network_->direction(pin)->isAnyOutput() && port && port->function()
+        && (full_ || !clk_network_->isClock(pin))
+        && !power_->hasUserActivity(pin)) {
+      int sig = signal(pin);
+      pinned_[sig] = false;
+      node.outputs.push_back({sig, compile(port->function(), inst, no_states,
+                                           &node.deps)});
+    }
+  }
+  delete pin_iter;
+  if (!node.outputs.empty()) {
+    nodes_.push_back(std::move(node));
+    cell_count_++;
+  }
+}
+
+// A latch on the enable, transparent while the clock is low (high for
+// negative edge gates). The gate is enabled when the enable or any driven
+// or constant test enable is 1 (undriven test pins are ignored, as in
+// Power::clockGateTestDuty and Sim::clockGateOutValue).
+void
+ActivitySim::addClockGate(const Instance *inst,
+                          const LibertyCell *cell)
+{
+  const Pin *enable = nullptr, *clk = nullptr, *gclk = nullptr;
+  power_->clockGatePins(inst, enable, clk, gclk);
+  if (clk && gclk && !power_->hasUserActivity(gclk)) {
+    bool negedge = cell->isClockGateLatchNegedge();
+    if (cell->isClockGateOther())
+      clock_gate_other_++;
     SimNode node;
+    node.kind = SimNodeKind::latch;
+    node.state = state_count_++;
+    int clk_sig = loadSignal(clk);
+    node.clock = {{TapeOp::sig, static_cast<uint32_t>(clk_sig)}};
+    if (!negedge)
+      node.clock.push_back({TapeOp::not_, 0});
+    node.deps.push_back(clk_sig);
+    if (enable) {
+      int enable_sig = loadSignal(enable);
+      node.next = {{TapeOp::sig, static_cast<uint32_t>(enable_sig)}};
+      node.deps.push_back(enable_sig);
+    }
+    else
+      node.next = {{TapeOp::one, 0}};
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
     while (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
-      LibertyPort *port = network_->libertyPort(pin);
-      if (network_->direction(pin)->isAnyOutput() && port && port->function()
-          && !clk_network_->isClock(pin) && !power_->hasUserActivity(pin)) {
-        int sig = signal(pin);
-        pinned_[sig] = false;
-        node.outputs.push_back({sig, compile(port->function(), inst,
-                                             node.deps)});
+      const LibertyPort *port = network_->libertyPort(pin);
+      if (port && port->isClockGateTest()) {
+        PinSet *drvrs = network_->drivers(pin);
+        if ((drvrs && !drvrs->empty())
+            || sim_->simValue(pin) != LogicValue::unknown) {
+          int test_sig = loadSignal(pin);
+          node.next.push_back({TapeOp::sig, static_cast<uint32_t>(test_sig)});
+          node.next.push_back({TapeOp::or_, 0});
+          node.deps.push_back(test_sig);
+          max_stack_ = std::max<size_t>(max_stack_, 2);
+        }
       }
     }
     delete pin_iter;
-    if (!node.outputs.empty()) {
-      nodes_.push_back(std::move(node));
-      cell_count_++;
+    // Positive edge: GCLK = CLK & latched enable. Negative edge:
+    // GCLK = CLK | !latched enable. GCLK is a separate node that reads
+    // the latch without depending on its update: while the latch is
+    // transparent the clock alone sets GCLK, so enable logic fed by
+    // registers on GCLK is not a loop.
+    uint32_t st = node.state;
+    SimNode gate;
+    gate.deps.push_back(clk_sig);
+    int gclk_sig = signal(gclk);
+    pinned_[gclk_sig] = false;
+    gate.outputs.push_back({gclk_sig,
+                            {{TapeOp::sig, static_cast<uint32_t>(clk_sig)},
+                             {negedge ? TapeOp::state_inv : TapeOp::state, st},
+                             {negedge ? TapeOp::or_ : TapeOp::and_, 0}}});
+    max_stack_ = std::max<size_t>(max_stack_, 2);
+    nodes_.push_back(std::move(node));
+    nodes_.push_back(std::move(gate));
+    cell_count_++;
+  }
+}
+
+// One node per sequential; state ports map to their state index. Outputs
+// go to the node of the state their function reads. Outputs without a
+// function stay sources, like macro outputs.
+void
+ActivitySim::addSequential(const Instance *inst,
+                           const LibertyCell *cell,
+                           const LibertyCell *seq_cell)
+{
+  const SequentialSeq &seqs = seq_cell->sequentials();
+  std::map<const LibertyPort *, int> states;
+  int first_state = state_count_;
+  state_count_ += seqs.size();
+  for (size_t i = 0; i < seqs.size(); i++) {
+    const Sequential &seq = seqs[i];
+    int index = first_state + i;
+    if (seq.output())
+      states[seq.output()] = index;
+    if (seq.outputInv())
+      states[seq.outputInv()] = -index - 1;
+  }
+  size_t first_node = nodes_.size();
+  for (size_t i = 0; i < seqs.size(); i++) {
+    const Sequential &seq = seqs[i];
+    SimNode node;
+    node.kind = seq.isRegister() ? SimNodeKind::flop : SimNodeKind::latch;
+    node.state = first_state + i;
+    // Flops depend on their clock and async controls; latches also on
+    // their data.
+    node.clock = compile(seq.clock(), inst, states, &node.deps);
+    node.next = compile(seq.data(), inst, states,
+                        seq.isLatch() ? &node.deps : nullptr);
+    if (seq.clear())
+      node.clear = compile(seq.clear(), inst, states, &node.deps);
+    if (seq.preset())
+      node.preset = compile(seq.preset(), inst, states, &node.deps);
+    nodes_.push_back(std::move(node));
+  }
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    LibertyPort *port = network_->libertyPort(pin);
+    if (network_->direction(pin)->isAnyOutput() && port
+        && !power_->hasUserActivity(pin)) {
+      const LibertyPort *sport = seq_cell == cell
+        ? port : seq_cell->findLibertyPort(port->name());
+      FuncExpr *func = sport ? sport->function() : nullptr;
+      if (func) {
+        size_t owner = first_node;
+        for (size_t i = 0; i < seqs.size(); i++) {
+          const Sequential &seq = seqs[i];
+          if ((seq.output() && func->hasPort(seq.output()))
+              || (seq.outputInv() && func->hasPort(seq.outputInv())))
+            owner = first_node + i;
+        }
+        SimNode &node = nodes_[owner];
+        int sig = signal(pin);
+        pinned_[sig] = false;
+        node.outputs.push_back({sig, compile(func, inst, states, &node.deps)});
+      }
     }
   }
+  delete pin_iter;
+  cell_count_++;
 }
 
 void
@@ -451,29 +691,73 @@ ActivitySim::addSource(int sig,
 
 void
 ActivitySim::build(const PwrActivity &input_activity,
-                   float period)
+                   float period,
+                   const std::vector<const Clock *> &clocks)
 {
   input_activity_ = input_activity;
   period_ = period;
+  if (full_) {
+    // A clock defined on a cell input pin drives only that pin; the other
+    // loads of its net keep the driver.
+    for (const Clock *clk : clocks) {
+      for (const Pin *pin : clk->leafPins()) {
+        if (!network_->isDriver(pin) && network_->isLoad(pin)
+            && !load_signal_.contains(pin)) {
+          int sig = signal_drvr_.size();
+          signal_drvr_.push_back(nullptr);
+          forced_.push_back(-1);
+          pinned_.push_back(true);
+          load_signal_[pin] = sig;
+          clock_signals_.push_back(sig);
+        }
+      }
+    }
+  }
   LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
   while (inst_iter->hasNext())
     addInstance(inst_iter->next());
   delete inst_iter;
 
-  // Drivers that are not evaluated are sources with their propagated
-  // activity.
+  std::vector<bool> is_clock(signal_drvr_.size(), false);
+  if (full_) {
+    // Clocks drive the net of each driver source pin (port or cell output).
+    for (const Clock *clk : clocks) {
+      for (const Pin *pin : clk->leafPins()) {
+        auto itr = drvr_signal_.find(pin);
+        if (itr != drvr_signal_.end() && !is_clock[itr->second]) {
+          int sig = itr->second;
+          pinned_[sig] = true;
+          is_clock[sig] = true;
+          clock_signals_.push_back(sig);
+        }
+      }
+    }
+  }
+  unknown_.assign(signal_drvr_.size(), false);
   for (size_t sig = 1; sig < signal_drvr_.size(); sig++) {
     const Pin *drvr = signal_drvr_[sig];
-    if (pinned_[sig] && drvr)
-      addSource(sig, power_->findActivity(drvr), period);
+    if (pinned_[sig] && drvr && !is_clock[sig]) {
+      PwrActivity activity = sourceActivity(drvr);
+      unknown_[sig] = activity.origin() == PwrActivityOrigin::unknown
+        && forced_[sig] < 0;
+      addSource(sig, activity, period);
+    }
   }
   sortNodes();
+  markUnknown();
   lower();
 
   size_t signal_count = signal_drvr_.size();
   signals_.assign(signal_count * words_, 0);
   prev_signals_.assign(signal_count * words_, 0);
-  stack_.assign(max_stack_ * words_, 0);
+  states_.resize(state_count_ * words_);
+  for (Word &word : states_)
+    word = rng_.next();
+  next_states_.assign(state_count_ * words_, 0);
+  // No flop sees a clock edge in the settle before the first cycle.
+  prev_clocks_.assign(state_count_ * words_, ~Word(0));
+  // Two programs can be stacked (clock and data of a latch).
+  stack_.assign((max_stack_ + 2) * words_, 0);
   toggles_.assign(signal_count, 0);
   ones_.assign(signal_count, 0);
   for (const SimSource &source : sources_) {
@@ -483,13 +767,23 @@ ActivitySim::build(const PwrActivity &input_activity,
       value[w] = forced >= 0 ? (forced ? ~Word(0) : Word(0))
                              : rng_.bernoulli(source.duty);
   }
-  if (verbose_)
-    report_->report("Simulation: {} combinational cells {} sources "
-                    "{} signals, {} lanes.",
-                    cell_count_, sources_.size(), signal_count, words_ * 64);
+  if (verbose_) {
+    if (full_)
+      report_->report("Simulation: {} cells {} sequential states {} sources "
+                      "{} signals, {} lanes.",
+                      cell_count_, state_count_, sources_.size(),
+                      signal_count, words_ * 64);
+    else
+      report_->report("Simulation: {} combinational cells {} sources "
+                      "{} signals, {} lanes.",
+                      cell_count_, sources_.size(), signal_count, words_ * 64);
+  }
   if (loop_count_ > 0)
     report_->warn(2410, "{} cells in combinational loops are evaluated in "
                   "netlist order.", loop_count_);
+  if (clock_gate_other_ > 0)
+    report_->warn(2413, "{} clock gate cells of type other are simulated as "
+                  "positive edge clock gates.", clock_gate_other_);
 }
 
 void
@@ -515,6 +809,7 @@ ActivitySim::sortNodes()
     }
   }
   std::vector<int> loop_nodes = loopNodes(fanout);
+  loop_count_ = loop_nodes.size();
   order_.clear();
   std::vector<bool> placed(nodes_.size(), false);
   for (size_t i = 0; i < nodes_.size(); i++)
@@ -539,7 +834,30 @@ ActivitySim::sortNodes()
       int node = loop_nodes[next_loop];
       order_.push_back(node);
       placed[node] = true;
-      loop_count_++;
+    }
+  }
+}
+
+// A cell with an unknown input has an unknown output. The loop is for
+// combinational loops, which the node order breaks.
+void
+ActivitySim::markUnknown()
+{
+  bool changed = true;
+  while (changed) {
+    changed = false;
+    for (int n : order_) {
+      const SimNode &node = nodes_[n];
+      bool unknown = false;
+      for (int dep : node.deps)
+        unknown |= unknown_[dep];
+      if (unknown) {
+        for (const SimOutput &output : node.outputs)
+          if (!unknown_[output.signal] && forced_[output.signal] < 0) {
+            unknown_[output.signal] = true;
+            changed = true;
+          }
+      }
     }
   }
 }
@@ -611,8 +929,8 @@ ActivitySim::loopNodes(const std::vector<std::vector<int>> &fanout)
   return loop_nodes;
 }
 
-// Lower the sorted nodes to a flat instruction tape with signals renumbered
-// in evaluation order, so a cycle streams through memory.
+// Lower the sorted nodes to flat instruction tapes with signals and states
+// renumbered in evaluation order, so a phase streams through memory.
 void
 ActivitySim::lower()
 {
@@ -627,26 +945,67 @@ ActivitySim::lower()
   mapSig(0);
   for (const SimSource &source : sources_)
     mapSig(source.signal);
+  for (int clk_sig : clock_signals_)
+    mapSig(clk_sig);
   for (int n : order_)
     for (const SimOutput &output : nodes_[n].outputs)
       mapSig(output.signal);
   for (size_t old = 0; old < signal_count; old++)
     mapSig(old);
 
+  // Each state belongs to one node.
+  std::vector<int> state_perm(state_count_, -1);
+  int next_state = 0;
+  for (int n : order_)
+    if (nodes_[n].state >= 0)
+      state_perm[nodes_[n].state] = next_state++;
+
+  auto emit = [&](std::vector<TapeInstr> &tape, const SimProgram &prog) {
+    for (TapeInstr instr : prog) {
+      if (instr.op == TapeOp::sig)
+        instr.arg = sig_perm[instr.arg];
+      else if (instr.op == TapeOp::state || instr.op == TapeOp::state_inv)
+        instr.arg = state_perm[instr.arg];
+      tape.push_back(instr);
+    }
+  };
   for (int n : order_) {
-    for (const SimOutput &output : nodes_[n].outputs) {
-      int8_t forced = forced_[output.signal];
-      if (forced >= 0)
-        tape_.push_back({forced ? TapeOp::one : TapeOp::zero, 0});
-      else {
-        for (TapeInstr instr : output.func) {
-          if (instr.op == TapeOp::sig)
-            instr.arg = sig_perm[instr.arg];
-          tape_.push_back(instr);
-        }
+    const SimNode &node = nodes_[n];
+    uint32_t st = node.state >= 0 ? state_perm[node.state] : 0;
+    switch (node.kind) {
+    case SimNodeKind::comb:
+      break;
+    case SimNodeKind::flop:
+      emit(eval_tape_, node.clock);
+      eval_tape_.push_back({TapeOp::flop, st});
+      emit(next_tape_, node.next);
+      next_tape_.push_back({TapeOp::store_next, st});
+      break;
+    case SimNodeKind::latch:
+      emit(eval_tape_, node.clock);
+      emit(eval_tape_, node.next);
+      eval_tape_.push_back({TapeOp::latch, st});
+      break;
+    }
+    if (!node.clear.empty()) {
+      emit(eval_tape_, node.clear);
+      eval_tape_.push_back({TapeOp::clear, st});
+    }
+    if (!node.preset.empty()) {
+      emit(eval_tape_, node.preset);
+      eval_tape_.push_back({TapeOp::preset, st});
+    }
+    for (const SimOutput &output : node.outputs) {
+      // Clock source pins on cell outputs follow the clock instead.
+      if (!pinned_[output.signal]) {
+        int8_t forced = forced_[output.signal];
+        if (forced >= 0)
+          eval_tape_.push_back({forced ? TapeOp::one : TapeOp::zero, 0});
+        else
+          emit(eval_tape_, output.func);
+        eval_tape_.push_back({TapeOp::store,
+                              static_cast<uint32_t>(sig_perm[output.signal])});
       }
-      tape_.push_back({TapeOp::store,
-                       static_cast<uint32_t>(sig_perm[output.signal])});
     }
   }
 
@@ -654,16 +1013,21 @@ ActivitySim::lower()
   std::vector<const Pin *> drvrs(signal_count);
   std::vector<int8_t> forced(signal_count);
   std::vector<bool> pinned(signal_count);
+  std::vector<bool> unknown(signal_count);
   for (size_t old = 0; old < signal_count; old++) {
     drvrs[sig_perm[old]] = signal_drvr_[old];
     forced[sig_perm[old]] = forced_[old];
     pinned[sig_perm[old]] = pinned_[old];
+    unknown[sig_perm[old]] = unknown_[old];
   }
   signal_drvr_ = std::move(drvrs);
   forced_ = std::move(forced);
   pinned_ = std::move(pinned);
+  unknown_ = std::move(unknown);
   for (SimSource &source : sources_)
     source.signal = sig_perm[source.signal];
+  for (int &clk_sig : clock_signals_)
+    clk_sig = sig_perm[clk_sig];
   nodes_ = {};
   drvr_signal_ = {};
   load_signal_ = {};
@@ -671,18 +1035,35 @@ ActivitySim::lower()
 
 template <int W>
 void
-ActivitySim::runTape()
+ActivitySim::runTape(const std::vector<TapeInstr> &tape)
 {
   Word *sigs = signals_.data();
+  Word *sts = states_.data();
+  Word *nexts = next_states_.data();
+  Word *prevs = prev_clocks_.data();
   Word *base = stack_.data();
   Word *top = base - W;
-  for (const TapeInstr &instr : tape_) {
+  for (const TapeInstr &instr : tape) {
     switch (instr.op) {
     case TapeOp::sig: {
       top += W;
       const Word *src = sigs + size_t(instr.arg) * W;
       for (int w = 0; w < W; w++)
         top[w] = src[w];
+      break;
+    }
+    case TapeOp::state: {
+      top += W;
+      const Word *src = sts + size_t(instr.arg) * W;
+      for (int w = 0; w < W; w++)
+        top[w] = src[w];
+      break;
+    }
+    case TapeOp::state_inv: {
+      top += W;
+      const Word *src = sts + size_t(instr.arg) * W;
+      for (int w = 0; w < W; w++)
+        top[w] = ~src[w];
       break;
     }
     case TapeOp::one:
@@ -721,65 +1102,138 @@ ActivitySim::runTape()
       top -= W;
       break;
     }
+    case TapeOp::store_next: {
+      Word *dst = nexts + size_t(instr.arg) * W;
+      for (int w = 0; w < W; w++)
+        dst[w] = top[w];
+      top -= W;
+      break;
+    }
+    case TapeOp::flop: {
+      // Capture on a rising edge of the clock function.
+      size_t off = size_t(instr.arg) * W;
+      Word *st = sts + off;
+      Word *prev = prevs + off;
+      const Word *next = nexts + off;
+      for (int w = 0; w < W; w++) {
+        Word rise = top[w] & ~prev[w];
+        st[w] = (rise & next[w]) | (st[w] & ~rise);
+        prev[w] = top[w];
+      }
+      top -= W;
+      break;
+    }
+    case TapeOp::latch: {
+      // Stack: enable, data.
+      Word *st = sts + size_t(instr.arg) * W;
+      const Word *en = top - W;
+      for (int w = 0; w < W; w++)
+        st[w] = (en[w] & top[w]) | (st[w] & ~en[w]);
+      top -= 2 * W;
+      break;
+    }
+    case TapeOp::clear: {
+      Word *st = sts + size_t(instr.arg) * W;
+      for (int w = 0; w < W; w++)
+        st[w] &= ~top[w];
+      top -= W;
+      break;
+    }
+    case TapeOp::preset: {
+      Word *st = sts + size_t(instr.arg) * W;
+      for (int w = 0; w < W; w++)
+        st[w] |= top[w];
+      top -= W;
+      break;
+    }
     }
   }
 }
 
-// Sources start in their stationary distribution, so counting starts at
-// the first cycle.
+// Sources change once per cycle, in the high phase. Full mode evaluates a
+// high and a low clock phase per cycle; combinational mode has no clocks
+// and evaluates once per cycle. Sources start in their stationary
+// distribution, so combinational mode needs no settle cycles.
 template <int W>
 void
-ActivitySim::runCycles(int cycles)
+ActivitySim::runCycles(int settle_cycles,
+                       int cycles)
 {
   size_t signal_count = signal_drvr_.size();
-  runTape<W>();
-  prev_signals_ = signals_;
-  for (int cycle = 0; cycle < cycles; cycle++) {
-    for (const SimSource &source : sources_) {
-      if (forced_[source.signal] < 0
-          && (source.rise > 0.0 || source.fall > 0.0)) {
-        Word *value = sig(source.signal);
-        for (int w = 0; w < W; w++) {
-          Word rise = rng_.bernoulli(source.rise);
-          Word fall = rng_.bernoulli(source.fall);
-          value[w] = (value[w] & ~fall) | (~value[w] & rise);
+  int phases = full_ ? 2 : 1;
+  // Settle before the first edge with the clock low.
+  runTape<W>(eval_tape_);
+  if (settle_cycles == 0)
+    prev_signals_ = signals_;
+  for (int cycle = 0; cycle < settle_cycles + cycles; cycle++) {
+    bool count = cycle >= settle_cycles;
+    for (int phase = 0; phase < phases; phase++) {
+      bool high = phase == 0;
+      // Flops capture the next_state of the settled previous phase.
+      runTape<W>(next_tape_);
+      if (high) {
+        for (const SimSource &source : sources_) {
+          if (forced_[source.signal] < 0
+              && (source.rise > 0.0 || source.fall > 0.0)) {
+            Word *value = sig(source.signal);
+            for (int w = 0; w < W; w++) {
+              Word rise = rng_.bernoulli(source.rise);
+              Word fall = rng_.bernoulli(source.fall);
+              value[w] = (value[w] & ~fall) | (~value[w] & rise);
+            }
+          }
         }
       }
-    }
-    runTape<W>();
-    Word *value = signals_.data() + W;
-    Word *prev = prev_signals_.data() + W;
-    for (size_t s = 1; s < signal_count; s++) {
-      uint64_t tog = 0, one = 0;
-      for (int w = 0; w < W; w++) {
-        tog += wordOnes(value[w] ^ prev[w]);
-        one += wordOnes(value[w]);
-        prev[w] = value[w];
+      for (int clk_sig : clock_signals_) {
+        Word *value = sig(clk_sig);
+        for (int w = 0; w < W; w++)
+          value[w] = high ? ~Word(0) : Word(0);
       }
-      toggles_[s] += tog;
-      ones_[s] += one;
-      value += W;
-      prev += W;
+      runTape<W>(eval_tape_);
+      Word *value = signals_.data() + W;
+      Word *prev = prev_signals_.data() + W;
+      if (count) {
+        for (size_t s = 1; s < signal_count; s++) {
+          uint64_t tog = 0, one = 0;
+          for (int w = 0; w < W; w++) {
+            tog += wordOnes(value[w] ^ prev[w]);
+            one += wordOnes(value[w]);
+            prev[w] = value[w];
+          }
+          toggles_[s] += tog;
+          ones_[s] += one;
+          value += W;
+          prev += W;
+        }
+      }
+      else if (cycle == settle_cycles - 1 && phase == phases - 1)
+        // Counting starts from the last settle phase.
+        prev_signals_ = signals_;
     }
   }
 }
 
 void
-ActivitySim::run(int cycles)
+ActivitySim::run(int settle_cycles,
+                 int cycles)
 {
   // words_ is 1, 2, 4, 8 or 16 (Power::simulateActivities).
   switch (words_) {
-  case 1: runCycles<1>(cycles); break;
-  case 2: runCycles<2>(cycles); break;
-  case 4: runCycles<4>(cycles); break;
-  case 8: runCycles<8>(cycles); break;
-  case 16: runCycles<16>(cycles); break;
+  case 1: runCycles<1>(settle_cycles, cycles); break;
+  case 2: runCycles<2>(settle_cycles, cycles); break;
+  case 4: runCycles<4>(settle_cycles, cycles); break;
+  case 8: runCycles<8>(settle_cycles, cycles); break;
+  default: runCycles<16>(settle_cycles, cycles); break;
   }
   // Only the counts are needed to annotate.
   signals_ = {};
   prev_signals_ = {};
+  states_ = {};
+  next_states_ = {};
+  prev_clocks_ = {};
   stack_ = {};
-  tape_ = {};
+  eval_tape_ = {};
+  next_tape_ = {};
 }
 
 void
@@ -787,19 +1241,23 @@ ActivitySim::annotate(int cycles,
                       float period)
 {
   double samples = static_cast<double>(cycles) * words_ * 64;
+  // Ones are counted in every phase.
+  double phase_samples = full_ ? 2.0 * samples : samples;
   PwrActivityMap &user_activity = power_->user_activity_map_;
   user_activity.reserve(user_activity.size() + signal_drvr_.size());
   size_t annotated = 0;
   for (size_t s = 1; s < signal_drvr_.size(); s++) {
     const Pin *drvr = signal_drvr_[s];
-    // Primary inputs keep their set or default activity, the clock network
-    // its clock activity and constants their value.
-    if (drvr && !network_->isTopLevelPort(drvr)
-        && !clk_network_->isClock(drvr) && forced_[s] < 0) {
+    // Primary inputs keep their set or default activity, clock sources (in
+    // combinational mode the whole clock network) their clock activity,
+    // constants their value and unknown signals are left to the formulas.
+    if (drvr && !network_->isTopLevelPort(drvr) && forced_[s] < 0
+        && !(pinned_[s] && clk_network_->isClock(drvr)) && !unknown_[s]) {
       // Sources keep the activity they were simulated with.
       PwrActivity activity = pinned_[s]
-        ? power_->findActivity(drvr)
-        : PwrActivity(toggles_[s] / samples / period, ones_[s] / samples,
+        ? sourceActivity(drvr)
+        : PwrActivity(toggles_[s] / samples / period,
+                      ones_[s] / phase_samples,
                       PwrActivityOrigin::simulation);
       activity.setOrigin(PwrActivityOrigin::simulation);
       // Keep set_power_activity, read_saif and read_vcd annotations.
@@ -813,6 +1271,8 @@ ActivitySim::annotate(int cycles,
 
 void
 Power::simulateActivities(const Scene *scene,
+                          bool full,
+                          int settle_cycles,
                           int cycles,
                           int lanes,
                           uint64_t seed,
@@ -875,16 +1335,17 @@ Power::simulateActivities(const Scene *scene,
       min_period = units_->timeUnit()->scale();
     input_activity.set(0.1 / min_period, 0.5, PwrActivityOrigin::input);
   }
-  // The sources take their activity from the formulas. The simulation is
-  // valid, so this does not simulate again.
-  ensureActivities(scene);
+  // Combinational mode sources take their activity from the formulas. The
+  // simulation is valid, so this does not simulate again.
+  if (!full)
+    ensureActivities(scene);
   // 64, 128, 256, 512 or 1024 lanes.
   int words = 1;
   while (words * 64 < lanes && words < 16)
     words *= 2;
-  ActivitySim sim(this, scene, words, seed, command, this);
-  sim.build(input_activity, period);
-  sim.run(cycles);
+  ActivitySim sim(this, scene, full, words, seed, command, this);
+  sim.build(input_activity, period, clocks);
+  sim.run(full ? settle_cycles : 0, cycles);
   sim.annotate(cycles, period);
 }
 
@@ -921,11 +1382,11 @@ Power::clearActivitySimResults()
 }
 
 void
-Power::setSimulateActivities(bool simulate)
+Power::setActivityMode(PwrActivityMode mode)
 {
-  if (simulate != simulate_activities_) {
-    simulate_activities_ = simulate;
-    if (!simulate)
+  if (mode != activity_mode_) {
+    activity_mode_ = mode;
+    if (mode == PwrActivityMode::vectorless)
       clearActivitySimResults();
     activitiesInvalid();
   }

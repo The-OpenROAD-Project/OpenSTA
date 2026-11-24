@@ -3906,9 +3906,9 @@ set_power_activity -input -activity 0.1 -duty 0.5
 ## set_power_activity_mode
 
 <pre><code>set_power_activity_mode
-    simulation|vectorless</code></pre>
+    vectorless|combinational|full</code></pre>
 
-Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the combinational logic before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.
+Choose how activities without VCD, SAIF or set_power_activity annotations are found. "vectorless" (the default) propagates activities through each cell with formulas. "combinational" runs a random zero-delay simulation of the combinational logic between registers before power is reported, and "full" simulates the registers, latches and clock gates too (see simulate_power_activity). The simulation runs again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes, after 300 settle cycles in full mode. Designs whose clocks have different periods, or no clock, use the formulas (with a warning).
 
 ## set_propagated_clock
 
@@ -4207,16 +4207,24 @@ The `set_wire_load_selection_group` command is parsed but not supported.
 ## simulate_power_activity
 
 <pre><code>simulate_power_activity
+    [<a href="#opt-simulate_power_activity-full">-full</a>]
     [<a href="#opt-simulate_power_activity-cycles">-cycles</a> cycles]
+    [<a href="#opt-simulate_power_activity-settle_cycles">-settle_cycles</a> cycles]
     [<a href="#opt-simulate_power_activity-lanes">-lanes</a> lanes]
     [<a href="#opt-simulate_power_activity-seed">-seed</a> seed]</code></pre>
 
-Annotate activities of combinational logic from a random zero-delay simulation. Activities are first propagated with the formulas. Primary inputs and the outputs of registers, latches, clock gates, macros and cells on the clock network then toggle once per clock cycle at most, at that activity, and the combinational cells between them are evaluated each cycle, so reconvergent fanout and correlated cell inputs are seen. Each lane is an independent random copy of the design. The driver of each net is annotated (sources with the activity they were simulated with) and its loads get the driver activity by propagation. The annotations are removed when inputs, clocks or case analysis change; set_power_activity_mode simulation runs the simulation again instead.
+Annotate activities from a random zero-delay simulation. Activities are first propagated with the formulas. Primary inputs and the outputs of registers, latches, clock gates, macros and cells on the clock network then toggle once per clock cycle at most, at that activity, and the combinational cells between them are evaluated each cycle, so reconvergent fanout and correlated cell inputs are seen. With -full, registers, latches and clock gates are simulated too: clocks follow the SDC clocks with a 50% duty cycle, flops capture on their clock edge and the random initial state settles over the settle cycles. Each lane is an independent random copy of the design. The driver of each net is annotated (sources with the activity they were simulated with) and its loads get the driver activity by propagation. The annotations are removed when inputs, clocks or case analysis change; set_power_activity_mode combinational or full runs the simulation again instead.
 
 ### Options
 
+`-full` {: #opt-simulate_power_activity-full }
+: Simulate registers, latches and clock gates instead of taking their outputs as sources with the formula activity.
+
 `-cycles` {: #opt-simulate_power_activity-cycles }
 : `cycles`: Number of measured clock cycles. Defaults to 2000.
+
+`-settle_cycles` {: #opt-simulate_power_activity-settle_cycles }
+: `cycles`: With -full, number of clock cycles simulated before counting starts, so the initial state has settled. Defaults to 500.
 
 `-lanes` {: #opt-simulate_power_activity-lanes }
 : `lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.

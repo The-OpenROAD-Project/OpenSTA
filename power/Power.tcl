@@ -329,23 +329,35 @@ proc read_saif { args } {
 ################################################################
 
 # ---- OpenROAD fork: power activity simulation (begin) ----
-define_cmd_args "simulate_power_activity" { [-cycles cycles] [-lanes lanes] \
+define_cmd_args "simulate_power_activity" { [-full] [-cycles cycles] \
+                                              [-settle_cycles cycles] [-lanes lanes] \
                                               [-seed seed] } \
-  -help {Annotate activities of combinational logic from a random zero-delay simulation. Activities are first propagated with the formulas. Primary inputs and the outputs of registers, latches, clock gates, macros and cells on the clock network then toggle once per clock cycle at most, at that activity, and the combinational cells between them are evaluated each cycle, so reconvergent fanout and correlated cell inputs are seen. Each lane is an independent random copy of the design. The driver of each net is annotated (sources with the activity they were simulated with) and its loads get the driver activity by propagation. The annotations are removed when inputs, clocks or case analysis change; set_power_activity_mode simulation runs the simulation again instead.} \
+  -help {Annotate activities from a random zero-delay simulation. Activities are first propagated with the formulas. Primary inputs and the outputs of registers, latches, clock gates, macros and cells on the clock network then toggle once per clock cycle at most, at that activity, and the combinational cells between them are evaluated each cycle, so reconvergent fanout and correlated cell inputs are seen. With -full, registers, latches and clock gates are simulated too: clocks follow the SDC clocks with a 50% duty cycle, flops capture on their clock edge and the random initial state settles over the settle cycles. Each lane is an independent random copy of the design. The driver of each net is annotated (sources with the activity they were simulated with) and its loads get the driver activity by propagation. The annotations are removed when inputs, clocks or case analysis change; set_power_activity_mode combinational or full runs the simulation again instead.} \
   -arg_help {
+    -full {Simulate registers, latches and clock gates instead of taking their outputs as sources with the formula activity.}
     -cycles {`cycles`: Number of measured clock cycles. Defaults to 2000.}
+    -settle_cycles {`cycles`: With -full, number of clock cycles simulated before counting starts, so the initial state has settled. Defaults to 500.}
     -lanes {`lanes`: Number of independent random copies of the design simulated in parallel, rounded up to a power of two multiple of 64 (at most 1024). Defaults to 256.}
     -seed {`seed`: Random number generator seed. Defaults to 1.}
   }
 
 proc simulate_power_activity { args } {
   parse_key_args "simulate_power_activity" args \
-    keys {-cycles -lanes -seed} flags {}
+    keys {-cycles -settle_cycles -lanes -seed} flags {-full}
   check_argc_eq0 "simulate_power_activity" $args
+  set full [info exists flags(-full)]
   set cycles 2000
   if { [info exists keys(-cycles)] } {
     set cycles $keys(-cycles)
     check_cardinal "-cycles" $cycles
+  }
+  set settle_cycles 500
+  if { [info exists keys(-settle_cycles)] } {
+    if { !$full } {
+      sta_error 313 "simulate_power_activity -settle_cycles requires -full."
+    }
+    set settle_cycles $keys(-settle_cycles)
+    check_positive_integer "-settle_cycles" $settle_cycles
   }
   set lanes 256
   if { [info exists keys(-lanes)] } {
@@ -357,21 +369,20 @@ proc simulate_power_activity { args } {
     set seed $keys(-seed)
     check_positive_integer "-seed" $seed
   }
-  simulate_power_activity_cmd [cmd_scene] $cycles $lanes $seed
+  simulate_power_activity_cmd [cmd_scene] $full $settle_cycles $cycles $lanes $seed
 }
 
-define_cmd_args "set_power_activity_mode" { simulation|vectorless } \
-  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "simulation" runs a random zero-delay simulation of the combinational logic before power is reported, again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). "vectorless" (the default) propagates activities through each cell with formulas.}
+define_cmd_args "set_power_activity_mode" { vectorless|combinational|full } \
+  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "vectorless" (the default) propagates activities through each cell with formulas. "combinational" runs a random zero-delay simulation of the combinational logic between registers before power is reported, and "full" simulates the registers, latches and clock gates too (see simulate_power_activity). The simulation runs again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes, after 300 settle cycles in full mode. Designs whose clocks have different periods, or no clock, use the formulas (with a warning).}
 
 proc set_power_activity_mode { args } {
   check_argc_eq1 "set_power_activity_mode" $args
   set mode [lindex $args 0]
-  if { $mode == "simulation" } {
-    set_power_activity_mode_cmd 1
-  } elseif { $mode == "vectorless" } {
-    set_power_activity_mode_cmd 0
+  if { $mode == "vectorless" || $mode == "combinational" || $mode == "full" } {
+    set_power_activity_mode_cmd $mode
   } else {
-    sta_error 312 "set_power_activity_mode must be simulation or vectorless."
+    sta_error 312 "set_power_activity_mode must be vectorless, combinational\
+      or full."
   }
 }
 # ---- OpenROAD fork: power activity simulation (end) ----

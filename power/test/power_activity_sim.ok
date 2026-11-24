@@ -8,7 +8,7 @@ icg/GCLK toggles/cycle 0.400 duty 0.100 propagated
 cb/X   toggles/cycle 2.000 duty 0.500 clock
 l1/Y   toggles/cycle 0.000 duty 1.000 propagated
 Simulation: 9 combinational cells 4 sources 14 signals, 256 lanes.
-Warning 2410: 1 cells in combinational loops are evaluated in netlist order.
+Warning 2410: 2 cells in combinational loops are evaluated in netlist order.
 Simulation annotated 10 pins.
 rb/X   toggles/cycle 0.501 duty 0.499 simulation
 rc/X   toggles/cycle 0.000 duty 0.000 simulation
@@ -23,16 +23,22 @@ input           4
 unannotated    37
 Annotations on a cell output and on a load pin are kept.
 Simulation: 8 combinational cells 5 sources 14 signals, 256 lanes.
-Warning 2410: 1 cells in combinational loops are evaluated in netlist order.
+Warning 2410: 2 cells in combinational loops are evaluated in netlist order.
 Simulation annotated 9 pins.
 rc/X   toggles/cycle 0.200 duty 0.500 user
 mx/S   toggles/cycle 0.000 duty 0.000 user
 mx/X   toggles/cycle 0.276 duty 0.251 simulation
 An input change removes the annotations (the formulas are used).
 mx/X   toggles/cycle 0.475 duty 0.500 propagated
-Simulation mode, then formulas (the default).
-Warning 2410: 1 cells in combinational loops are evaluated in netlist order.
+Combinational mode, then formulas (the default).
+Warning 2410: 2 cells in combinational loops are evaluated in netlist order.
 mx/X   toggles/cycle 0.501 duty 0.500 simulation
 mx/X   toggles/cycle 0.450 duty 0.500 propagated
+A register the formulas never reach (free running divider).
+Simulation: 1 combinational cells 1 sources 3 signals, 256 lanes.
+Simulation annotated 0 pins.
+d_r/Q  toggles/cycle 0.000 duty 0.000 unknown
+x_r/Q  toggles/cycle 0.100 duty 0.500 propagated
+unannotated    12
 No clock.
 Warning 2411: power activity simulation needs a clock with a source pin.

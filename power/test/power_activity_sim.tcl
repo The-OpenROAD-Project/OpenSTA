@@ -6,6 +6,7 @@
 #     and rx/X = r_q ^ !r_q is constant 1.
 #   The clock gate and the clock buffer cb keep their formula activities.
 #   l1/l2 is a combinational loop, evaluated in netlist order (warning).
+#   The unknown activity of a free running divider stays unannotated.
 source ../../test/helpers.tcl
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
 
@@ -66,11 +67,33 @@ set_power_activity -input_ports [get_ports y] -activity 0.3
 show mx/X
 set_power_activity -input_ports [get_ports y] -activity 0.1
 
-puts "Simulation mode, then formulas (the default)."
-set_power_activity_mode simulation
+puts "Combinational mode, then formulas (the default)."
+set_power_activity_mode combinational
 show mx/X
 set_power_activity_mode vectorless
 show mx/X
+
+puts "A register the formulas never reach (free running divider)."
+# The formulas do not solve the d_r/Q -> d_inv -> d_r/D loop, so d_r/Q has
+# no activity to simulate with and it is left to the formulas after the
+# simulation instead of being annotated as simulated.
+set verilog2 [make_result_file power_activity_sim2.v]
+set stream [open $verilog2 w]
+puts $stream {module top2 (clk, x, dq, xq);
+  input clk, x;
+  output dq, xq;
+  wire dn;
+  sky130_fd_sc_hd__inv_1 d_inv (.A(dq), .Y(dn));
+  sky130_fd_sc_hd__dfxtp_1 d_r (.CLK(clk), .D(dn), .Q(dq));
+  sky130_fd_sc_hd__dfxtp_1 x_r (.CLK(clk), .D(x), .Q(xq));
+endmodule}
+close $stream
+read_verilog $verilog2
+link_design top2
+create_clock -name clk -period 6 [get_ports clk]
+simulate_power_activity -cycles 4000 -lanes 256 -seed 1
+show {d_r/Q x_r/Q}
+report_activity_annotation
 
 puts "No clock."
 delete_clock [all_clocks]
