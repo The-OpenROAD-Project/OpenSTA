@@ -391,9 +391,9 @@ BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
     for (Vertex *v : tq) {
       Level lvl = v->level();
       queue_[lvl].push_back(v);
-      if (levelLess(last_level_, lvl))
+      if (lvl != last_level_ && levelLess(last_level_, lvl))
         last_level_ = lvl;
-      if (levelLess(lvl, first_level_))
+      if (lvl != first_level_ && levelLess(lvl, first_level_))
         first_level_ = lvl;
     }
     tq.clear();

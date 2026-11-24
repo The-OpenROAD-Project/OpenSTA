@@ -25,6 +25,7 @@
 #pragma once
 
 #include <atomic>
+#include <cassert>
 #include <map>
 #include <mutex>
 
@@ -302,6 +303,8 @@ public:
   [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
   [[nodiscard]] bool trySetBfsInQueue(BfsIndex index)
   {
+    static_assert(static_cast<unsigned>(BfsIndex::bits) <= 8);
+    assert(static_cast<unsigned>(index) < static_cast<unsigned>(BfsIndex::bits));
     const uint8_t mask = static_cast<uint8_t>(1U << static_cast<unsigned>(index));
     return (bfs_in_queue_.fetch_or(mask, std::memory_order_relaxed) & mask) == 0;
   }
