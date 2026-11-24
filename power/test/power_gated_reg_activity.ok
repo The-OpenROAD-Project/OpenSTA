@@ -1,0 +1,56 @@
+Random i.i.d. D (u = 1): ICG-gated flop matches enable-mux flop
+P(D) 0.5 P(EN) 0.1
+r_en/Q      toggles/cycle 0.0500 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.0500 duty 0.500 propagated
+rb_icg/Q_N  toggles/cycle 0.0500 duty 0.500 propagated
+P(D) 0.2 P(EN) 0.1
+r_en/Q      toggles/cycle 0.0320 duty 0.200 propagated
+r_icg/Q     toggles/cycle 0.0320 duty 0.200 propagated
+rb_icg/Q_N  toggles/cycle 0.0320 duty 0.800 propagated
+P(D) 0.8 P(EN) 0.1
+r_en/Q      toggles/cycle 0.0320 duty 0.800 propagated
+r_icg/Q     toggles/cycle 0.0320 duty 0.800 propagated
+rb_icg/Q_N  toggles/cycle 0.0320 duty 0.200 propagated
+Moderate D activity (0.03/cycle, duty 0.5) with P(EN) = 0.05 vs ungated
+r_en/Q      toggles/cycle 0.0140 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.0140 duty 0.500 propagated
+r_ungated/Q toggles/cycle 0.0300 duty 0.500 propagated
+Slow D activity (0.001/cycle, duty 0.5) with P(EN) = 0.5
+r_en/Q      toggles/cycle 0.0010 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.0010 duty 0.500 propagated
+r_ungated/Q toggles/cycle 0.0010 duty 0.500 propagated
+Enable on every other cycle, then single cycle pulses: two loads never
+follow each other, so the data is taken as random (0.25, 0.05).
+r_en/Q      toggles/cycle 0.2500 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.2500 duty 0.500 propagated
+r_en/Q      toggles/cycle 0.0500 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.0500 duty 0.500 propagated
+EN constant 0
+r_icg/Q     toggles/cycle 0.0000 duty 0.500 propagated
+EN constant 1, D 0.03/cycle
+r_icg/Q     toggles/cycle 0.0300 duty 0.500 propagated
+r_ungated/Q toggles/cycle 0.0300 duty 0.500 propagated
+Toggles and loads: JK flop (J 0.2, K 0.8: 0.32) and a toggle flop with
+a synchronous reset (T 0.5, RST 0.5: 0.375), random inputs.
+jk/Q        toggles/cycle 0.3200 duty 0.200 propagated
+tsr/Q       toggles/cycle 0.3750 duty 0.250 propagated
+Random data at the fast clock into registers on a divided clock: the
+data is sampled at its own period, so a random input differs between
+two samples with probability 0.5 (0.25 plain, 0.125 with enable 0.5,
+0.025 with enable 0.1, toggles per fast cycle).
+P(EN) 0.5, 0.5 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.1250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.1250 duty 0.500 propagated
+P(EN) 0.5, 0.02 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.1250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.1250 duty 0.500 propagated
+P(EN) 0.1, 0.18 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.0250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.0250 duty 0.500 propagated
+P(EN) 0.1, 0.02 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.0250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.0250 duty 0.500 propagated

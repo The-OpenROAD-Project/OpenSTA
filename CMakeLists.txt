@@ -147,6 +147,7 @@ set(STA_SOURCE
   power/ReportPower.cc
   power/VcdReader.cc
   power/SaifReader.cc
+  power/PowerSim.cc
   power/VcdParse.cc
   
   sdc/Clock.cc

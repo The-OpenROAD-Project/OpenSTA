@@ -102,6 +102,8 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map = {
     {PwrActivityOrigin::user, "user"},
     {PwrActivityOrigin::vcd, "vcd"},
     {PwrActivityOrigin::saif, "saif"},
+    // OpenROAD fork: power activity simulation
+    {PwrActivityOrigin::simulation, "simulation"},
     {PwrActivityOrigin::propagated, "propagated"},
     {PwrActivityOrigin::clock, "clock"},
     {PwrActivityOrigin::constant, "constant"},
@@ -119,6 +121,11 @@ Power::clear()
   global_activity_.init();
   input_activity_.init();
   user_activity_map_.clear();
+  // OpenROAD fork: power activity simulation.
+  activity_sim_valid_ = false;
+  activity_sim_mode_ = nullptr;
+  activity_sim_fallback_warned_ = false;
+  activity_mode_ = PwrActivityMode::vectorless;
   clearNonSdc();
 }
 
@@ -129,6 +136,10 @@ Power::clearNonSdc()
   seq_activity_map_.clear();
   activity_map_.clear();
   launch_period_cache_.clear();
+  // OpenROAD fork: clock gated register sampling.
+  reg_domain_cache_.clear();
+  drvr_domains_cache_.clear();
+  data_clk_period_cache_.clear();
   convergence_warned_ = false;
   slew_limit_warned_ = false;
   powerInvalid();
@@ -137,12 +148,28 @@ Power::clearNonSdc()
 void
 Power::deletePinBefore(const Pin *pin)
 {
-  unsetUserActivity(pin);
+  // OpenROAD fork: power activity simulation. A netlist edit does not
+  // make the simulation stale.
+  user_activity_map_.erase(pin);
+  propagationInvalid();
   activity_map_.erase(pin);
 }
 
 void
 Power::activitiesInvalid()
+{
+  activities_valid_ = false;
+  instance_powers_valid_ = false;
+  // OpenROAD fork: power activity simulation. Inputs or SDC changed; in
+  // vectorless mode the annotations of a command run go stale now.
+  if (activity_mode_ == PwrActivityMode::vectorless && activity_sim_valid_)
+    clearActivitySimResults();
+  activity_sim_valid_ = false;
+}
+
+// OpenROAD fork: power activity simulation
+void
+Power::propagationInvalid()
 {
   activities_valid_ = false;
   instance_powers_valid_ = false;
@@ -209,7 +236,12 @@ Power::setUserActivity(const Pin *pin,
                        PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {density, duty, origin};
-  activitiesInvalid();
+  // OpenROAD fork: power activity simulation. A copied simulation
+  // annotation (netlist edits) is not a new input.
+  if (origin == PwrActivityOrigin::simulation)
+    propagationInvalid();
+  else
+    activitiesInvalid();
 }
 
 void
@@ -261,7 +293,9 @@ Power::setSeqActivity(const Instance *reg,
                       PwrActivity &activity)
 {
   seq_activity_map_[SeqPin(reg, output)] = activity;
-  activitiesInvalid();
+  // OpenROAD fork: power activity simulation. Propagation bookkeeping, not
+  // an input change.
+  propagationInvalid();
 }
 
 bool
@@ -982,8 +1016,31 @@ Power::evalBddChangeDensity(DdNode *bdd,
                             // Return value.
                             float &density)
 {
+  // ---- OpenROAD fork: clock gated register sampling (begin) ----
+  std::vector<float> probs;
+  float period;
+  bool found = evalBddChangeProbs({{bdd, bdd}}, inst, 0.0, probs, period);
+  if (found)
+    density = probs[0] / period;
+  return found;
+}
+
+// Probability that each pair's from function in the previous period and
+// to function in the current period differ, with each input an
+// independent two state process, and the sampling period (sample_period
+// if not zero). Returns false for clock inputs, which switch twice per
+// period.
+bool
+Power::evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pairs,
+                          const Instance *inst,
+                          float sample_period,
+                          // Return values.
+                          std::vector<float> &probs,
+                          float &period)
+{
+  // ---- OpenROAD fork: clock gated register sampling (end) ----
   // Sample once per period of the fastest clock launching the inputs.
-  float period = INF;
+  period = INF;
   std::vector<std::pair<unsigned, PwrActivity>> var_activities;
   for (const auto [port, var_node] : bdd_.portVarMap()) {
     PwrActivity activity;
@@ -1000,6 +1057,9 @@ Power::evalBddChangeDensity(DdNode *bdd,
     }
     var_activities.emplace_back(Cudd_NodeReadIndex(var_node), activity);
   }
+  // OpenROAD fork: clock gated register sampling.
+  if (sample_period > 0.0)
+    period = sample_period;
   if (period == INF)
     period = clockMinPeriod(scene_->mode()->sdc());
   if (period == 0.0)
@@ -1053,7 +1113,9 @@ Power::evalBddChangeDensity(DdNode *bdd,
       cache[key] = prob;
       return prob;
     };
-  density = change_prob(bdd, bdd) / period;
+  // OpenROAD fork: clock gated register sampling.
+  for (const auto &[from, to] : pairs)
+    probs.push_back(change_prob(from, to));
   return true;
 }
 
@@ -1074,9 +1136,32 @@ Power::ensureActivities(const Scene *scene)
   if (!activities_valid_) {
     // No need to propagate activites if global activity is set.
     if (!global_activity_.isSet()) {
+      // ---- OpenROAD fork: power activity simulation (begin) ----
+      // In a simulation mode, vectorless activities come from a simulation
+      // run when inputs, SDC or the mode changed. Netlist edits keep its
+      // annotations; new pins are propagated from them below. In vectorless
+      // mode the annotations of a simulate_power_activity run are removed
+      // when inputs or SDC change, so they do not go stale.
+      if (activity_mode_ != PwrActivityMode::vectorless) {
+        if (!activity_sim_valid_ || activity_sim_mode_ != scene->mode())
+          simulateActivities(scene, activity_mode_ == PwrActivityMode::full,
+                             activity_sim_settle_cycles_, activity_sim_cycles_,
+                             activity_sim_lanes_, activity_sim_seed_, false);
+      }
+      else if (!activity_sim_valid_
+               || (activity_sim_mode_ && activity_sim_mode_ != scene->mode())) {
+        clearActivitySimResults();
+        activity_sim_valid_ = false;
+        activity_sim_mode_ = nullptr;
+      }
+      // ---- OpenROAD fork: power activity simulation (end) ----
       // Clear existing activities.
       activity_map_.clear();
       seq_activity_map_.clear();
+      // OpenROAD fork: clock gated register sampling.
+      reg_domain_cache_.clear();
+      drvr_domains_cache_.clear();
+      data_clk_period_cache_.clear();
 
       // Initialize default input activity (after sdc is defined)
       // unless it has been set by command.
@@ -1092,6 +1177,8 @@ Power::ensureActivities(const Scene *scene)
       launch_period_cache_.clear();
       seedActivities(bfs);
       seedFuncLessOutputActivities(bfs);
+      // OpenROAD fork: power activity simulation
+      seedSimulationActivities(bfs);
       PropActivityVisitor visitor(this, scene_->mode(), &bfs);
       // Propagate activities through combinational logic.
       bfs.visit(levelize_->maxLevel(), &visitor);
@@ -1211,7 +1298,28 @@ Power::seedRegOutputActivities(const Instance *reg,
                                bool invert)
 {
   const Pin *out_pin = network_->findPin(reg, output);
-  if (!hasUserActivity(out_pin)) {
+  // ---- OpenROAD fork: power activity simulation (begin) ----
+  // An annotated (vcd, saif, simulation) output pin whose function is the
+  // state gives the state activity.
+  bool pin_invert = false;
+  const Pin *state_pin = annotatedStatePin(reg, output, pin_invert);
+  if (state_pin == nullptr) {
+    // The other state port, inverted.
+    LibertyPort *other = invert ? seq.output() : seq.outputInv();
+    if (other) {
+      state_pin = annotatedStatePin(reg, other, pin_invert);
+      if (state_pin)
+        pin_invert = !pin_invert;
+    }
+  }
+  if (state_pin) {
+    PwrActivity state_activity = userActivity(state_pin);
+    if (pin_invert)
+      state_activity.setDuty(1.0 - state_activity.duty());
+    setSeqActivity(reg, output, state_activity);
+  }
+  else if (!hasUserActivity(out_pin)) {
+  // ---- OpenROAD fork: power activity simulation (end) ----
     PwrActivity in_activity = evalActivity(seq.data(), reg);
     float in_density = in_activity.density();
     float in_duty = in_activity.duty();
@@ -1220,15 +1328,37 @@ Power::seedRegOutputActivities(const Instance *reg,
     float out_duty = in_duty;
     PwrActivity clk_activity = evalActivity(seq.clock(), reg);
     float clk_density = clk_activity.density();
-    // A register output changes at most once per active clock edge
-    // (clk_density / 2), with probability at most 2 * min(duty, 1 - duty),
-    // so the output is continuous in the input density.
+    // ---- OpenROAD fork: clock gated register sampling (begin) ----
+    // The data is a two state Markov chain sampled at the active clock
+    // edges (clk_density / 2). With every clock edge active (p_en = 1) the
+    // output changes at most once per edge, with probability at most
+    // 2 * min(duty, 1 - duty): min(in_density, min(duty, 1 - duty) *
+    // clk_density). Behind a clock gate (p_en < 1) pairs of data changes
+    // between active edges are not seen, and a random input changes the
+    // output 2 * duty * (1 - duty) times per active edge, as the hold loop
+    // of an enable register.
+    // Data launched by registers on the same clock gate and enables
+    // changes only at the enabled edges, so all of its changes are seen.
     if (seq.isRegister()) {
-      out_density = std::min(in_density,
-                             std::min(in_duty, 1 - in_duty) * clk_density);
+      float duty = std::clamp(in_duty, 0.0F, 1.0F);
+      float active_edges = clk_density / 2.0F;
+      float period = regClkPeriod(reg, seq);
+      if (period <= 0.0 || active_edges * period > 1.0)
+        period = active_edges > 0.0 ? 1.0F / active_edges : 0.0F;
+      // The data is a two state process at its own (faster) clock period.
+      float data_period = dataPeriod(reg, seq.data(), period);
+      bool same_domain = dataInSampleDomain(reg, seq);
+      // Data changes per data period, at most one.
+      float change = std::min(in_density * data_period,
+                              2.0F * std::min(duty, 1.0F - duty));
+      float p = active_edges * data_period;
+      out_density = active_edges * sampledChange(change, duty, p,
+                                                 same_domain);
+      // ---- OpenROAD fork: clock gated register sampling (end) ----
       // The state has no activity yet when next_state refers to it (e.g.
       // "(D&DE) | (IQ&!DE)"), so solve the hold loop instead.
-      evalRegHoldActivity(reg, seq, clk_density, out_density, out_duty);
+      evalRegHoldActivity(reg, seq, clk_density, period, data_period,
+                          same_domain, out_density, out_duty);
     }
     else if (in_density > clk_density / 2 && seq.isLatch()) {
       PwrActivity clk_activity = evalActivity(seq.clock(), reg);
@@ -1248,31 +1378,66 @@ Power::seedRegOutputActivities(const Instance *reg,
   }
 }
 
-// For a next_state that refers to the register's own state, each active
-// clock edge sets the state with probability u = P(next_state | IQ=0) and
-// clears it with probability v = P(!next_state | IQ=1). As a two-state
-// process the duty is u / (u + v) and the state changes 2uv / (u + v) times
-// per active edge. That assumes inputs that are random every cycle, which
-// is too high for slow inputs (an enable that is always on makes the cell
-// a plain register), so density is only lowered from its value on entry.
-// Returns false if next_state does not refer to the state.
+// ---- OpenROAD fork: power activity simulation (begin) ----
+// Output pin of reg with a user activity whose function is the state port
+// (invert false) or its inverse (invert true), or null.
+const Pin *
+Power::annotatedStatePin(const Instance *reg,
+                         const LibertyPort *state,
+                         // Return value.
+                         bool &invert)
+{
+  const Pin *state_pin = nullptr;
+  InstancePinIterator *pin_iter = network_->pinIterator(reg);
+  while (pin_iter->hasNext() && state_pin == nullptr) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    // The state of a scan flop is in the test cell.
+    const LibertyCell *test_cell = port ? port->libertyCell()->testCell()
+      : nullptr;
+    if (test_cell)
+      port = test_cell->findLibertyPort(port->name());
+    const FuncExpr *func = port ? port->function() : nullptr;
+    if (func && hasUserActivity(pin)) {
+      if (func->op() == FuncExpr::Op::port && func->port() == state) {
+        state_pin = pin;
+        invert = false;
+      }
+      else if (func->op() == FuncExpr::Op::not_
+               && func->left()->op() == FuncExpr::Op::port
+               && func->left()->port() == state) {
+        state_pin = pin;
+        invert = true;
+      }
+    }
+  }
+  delete pin_iter;
+  return state_pin;
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
+
+// ---- OpenROAD fork: clock gated register sampling (begin) ----
+// True if next_state refers to the register's own state.
 bool
-Power::evalRegHoldActivity(const Instance *reg,
-                           const Sequential &seq,
-                           float clk_density,
-                           // Return values.
-                           float &density,
-                           float &duty)
+Power::stateInNextState(const Sequential &seq)
 {
   FuncExpr *data = seq.data();
   LibertyPort *iq = seq.output();
   LibertyPort *iqn = seq.outputInv();
-  if (data == nullptr
-      || !((iq && data->hasPort(iq)) || (iqn && data->hasPort(iqn))))
-    return false;
+  return data
+    && ((iq && data->hasPort(iq)) || (iqn && data->hasPort(iqn)));
+}
+
+// Cofactors of the next_state bdd with the state 0 and 1 (referenced).
+void
+Power::stateNextCofactors(const Sequential &seq,
+                          DdNode *bdd,
+                          // Return values.
+                          DdNode *state_next[2])
+{
   DdManager *mgr = bdd_.cuddMgr();
-  DdNode *bdd = bdd_.funcBdd(data);
-  float state_duty[2];
+  LibertyPort *iq = seq.output();
+  LibertyPort *iqn = seq.outputInv();
   for (int value : {0, 1}) {
     DdNode *node = bdd;
     Cudd_Ref(node);
@@ -1289,17 +1454,415 @@ Power::evalRegHoldActivity(const Instance *reg,
         node = cofactor;
       }
     }
-    state_duty[value] = evalBddDuty(node, reg);
-    Cudd_RecursiveDeref(mgr, node);
+    state_next[value] = node;
   }
-  Cudd_RecursiveDeref(mgr, bdd);
-  bdd_.clearVarMap();
+}
+
+// Period of the fastest clock launching the inputs of data, at most period.
+float
+Power::dataPeriod(const Instance *reg,
+                  const FuncExpr *data,
+                  float period)
+{
+  float data_period = period;
+  if (data) {
+    for (const LibertyPort *port : data->ports()) {
+      const Pin *pin = port->direction()->isInternal()
+        ? nullptr : network_->findPin(reg, port);
+      if (pin) {
+        auto cache_itr = data_clk_period_cache_.find(pin);
+        if (cache_itr == data_clk_period_cache_.end()) {
+          const Clock *clk = findClk(pin);
+          cache_itr = data_clk_period_cache_.emplace(pin, clk ? clk->period()
+                                                     : 0.0).first;
+        }
+        float clk_period = cache_itr->second;
+        if (clk_period > 0.0 && clk_period < data_period)
+          data_period = clk_period;
+      }
+    }
+  }
+  return data_period;
+}
+
+// Registers sample at related edges when they have the same clock and a
+// shared enable, or no enables.
+bool
+PwrSampleDomain::related(const PwrSampleDomain &other) const
+{
+  bool shared = enables.empty() && other.enables.empty();
+  for (const Pin *enable : enables)
+    shared |= std::find(other.enables.begin(), other.enables.end(), enable)
+      != other.enables.end();
+  return clock == other.clock && shared;
+}
+
+// Driver of pin, or null.
+const Pin *
+Power::netDriver(const Pin *pin)
+{
+  const Pin *drvr = pin;
+  if (!network_->isDriver(pin)) {
+    PinSet *drvrs = network_->drivers(pin);
+    drvr = (drvrs && !drvrs->empty()) ? *drvrs->begin() : nullptr;
+  }
+  return drvr;
+}
+
+// Input pins of the driver's cell, for a combinational cell.
+void
+Power::combInputs(const Pin *drvr,
+                  // Return value.
+                  PinSeq &inputs)
+{
+  const Instance *inst = network_->instance(drvr);
+  const LibertyCell *cell = network_->libertyCell(inst);
+  if (cell && cell->sequentials().empty() && !cell->isMacro()
+      && !cell->isClockGate()
+      && (cell->testCell() == nullptr
+          || cell->testCell()->sequentials().empty())) {
+    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      if (network_->direction(pin)->isAnyInput())
+        inputs.push_back(pin);
+    }
+    delete pin_iter;
+  }
+}
+
+// The sample domain of a clock pin: the root drivers of the enables (and
+// driven test enables) of the clock gates driving it through clock
+// buffers and of the other inputs of combinational cells on the way, and
+// the clock pin at the end of the walk: a port, or the output of the
+// first cell with several clock inputs, a sequential cell (divider) or a
+// macro.
+void
+Power::clockDomain(const Pin *clk_pin,
+                   // Return value.
+                   PwrSampleDomain &domain)
+{
+  const ClkNetwork *clk_network = scene_->mode()->clkNetwork();
+  const Pin *pin = clk_pin;
+  bool done = false;
+  for (int depth = 0; pin && !done && depth < 1000; depth++) {
+    const Pin *drvr = netDriver(pin);
+    if (drvr == nullptr || network_->isTopLevelPort(drvr)) {
+      domain.clock = drvr;
+      done = true;
+    }
+    else {
+      const Instance *inst = network_->instance(drvr);
+      const LibertyCell *cell = network_->libertyCell(inst);
+      if (cell && cell->isClockGate()) {
+        const Pin *enable, *clk, *gclk;
+        clockGatePins(inst, enable, clk, gclk);
+        InstancePinIterator *pin_iter = network_->pinIterator(inst);
+        while (pin_iter->hasNext()) {
+          const Pin *gate_pin = pin_iter->next();
+          const LibertyPort *port = network_->libertyPort(gate_pin);
+          if (gate_pin == enable || (port && port->isClockGateTest()))
+            rootDrivers(gate_pin, domain.enables);
+        }
+        delete pin_iter;
+        pin = clk;
+        done = clk == nullptr;
+      }
+      else {
+        PinSeq inputs;
+        combInputs(drvr, inputs);
+        const Pin *clk_input = nullptr;
+        int clk_inputs = 0;
+        for (const Pin *input : inputs) {
+          if (clk_network->isClock(input)) {
+            clk_input = input;
+            clk_inputs++;
+          }
+        }
+        if (clk_inputs == 1) {
+          // A clock gated by a combinational cell (and, or, mux).
+          for (const Pin *input : inputs) {
+            if (input != clk_input)
+              rootDrivers(input, domain.enables);
+          }
+          pin = clk_input;
+        }
+        else {
+          domain.clock = drvr;
+          done = true;
+        }
+      }
+    }
+  }
+}
+
+// The drivers of pin through combinational logic: ports, sequential and
+// macro outputs and clock pins (at most 64, deeper logic is cut off).
+void
+Power::rootDrivers(const Pin *pin,
+                   // Return value.
+                   std::vector<const Pin*> &roots)
+{
+  const ClkNetwork *clk_network = scene_->mode()->clkNetwork();
+  std::vector<const Pin*> pending{netDriver(pin)};
+  std::vector<const Pin*> visited;
+  while (!pending.empty() && roots.size() < 64) {
+    const Pin *drvr = pending.back();
+    pending.pop_back();
+    if (drvr && std::find(visited.begin(), visited.end(), drvr)
+        == visited.end()) {
+      visited.push_back(drvr);
+      PinSeq inputs;
+      if (!network_->isTopLevelPort(drvr) && !clk_network->isClock(drvr))
+        combInputs(drvr, inputs);
+      if (inputs.empty())
+        roots.push_back(drvr);
+      else {
+        for (const Pin *input : inputs)
+          pending.push_back(netDriver(input));
+      }
+    }
+  }
+}
+
+// The clock domain of a register and the root drivers of the inputs that
+// hold its state, which together enable its sampling edges.
+const PwrSampleDomain &
+Power::regSampleDomain(const Instance *reg,
+                       const Sequential &seq)
+{
+  auto itr = reg_domain_cache_.find(reg);
+  if (itr == reg_domain_cache_.end()) {
+    PwrSampleDomain domain;
+    FuncExpr *clk_func = seq.clock();
+    if (clk_func && clk_func->op() == FuncExpr::Op::not_)
+      clk_func = clk_func->left();
+    if (clk_func && clk_func->op() == FuncExpr::Op::port) {
+      const Pin *clk_pin = network_->findPin(reg, clk_func->port());
+      if (clk_pin)
+        clockDomain(clk_pin, domain);
+    }
+    if (stateInNextState(seq)) {
+      DdManager *mgr = bdd_.cuddMgr();
+      DdNode *bdd = bdd_.funcBdd(seq.data());
+      DdNode *state_next[2];
+      stateNextCofactors(seq, bdd, state_next);
+      DdNode *hold = Cudd_bddAnd(mgr, Cudd_Not(state_next[0]),
+                                 state_next[1]);
+      Cudd_Ref(hold);
+      int *support = Cudd_SupportIndex(mgr, hold);
+      for (const auto [port, var_node] : bdd_.portVarMap()) {
+        if (support[Cudd_NodeReadIndex(var_node)]
+            && !port->direction()->isInternal()) {
+          const Pin *pin = network_->findPin(reg, port);
+          if (pin)
+            rootDrivers(pin, domain.enables);
+        }
+      }
+      free(support);
+      Cudd_RecursiveDeref(mgr, hold);
+      Cudd_RecursiveDeref(mgr, state_next[0]);
+      Cudd_RecursiveDeref(mgr, state_next[1]);
+      Cudd_RecursiveDeref(mgr, bdd);
+      bdd_.clearVarMap();
+    }
+    std::sort(domain.enables.begin(), domain.enables.end());
+    domain.enables.erase(std::unique(domain.enables.begin(),
+                                     domain.enables.end()),
+                         domain.enables.end());
+    itr = reg_domain_cache_.emplace(reg, std::move(domain)).first;
+  }
+  return itr->second;
+}
+
+// Sample domains of the registers that launch the driver's net through
+// combinational logic.
+const std::vector<PwrSampleDomain> &
+Power::driverSampleDomains(const Pin *drvr)
+{
+  auto itr = drvr_domains_cache_.find(drvr);
+  if (itr == drvr_domains_cache_.end()) {
+    // Combinational loops end at the entry made here.
+    drvr_domains_cache_[drvr] = {};
+    std::vector<PwrSampleDomain> domains;
+    if (drvr && !network_->isTopLevelPort(drvr)
+        && !scene_->mode()->clkNetwork()->isClock(drvr)) {
+      const Instance *inst = network_->instance(drvr);
+      const LibertyCell *cell = network_->libertyCell(inst);
+      const LibertyCell *seq_cell = nullptr;
+      if (cell && !cell->sequentials().empty())
+        seq_cell = cell;
+      else if (cell && cell->testCell()
+               && !cell->testCell()->sequentials().empty())
+        seq_cell = cell->testCell();
+      if (seq_cell)
+        domains.push_back(regSampleDomain(inst, seq_cell->sequentials()[0]));
+      else {
+        PinSeq inputs;
+        combInputs(drvr, inputs);
+        for (const Pin *input : inputs) {
+          for (const PwrSampleDomain &domain
+                 : driverSampleDomains(netDriver(input))) {
+            if (std::find(domains.begin(), domains.end(), domain)
+                == domains.end())
+              domains.push_back(domain);
+          }
+        }
+      }
+    }
+    itr = drvr_domains_cache_.find(drvr);
+    itr->second = std::move(domains);
+  }
+  return itr->second;
+}
+
+// True if a register with a related sample domain launches the data.
+bool
+Power::dataInSampleDomain(const Instance *reg,
+                          const Sequential &seq)
+{
+  bool same = false;
+  if (seq.data()) {
+    const PwrSampleDomain &domain = regSampleDomain(reg, seq);
+    for (const LibertyPort *port : seq.data()->ports()) {
+      const Pin *pin = port->direction()->isInternal()
+        ? nullptr : network_->findPin(reg, port);
+      if (pin) {
+        for (const PwrSampleDomain &launch_domain
+               : driverSampleDomains(netDriver(pin)))
+          same |= launch_domain.related(domain);
+      }
+    }
+  }
+  return same;
+}
+
+// Probability that a two state Markov input (change changes per clock
+// period, duty) differs between two samples, when each clock period has a
+// sample with probability p. The input changes seen between two samples
+// are those of a random input, 2 * duty * (1 - duty), times a factor
+// that depends on how random the input is (u = 1, at most 2 for an input
+// that changes every period). The samples are random too, which errs
+// high for an enable with long idle gaps. A synchronous input changes
+// only at the sampled edges, so every change is seen.
+float
+Power::sampledChange(float change,
+                     float duty,
+                     float p,
+                     bool synchronous)
+{
+  float random_change = 2.0F * duty * (1.0F - duty);
+  float sampled = 0.0;
+  if (change > 0.0 && random_change > 0.0) {
+    if (synchronous)
+      sampled = std::min(change / p, 2.0F * std::min(duty, 1.0F - duty));
+    else {
+      float u = change / random_change;
+      sampled = change / (p + (1.0F - p) * u);
+    }
+  }
+  return sampled;
+}
+// ---- OpenROAD fork: clock gated register sampling (end) ----
+
+// For a next_state that refers to the register's own state, each active
+// clock edge sets the state with probability u = P(next_state | IQ=0) and
+// clears it with probability v = P(!next_state | IQ=1). As a two-state
+// process the duty is u / (u + v) and the state changes 2uv / (u + v) times
+// per active edge. That assumes inputs that are random every cycle, which
+// is too high for slow inputs (an enable that is always on makes the cell
+// a plain register), so density is only lowered from its value on entry.
+// OpenROAD fork: the toggle, load and hold regions of next_state are
+// solved with the loaded data sampled at the load edges instead, unless
+// an input is a clock; that can also raise density (toggle flops).
+// Returns false if next_state does not refer to the state.
+bool
+Power::evalRegHoldActivity(const Instance *reg,
+                           const Sequential &seq,
+                           float clk_density,
+                           float period,
+                           float data_period,
+                           bool same_domain,
+                           // Return values.
+                           float &density,
+                           float &duty)
+{
+  FuncExpr *data = seq.data();
+  if (!stateInNextState(seq))
+    return false;
+  DdManager *mgr = bdd_.cuddMgr();
+  DdNode *bdd = bdd_.funcBdd(data);
+  DdNode *state_next[2];
+  stateNextCofactors(seq, bdd, state_next);
+  float state_duty[2];
+  for (int value : {0, 1})
+    state_duty[value] = evalBddDuty(state_next[value], reg);
   float set = state_duty[0];
   float clear = 1.0 - state_duty[1];
+  // ---- OpenROAD fork: clock gated register sampling (begin) ----
+  // The inputs toggle the state (next_state = !IQ), load data (next_state
+  // does not depend on IQ) or hold it. Every toggle changes the state. The
+  // loads sample the data as a clock gate does, so the data is a two state
+  // Markov input sampled at the load edges; its duty and changes between
+  // consecutive periods are conditional on loading in both.
+  DdNode *toggle = Cudd_bddAnd(mgr, state_next[0], Cudd_Not(state_next[1]));
+  Cudd_Ref(toggle);
+  DdNode *load = Cudd_bddXnor(mgr, state_next[0], state_next[1]);
+  Cudd_Ref(load);
+  DdNode *load_data = Cudd_bddAnd(mgr, state_next[0], state_next[1]);
+  Cudd_Ref(load_data);
+  float p_toggle = evalBddDuty(toggle, reg);
+  float p_load = evalBddDuty(load, reg);
+  float p_data = evalBddDuty(load_data, reg);
+  float sampled_density = -1.0;
+  std::vector<float> probs;
+  float sample_period;
+  if (period > 0.0
+      && evalBddChangeProbs({{load_data, load_data}, {load_data, load},
+                             {load, load_data}, {load, load}},
+                            reg, data_period, probs, sample_period)) {
+    // P(load_data changes) counts the periods with a load in both, with
+    // the data differing, plus those with a load in only one and data 1.
+    float data_only_prev = (p_data - p_load + probs[1]) / 2.0F;
+    float data_only_curr = (p_data - p_load + probs[2]) / 2.0F;
+    float data_change = probs[0] - data_only_prev - data_only_curr;
+    float load_both = p_load - probs[3] / 2.0F;
+    float data_duty = p_load > 0.0 ? std::clamp(p_data / p_load, 0.0F, 1.0F)
+      : 0.0F;
+    float max_change = 2.0F * std::min(data_duty, 1.0F - data_duty);
+    // Consecutive loads are rare for a pulsed enable; the data is then
+    // taken as random.
+    float change = load_both > 1e-3F * p_load
+      ? std::clamp(data_change / load_both, 0.0F, max_change)
+      : 2.0F * data_duty * (1.0F - data_duty);
+    float active_edges = clk_density / 2.0F;
+    float p = std::min(active_edges * data_period * p_load, 1.0F);
+    float sampled = sampledChange(change, data_duty, p, same_domain);
+    // A load changes the state when the data differs from the last load,
+    // or when it does not and the state was toggled an odd number of
+    // times since (the toggles between two loads are geometric).
+    float odd_toggles = p_load + p_toggle > 0.0
+      ? p_toggle / (p_load + 2.0F * p_toggle) : 0.0F;
+    float load_change = (1.0F - odd_toggles) * sampled
+      + odd_toggles * (1.0F - sampled);
+    sampled_density = active_edges * (p_toggle + p_load * load_change);
+  }
+  Cudd_RecursiveDeref(mgr, toggle);
+  Cudd_RecursiveDeref(mgr, load);
+  Cudd_RecursiveDeref(mgr, load_data);
+  // ---- OpenROAD fork: clock gated register sampling (end) ----
+  Cudd_RecursiveDeref(mgr, state_next[0]);
+  Cudd_RecursiveDeref(mgr, state_next[1]);
+  Cudd_RecursiveDeref(mgr, bdd);
+  bdd_.clearVarMap();
   if (set + clear > 0.0) {
     duty = set / (set + clear);
     // There are clk_density / 2 active edges.
-    density = std::min(density, set * clear / (set + clear) * clk_density);
+    // OpenROAD fork: clock gated register sampling.
+    if (sampled_density >= 0.0)
+      density = sampled_density;
+    else
+      density = std::min(density, set * clear / (set + clear) * clk_density);
   }
   else {
     // The state never changes; its value is unknown.
@@ -1355,6 +1918,50 @@ Power::seedFuncLessOutputActivities(BfsFwdIterator &bfs)
   }
   delete inst_iter;
 }
+
+// ---- OpenROAD fork: power activity simulation (begin) ----
+// Simulated drivers are seeded like roots so that propagation reaches pins
+// without a primary input in their fanin (free running dividers, hold loops)
+// and deep register pipelines, and copies driver activity to the loads.
+void
+Power::seedSimulationActivities(BfsFwdIterator &bfs)
+{
+  const Mode *mode = scene_->mode();
+  for (auto &[pin, activity] : user_activity_map_) {
+    if (activity.origin() == PwrActivityOrigin::simulation) {
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (vertex) {
+        setActivity(pin, activity);
+        bfs.enqueueAdjacentVertices(vertex, mode);
+      }
+    }
+  }
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
+
+// ---- OpenROAD fork: clock gated register sampling (begin) ----
+// Period of the fastest clock on the clock pin of reg, zero if none.
+float
+Power::regClkPeriod(const Instance *reg,
+                    const Sequential &seq)
+{
+  float period = 0.0;
+  FuncExpr *clk_func = seq.clock();
+  if (clk_func && clk_func->op() == FuncExpr::Op::not_)
+    clk_func = clk_func->left();
+  if (clk_func && clk_func->op() == FuncExpr::Op::port) {
+    const Pin *clk_pin = network_->findPin(reg, clk_func->port());
+    const ClockSet *clks = clk_pin
+      ? scene_->mode()->clkNetwork()->clocks(clk_pin) : nullptr;
+    if (clks) {
+      for (const Clock *clk : *clks)
+        if (period == 0.0 || clk->period() < period)
+          period = clk->period();
+    }
+  }
+  return period;
+}
+// ---- OpenROAD fork: clock gated register sampling (end) ----
 
 // Period of the fastest clock launching paths through pin, or of the
 // fastest clock in the design if none does. Zero if there are no clocks.
@@ -2056,6 +2663,7 @@ Power::reportActivityAnnotation(bool report_unannotated,
 {
   size_t vcd_count = 0;
   size_t saif_count = 0;
+  size_t simulation_count = 0;  // OpenROAD fork: power activity simulation
   size_t input_count = 0;
   for (auto const &[pin, activity] : user_activity_map_) {
     PwrActivityOrigin origin = activity.origin();
@@ -2065,6 +2673,10 @@ Power::reportActivityAnnotation(bool report_unannotated,
         break;
       case PwrActivityOrigin::saif:
         saif_count++;
+        break;
+      // OpenROAD fork: power activity simulation
+      case PwrActivityOrigin::simulation:
+        simulation_count++;
         break;
       case PwrActivityOrigin::user:
         input_count++;
@@ -2077,10 +2689,15 @@ Power::reportActivityAnnotation(bool report_unannotated,
     report_->report("vcd         {:>5}", vcd_count);
   if (saif_count > 0)
     report_->report("saif        {:>5}", saif_count);
+  // OpenROAD fork: power activity simulation
+  if (simulation_count > 0)
+    report_->report("simulation  {:>5}", simulation_count);
   if (input_count > 0)
     report_->report("input       {:>5}", input_count);
   size_t pin_count = pinCount();
-  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count;
+  // OpenROAD fork: power activity simulation
+  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count
+      - simulation_count;
   report_->report("unannotated {:>5}", unannotated_count);
 
   if (report_annotated) {

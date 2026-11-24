@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -48,6 +49,22 @@ class Vertex;
 class ClkNetwork;
 
 using SeqPin = std::pair<const Instance*, LibertyPort*>;
+
+// ---- OpenROAD fork: clock gated register sampling (begin) ----
+// The root drivers of the enables (clock gates, other inputs of cells on
+// the clock path and hold inputs) that gate the edges at which a register
+// samples its data, and the clock pin they gate: a port, or the output of
+// the first clock cell that is not a buffer or a gate (divider, mux,
+// macro). Registers with the same clock and a shared enable, or no
+// enables, sample at related edges.
+struct PwrSampleDomain
+{
+  const Pin *clock = nullptr;
+  std::vector<const Pin*> enables;
+  bool operator==(const PwrSampleDomain &other) const = default;
+  bool related(const PwrSampleDomain &other) const;
+};
+// ---- OpenROAD fork: clock gated register sampling (end) ----
 
 class SeqPinHash
 {
@@ -136,8 +153,28 @@ public:
   float clockMinPeriod(const Sdc *sdc);
   float clockMinPeriod();
   void powerInvalid();
+  // ---- OpenROAD fork: power activity simulation (begin) ----
+  // Annotate activities from a random zero-delay simulation of the
+  // combinational logic between sources with their formula activities, or
+  // (full) of the whole netlist after the settle cycles. A command run reports
+  // statistics and simulates clocks with different periods at the fastest
+  // period (with a warning); the automatic run in a simulation mode is
+  // silent and leaves such designs to the formulas.
+  void simulateActivities(const Scene *scene,
+                          bool full,
+                          int settle_cycles,
+                          int cycles,
+                          int lanes,
+                          uint64_t seed,
+                          bool command);
+  // Vectorless activities are propagated with per-cell formulas (default)
+  // or come from a simulation run before power is reported.
+  void setActivityMode(PwrActivityMode mode);
+  // ---- OpenROAD fork: power activity simulation (end) ----
 
 protected:
+  // ---- OpenROAD fork: power activity simulation ----
+  friend class ActivitySim;
   PwrActivity &activity(const Pin *pin);
   bool inClockNetwork(const Instance *inst,
                       const ClkNetwork *clk_network);
@@ -246,16 +283,63 @@ protected:
                      LibertyPort *from_port,
                      FuncExpr *when,
                      const Instance *inst);
+  // OpenROAD fork: clock gated register sampling.
+  bool evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pairs,
+                          const Instance *inst,
+                          float sample_period,
+                          // Return values.
+                          std::vector<float> &probs,
+                          float &period);
   bool evalBddChangeDensity(DdNode *bdd,
                             const Instance *inst,
                             // Return value.
                             float &density);
+  // OpenROAD fork: clock gated register sampling.
+  float regClkPeriod(const Instance *reg,
+                     const Sequential &seq);
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
+  // OpenROAD fork: power activity simulation
+  void seedSimulationActivities(BfsFwdIterator &bfs);
+  const Pin *annotatedStatePin(const Instance *reg,
+                               const LibertyPort *state,
+                               // Return value.
+                               bool &invert);
+  // OpenROAD fork: clock gated register sampling.
+  static float sampledChange(float change,
+                             float duty,
+                             float p,
+                             bool synchronous);
+  bool stateInNextState(const Sequential &seq);
+  void stateNextCofactors(const Sequential &seq,
+                          DdNode *bdd,
+                          // Return values.
+                          DdNode *state_next[2]);
+  float dataPeriod(const Instance *reg,
+                   const FuncExpr *data,
+                   float period);
+  const Pin *netDriver(const Pin *pin);
+  void combInputs(const Pin *drvr,
+                  // Return value.
+                  PinSeq &inputs);
+  void clockDomain(const Pin *clk_pin,
+                   // Return value.
+                   PwrSampleDomain &domain);
+  void rootDrivers(const Pin *pin,
+                   // Return value.
+                   std::vector<const Pin*> &roots);
+  const PwrSampleDomain &regSampleDomain(const Instance *reg,
+                                         const Sequential &seq);
+  const std::vector<PwrSampleDomain> &driverSampleDomains(const Pin *drvr);
+  bool dataInSampleDomain(const Instance *reg,
+                          const Sequential &seq);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,
+                           float period,
+                           float data_period,
+                           bool same_domain,
                            // Return values.
                            float &density,
                            float &duty);
@@ -300,13 +384,37 @@ private:
                                         SeqPinHash(network_),
                                         SeqPinEqual()};
   bool activities_valid_{false};
+  // ---- OpenROAD fork: power activity simulation (begin) ----
+  PwrActivityMode activity_mode_{PwrActivityMode::vectorless};
+  // The simulation annotations match the current inputs and SDC.
+  bool activity_sim_valid_{false};
+  const Mode *activity_sim_mode_{nullptr};
+  bool activity_sim_fallback_warned_{false};
+  // Automatic run in a simulation mode (shorter than the command defaults).
+  static constexpr int activity_sim_settle_cycles_ = 300;
+  static constexpr int activity_sim_cycles_ = 1300;
+  static constexpr int activity_sim_lanes_ = 64;
+  static constexpr uint64_t activity_sim_seed_ = 1;
+  void clearActivitySimResults();
+  // A generated clock whose source pin is driven by a cell with a function
+  // or a clock gate, so it comes from the design logic.
+  bool simulatedClockSource(const Clock *clk);
+  // Activities must be propagated again; the simulation is still valid.
+  void propagationInvalid();
+  // ---- OpenROAD fork: power activity simulation (end) ----
   Bdd bdd_;
   std::map<const Instance*, PowerResult, InstanceIdLess> instance_powers_{
       InstanceIdLess(network_)};
   bool instance_powers_valid_{false};
 
   static constexpr int max_activity_passes_ = 50;
+  // OpenROAD fork: clock gated register sampling.
+  std::unordered_map<const Instance*, PwrSampleDomain> reg_domain_cache_;
+  std::unordered_map<const Pin*, std::vector<PwrSampleDomain>>
+    drvr_domains_cache_;
   std::unordered_map<const Pin*, float> launch_period_cache_;
+  // OpenROAD fork: clock gated register sampling. 0.0 for no clock.
+  std::unordered_map<const Pin*, float> data_clk_period_cache_;
   bool convergence_warned_{false};
   bool slew_limit_warned_{false};
 

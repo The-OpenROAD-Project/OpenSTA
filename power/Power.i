@@ -27,9 +27,11 @@
 %{
 #include "power/Power.hh"
 
+#include "ClkNetwork.hh"
 #include "Mode.hh"
 #include "Sdc.hh"
 #include "Sta.hh"
+#include "StringUtil.hh"
 #include "power/SaifReader.hh"
 #include "power/VcdParse.hh"
 #include "power/VcdReader.hh"
@@ -226,6 +228,39 @@ read_saif_file(const char *filename,
   sta->ensureLibLinked();
   return readSaif(filename, scope, sta);
 }
+
+// ---- OpenROAD fork: power activity simulation (begin) ----
+void
+simulate_power_activity_cmd(const Scene *scene,
+                            bool full,
+                            int settle_cycles,
+                            int cycles,
+                            int lanes,
+                            uint64_t seed)
+{
+  Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
+  // As Sta::powerPreamble: the formula activities of the simulation
+  // sources use arrivals to find clocking info.
+  sta->searchPreamble();
+  sta->search()->findAllArrivals();
+  scene->mode()->clkNetwork()->ensureClkNetwork();
+  sta->power()->simulateActivities(scene, full, settle_cycles, cycles, lanes,
+                                   seed,
+                                   true);
+}
+
+// mode is vectorless, combinational or full (checked by the tcl command).
+void
+set_power_activity_mode_cmd(const char *mode)
+{
+  PwrActivityMode activity_mode = stringEq(mode, "combinational")
+    ? PwrActivityMode::combinational
+    : stringEq(mode, "full") ? PwrActivityMode::full
+    : PwrActivityMode::vectorless;
+  Sta::sta()->power()->setActivityMode(activity_mode);
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
 
 void
 report_activity_annotation_cmd(bool report_unannotated,

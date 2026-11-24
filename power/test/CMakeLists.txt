@@ -13,11 +13,15 @@ sta_module_tests("power"
     enable_flop
     scene_clk
     tie_when
+    activity_sim
+    activity_sim_full
     slow_slew
     parasitics_update
     clock_gate_test
     leakage_when
     unset_case
+    gated_reg_activity
+    gated_reg_pipeline
 )
 
 add_subdirectory(cpp)

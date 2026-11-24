@@ -81,6 +81,189 @@ library (power_activity) {
     }
   }
 
+  /* JK flop: J sets, K clears, both toggle. */
+  cell (JK_FF) {
+    ff (IQ, IQN) {
+      next_state : "(J&!IQ)|(!K&IQ)";
+      clocked_on : "CK";
+    }
+    pin (J) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (K) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (CK) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
+  /* Toggle flop with a synchronous reset. */
+  cell (T_FF_SR) {
+    ff (IQ, IQN) {
+      next_state : "!RST&(IQ^T)";
+      clocked_on : "CK";
+    }
+    pin (T) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (RST) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (CK) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
+  /* Register with asynchronous clear and preset; clear wins when both
+     are asserted (clear_preset_var1 L). */
+  cell (DFF_CP) {
+    ff (IQ, IQN) {
+      next_state : "D";
+      clocked_on : "CK";
+      clear : "CLR";
+      preset : "PRE";
+      clear_preset_var1 : L;
+      clear_preset_var2 : H;
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+      timing () {
+        related_pin : "CK";
+        timing_type : setup_rising;
+        rise_constraint (scalar) { values ("0.01"); }
+        fall_constraint (scalar) { values ("0.01"); }
+      }
+    }
+    pin (CLR) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (PRE) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (CK) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q) {
+      direction : output;
+      function : "IQ";
+      timing () {
+        related_pin : "CK";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
+  /* Two latches, the second reading the state of the first. */
+  cell (LAT2) {
+    latch (IQ1, IQN1) {
+      enable : "G";
+      data_in : "D";
+    }
+    latch (IQ2, IQN2) {
+      enable : "G";
+      data_in : "IQ1";
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (G) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q1) {
+      direction : output;
+      function : "IQ1";
+      timing () {
+        related_pin : "G";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+    pin (Q2) {
+      direction : output;
+      function : "IQ2";
+      timing () {
+        related_pin : "G";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
   /* AND2 with state dependent internal power on the A to Z arc. A only
      switches Z when B is 1, so the "!B" group should get no weight. */
   cell (AND2_WHEN) {
