@@ -1007,7 +1007,7 @@ Power::evalBddChangeDensity(DdNode *bdd,
   // ---- OpenROAD fork: clock gated register sampling (begin) ----
   std::vector<float> probs;
   float period;
-  bool found = evalBddChangeProbs({{bdd, bdd}}, inst, probs, period);
+  bool found = evalBddChangeProbs({{bdd, bdd}}, inst, 0.0, probs, period);
   if (found)
     density = probs[0] / period;
   return found;
@@ -1015,11 +1015,13 @@ Power::evalBddChangeDensity(DdNode *bdd,
 
 // Probability that each pair's from function in the previous period and
 // to function in the current period differ, with each input an
-// independent two state process, and the sampling period. Returns false
-// for clock inputs, which switch twice per period.
+// independent two state process, and the sampling period (sample_period
+// if not zero). Returns false for clock inputs, which switch twice per
+// period.
 bool
 Power::evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pairs,
                           const Instance *inst,
+                          float sample_period,
                           // Return values.
                           std::vector<float> &probs,
                           float &period)
@@ -1043,6 +1045,9 @@ Power::evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pair
     }
     var_activities.emplace_back(Cudd_NodeReadIndex(var_node), activity);
   }
+  // OpenROAD fork: clock gated register sampling.
+  if (sample_period > 0.0)
+    period = sample_period;
   if (period == INF)
     period = clockMinPeriod(scene_->mode()->sdc());
   if (period == 0.0)
@@ -1330,9 +1335,9 @@ Power::seedRegOutputActivities(const Instance *reg,
 // input (change changes per clock period, duty) at the active_edges per
 // unit time, each enabled with probability p_en. The input changes seen
 // between two samples are those of a random input, 2 * duty * (1 - duty),
-// times a factor that depends on how random the input is (u = 1). An
-// input that changes more than a random one (u > 1) is not attenuated,
-// which errs high when the enable is bursty.
+// times a factor that depends on how random the input is (u = 1, at most
+// 2 for an input that changes every period). The enabled edges are random
+// too, which errs high for an enable with long idle gaps.
 float
 Power::sampledDensity(float change,
                       float duty,
@@ -1343,7 +1348,7 @@ Power::sampledDensity(float change,
   float random_change = 2.0F * duty * (1.0F - duty);
   float density = 0.0;
   if (change > 0.0 && random_change > 0.0 && p_en > 0.0) {
-    float u = std::min(change / random_change, 1.0F);
+    float u = change / random_change;
     // Probability that a clock period has an enabled active edge.
     float p = std::min(active_edges * period * p_en, 1.0F);
     density = active_edges * p_en * change / (p + (1.0F - p) * u);
@@ -1359,6 +1364,9 @@ Power::sampledDensity(float change,
 // per active edge. That assumes inputs that are random every cycle, which
 // is too high for slow inputs (an enable that is always on makes the cell
 // a plain register), so density is only lowered from its value on entry.
+// OpenROAD fork: the toggle, load and hold regions of next_state are
+// solved with the loaded data sampled at the load edges instead, unless
+// an input is a clock; that can also raise density (toggle flops).
 // Returns false if next_state does not refer to the state.
 bool
 Power::evalRegHoldActivity(const Instance *reg,
@@ -1421,7 +1429,7 @@ Power::evalRegHoldActivity(const Instance *reg,
   if (period > 0.0
       && evalBddChangeProbs({{load_data, load_data}, {load_data, load},
                              {load, load_data}, {load, load}},
-                            reg, probs, data_period)) {
+                            reg, period, probs, data_period)) {
     // P(load_data changes) counts the periods with a load in both, with
     // the data differing, plus those with a load in only one and data 1.
     float data_only_prev = (p_data - p_load + probs[1]) / 2.0F;

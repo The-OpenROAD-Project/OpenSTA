@@ -373,7 +373,7 @@ proc simulate_power_activity { args } {
 }
 
 define_cmd_args "set_power_activity_mode" { vectorless|combinational|full } \
-  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "vectorless" (the default) propagates activities through each cell with formulas. "combinational" runs a random zero-delay simulation of the combinational logic between registers before power is reported, and "full" simulates the registers, latches and clock gates too (see simulate_power_activity). The simulation runs again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes, after 300 settle cycles in full mode. Designs whose clocks have different periods, or no clock, use the formulas (with a warning).}
+  -help {Choose how activities without VCD, SAIF or set_power_activity annotations are found. "vectorless" (the default) propagates activities through each cell with formulas. "combinational" runs a random zero-delay simulation of the combinational logic between registers before power is reported, and "full" simulates the registers, latches and clock gates too (see simulate_power_activity). The simulation runs again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes, after 300 settle cycles in full mode. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). The mode is reset to vectorless by link_design, like the other power settings.}
 
 proc set_power_activity_mode { args } {
   check_argc_eq1 "set_power_activity_mode" $args
@@ -391,7 +391,7 @@ proc set_power_activity_mode { args } {
 
 define_cmd_args "report_activity_annotation" { [-report_unannotated] \
                                                  [-report_annotated] } \
-  -help {Report a summary of pins that are annotated by `read_vcd`, `read_saif` or `set_power_activity`. Sequential internal pins and hierarchical pins are ignored.} \
+  -help {Report a summary of pins that are annotated by `read_vcd`, `read_saif`, `set_power_activity` or the activity simulation (`simulate_power_activity`, `set_power_activity_mode`). Sequential internal pins and hierarchical pins are ignored.} \
   -arg_help {
     -report_unannotated {Report unannotated pins.}
     -report_annotated {Report annotated pins.}

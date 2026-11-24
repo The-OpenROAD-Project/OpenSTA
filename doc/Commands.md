@@ -1502,7 +1502,7 @@ The `replace_cell` command changes the cell of an instance. The replacement cell
     [<a href="#opt-report_activity_annotation-report_unannotated">-report_unannotated</a>]
     [<a href="#opt-report_activity_annotation-report_annotated">-report_annotated</a>]</code></pre>
 
-Report a summary of pins that are annotated by `read_vcd`, `read_saif` or `set_power_activity`. Sequential internal pins and hierarchical pins are ignored.
+Report a summary of pins that are annotated by `read_vcd`, `read_saif`, `set_power_activity` or the activity simulation (`simulate_power_activity`, `set_power_activity_mode`). Sequential internal pins and hierarchical pins are ignored.
 
 ### Options
 
@@ -3908,7 +3908,7 @@ set_power_activity -input -activity 0.1 -duty 0.5
 <pre><code>set_power_activity_mode
     vectorless|combinational|full</code></pre>
 
-Choose how activities without VCD, SAIF or set_power_activity annotations are found. "vectorless" (the default) propagates activities through each cell with formulas. "combinational" runs a random zero-delay simulation of the combinational logic between registers before power is reported, and "full" simulates the registers, latches and clock gates too (see simulate_power_activity). The simulation runs again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes, after 300 settle cycles in full mode. Designs whose clocks have different periods, or no clock, use the formulas (with a warning).
+Choose how activities without VCD, SAIF or set_power_activity annotations are found. "vectorless" (the default) propagates activities through each cell with formulas. "combinational" runs a random zero-delay simulation of the combinational logic between registers before power is reported, and "full" simulates the registers, latches and clock gates too (see simulate_power_activity). The simulation runs again whenever clocks, case analysis or input activities change; netlist edits keep its results and new pins are propagated from them. The automatic run uses 1300 cycles and 64 lanes, after 300 settle cycles in full mode. Designs whose clocks have different periods, or no clock, use the formulas (with a warning). The mode is reset to vectorless by link_design, like the other power settings.
 
 ## set_propagated_clock
 

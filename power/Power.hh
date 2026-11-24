@@ -270,6 +270,7 @@ protected:
   // OpenROAD fork: clock gated register sampling.
   bool evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pairs,
                           const Instance *inst,
+                          float sample_period,
                           // Return values.
                           std::vector<float> &probs,
                           float &period);
