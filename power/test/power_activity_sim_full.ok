@@ -30,6 +30,12 @@ tg_xor/A toggles/cycle 0.200 duty 0.500 propagated
 simulation     12
 input           7
 unannotated    38
+An annotated clock gate output (as read_vcd does) is still simulated
+from its clock and enable in full mode: gf_r/Q keeps 0.1.
+Simulation: 13 cells 9 sequential states 7 sources 21 signals, 256 lanes.
+Simulation annotated 11 pins.
+icg/GCLK toggles/cycle 0.333 duty 0.500 user
+gf_r/Q toggles/cycle 0.100 duty 0.501 simulation
 Full mode, combinational mode, then formulas (the default).
 en_r/Q toggles/cycle 0.044 duty 0.489 simulation
 en_r/Q toggles/cycle 0.465 duty 0.453 simulation
@@ -85,6 +91,9 @@ d_r/Q  toggles/cycle 0.376 duty 0.251 simulation
 lb/A   toggles/cycle 0.376 duty 0.251 propagated
 lf_r/Q toggles/cycle 0.499 duty 0.500 simulation
 pins with unknown activity: 0
+Simulation: 8 cells 5 sequential states 4 sources 15 signals, 256 lanes.
+Simulation annotated 8 pins.
+lf_r/Q toggles/cycle 0.000 duty 0.488 simulation
 Clock gate test enables: driven, constant and unconnected.
 icg/GCK toggles/cycle 0.950 duty 0.238 propagated
 icg2/GCK toggles/cycle 0.500 duty 0.125 propagated
@@ -94,3 +103,19 @@ Simulation annotated 10 pins.
 icg/GCK toggles/cycle 0.949 duty 0.237 simulation
 icg2/GCK toggles/cycle 0.500 duty 0.125 simulation
 icg3/GCK toggles/cycle 2.000 duty 0.500 simulation
+Clocks with different periods: the automatic run uses the formulas
+(once warned), the command runs both at the fastest period.
+Warning 2415: power activity simulation does not support clocks with different periods; activities are propagated with formulas.
+r1/Q   toggles/cycle 0.500 duty 0.500 propagated
+r2/Q   toggles/cycle 0.500 duty 0.500 propagated
+Warning 2412: clock clk1 period differs from the fastest clock; simulation runs all clocks at the fastest period.
+Simulation: 2 cells 2 sequential states 1 sources 6 signals, 256 lanes.
+Simulation annotated 2 pins.
+r1/Q   toggles/cycle 0.501 duty 0.500 simulation
+r2/Q   toggles/cycle 0.501 duty 0.500 simulation
+Asynchronous clear and preset both asserted: clear wins on DFF_CP
+(clear_preset_var1 L, duty 0.375), preset on dfbbp (H, duty 0.625).
+Simulation: 4 cells 2 sequential states 3 sources 10 signals, 256 lanes.
+Simulation annotated 5 pins.
+cw_r/Q toggles/cycle 0.469 duty 0.375 simulation
+pw_r/Q toggles/cycle 0.469 duty 0.625 simulation

@@ -236,7 +236,7 @@ simulate_power_activity_cmd(const Scene *scene,
                             int settle_cycles,
                             int cycles,
                             int lanes,
-                            int seed)
+                            uint64_t seed)
 {
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();

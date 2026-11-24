@@ -286,12 +286,14 @@ protected:
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
   // OpenROAD fork: power activity simulation
   void seedSimulationActivities(BfsFwdIterator &bfs);
+  const Pin *annotatedStatePin(const Instance *reg,
+                               const LibertyPort *state,
+                               // Return value.
+                               bool &invert);
   // OpenROAD fork: clock gated register sampling.
-  static float sampledDensity(float change,
-                              float duty,
-                              float active_edges,
-                              float period,
-                              float p_en);
+  static float sampledChange(float change,
+                             float duty,
+                             float p);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,

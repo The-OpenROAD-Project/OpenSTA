@@ -66,6 +66,14 @@ foreach pin {en_r/Q tg_r/Q tg_xor/A} {
 }
 report_activity_annotation
 
+puts "An annotated clock gate output (as read_vcd does) is still simulated"
+puts "from its clock and enable in full mode: gf_r/Q keeps 0.1."
+set_power_activity -pins [get_pins icg/GCLK] -activity 0.3333 -duty 0.5
+simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
+show icg/GCLK
+show gf_r/Q
+unset_power_activity -pins [get_pins icg/GCLK]
+
 puts "Full mode, combinational mode, then formulas (the default)."
 unset_power_activity -pins [get_pins tg_r/Q]
 set_power_activity_mode full
@@ -261,6 +269,11 @@ foreach pin {pll/CLKOUT pf_r/Q mo/Z mo_r/Q z z_r/Q dg/X d_r/Q lb/A lf_r/Q} {
   }
 }
 unknown_pins
+# The clock on lb/A held at 0 by case analysis does not toggle.
+set_case_analysis 0 [get_pins lb/A]
+simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
+show lf_r/Q
+unset_case_analysis [get_pins lb/A]
 
 puts "Clock gate test enables: driven, constant and unconnected."
 # The gate is enabled when E or a driven or constant SE is 1. E has duty
@@ -297,3 +310,53 @@ simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
 foreach pin {icg/GCK icg2/GCK icg3/GCK} {
   show $pin
 }
+
+puts "Clocks with different periods: the automatic run uses the formulas"
+puts "(once warned), the command runs both at the fastest period."
+set verilog7 [make_result_file power_activity_sim_full7.v]
+set stream [open $verilog7 w]
+puts $stream {module top7 (clk1, clk2, x, q1, q2);
+  input clk1, clk2, x;
+  output q1, q2;
+  sky130_fd_sc_hd__dfxtp_1 r1 (.CLK(clk1), .D(x), .Q(q1));
+  sky130_fd_sc_hd__dfxtp_1 r2 (.CLK(clk2), .D(x), .Q(q2));
+endmodule}
+close $stream
+read_verilog $verilog7
+link_design top7
+create_clock -name clk1 -period 6 [get_ports clk1]
+create_clock -name clk2 -period 4 [get_ports clk2]
+set_input x 0.5 0.5
+set_power_activity_mode full
+show r1/Q
+show r2/Q
+set_power_activity_mode vectorless
+simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
+show r1/Q
+show r2/Q
+
+puts "Asynchronous clear and preset both asserted: clear wins on DFF_CP"
+puts "(clear_preset_var1 L, duty 0.375), preset on dfbbp (H, duty 0.625)."
+read_liberty power_activity.lib
+set verilog8 [make_result_file power_activity_sim_full8.v]
+set stream [open $verilog8 w]
+puts $stream {module top8 (clk, x, c, p, cq, pq);
+  input clk, x, c, p;
+  output cq, pq;
+  wire c_n, p_n;
+  DFF_CP cw_r (.CK(clk), .D(x), .CLR(c), .PRE(p), .Q(cq));
+  sky130_fd_sc_hd__inv_1 ci (.A(c), .Y(c_n));
+  sky130_fd_sc_hd__inv_1 pi (.A(p), .Y(p_n));
+  sky130_fd_sc_hd__dfbbp_1 pw_r (.CLK(clk), .D(x), .RESET_B(c_n), .SET_B(p_n),
+    .Q(pq));
+endmodule}
+close $stream
+read_verilog $verilog8
+link_design top8
+create_clock -name clk -period 6 [get_ports clk]
+set_input x 0.5 0.5
+set_input c 0.5 0.5
+set_input p 0.5 0.5
+simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
+show cw_r/Q
+show pw_r/Q

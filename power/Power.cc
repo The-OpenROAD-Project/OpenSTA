@@ -156,7 +156,10 @@ Power::activitiesInvalid()
 {
   activities_valid_ = false;
   instance_powers_valid_ = false;
-  // OpenROAD fork: power activity simulation. Inputs or SDC changed.
+  // OpenROAD fork: power activity simulation. Inputs or SDC changed; in
+  // vectorless mode the annotations of a command run go stale now.
+  if (activity_mode_ == PwrActivityMode::vectorless && activity_sim_valid_)
+    clearActivitySimResults();
   activity_sim_valid_ = false;
 }
 
@@ -229,7 +232,12 @@ Power::setUserActivity(const Pin *pin,
                        PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {density, duty, origin};
-  activitiesInvalid();
+  // OpenROAD fork: power activity simulation. A copied simulation
+  // annotation (netlist edits) is not a new input.
+  if (origin == PwrActivityOrigin::simulation)
+    propagationInvalid();
+  else
+    activitiesInvalid();
 }
 
 void
@@ -1136,8 +1144,12 @@ Power::ensureActivities(const Scene *scene)
                              activity_sim_settle_cycles_, activity_sim_cycles_,
                              activity_sim_lanes_, activity_sim_seed_, false);
       }
-      else if (!activity_sim_valid_)
+      else if (!activity_sim_valid_
+               || (activity_sim_mode_ && activity_sim_mode_ != scene->mode())) {
         clearActivitySimResults();
+        activity_sim_valid_ = false;
+        activity_sim_mode_ = nullptr;
+      }
       // ---- OpenROAD fork: power activity simulation (end) ----
       // Clear existing activities.
       activity_map_.clear();
@@ -1278,7 +1290,28 @@ Power::seedRegOutputActivities(const Instance *reg,
                                bool invert)
 {
   const Pin *out_pin = network_->findPin(reg, output);
-  if (!hasUserActivity(out_pin)) {
+  // ---- OpenROAD fork: power activity simulation (begin) ----
+  // An annotated (vcd, saif, simulation) output pin whose function is the
+  // state gives the state activity.
+  bool pin_invert = false;
+  const Pin *state_pin = annotatedStatePin(reg, output, pin_invert);
+  if (state_pin == nullptr) {
+    // The other state port, inverted.
+    LibertyPort *other = invert ? seq.output() : seq.outputInv();
+    if (other) {
+      state_pin = annotatedStatePin(reg, other, pin_invert);
+      if (state_pin)
+        pin_invert = !pin_invert;
+    }
+  }
+  if (state_pin) {
+    PwrActivity state_activity = userActivity(state_pin);
+    if (pin_invert)
+      state_activity.setDuty(1.0 - state_activity.duty());
+    setSeqActivity(reg, output, state_activity);
+  }
+  else if (!hasUserActivity(out_pin)) {
+  // ---- OpenROAD fork: power activity simulation (end) ----
     PwrActivity in_activity = evalActivity(seq.data(), reg);
     float in_density = in_activity.density();
     float in_duty = in_activity.duty();
@@ -1305,7 +1338,8 @@ Power::seedRegOutputActivities(const Instance *reg,
       // Data changes per clock period, at most one.
       float change = std::min(in_density * period,
                               2.0F * std::min(duty, 1.0F - duty));
-      out_density = sampledDensity(change, duty, active_edges, period, 1.0);
+      out_density = active_edges * sampledChange(change, duty,
+                                                 active_edges * period);
       // ---- OpenROAD fork: clock gated register sampling (end) ----
       // The state has no activity yet when next_state refers to it (e.g.
       // "(D&DE) | (IQ&!DE)"), so solve the hold loop instead.
@@ -1330,30 +1364,64 @@ Power::seedRegOutputActivities(const Instance *reg,
   }
 }
 
+// ---- OpenROAD fork: power activity simulation (begin) ----
+// Output pin of reg with a user activity whose function is the state port
+// (invert false) or its inverse (invert true), or null.
+const Pin *
+Power::annotatedStatePin(const Instance *reg,
+                         const LibertyPort *state,
+                         // Return value.
+                         bool &invert)
+{
+  const Pin *state_pin = nullptr;
+  InstancePinIterator *pin_iter = network_->pinIterator(reg);
+  while (pin_iter->hasNext() && state_pin == nullptr) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    // The state of a scan flop is in the test cell.
+    const LibertyCell *test_cell = port ? port->libertyCell()->testCell()
+      : nullptr;
+    if (test_cell)
+      port = test_cell->findLibertyPort(port->name());
+    const FuncExpr *func = port ? port->function() : nullptr;
+    if (func && hasUserActivity(pin)) {
+      if (func->op() == FuncExpr::Op::port && func->port() == state) {
+        state_pin = pin;
+        invert = false;
+      }
+      else if (func->op() == FuncExpr::Op::not_
+               && func->left()->op() == FuncExpr::Op::port
+               && func->left()->port() == state) {
+        state_pin = pin;
+        invert = true;
+      }
+    }
+  }
+  delete pin_iter;
+  return state_pin;
+}
+// ---- OpenROAD fork: power activity simulation (end) ----
+
 // ---- OpenROAD fork: clock gated register sampling (begin) ----
-// Changes per unit time of a register that samples a two state Markov
-// input (change changes per clock period, duty) at the active_edges per
-// unit time, each enabled with probability p_en. The input changes seen
-// between two samples are those of a random input, 2 * duty * (1 - duty),
-// times a factor that depends on how random the input is (u = 1, at most
-// 2 for an input that changes every period). The enabled edges are random
-// too, which errs high for an enable with long idle gaps.
+// Probability that a two state Markov input (change changes per clock
+// period, duty) differs between two samples, when each clock period has a
+// sample with probability p. The input changes seen between two samples
+// are those of a random input, 2 * duty * (1 - duty), times a factor
+// that depends on how random the input is (u = 1, at most 2 for an input
+// that changes every period). The samples are random too, which errs
+// high for an enable with long idle gaps.
 float
-Power::sampledDensity(float change,
-                      float duty,
-                      float active_edges,
-                      float period,
-                      float p_en)
+Power::sampledChange(float change,
+                     float duty,
+                     float p)
 {
   float random_change = 2.0F * duty * (1.0F - duty);
-  float density = 0.0;
-  if (change > 0.0 && random_change > 0.0 && p_en > 0.0) {
+  float sampled = 0.0;
+  if (change > 0.0 && random_change > 0.0) {
     float u = change / random_change;
-    // Probability that a clock period has an enabled active edge.
-    float p = std::min(active_edges * period * p_en, 1.0F);
-    density = active_edges * p_en * change / (p + (1.0F - p) * u);
+    sampled = change / (p + (1.0F - p) * u);
   }
-  return density;
+  return sampled;
 }
 // ---- OpenROAD fork: clock gated register sampling (end) ----
 
@@ -1418,7 +1486,7 @@ Power::evalRegHoldActivity(const Instance *reg,
   Cudd_Ref(toggle);
   DdNode *load = Cudd_bddXnor(mgr, state_next[0], state_next[1]);
   Cudd_Ref(load);
-  DdNode *load_data = Cudd_bddAnd(mgr, state_next[0], Cudd_Not(toggle));
+  DdNode *load_data = Cudd_bddAnd(mgr, state_next[0], state_next[1]);
   Cudd_Ref(load_data);
   float p_toggle = evalBddDuty(toggle, reg);
   float p_load = evalBddDuty(load, reg);
@@ -1438,13 +1506,24 @@ Power::evalRegHoldActivity(const Instance *reg,
     float load_both = p_load - probs[3] / 2.0F;
     float data_duty = p_load > 0.0 ? std::clamp(p_data / p_load, 0.0F, 1.0F)
       : 0.0F;
-    float change = load_both > 0.0
-      ? std::clamp(data_change / load_both, 0.0F,
-                   2.0F * std::min(data_duty, 1.0F - data_duty))
-      : 0.0F;
+    float max_change = 2.0F * std::min(data_duty, 1.0F - data_duty);
+    // Consecutive loads are rare for a pulsed enable; the data is then
+    // taken as random.
+    float change = load_both > 1e-3F * p_load
+      ? std::clamp(data_change / load_both, 0.0F, max_change)
+      : 2.0F * data_duty * (1.0F - data_duty);
     float active_edges = clk_density / 2.0F;
-    sampled_density = active_edges * p_toggle
-      + sampledDensity(change, data_duty, active_edges, period, p_load);
+    float sampled = sampledChange(change, data_duty,
+                                  std::min(active_edges * period * p_load,
+                                           1.0F));
+    // A load changes the state when the data differs from the last load,
+    // or when it does not and the state was toggled an odd number of
+    // times since (the toggles between two loads are geometric).
+    float odd_toggles = p_load + p_toggle > 0.0
+      ? p_toggle / (p_load + 2.0F * p_toggle) : 0.0F;
+    float load_change = (1.0F - odd_toggles) * sampled
+      + odd_toggles * (1.0F - sampled);
+    sampled_density = active_edges * (p_toggle + p_load * load_change);
   }
   Cudd_RecursiveDeref(mgr, toggle);
   Cudd_RecursiveDeref(mgr, load);

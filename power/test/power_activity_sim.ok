@@ -29,6 +29,8 @@ rc/X   toggles/cycle 0.200 duty 0.500 user
 mx/S   toggles/cycle 0.000 duty 0.000 user
 mx/X   toggles/cycle 0.276 duty 0.251 simulation
 An input change removes the annotations (the formulas are used).
+input           4
+unannotated    47
 mx/X   toggles/cycle 0.475 duty 0.500 propagated
 Combinational mode, then formulas (the default).
 Warning 2410: 2 cells in combinational loops are evaluated in netlist order.
@@ -40,5 +42,12 @@ Simulation annotated 0 pins.
 d_r/Q  toggles/cycle 0.000 duty 0.000 unknown
 x_r/Q  toggles/cycle 0.100 duty 0.500 propagated
 unannotated    12
+A faster generated clock on a cell output: the formulas are used in
+combinational mode (once warned), the command runs at its period.
+Warning 2415: power activity simulation does not support clocks with different periods; activities are propagated with formulas.
+x_r/Q  toggles/cycle 0.100 duty 0.500 propagated
+Warning 2412: clock clk period differs from the fastest clock; simulation runs all clocks at the fastest period.
+Simulation: 0 combinational cells 0 sources 1 signals, 256 lanes.
+Simulation annotated 0 pins.
 No clock.
 Warning 2411: power activity simulation needs a clock with a source pin.

@@ -19,8 +19,18 @@ Slow D activity (0.001/cycle, duty 0.5) with P(EN) = 0.5
 r_en/Q      toggles/cycle 0.0010 duty 0.500 propagated
 r_icg/Q     toggles/cycle 0.0010 duty 0.500 propagated
 r_ungated/Q toggles/cycle 0.0010 duty 0.500 propagated
+Enable on every other cycle, then single cycle pulses: two loads never
+follow each other, so the data is taken as random (0.25, 0.05).
+r_en/Q      toggles/cycle 0.2500 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.2500 duty 0.500 propagated
+r_en/Q      toggles/cycle 0.0500 duty 0.500 propagated
+r_icg/Q     toggles/cycle 0.0500 duty 0.500 propagated
 EN constant 0
 r_icg/Q     toggles/cycle 0.0000 duty 0.500 propagated
 EN constant 1, D 0.03/cycle
 r_icg/Q     toggles/cycle 0.0300 duty 0.500 propagated
 r_ungated/Q toggles/cycle 0.0300 duty 0.500 propagated
+Toggles and loads: JK flop (J 0.2, K 0.8: 0.32) and a toggle flop with
+a synchronous reset (T 0.5, RST 0.5: 0.375), random inputs.
+jk/Q        toggles/cycle 0.3200 duty 0.200 propagated
+tsr/Q       toggles/cycle 0.3750 duty 0.250 propagated

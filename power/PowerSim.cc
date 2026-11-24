@@ -146,6 +146,8 @@ struct SimNode
   SimProgram next;
   SimProgram clear;
   SimProgram preset;
+  // Clear wins when both are asserted (clear_preset_var1 L).
+  bool clear_wins = false;
 };
 
 // Two state process driving a source signal.
@@ -528,9 +530,12 @@ ActivitySim::addCombInstance(const Instance *inst)
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     LibertyPort *port = network_->libertyPort(pin);
+    // Full mode evaluates the clock network from the clock sources, so an
+    // annotated (vcd, saif) clock pin is not a random source there.
+    bool clock = clk_network_->isClock(pin);
     if (network_->direction(pin)->isAnyOutput() && port && port->function()
-        && (full_ || !clk_network_->isClock(pin))
-        && !power_->hasUserActivity(pin)) {
+        && (full_ ? (clock || !power_->hasUserActivity(pin))
+                  : (!clock && !power_->hasUserActivity(pin)))) {
       int sig = signal(pin);
       pinned_[sig] = false;
       node.outputs.push_back({sig, compile(port->function(), inst, no_states,
@@ -554,7 +559,7 @@ ActivitySim::addClockGate(const Instance *inst,
 {
   const Pin *enable = nullptr, *clk = nullptr, *gclk = nullptr;
   power_->clockGatePins(inst, enable, clk, gclk);
-  if (clk && gclk && !power_->hasUserActivity(gclk)) {
+  if (clk && gclk) {
     bool negedge = cell->isClockGateLatchNegedge();
     if (cell->isClockGateOther())
       clock_gate_other_++;
@@ -646,6 +651,7 @@ ActivitySim::addSequential(const Instance *inst,
       node.clear = compile(seq.clear(), inst, states, &node.deps);
     if (seq.preset())
       node.preset = compile(seq.preset(), inst, states, &node.deps);
+    node.clear_wins = seq.clearPresetOutput() == LogicValue::zero;
     nodes_.push_back(std::move(node));
   }
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
@@ -702,7 +708,8 @@ ActivitySim::build(const PwrActivity &input_activity,
     for (const Clock *clk : clocks) {
       for (const Pin *pin : clk->leafPins()) {
         if (!network_->isDriver(pin) && network_->isLoad(pin)
-            && !load_signal_.contains(pin)) {
+            && !load_signal_.contains(pin)
+            && sim_->simValue(pin) == LogicValue::unknown) {
           int sig = signal_drvr_.size();
           signal_drvr_.push_back(nullptr);
           forced_.push_back(-1);
@@ -724,7 +731,8 @@ ActivitySim::build(const PwrActivity &input_activity,
     for (const Clock *clk : clocks) {
       for (const Pin *pin : clk->leafPins()) {
         auto itr = drvr_signal_.find(pin);
-        if (itr != drvr_signal_.end() && !is_clock[itr->second]) {
+        if (itr != drvr_signal_.end() && !is_clock[itr->second]
+            && forced_[itr->second] < 0) {
           int sig = itr->second;
           pinned_[sig] = true;
           is_clock[sig] = true;
@@ -793,9 +801,11 @@ ActivitySim::sortNodes()
   std::vector<int> producer(signal_drvr_.size(), -1);
   for (size_t i = 0; i < nodes_.size(); i++)
     for (const SimOutput &output : nodes_[i].outputs)
-      producer[output.signal] = i;
+      if (!pinned_[output.signal])
+        producer[output.signal] = i;
   std::vector<int> indegree(nodes_.size(), 0);
   std::vector<std::vector<int>> fanout(nodes_.size());
+  std::vector<bool> self_loop(nodes_.size(), false);
   for (size_t i = 0; i < nodes_.size(); i++) {
     std::vector<int> &deps = nodes_[i].deps;
     std::sort(deps.begin(), deps.end());
@@ -806,10 +816,15 @@ ActivitySim::sortNodes()
         fanout[from].push_back(i);
         indegree[i]++;
       }
+      else if (from == static_cast<int>(i))
+        self_loop[i] = true;
     }
   }
   std::vector<int> loop_nodes = loopNodes(fanout);
-  loop_count_ = loop_nodes.size();
+  for (int node : loop_nodes)
+    self_loop[node] = false;
+  loop_count_ = loop_nodes.size()
+    + std::count(self_loop.begin(), self_loop.end(), true);
   order_.clear();
   std::vector<bool> placed(nodes_.size(), false);
   for (size_t i = 0; i < nodes_.size(); i++)
@@ -853,7 +868,8 @@ ActivitySim::markUnknown()
         unknown |= unknown_[dep];
       if (unknown) {
         for (const SimOutput &output : node.outputs)
-          if (!unknown_[output.signal] && forced_[output.signal] < 0) {
+          if (!unknown_[output.signal] && forced_[output.signal] < 0
+              && !pinned_[output.signal]) {
             unknown_[output.signal] = true;
             changed = true;
           }
@@ -987,13 +1003,16 @@ ActivitySim::lower()
       eval_tape_.push_back({TapeOp::latch, st});
       break;
     }
-    if (!node.clear.empty()) {
-      emit(eval_tape_, node.clear);
-      eval_tape_.push_back({TapeOp::clear, st});
-    }
-    if (!node.preset.empty()) {
-      emit(eval_tape_, node.preset);
-      eval_tape_.push_back({TapeOp::preset, st});
+    // The last of clear and preset wins.
+    for (bool clear : {!node.clear_wins, node.clear_wins}) {
+      if (clear && !node.clear.empty()) {
+        emit(eval_tape_, node.clear);
+        eval_tape_.push_back({TapeOp::clear, st});
+      }
+      else if (!clear && !node.preset.empty()) {
+        emit(eval_tape_, node.preset);
+        eval_tape_.push_back({TapeOp::preset, st});
+      }
     }
     for (const SimOutput &output : node.outputs) {
       // Clock source pins on cell outputs follow the clock instead.
@@ -1041,109 +1060,110 @@ ActivitySim::runTape(const std::vector<TapeInstr> &tape)
   Word *sts = states_.data();
   Word *nexts = next_states_.data();
   Word *prevs = prev_clocks_.data();
-  Word *base = stack_.data();
-  Word *top = base - W;
+  // top is the next free stack slot; the operands are below it.
+  Word *top = stack_.data();
   for (const TapeInstr &instr : tape) {
     switch (instr.op) {
     case TapeOp::sig: {
-      top += W;
-      const Word *src = sigs + size_t(instr.arg) * W;
+      const Word *src = sigs + static_cast<size_t>(instr.arg) * W;
       for (int w = 0; w < W; w++)
         top[w] = src[w];
+      top += W;
       break;
     }
     case TapeOp::state: {
-      top += W;
-      const Word *src = sts + size_t(instr.arg) * W;
+      const Word *src = sts + static_cast<size_t>(instr.arg) * W;
       for (int w = 0; w < W; w++)
         top[w] = src[w];
+      top += W;
       break;
     }
     case TapeOp::state_inv: {
-      top += W;
-      const Word *src = sts + size_t(instr.arg) * W;
+      const Word *src = sts + static_cast<size_t>(instr.arg) * W;
       for (int w = 0; w < W; w++)
         top[w] = ~src[w];
+      top += W;
       break;
     }
     case TapeOp::one:
-      top += W;
       for (int w = 0; w < W; w++)
         top[w] = ~Word(0);
+      top += W;
       break;
     case TapeOp::zero:
-      top += W;
       for (int w = 0; w < W; w++)
         top[w] = 0;
+      top += W;
       break;
     case TapeOp::not_:
       for (int w = 0; w < W; w++)
-        top[w] = ~top[w];
+        top[w - W] = ~top[w - W];
       break;
     case TapeOp::and_:
       top -= W;
       for (int w = 0; w < W; w++)
-        top[w] &= top[w + W];
+        top[w - W] &= top[w];
       break;
     case TapeOp::or_:
       top -= W;
       for (int w = 0; w < W; w++)
-        top[w] |= top[w + W];
+        top[w - W] |= top[w];
       break;
     case TapeOp::xor_:
       top -= W;
       for (int w = 0; w < W; w++)
-        top[w] ^= top[w + W];
+        top[w - W] ^= top[w];
       break;
     case TapeOp::store: {
-      Word *dst = sigs + size_t(instr.arg) * W;
+      Word *dst = sigs + static_cast<size_t>(instr.arg) * W;
+      top -= W;
       for (int w = 0; w < W; w++)
         dst[w] = top[w];
-      top -= W;
       break;
     }
     case TapeOp::store_next: {
-      Word *dst = nexts + size_t(instr.arg) * W;
+      Word *dst = nexts + static_cast<size_t>(instr.arg) * W;
+      top -= W;
       for (int w = 0; w < W; w++)
         dst[w] = top[w];
-      top -= W;
       break;
     }
     case TapeOp::flop: {
       // Capture on a rising edge of the clock function.
-      size_t off = size_t(instr.arg) * W;
+      size_t off = static_cast<size_t>(instr.arg) * W;
       Word *st = sts + off;
       Word *prev = prevs + off;
       const Word *next = nexts + off;
+      top -= W;
       for (int w = 0; w < W; w++) {
         Word rise = top[w] & ~prev[w];
         st[w] = (rise & next[w]) | (st[w] & ~rise);
         prev[w] = top[w];
       }
-      top -= W;
       break;
     }
     case TapeOp::latch: {
       // Stack: enable, data.
-      Word *st = sts + size_t(instr.arg) * W;
-      const Word *en = top - W;
-      for (int w = 0; w < W; w++)
-        st[w] = (en[w] & top[w]) | (st[w] & ~en[w]);
+      Word *st = sts + static_cast<size_t>(instr.arg) * W;
       top -= 2 * W;
+      const Word *en = top;
+      const Word *data = top + W;
+      for (int w = 0; w < W; w++)
+        st[w] = (en[w] & data[w]) | (st[w] & ~en[w]);
       break;
     }
     case TapeOp::clear: {
-      Word *st = sts + size_t(instr.arg) * W;
+      Word *st = sts + static_cast<size_t>(instr.arg) * W;
+      top -= W;
       for (int w = 0; w < W; w++)
         st[w] &= ~top[w];
-      top -= W;
       break;
     }
     case TapeOp::preset: {
-      Word *st = sts + size_t(instr.arg) * W;
+      Word *st = sts + static_cast<size_t>(instr.arg) * W;
+      top -= W;
       for (int w = 0; w < W; w++)
         st[w] |= top[w];
-      top -= W;
       break;
     }
     }
@@ -1283,18 +1303,31 @@ Power::simulateActivities(const Scene *scene,
   activity_sim_mode_ = scene->mode();
 
   // Clocks with source pins. Generated clocks on cells with a function
-  // (dividers, clock gates) are derived from the design logic, so their
-  // period does not matter; those on macro outputs (PLLs), ports or
-  // undriven nets do.
+  // (dividers, clock gates) are derived from the design logic in full
+  // mode, so their period does not matter; those on macro outputs (PLLs),
+  // ports or undriven nets do. Combinational mode samples once per period,
+  // so a derived clock faster than the fastest clock counts there.
   const Sdc *sdc = scene->mode()->sdc();
   std::vector<const Clock *> clocks;
+  std::vector<const Clock *> derived_clocks;
   float period = 0.0;
   for (const Clock *clk : sdc->clocks()) {
-    if (!clk->isVirtual() && !clk->leafPins().empty() && clk->period() > 0.0
-        && !(clk->isGenerated() && simulatedClockSource(clk))) {
-      clocks.push_back(clk);
-      if (period == 0.0 || clk->period() < period)
+    if (!clk->isVirtual() && !clk->leafPins().empty() && clk->period() > 0.0) {
+      if (clk->isGenerated() && simulatedClockSource(clk))
+        derived_clocks.push_back(clk);
+      else {
+        clocks.push_back(clk);
+        if (period == 0.0 || clk->period() < period)
+          period = clk->period();
+      }
+    }
+  }
+  if (!full) {
+    for (const Clock *clk : derived_clocks) {
+      if (period == 0.0 || clk->period() < period) {
+        clocks.push_back(clk);
         period = clk->period();
+      }
     }
   }
   if (period == 0.0) {
@@ -1352,24 +1385,26 @@ Power::simulateActivities(const Scene *scene,
 bool
 Power::simulatedClockSource(const Clock *clk)
 {
+  bool simulated = !clk->leafPins().empty();
   for (const Pin *pin : clk->leafPins()) {
     const Pin *drvr = pin;
     if (!network_->isDriver(pin)) {
       PinSet *drvrs = network_->drivers(pin);
       drvr = (drvrs && !drvrs->empty()) ? *drvrs->begin() : nullptr;
     }
-    if (drvr && !network_->isTopLevelPort(drvr)) {
+    bool pin_simulated = false;
+    if (drvr && !network_->isTopLevelPort(drvr) && !hasUserActivity(drvr)) {
       const LibertyCell *cell = network_->libertyCell(network_->instance(drvr));
       const LibertyPort *port = network_->libertyPort(drvr);
       const LibertyCell *test_cell = cell ? cell->testCell() : nullptr;
       const LibertyPort *test_port = (test_cell && port)
         ? test_cell->findLibertyPort(port->name()) : nullptr;
-      if (cell && (cell->isClockGate() || (port && port->function())
-                   || (test_port && test_port->function())))
-        return true;
+      pin_simulated = cell && (cell->isClockGate() || (port && port->function())
+                               || (test_port && test_port->function()));
     }
+    simulated &= pin_simulated;
   }
-  return false;
+  return simulated;
 }
 
 void

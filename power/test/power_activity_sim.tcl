@@ -64,6 +64,7 @@ unset_power_activity -pins [get_pins {rc/X mx/S}]
 
 puts "An input change removes the annotations (the formulas are used)."
 set_power_activity -input_ports [get_ports y] -activity 0.3
+report_activity_annotation
 show mx/X
 set_power_activity -input_ports [get_ports y] -activity 0.1
 
@@ -94,6 +95,15 @@ create_clock -name clk -period 6 [get_ports clk]
 simulate_power_activity -cycles 4000 -lanes 256 -seed 1
 show {d_r/Q x_r/Q}
 report_activity_annotation
+
+puts "A faster generated clock on a cell output: the formulas are used in"
+puts "combinational mode (once warned), the command runs at its period."
+create_generated_clock -name fclk -source [get_ports clk] -multiply_by 2 \
+  [get_pins d_inv/Y]
+set_power_activity_mode combinational
+show {x_r/Q}
+set_power_activity_mode vectorless
+simulate_power_activity -cycles 4000 -lanes 256 -seed 1
 
 puts "No clock."
 delete_clock [all_clocks]

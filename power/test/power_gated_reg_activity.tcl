@@ -55,6 +55,16 @@ show r_en/Q
 show r_icg/Q
 show r_ungated/Q
 
+puts "Enable on every other cycle, then single cycle pulses: two loads never"
+puts "follow each other, so the data is taken as random (0.25, 0.05)."
+set_power_activity -input_ports [get_ports d] -density 0.5 -duty 0.5
+set_power_activity -input_ports [get_ports en] -density 1.0 -duty 0.5
+show r_en/Q
+show r_icg/Q
+set_power_activity -input_ports [get_ports en] -density 0.2 -duty 0.1
+show r_en/Q
+show r_icg/Q
+
 puts "EN constant 0"
 set_case_analysis 0 [get_ports en]
 show r_icg/Q
@@ -64,3 +74,24 @@ set_case_analysis 1 [get_ports en]
 set_power_activity -input_ports [get_ports d] -density 0.03 -duty 0.5
 show r_icg/Q
 show r_ungated/Q
+
+puts "Toggles and loads: JK flop (J 0.2, K 0.8: 0.32) and a toggle flop with"
+puts "a synchronous reset (T 0.5, RST 0.5: 0.375), random inputs."
+read_liberty power_activity.lib
+set verilog2 [make_result_file power_gated_reg_activity2.v]
+set stream [open $verilog2 w]
+puts $stream {module top2 (clk, j, k, t, rst, jq, tq);
+  input clk, j, k, t, rst;
+  output jq, tq;
+  JK_FF jk (.CK(clk), .J(j), .K(k), .Q(jq));
+  T_FF_SR tsr (.CK(clk), .T(t), .RST(rst), .Q(tq));
+endmodule}
+close $stream
+read_verilog $verilog2
+link_design top2
+create_clock -name clk -period 1 [get_ports clk]
+set_power_activity -input_ports [get_ports j] -density 0.32 -duty 0.2
+set_power_activity -input_ports [get_ports k] -density 0.32 -duty 0.8
+set_power_activity -input_ports [get_ports {t rst}] -density 0.5 -duty 0.5
+show jk/Q
+show tsr/Q
