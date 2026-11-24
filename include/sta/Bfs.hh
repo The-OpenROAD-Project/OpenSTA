@@ -115,7 +115,8 @@ protected:
   // rework lands; on merge conflict take upstream and drop this.
   void visitLevelChunked(VertexSeq &level_vertices,
                          Level level,
-                         std::vector<VertexVisitor *> &visitors);
+                         std::vector<VertexVisitor *> &visitors,
+                         std::vector<VertexSeq> &thread_queues);
   // ---- OpenROAD fork: BFS chunked dispatch (end) ----
 
   BfsIndex bfs_index_;

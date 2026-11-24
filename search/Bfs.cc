@@ -37,6 +37,34 @@
 
 namespace sta {
 
+namespace {
+
+thread_local BfsIterator *tls_bfs_iter = nullptr;
+thread_local VertexSeq *tls_bfs_queue = nullptr;
+
+struct ScopedTlsBfsQueue
+{
+  BfsIterator *prev_iter;
+  VertexSeq *prev_queue;
+
+  ScopedTlsBfsQueue(BfsIterator *iter,
+                    VertexSeq *queue) :
+    prev_iter(tls_bfs_iter),
+    prev_queue(tls_bfs_queue)
+  {
+    tls_bfs_iter = iter;
+    tls_bfs_queue = queue;
+  }
+
+  ~ScopedTlsBfsQueue()
+  {
+    tls_bfs_iter = prev_iter;
+    tls_bfs_queue = prev_queue;
+  }
+};
+
+}  // namespace
+
 BfsIterator::BfsIterator(BfsIndex bfs_index,
                          Level level_min,
                          Level level_max,
@@ -165,6 +193,7 @@ BfsIterator::visitParallel(Level to_level,
       visitors.reserve(thread_count_);
       for (size_t k = 0; k < thread_count_; k++)
         visitors.push_back(visitor->copy());
+      std::vector<VertexSeq> thread_queues(visitors.size());
       while (levelLessOrEqual(first_level_, last_level_)
              && levelLessOrEqual(first_level_, to_level)) {
         VertexSeq &level_vertices = queue_[first_level_];
@@ -180,13 +209,13 @@ BfsIterator::visitParallel(Level to_level,
                 visitor->visit(vertex);
               }
             }
+            level_vertices.clear();
           }
           else {
             // ---- OpenROAD fork: BFS chunked dispatch (begin) ----
-            visitLevelChunked(level_vertices, level, visitors);
+            visitLevelChunked(level_vertices, level, visitors, thread_queues);
             // ---- OpenROAD fork: BFS chunked dispatch (end) ----
           }
-          level_vertices.clear();
           visit_count += vertex_count;
         }
       }
@@ -201,6 +230,12 @@ void
 BfsIterator::enqueue(Vertex *vertex)
 {
   debugPrint(debug_, "bfs", 2, "enqueue {}", vertex->to_string(this));
+  if (tls_bfs_iter == this) {
+    if (!vertex->bfsInQueue(bfs_index_) && vertex->trySetBfsInQueue(bfs_index_)) {
+      tls_bfs_queue->push_back(vertex);
+    }
+    return;
+  }
   if (!vertex->bfsInQueue(bfs_index_)) {
     Level level = vertex->level();
     LockGuard lock(queue_lock_);
@@ -324,11 +359,11 @@ BfsIterator::findNext(Level to_level)
 void
 BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
                                Level level,
-                               std::vector<VertexVisitor *> &visitors)
+                               std::vector<VertexVisitor *> &visitors,
+                               std::vector<VertexSeq> &thread_queues)
 {
-  // Tasks read level_vertices in place and unlocked. This relies on
-  // visitors never enqueuing at the current level (they only enqueue
-  // fanout/fanin, which levelize places at a higher/lower level).
+  // Tasks read level_vertices in place and unlocked, and buffer enqueues into
+  // per-thread vectors merged after finishTasks().
   // Chunk size vs. runtime is U-shaped; 8 is the smallest size at the
   // bottom of the curve.
   constexpr size_t chunk_size = 8;
@@ -336,8 +371,9 @@ BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
   BfsIndex bfs_index = bfs_index_;
   for (size_t from = 0; from < vertex_count; from += chunk_size) {
     size_t to = (from + chunk_size < vertex_count) ? from + chunk_size : vertex_count;
-    dispatch_queue_->dispatch([this, &level_vertices, from, to, level,
-                               bfs_index, &visitors](int thread_id) {
+    dispatch_queue_->dispatch([this, &level_vertices, from, to, level, bfs_index,
+                               &visitors, &thread_queues](int thread_id) {
+      ScopedTlsBfsQueue tls_guard(this, &thread_queues[thread_id]);
       VertexVisitor *thread_visitor = visitors[thread_id];
       for (size_t i = from; i < to; i++) {
         Vertex *vertex = level_vertices[i];
@@ -350,6 +386,18 @@ BfsIterator::visitLevelChunked(VertexSeq &level_vertices,
     });
   }
   dispatch_queue_->finishTasks();
+  level_vertices.clear();
+  for (VertexSeq &tq : thread_queues) {
+    for (Vertex *v : tq) {
+      Level lvl = v->level();
+      queue_[lvl].push_back(v);
+      if (lvl != last_level_ && levelLess(last_level_, lvl))
+        last_level_ = lvl;
+      if (lvl != first_level_ && levelLess(lvl, first_level_))
+        first_level_ = lvl;
+    }
+    tq.clear();
+  }
 }
 // ---- OpenROAD fork: BFS chunked dispatch (end) ----
 
