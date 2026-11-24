@@ -478,7 +478,7 @@ proc get_cells { args } {
         } else {
           set matches [find_instances_matching $pattern $regexp $nocase]
         }
-        if { $matches == {} && !$quiet} {
+        if { [llength $matches] == 0 && !$quiet} {
           sta_warn 349 "instance '$pattern' not found."
         }
         lappend insts {*}$matches
@@ -529,7 +529,7 @@ proc get_clocks { args } {
       lappend clocks $pattern
     } else {
       set matches [find_clocks_matching $pattern $regexp $nocase]
-      if { $matches != {} } {
+      if { [llength $matches] != 0 } {
         lappend clocks {*}$matches
       } else {
         if {![info exists flags(-quiet)]} {
@@ -618,11 +618,11 @@ proc get_lib_cells { args } {
           foreach lib $libs {
             set matches [$lib find_liberty_cells_matching $cell_pattern \
                          $regexp $nocase]
-            if {$matches != {}} {
+            if {[llength $matches] != 0} {
               lappend cells {*}$matches
             }
           }
-          if { $cells == {} } {
+          if { [llength $cells] == 0 } {
             if {!$quiet} {
               sta_warn 354 "cell '$cell_pattern' not found."
             }
@@ -798,7 +798,7 @@ proc get_libs { args } {
       lappend libs $pattern
     } else {
       set matches [find_liberty_libraries_matching $pattern $regexp $nocase]
-      if {$matches != {}} {
+      if {[llength $matches] != 0} {
         lappend libs {*}$matches
       } else {
         if {![info exists flags(-quiet)]} {
@@ -915,7 +915,7 @@ proc get_nets { args } {
           set matches [find_nets_matching $pattern $regexp $nocase]
         }
         lappend nets {*}$matches
-        if { $matches == {} && !$quiet } {
+        if { [llength $matches] == 0 && !$quiet } {
           sta_warn 361 "net '$pattern' not found."
         }
       }
@@ -1025,7 +1025,7 @@ proc get_pins { args } {
             lappend pins $match
           }
         }
-        if { $matches == {} && !$quiet } {
+        if { [llength $matches] == 0 && !$quiet } {
           sta_warn 363 "pin '$pattern' not found."
         }
       }
@@ -1088,7 +1088,7 @@ proc get_ports { args } {
         lappend ports $pattern
       } else {
         set matches [find_ports_matching $pattern $regexp $nocase]
-        if { $matches != {} } {
+        if { [llength $matches] != 0 } {
           lappend ports {*}$matches
         } else {
           if {![info exists flags(-quiet)]} {
@@ -1497,11 +1497,11 @@ proc group_path { args } {
   }
   
   check_for_key_args $cmd args
-  if { $args != {} } {
+  if { [llength $args] != 0 } {
     delete_from_thrus_to $from $thrus $to
     sta_error 392 "positional arguments not supported."
   }
-  if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
+  if { ($from == "NULL" && [llength $thrus] == 0 && $to == "NULL") } {
     delete_from_thrus_to $from $thrus $to
     sta_error 393 "-from, -through or -to required."
   }
@@ -4088,7 +4088,7 @@ proc set_timing_derate { args } {
   if { [llength $args] == 2 } {
     set objects [lindex $args 1]
     parse_libcell_inst_net_arg $objects libcells insts nets
-    if { $nets != {} } {
+    if { [llength $nets] != 0 } {
       if { [info exists flags(-cell_delay)] \
              || [info exists flags(-cell_check)] } {
         sta_warn 470 "-cell_delay and -cell_check flags ignored for net objects."
@@ -4159,7 +4159,7 @@ proc parse_from_arg { keys_var arg_error_var } {
     return "NULL"
   }
   parse_clk_inst_port_pin_arg $keys($key) from_clks from_insts from_pins
-  if {$from_pins == {} && $from_insts == {} && $from_clks == {}} {
+  if {[llength $from_pins] == 0 && [llength $from_insts] == 0 && [llength $from_clks] == 0} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
     sta_warn 471 "no valid objects specified for $key."
@@ -4174,7 +4174,7 @@ proc parse_thrus_arg { args_var arg_error_var } {
   
   set thrus {}
   set args_rtn {}
-  while { $args != {} } {
+  while { [llength $args] > 0 } {
     set arg [lindex $args 0]
     set rf ""
     if { $arg == "-through" } {
@@ -4192,7 +4192,7 @@ proc parse_thrus_arg { args_var arg_error_var } {
         set args [lrange $args 1 end]
         set arg [lindex $args 0]
         parse_inst_port_pin_net_arg $arg insts pins nets
-        if {$pins == {} && $insts == {} && $nets == {}} {
+        if {[llength $pins] == 0 && [llength $insts] == 0 && [llength $nets] == 0} {
           upvar 1 $arg_error_var arg_error
           set arg_error 1
           sta_warn 472 "no valid objects specified for $key"
@@ -4241,7 +4241,7 @@ proc parse_to_arg1 { keys_var end_rf arg_error_var } {
     }
   }
   parse_clk_inst_port_pin_arg $keys($key) to_clks to_insts to_pins
-  if {$to_pins == {} && $to_insts == {} && $to_clks == {}} {
+  if {[llength $to_pins] == 0 && [llength $to_insts] == 0 && [llength $to_clks] == 0} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
     sta_warn 473 "no valid objects specified for $key."
@@ -4254,7 +4254,7 @@ proc delete_from_thrus_to { from thrus to } {
   if { $from != "NULL" } {
     delete_exception_from $from
   }
-  if { $thrus != {} } {
+  if { [llength $thrus] != 0 } {
     foreach thru $thrus {
       delete_exception_thru $thru
     }
