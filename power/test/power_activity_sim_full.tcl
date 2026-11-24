@@ -360,3 +360,25 @@ set_input p 0.5 0.5
 simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
 show cw_r/Q
 show pw_r/Q
+
+puts "Two latches in one cell, the second reading the first: while"
+puts "transparent Q2 follows D, so xor(Q2, D) is constant 0."
+set verilog9 [make_result_file power_activity_sim_full9.v]
+set stream [open $verilog9 w]
+puts $stream {module top9 (clk, x, q1, q2, xo);
+  input clk, x;
+  output q1, q2, xo;
+  wire xb;
+  LAT2 l (.D(xb), .G(clk), .Q1(q1), .Q2(q2));
+  sky130_fd_sc_hd__buf_1 b (.A(x), .X(xb));
+  sky130_fd_sc_hd__xor2_1 x2 (.A(q2), .B(xb), .X(xo));
+endmodule}
+close $stream
+read_verilog $verilog9
+link_design top9
+create_clock -name clk -period 6 [get_ports clk]
+set_input x 0.5 0.5
+simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
+show l/Q1
+show l/Q2
+show x2/X

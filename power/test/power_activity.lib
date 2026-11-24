@@ -219,6 +219,51 @@ library (power_activity) {
     }
   }
 
+  /* Two latches, the second reading the state of the first. */
+  cell (LAT2) {
+    latch (IQ1, IQN1) {
+      enable : "G";
+      data_in : "D";
+    }
+    latch (IQ2, IQN2) {
+      enable : "G";
+      data_in : "IQ1";
+    }
+    pin (D) {
+      direction : input;
+      capacitance : 1.0;
+    }
+    pin (G) {
+      direction : input;
+      capacitance : 1.0;
+      clock : true;
+    }
+    pin (Q1) {
+      direction : output;
+      function : "IQ1";
+      timing () {
+        related_pin : "G";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+    pin (Q2) {
+      direction : output;
+      function : "IQ2";
+      timing () {
+        related_pin : "G";
+        timing_type : rising_edge;
+        cell_rise (scalar) { values ("0.05"); }
+        cell_fall (scalar) { values ("0.05"); }
+        rise_transition (scalar) { values ("0.02"); }
+        fall_transition (scalar) { values ("0.02"); }
+      }
+    }
+  }
+
   /* AND2 with state dependent internal power on the A to Z arc. A only
      switches Z when B is 1, so the "!B" group should get no weight. */
   cell (AND2_WHEN) {

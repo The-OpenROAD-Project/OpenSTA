@@ -34,3 +34,23 @@ Toggles and loads: JK flop (J 0.2, K 0.8: 0.32) and a toggle flop with
 a synchronous reset (T 0.5, RST 0.5: 0.375), random inputs.
 jk/Q        toggles/cycle 0.3200 duty 0.200 propagated
 tsr/Q       toggles/cycle 0.3750 duty 0.250 propagated
+Random data at the fast clock into registers on a divided clock: the
+data is sampled at its own period, so a random input differs between
+two samples with probability 0.5 (0.25 plain, 0.125 with enable 0.5,
+0.025 with enable 0.1, toggles per fast cycle).
+P(EN) 0.5, 0.5 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.1250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.1250 duty 0.500 propagated
+P(EN) 0.5, 0.02 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.1250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.1250 duty 0.500 propagated
+P(EN) 0.1, 0.18 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.0250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.0250 duty 0.500 propagated
+P(EN) 0.1, 0.02 toggles per cycle
+fs_r/Q      toggles/cycle 0.2500 duty 0.500 propagated
+fs_e/Q      toggles/cycle 0.0250 duty 0.500 propagated
+fs_g/Q      toggles/cycle 0.0250 duty 0.500 propagated

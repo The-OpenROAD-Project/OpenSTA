@@ -1,0 +1,28 @@
+Formulas.
+e0/Q   toggles/cycle 0.0500 duty 0.500 propagated
+e1/Q   toggles/cycle 0.0500 duty 0.500 propagated
+e2/Q   toggles/cycle 0.0500 duty 0.500 propagated
+e5/Q   toggles/cycle 0.0500 duty 0.500 propagated
+g0/Q   toggles/cycle 0.0500 duty 0.500 propagated
+g1/Q   toggles/cycle 0.0500 duty 0.500 propagated
+g2/Q   toggles/cycle 0.0500 duty 0.500 propagated
+g5/Q   toggles/cycle 0.0500 duty 0.500 propagated
+c0/Q   toggles/cycle 0.0500 duty 0.500 propagated
+c1/Q   toggles/cycle 0.0680 duty 0.500 propagated
+c2/Q   toggles/cycle 0.0853 duty 0.500 propagated
+c5/Q   toggles/cycle 0.1000 duty 0.500 propagated
+Full simulation.
+Simulation: 24 cells 19 sequential states 3 sources 29 signals, 256 lanes.
+Simulation annotated 24 pins.
+e0/Q   toggles/cycle 0.0501 duty 0.501 simulation
+e1/Q   toggles/cycle 0.0501 duty 0.500 simulation
+e2/Q   toggles/cycle 0.0501 duty 0.501 simulation
+e5/Q   toggles/cycle 0.0501 duty 0.502 simulation
+g0/Q   toggles/cycle 0.0501 duty 0.501 simulation
+g1/Q   toggles/cycle 0.0501 duty 0.500 simulation
+g2/Q   toggles/cycle 0.0501 duty 0.501 simulation
+g5/Q   toggles/cycle 0.0501 duty 0.502 simulation
+c0/Q   toggles/cycle 0.0501 duty 0.501 simulation
+c1/Q   toggles/cycle 0.0500 duty 0.502 simulation
+c2/Q   toggles/cycle 0.0502 duty 0.503 simulation
+c5/Q   toggles/cycle 0.0503 duty 0.503 simulation

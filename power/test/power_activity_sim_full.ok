@@ -119,3 +119,10 @@ Simulation: 4 cells 2 sequential states 3 sources 10 signals, 256 lanes.
 Simulation annotated 5 pins.
 cw_r/Q toggles/cycle 0.469 duty 0.375 simulation
 pw_r/Q toggles/cycle 0.469 duty 0.625 simulation
+Two latches in one cell, the second reading the first: while
+transparent Q2 follows D, so xor(Q2, D) is constant 0.
+Simulation: 3 cells 2 sequential states 1 sources 7 signals, 256 lanes.
+Simulation annotated 4 pins.
+l/Q1   toggles/cycle 0.500 duty 0.501 simulation
+l/Q2   toggles/cycle 0.500 duty 0.501 simulation
+x2/X   toggles/cycle 0.000 duty 0.000 simulation

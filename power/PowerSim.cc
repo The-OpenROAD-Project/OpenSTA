@@ -148,6 +148,8 @@ struct SimNode
   SimProgram preset;
   // Clear wins when both are asserted (clear_preset_var1 L).
   bool clear_wins = false;
+  // States read by the programs of a latch, which follows them in a phase.
+  std::vector<int> state_deps;
 };
 
 // Two state process driving a source signal.
@@ -652,6 +654,13 @@ ActivitySim::addSequential(const Instance *inst,
     if (seq.preset())
       node.preset = compile(seq.preset(), inst, states, &node.deps);
     node.clear_wins = seq.clearPresetOutput() == LogicValue::zero;
+    if (seq.isLatch()) {
+      for (const SimProgram *prog : {&node.clock, &node.next, &node.clear,
+                                     &node.preset})
+        for (const TapeInstr &instr : *prog)
+          if (instr.op == TapeOp::state || instr.op == TapeOp::state_inv)
+            node.state_deps.push_back(instr.arg);
+    }
     nodes_.push_back(std::move(node));
   }
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
@@ -803,6 +812,11 @@ ActivitySim::sortNodes()
     for (const SimOutput &output : nodes_[i].outputs)
       if (!pinned_[output.signal])
         producer[output.signal] = i;
+  // State -> owning node, for latches that read a state in the same cell.
+  std::vector<int> state_owner(state_count_, -1);
+  for (size_t i = 0; i < nodes_.size(); i++)
+    if (nodes_[i].state >= 0)
+      state_owner[nodes_[i].state] = i;
   std::vector<int> indegree(nodes_.size(), 0);
   std::vector<std::vector<int>> fanout(nodes_.size());
   std::vector<bool> self_loop(nodes_.size(), false);
@@ -810,8 +824,15 @@ ActivitySim::sortNodes()
     std::vector<int> &deps = nodes_[i].deps;
     std::sort(deps.begin(), deps.end());
     deps.erase(std::unique(deps.begin(), deps.end()), deps.end());
-    for (int sig : deps) {
-      int from = producer[sig];
+    std::vector<int> from_nodes;
+    for (int sig : deps)
+      from_nodes.push_back(producer[sig]);
+    for (int state : nodes_[i].state_deps)
+      from_nodes.push_back(state_owner[state]);
+    std::sort(from_nodes.begin(), from_nodes.end());
+    from_nodes.erase(std::unique(from_nodes.begin(), from_nodes.end()),
+                     from_nodes.end());
+    for (int from : from_nodes) {
       if (from >= 0 && from != static_cast<int>(i)) {
         fanout[from].push_back(i);
         indegree[i]++;

@@ -50,6 +50,18 @@ class ClkNetwork;
 
 using SeqPin = std::pair<const Instance*, LibertyPort*>;
 
+// ---- OpenROAD fork: clock gated register sampling (begin) ----
+// The root drivers of the enables (clock gates and hold inputs) that gate
+// the edges at which a register samples its data, and the first clock
+// cell that is not a buffer or a clock gate (divider, mux, macro).
+struct PwrSampleDomain
+{
+  const Instance *gate = nullptr;
+  std::vector<const Pin*> enables;
+  bool operator==(const PwrSampleDomain &other) const = default;
+};
+// ---- OpenROAD fork: clock gated register sampling (end) ----
+
 class SeqPinHash
 {
 public:
@@ -293,11 +305,35 @@ protected:
   // OpenROAD fork: clock gated register sampling.
   static float sampledChange(float change,
                              float duty,
-                             float p);
+                             float p,
+                             bool synchronous);
+  bool stateInNextState(const Sequential &seq);
+  void stateNextCofactors(const Sequential &seq,
+                          DdNode *bdd,
+                          // Return values.
+                          DdNode *state_next[2]);
+  float dataPeriod(const Instance *reg,
+                   const FuncExpr *data,
+                   float period);
+  const Pin *netDriver(const Pin *pin);
+  void combInputs(const Pin *drvr,
+                  // Return value.
+                  PinSeq &inputs);
+  void clockDomain(const Pin *clk_pin,
+                   // Return value.
+                   PwrSampleDomain &domain);
+  const Pin *rootDriver(const Pin *pin);
+  const PwrSampleDomain &regSampleDomain(const Instance *reg,
+                                         const Sequential &seq);
+  const std::vector<PwrSampleDomain> &driverSampleDomains(const Pin *drvr);
+  bool dataInSampleDomain(const Instance *reg,
+                          const Sequential &seq);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,
                            float period,
+                           float data_period,
+                           bool same_domain,
                            // Return values.
                            float &density,
                            float &duty);
@@ -366,6 +402,10 @@ private:
   bool instance_powers_valid_{false};
 
   static constexpr int max_activity_passes_ = 50;
+  // OpenROAD fork: clock gated register sampling.
+  std::unordered_map<const Instance*, PwrSampleDomain> reg_domain_cache_;
+  std::unordered_map<const Pin*, std::vector<PwrSampleDomain>>
+    drvr_domains_cache_;
   std::unordered_map<const Pin*, float> launch_period_cache_;
   bool convergence_warned_{false};
   bool slew_limit_warned_{false};

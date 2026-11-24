@@ -95,3 +95,38 @@ set_power_activity -input_ports [get_ports k] -density 0.32 -duty 0.8
 set_power_activity -input_ports [get_ports {t rst}] -density 0.5 -duty 0.5
 show jk/Q
 show tsr/Q
+
+puts "Random data at the fast clock into registers on a divided clock: the"
+puts "data is sampled at its own period, so a random input differs between"
+puts "two samples with probability 0.5 (0.25 plain, 0.125 with enable 0.5,"
+puts "0.025 with enable 0.1, toggles per fast cycle)."
+set verilog3 [make_result_file power_gated_reg_activity3.v]
+set stream [open $verilog3 w]
+puts $stream {module top3 (clk, x, en, cq, pq, fq, sq);
+  input clk, x, en;
+  output cq, pq, fq, sq;
+  wire dq_n, cq_w, xr, gclk;
+  sky130_fd_sc_hd__inv_1 div_inv (.A(cq_w), .Y(dq_n));
+  sky130_fd_sc_hd__dfxtp_1 div_r (.CLK(clk), .D(dq_n), .Q(cq_w));
+  sky130_fd_sc_hd__buf_1 cb (.A(cq_w), .X(cq));
+  sky130_fd_sc_hd__dfxtp_1 xr_r (.CLK(clk), .D(x), .Q(xr));
+  sky130_fd_sc_hd__dfxtp_1 fs_r (.CLK(cq_w), .D(xr), .Q(pq));
+  sky130_fd_sc_hd__edfxtp_1 fs_e (.CLK(cq_w), .D(xr), .DE(en), .Q(fq));
+  sky130_fd_sc_hd__dlclkp_1 icg (.CLK(cq_w), .GATE(en), .GCLK(gclk));
+  sky130_fd_sc_hd__dfxtp_1 fs_g (.CLK(gclk), .D(xr), .Q(sq));
+endmodule}
+close $stream
+read_verilog $verilog3
+link_design top3
+create_clock -name clk -period 1 [get_ports clk]
+create_generated_clock -name dclk -source [get_ports clk] -divide_by 2 \
+  [get_pins div_r/Q]
+set_power_activity -input_ports [get_ports x] -density 0.5 -duty 0.5
+foreach {en_duty en_density} {0.5 0.5 0.5 0.02 0.1 0.18 0.1 0.02} {
+  puts "P(EN) $en_duty, $en_density toggles per cycle"
+  set_power_activity -input_ports [get_ports en] -density $en_density \
+    -duty $en_duty
+  show fs_r/Q
+  show fs_e/Q
+  show fs_g/Q
+}

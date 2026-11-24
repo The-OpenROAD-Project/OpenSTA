@@ -21,6 +21,7 @@ sta_module_tests("power"
     leakage_when
     unset_case
     gated_reg_activity
+    gated_reg_pipeline
 )
 
 add_subdirectory(cpp)
