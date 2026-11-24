@@ -300,6 +300,11 @@ public:
   void setHasSimValue(bool has_sim);
   
   [[nodiscard]] bool bfsInQueue(BfsIndex index) const;
+  [[nodiscard]] bool trySetBfsInQueue(BfsIndex index)
+  {
+    const uint8_t mask = static_cast<uint8_t>(1U << static_cast<unsigned>(index));
+    return (bfs_in_queue_.fetch_or(mask, std::memory_order_relaxed) & mask) == 0;
+  }
   void setBfsInQueue(BfsIndex index, bool value);
   [[nodiscard]] bool bfsPredecessorChanged() const { return bfs_predecessor_changed_; }
   void setBfsPredecessorChanged(bool changed);
