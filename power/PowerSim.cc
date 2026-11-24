@@ -684,6 +684,11 @@ ActivitySim::addSequential(const Instance *inst,
         int sig = signal(pin);
         pinned_[sig] = false;
         node.outputs.push_back({sig, compile(func, inst, states, &node.deps)});
+        if (node.kind == SimNodeKind::latch) {
+          for (const TapeInstr &instr : node.outputs.back().func)
+            if (instr.op == TapeOp::state || instr.op == TapeOp::state_inv)
+              node.state_deps.push_back(instr.arg);
+        }
       }
     }
   }
@@ -827,8 +832,10 @@ ActivitySim::sortNodes()
     std::vector<int> from_nodes;
     for (int sig : deps)
       from_nodes.push_back(producer[sig]);
+    // A latch reads its own state to hold it.
     for (int state : nodes_[i].state_deps)
-      from_nodes.push_back(state_owner[state]);
+      if (state_owner[state] != static_cast<int>(i))
+        from_nodes.push_back(state_owner[state]);
     std::sort(from_nodes.begin(), from_nodes.end());
     from_nodes.erase(std::unique(from_nodes.begin(), from_nodes.end()),
                      from_nodes.end());

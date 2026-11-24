@@ -136,6 +136,10 @@ Power::clearNonSdc()
   seq_activity_map_.clear();
   activity_map_.clear();
   launch_period_cache_.clear();
+  // OpenROAD fork: clock gated register sampling.
+  reg_domain_cache_.clear();
+  drvr_domains_cache_.clear();
+  data_clk_period_cache_.clear();
   convergence_warned_ = false;
   slew_limit_warned_ = false;
   powerInvalid();
@@ -1157,6 +1161,7 @@ Power::ensureActivities(const Scene *scene)
       // OpenROAD fork: clock gated register sampling.
       reg_domain_cache_.clear();
       drvr_domains_cache_.clear();
+      data_clk_period_cache_.clear();
 
       // Initialize default input activity (after sdc is defined)
       // unless it has been set by command.
@@ -1464,12 +1469,32 @@ Power::dataPeriod(const Instance *reg,
     for (const LibertyPort *port : data->ports()) {
       const Pin *pin = port->direction()->isInternal()
         ? nullptr : network_->findPin(reg, port);
-      const Clock *clk = pin ? findClk(pin) : nullptr;
-      if (clk && clk->period() > 0.0 && clk->period() < data_period)
-        data_period = clk->period();
+      if (pin) {
+        auto cache_itr = data_clk_period_cache_.find(pin);
+        if (cache_itr == data_clk_period_cache_.end()) {
+          const Clock *clk = findClk(pin);
+          cache_itr = data_clk_period_cache_.emplace(pin, clk ? clk->period()
+                                                     : 0.0).first;
+        }
+        float clk_period = cache_itr->second;
+        if (clk_period > 0.0 && clk_period < data_period)
+          data_period = clk_period;
+      }
     }
   }
   return data_period;
+}
+
+// Registers sample at related edges when they have the same clock and a
+// shared enable, or no enables.
+bool
+PwrSampleDomain::related(const PwrSampleDomain &other) const
+{
+  bool shared = enables.empty() && other.enables.empty();
+  for (const Pin *enable : enables)
+    shared |= std::find(other.enables.begin(), other.enables.end(), enable)
+      != other.enables.end();
+  return clock == other.clock && shared;
 }
 
 // Driver of pin, or null.
@@ -1508,8 +1533,10 @@ Power::combInputs(const Pin *drvr,
 
 // The sample domain of a clock pin: the root drivers of the enables (and
 // driven test enables) of the clock gates driving it through clock
-// buffers, and the first cell with several clock inputs, a sequential
-// cell (divider) or a macro on the way; a clock from a port has none.
+// buffers and of the other inputs of combinational cells on the way, and
+// the clock pin at the end of the walk: a port, or the output of the
+// first cell with several clock inputs, a sequential cell (divider) or a
+// macro.
 void
 Power::clockDomain(const Pin *clk_pin,
                    // Return value.
@@ -1520,8 +1547,10 @@ Power::clockDomain(const Pin *clk_pin,
   bool done = false;
   for (int depth = 0; pin && !done && depth < 1000; depth++) {
     const Pin *drvr = netDriver(pin);
-    if (drvr == nullptr || network_->isTopLevelPort(drvr))
+    if (drvr == nullptr || network_->isTopLevelPort(drvr)) {
+      domain.clock = drvr;
       done = true;
+    }
     else {
       const Instance *inst = network_->instance(drvr);
       const LibertyCell *cell = network_->libertyCell(inst);
@@ -1532,11 +1561,8 @@ Power::clockDomain(const Pin *clk_pin,
         while (pin_iter->hasNext()) {
           const Pin *gate_pin = pin_iter->next();
           const LibertyPort *port = network_->libertyPort(gate_pin);
-          if (gate_pin == enable || (port && port->isClockGateTest())) {
-            const Pin *root = rootDriver(gate_pin);
-            if (root)
-              domain.enables.push_back(root);
-          }
+          if (gate_pin == enable || (port && port->isClockGateTest()))
+            rootDrivers(gate_pin, domain.enables);
         }
         delete pin_iter;
         pin = clk;
@@ -1553,10 +1579,16 @@ Power::clockDomain(const Pin *clk_pin,
             clk_inputs++;
           }
         }
-        if (clk_inputs == 1)
+        if (clk_inputs == 1) {
+          // A clock gated by a combinational cell (and, or, mux).
+          for (const Pin *input : inputs) {
+            if (input != clk_input)
+              rootDrivers(input, domain.enables);
+          }
           pin = clk_input;
+        }
         else {
-          domain.gate = inst;
+          domain.clock = drvr;
           done = true;
         }
       }
@@ -1564,22 +1596,33 @@ Power::clockDomain(const Pin *clk_pin,
   }
 }
 
-// Driver of pin through buffers and inverters.
-const Pin *
-Power::rootDriver(const Pin *pin)
+// The drivers of pin through combinational logic: ports, sequential and
+// macro outputs and clock pins (at most 64, deeper logic is cut off).
+void
+Power::rootDrivers(const Pin *pin,
+                   // Return value.
+                   std::vector<const Pin*> &roots)
 {
-  const Pin *drvr = netDriver(pin);
-  bool done = false;
-  for (int depth = 0; drvr && !done && depth < 1000; depth++) {
-    PinSeq inputs;
-    if (!network_->isTopLevelPort(drvr))
-      combInputs(drvr, inputs);
-    if (inputs.size() == 1)
-      drvr = netDriver(inputs[0]);
-    else
-      done = true;
+  const ClkNetwork *clk_network = scene_->mode()->clkNetwork();
+  std::vector<const Pin*> pending{netDriver(pin)};
+  std::vector<const Pin*> visited;
+  while (!pending.empty() && roots.size() < 64) {
+    const Pin *drvr = pending.back();
+    pending.pop_back();
+    if (drvr && std::find(visited.begin(), visited.end(), drvr)
+        == visited.end()) {
+      visited.push_back(drvr);
+      PinSeq inputs;
+      if (!network_->isTopLevelPort(drvr) && !clk_network->isClock(drvr))
+        combInputs(drvr, inputs);
+      if (inputs.empty())
+        roots.push_back(drvr);
+      else {
+        for (const Pin *input : inputs)
+          pending.push_back(netDriver(input));
+      }
+    }
   }
-  return drvr;
 }
 
 // The clock domain of a register and the root drivers of the inputs that
@@ -1612,9 +1655,8 @@ Power::regSampleDomain(const Instance *reg,
         if (support[Cudd_NodeReadIndex(var_node)]
             && !port->direction()->isInternal()) {
           const Pin *pin = network_->findPin(reg, port);
-          const Pin *drvr = pin ? rootDriver(pin) : nullptr;
-          if (drvr)
-            domain.enables.push_back(drvr);
+          if (pin)
+            rootDrivers(pin, domain.enables);
         }
       }
       free(support);
@@ -1674,7 +1716,7 @@ Power::driverSampleDomains(const Pin *drvr)
   return itr->second;
 }
 
-// True if a register on the same clock gate and enables launches the data.
+// True if a register with a related sample domain launches the data.
 bool
 Power::dataInSampleDomain(const Instance *reg,
                           const Sequential &seq)
@@ -1686,10 +1728,9 @@ Power::dataInSampleDomain(const Instance *reg,
       const Pin *pin = port->direction()->isInternal()
         ? nullptr : network_->findPin(reg, port);
       if (pin) {
-        const std::vector<PwrSampleDomain> &domains =
-          driverSampleDomains(netDriver(pin));
-        same |= std::find(domains.begin(), domains.end(), domain)
-          != domains.end();
+        for (const PwrSampleDomain &launch_domain
+               : driverSampleDomains(netDriver(pin)))
+          same |= launch_domain.related(domain);
       }
     }
   }

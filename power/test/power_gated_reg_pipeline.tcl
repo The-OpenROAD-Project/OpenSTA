@@ -4,7 +4,10 @@
 # of the first (0.05 per cycle with the enable at 0.1). With an xor from a
 # port between the stages the data mixes changes from the chain and from
 # the port; it is taken as synchronous, which errs high (at most the enable
-# rate 0.1). Clock period 1ns.
+# rate 0.1). Registers with a shared enable (en and en & m, nested clock
+# gates) are related the same way: exact with the subset enable sampling
+# the data of the other (0.125), high the other way (0.25 for 0.125).
+# Registers on different port clocks are not related. Clock period 1ns.
 source ../../test/helpers.tcl
 read_liberty ../../test/sky130hd/sky130_fd_sc_hd__tt_025C_1v80.lib
 
@@ -68,3 +71,57 @@ foreach pin $pins { show $pin }
 puts "Full simulation."
 simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
 foreach pin $pins { show $pin }
+
+puts "Enables en and en & m, as register enables and as nested clock gates:"
+puts "rb, g2 (en & m) sample ra, g1 (en) data (0.125 exact), and the other"
+puts "way (0.25, the simulation gives 0.125)."
+set verilog2 [make_result_file power_gated_reg_pipeline2.v]
+set stream [open $verilog2 w]
+puts $stream {module top2 (clk, x, en, m, q1, q2, q3, q4);
+  input clk, x, en, m;
+  output q1, q2, q3, q4;
+  wire en_m, gclk1, gclk2, b1, b2, b3, b4;
+  sky130_fd_sc_hd__and2_1 ea (.A(en), .B(m), .X(en_m));
+  sky130_fd_sc_hd__edfxtp_1 rb (.CLK(clk), .D(x), .DE(en_m), .Q(b1));
+  sky130_fd_sc_hd__edfxtp_1 ra (.CLK(clk), .D(b1), .DE(en), .Q(q1));
+  sky130_fd_sc_hd__edfxtp_1 ra2 (.CLK(clk), .D(x), .DE(en), .Q(b2));
+  sky130_fd_sc_hd__edfxtp_1 rb2 (.CLK(clk), .D(b2), .DE(en_m), .Q(q2));
+  sky130_fd_sc_hd__dlclkp_1 icg1 (.CLK(clk), .GATE(en), .GCLK(gclk1));
+  sky130_fd_sc_hd__dlclkp_1 icg2 (.CLK(gclk1), .GATE(m), .GCLK(gclk2));
+  sky130_fd_sc_hd__dfxtp_1 g2 (.CLK(gclk2), .D(x), .Q(b3));
+  sky130_fd_sc_hd__dfxtp_1 g1 (.CLK(gclk1), .D(b3), .Q(q3));
+  sky130_fd_sc_hd__dfxtp_1 g1b (.CLK(gclk1), .D(x), .Q(b4));
+  sky130_fd_sc_hd__dfxtp_1 g2b (.CLK(gclk2), .D(b4), .Q(q4));
+endmodule}
+close $stream
+read_verilog $verilog2
+link_design top2
+create_clock -name clk -period 1 [get_ports clk]
+set_input x 0.5 0.5
+set_input en 0.5 0.5
+set_input m 0.5 0.5
+set pins {rb/Q ra/Q ra2/Q rb2/Q g2/Q g1/Q g1b/Q g2b/Q}
+puts "Formulas."
+foreach pin $pins { show $pin }
+puts "Full simulation."
+simulate_power_activity -full -cycles 4000 -settle_cycles 500 -lanes 256 -seed 1
+foreach pin $pins { show $pin }
+
+puts "Registers on two port clocks: a 1ns register feeding a 4ns register,"
+puts "which samples random data (0.125 per ns)."
+set verilog3 [make_result_file power_gated_reg_pipeline3.v]
+set stream [open $verilog3 w]
+puts $stream {module top3 (clka, clkb, x, qa, qb);
+  input clka, clkb, x;
+  output qa, qb;
+  sky130_fd_sc_hd__dfxtp_1 pa (.CLK(clka), .D(x), .Q(qa));
+  sky130_fd_sc_hd__dfxtp_1 pb (.CLK(clkb), .D(qa), .Q(qb));
+endmodule}
+close $stream
+read_verilog $verilog3
+link_design top3
+create_clock -name clka -period 1 [get_ports clka]
+create_clock -name clkb -period 4 [get_ports clkb]
+set_input x 0.5 0.5
+show pa/Q
+show pb/Q

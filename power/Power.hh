@@ -51,14 +51,18 @@ class ClkNetwork;
 using SeqPin = std::pair<const Instance*, LibertyPort*>;
 
 // ---- OpenROAD fork: clock gated register sampling (begin) ----
-// The root drivers of the enables (clock gates and hold inputs) that gate
-// the edges at which a register samples its data, and the first clock
-// cell that is not a buffer or a clock gate (divider, mux, macro).
+// The root drivers of the enables (clock gates, other inputs of cells on
+// the clock path and hold inputs) that gate the edges at which a register
+// samples its data, and the clock pin they gate: a port, or the output of
+// the first clock cell that is not a buffer or a gate (divider, mux,
+// macro). Registers with the same clock and a shared enable, or no
+// enables, sample at related edges.
 struct PwrSampleDomain
 {
-  const Instance *gate = nullptr;
+  const Pin *clock = nullptr;
   std::vector<const Pin*> enables;
   bool operator==(const PwrSampleDomain &other) const = default;
+  bool related(const PwrSampleDomain &other) const;
 };
 // ---- OpenROAD fork: clock gated register sampling (end) ----
 
@@ -322,7 +326,9 @@ protected:
   void clockDomain(const Pin *clk_pin,
                    // Return value.
                    PwrSampleDomain &domain);
-  const Pin *rootDriver(const Pin *pin);
+  void rootDrivers(const Pin *pin,
+                   // Return value.
+                   std::vector<const Pin*> &roots);
   const PwrSampleDomain &regSampleDomain(const Instance *reg,
                                          const Sequential &seq);
   const std::vector<PwrSampleDomain> &driverSampleDomains(const Pin *drvr);
@@ -407,6 +413,8 @@ private:
   std::unordered_map<const Pin*, std::vector<PwrSampleDomain>>
     drvr_domains_cache_;
   std::unordered_map<const Pin*, float> launch_period_cache_;
+  // OpenROAD fork: clock gated register sampling. 0.0 for no clock.
+  std::unordered_map<const Pin*, float> data_clk_period_cache_;
   bool convergence_warned_{false};
   bool slew_limit_warned_{false};
 

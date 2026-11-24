@@ -26,3 +26,30 @@ c0/Q   toggles/cycle 0.0501 duty 0.501 simulation
 c1/Q   toggles/cycle 0.0500 duty 0.502 simulation
 c2/Q   toggles/cycle 0.0502 duty 0.503 simulation
 c5/Q   toggles/cycle 0.0503 duty 0.503 simulation
+Enables en and en & m, as register enables and as nested clock gates:
+rb, g2 (en & m) sample ra, g1 (en) data (0.125 exact), and the other
+way (0.25, the simulation gives 0.125).
+Formulas.
+rb/Q   toggles/cycle 0.1250 duty 0.500 propagated
+ra/Q   toggles/cycle 0.1250 duty 0.500 propagated
+ra2/Q  toggles/cycle 0.2500 duty 0.500 propagated
+rb2/Q  toggles/cycle 0.2500 duty 0.500 propagated
+g2/Q   toggles/cycle 0.1250 duty 0.500 propagated
+g1/Q   toggles/cycle 0.1250 duty 0.500 propagated
+g1b/Q  toggles/cycle 0.2500 duty 0.500 propagated
+g2b/Q  toggles/cycle 0.2500 duty 0.500 propagated
+Full simulation.
+Simulation: 11 cells 10 sequential states 3 sources 16 signals, 256 lanes.
+Simulation annotated 11 pins.
+rb/Q   toggles/cycle 0.1244 duty 0.499 simulation
+ra/Q   toggles/cycle 0.1244 duty 0.498 simulation
+ra2/Q  toggles/cycle 0.2500 duty 0.501 simulation
+rb2/Q  toggles/cycle 0.1247 duty 0.501 simulation
+g2/Q   toggles/cycle 0.1244 duty 0.499 simulation
+g1/Q   toggles/cycle 0.1244 duty 0.498 simulation
+g1b/Q  toggles/cycle 0.2500 duty 0.501 simulation
+g2b/Q  toggles/cycle 0.1247 duty 0.501 simulation
+Registers on two port clocks: a 1ns register feeding a 4ns register,
+which samples random data (0.125 per ns).
+pa/Q   toggles/cycle 0.5000 duty 0.500 propagated
+pb/Q   toggles/cycle 0.1250 duty 0.500 propagated
