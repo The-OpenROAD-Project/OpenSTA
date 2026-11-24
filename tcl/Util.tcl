@@ -42,7 +42,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
   upvar 1 $key_var key_value
   upvar 1 $flag_var flag_present
   set args_rtn {}
-  while { $args != "" } {
+  while { [llength $args] > 0 } {
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
       set key_index [lsearch -exact $keys $arg]
@@ -95,7 +95,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
 proc check_for_key_args { cmd arg_var } {
   upvar 1 $arg_var args
   set args_rtn {}
-  while { $args != "" } {
+  while { [llength $args] > 0 } {
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
       sta_error 563 "$cmd $arg is not a known keyword or flag."
@@ -471,7 +471,7 @@ define_cmd_args "log_end" {} \
 ################################################################
 
 proc check_argc_eq0 { cmd arglist } {
-  if { $arglist != {} } {
+  if { [llength $arglist] != 0 } {
     sta_error 564 "$cmd positional arguments not supported."
   }
 }
@@ -630,21 +630,21 @@ proc include_file { filename echo verbose } {
         zlib push gunzip $stream
       }
       set cmd ""
+      set cmd_empty 1
       set error {}
       set error_traceback {}
       while {![eof $stream]} {
         gets $stream line
-        if { $line != "" } {
-          if {$echo} {
-            report_line $line
-          }
+        if { $echo && $line ne "" } {
+          report_line $line
         }
-        if { $cmd == "" } {
+        if { $cmd_empty } {
           set cmd_start_line $include_line
           set check_complete 1
+          set cmd_empty 0
         }
         append cmd $line "\n"
-        if { [string index $line end] == "\\" } {
+        if { [string index $line end] eq "\\" } {
           set check_complete 1
         } elseif { ($check_complete || [regexp {[\]\})"]} $line]) \
                      && [info complete $cmd] } {
@@ -653,6 +653,7 @@ proc include_file { filename echo verbose } {
           set error_code [catch {uplevel \#0 $cmd} result error_options]
           # cmd consumed
           set cmd ""
+          set cmd_empty 1
           # Flush results printed outside tcl to stdout/stderr.
           fflush
           switch $error_code {
@@ -686,7 +687,7 @@ proc include_file { filename echo verbose } {
         incr include_line
       }
       close $stream
-      if { $cmd != {} } {
+      if { !$cmd_empty } {
         sta_error 341 "incomplete command at end of file, starting on line $cmd_start_line."
       }
       if { $error != {} } {
