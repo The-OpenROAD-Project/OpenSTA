@@ -48,8 +48,7 @@ set_false_path -setup\
 set_false_path\
     -from [list [get_ports {in1}]\
            [get_ports {in2}]]\
-    -to [list [get_ports {out1}]\
-           [get_ports {out2}]]
+    -to [all_outputs]
 ###############################################################################
 # Environment
 ###############################################################################

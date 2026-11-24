@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <ctime>
 #include <cstring>
+#include <memory>
 #include <set>
 #include <string>
 #include <string_view>
@@ -1331,6 +1332,11 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
   else if (rf == RiseFallBoth::fall())
     rf_prefix = "-fall_";
   sta::print(stream_, "\\\n    {}{} ", rf_prefix, from_to_key);
+  std::string_view collection = standardCollection(from_to);
+  if (!collection.empty()) {
+    sta::print(stream_, "{}", collection);
+    return;
+  }
   bool multi_objs =
     ((from_to->pins() ? from_to->pins()->size() : 0)
      + (from_to->clks() ? from_to->clks()->size() : 0)
@@ -1360,6 +1366,93 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
   }
   if (multi_objs)
     sta::print(stream_, "]");
+}
+
+// A generated SDC names every register of an exception like
+// set_max_delay -from [all_registers] one at a time; on a large design that
+// is millions of lines that read_sdc has to look up again. Where the
+// objects are exactly a standard collection, the collection is written:
+// read back on the same netlist it names the same objects.
+std::string_view
+WriteSdc::standardCollection(ExceptionFromTo *from_to) const
+{
+  if (!top_instance_ || (from_to->clks() && !from_to->clks()->empty()))
+    return {};
+  const PinSet *pins = from_to->pins();
+  const InstanceSet *insts = from_to->instances();
+  size_t pin_count = pins ? pins->size() : 0;
+  size_t inst_count = insts ? insts->size() : 0;
+  if (inst_count > 1 && pin_count == 0) {
+    if (*insts == allRegisters())
+      return "[all_registers]";
+  }
+  else if (pin_count > 1 && inst_count == 0) {
+    if (*pins == allOutputPins())
+      return "[all_outputs]";
+    if (*pins == allInputPins(true))
+      return "[all_inputs -no_clocks]";
+    if (*pins == allInputPins(false))
+      return "[all_inputs]";
+  }
+  return {};
+}
+
+// all_registers with no options: every leaf instance with a register clock
+// pin, as the graph collects its register clock vertices (Graph::makeVertex)
+// and FindRegVisitor::visitRegs returns their instances. The network alone
+// answers it, so writing does not build a graph.
+const InstanceSet &
+WriteSdc::allRegisters() const
+{
+  if (!all_registers_) {
+    all_registers_ = std::make_unique<InstanceSet>(network_);
+    LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
+    while (inst_iter->hasNext()) {
+      const Instance *inst = inst_iter->next();
+      InstancePinIterator *pin_iter = network_->pinIterator(inst);
+      while (pin_iter->hasNext()) {
+        const Pin *pin = pin_iter->next();
+        if (!network_->direction(pin)->isPowerGround()
+            && network_->isRegClkPin(pin)) {
+          all_registers_->insert(inst);
+          break;
+        }
+      }
+      delete pin_iter;
+    }
+    delete inst_iter;
+  }
+  return *all_registers_;
+}
+
+const PinSet &
+WriteSdc::allInputPins(bool no_clks) const
+{
+  std::unique_ptr<PinSet> &pins = no_clks ? all_inputs_no_clks_ : all_inputs_;
+  if (!pins)
+    pins = topPins(sdc_->allInputs(no_clks));
+  return *pins;
+}
+
+const PinSet &
+WriteSdc::allOutputPins() const
+{
+  if (!all_outputs_)
+    all_outputs_ = topPins(sdc_->allOutputs());
+  return *all_outputs_;
+}
+
+std::unique_ptr<PinSet>
+WriteSdc::topPins(const PortSeq &ports) const
+{
+  auto pins = std::make_unique<PinSet>(network_);
+  Instance *top = network_->topInstance();
+  for (const Port *port : ports) {
+    const Pin *pin = network_->findPin(top, port);
+    if (pin)
+      pins->insert(pin);
+  }
+  return pins;
 }
 
 void
