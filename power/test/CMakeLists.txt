@@ -20,6 +20,7 @@ sta_module_tests("power"
     clock_gate_test
     leakage_when
     unset_case
+    gated_reg_activity
 )
 
 add_subdirectory(cpp)

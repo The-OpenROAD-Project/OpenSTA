@@ -267,18 +267,34 @@ protected:
                      LibertyPort *from_port,
                      FuncExpr *when,
                      const Instance *inst);
+  // OpenROAD fork: clock gated register sampling.
+  bool evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pairs,
+                          const Instance *inst,
+                          // Return values.
+                          std::vector<float> &probs,
+                          float &period);
   bool evalBddChangeDensity(DdNode *bdd,
                             const Instance *inst,
                             // Return value.
                             float &density);
+  // OpenROAD fork: clock gated register sampling.
+  float regClkPeriod(const Instance *reg,
+                     const Sequential &seq);
   float launchClkPeriod(const Pin *pin);
   float maxPropagatedDensity(const Pin *pin);
   void seedFuncLessOutputActivities(BfsFwdIterator &bfs);
   // OpenROAD fork: power activity simulation
   void seedSimulationActivities(BfsFwdIterator &bfs);
+  // OpenROAD fork: clock gated register sampling.
+  static float sampledDensity(float change,
+                              float duty,
+                              float active_edges,
+                              float period,
+                              float p_en);
   bool evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,
+                           float period,
                            // Return values.
                            float &density,
                            float &duty);

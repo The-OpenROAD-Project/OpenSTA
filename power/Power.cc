@@ -1004,8 +1004,29 @@ Power::evalBddChangeDensity(DdNode *bdd,
                             // Return value.
                             float &density)
 {
+  // ---- OpenROAD fork: clock gated register sampling (begin) ----
+  std::vector<float> probs;
+  float period;
+  bool found = evalBddChangeProbs({{bdd, bdd}}, inst, probs, period);
+  if (found)
+    density = probs[0] / period;
+  return found;
+}
+
+// Probability that each pair's from function in the previous period and
+// to function in the current period differ, with each input an
+// independent two state process, and the sampling period. Returns false
+// for clock inputs, which switch twice per period.
+bool
+Power::evalBddChangeProbs(const std::vector<std::pair<DdNode *, DdNode *>> &pairs,
+                          const Instance *inst,
+                          // Return values.
+                          std::vector<float> &probs,
+                          float &period)
+{
+  // ---- OpenROAD fork: clock gated register sampling (end) ----
   // Sample once per period of the fastest clock launching the inputs.
-  float period = INF;
+  period = INF;
   std::vector<std::pair<unsigned, PwrActivity>> var_activities;
   for (const auto [port, var_node] : bdd_.portVarMap()) {
     PwrActivity activity;
@@ -1075,7 +1096,9 @@ Power::evalBddChangeDensity(DdNode *bdd,
       cache[key] = prob;
       return prob;
     };
-  density = change_prob(bdd, bdd) / period;
+  // OpenROAD fork: clock gated register sampling.
+  for (const auto &[from, to] : pairs)
+    probs.push_back(change_prob(from, to));
   return true;
 }
 
@@ -1259,15 +1282,30 @@ Power::seedRegOutputActivities(const Instance *reg,
     float out_duty = in_duty;
     PwrActivity clk_activity = evalActivity(seq.clock(), reg);
     float clk_density = clk_activity.density();
-    // A register output changes at most once per active clock edge
-    // (clk_density / 2), with probability at most 2 * min(duty, 1 - duty),
-    // so the output is continuous in the input density.
+    // ---- OpenROAD fork: clock gated register sampling (begin) ----
+    // The data is a two state Markov chain sampled at the active clock
+    // edges (clk_density / 2). With every clock edge active (p_en = 1) the
+    // output changes at most once per edge, with probability at most
+    // 2 * min(duty, 1 - duty): min(in_density, min(duty, 1 - duty) *
+    // clk_density). Behind a clock gate (p_en < 1) pairs of data changes
+    // between active edges are not seen, and a random input changes the
+    // output 2 * duty * (1 - duty) times per active edge, as the hold loop
+    // of an enable register.
     if (seq.isRegister()) {
-      out_density = std::min(in_density,
-                             std::min(in_duty, 1 - in_duty) * clk_density);
+      float duty = std::clamp(in_duty, 0.0F, 1.0F);
+      float active_edges = clk_density / 2.0F;
+      float period = regClkPeriod(reg, seq);
+      if (period <= 0.0 || active_edges * period > 1.0)
+        period = active_edges > 0.0 ? 1.0F / active_edges : 0.0F;
+      // Data changes per clock period, at most one.
+      float change = std::min(in_density * period,
+                              2.0F * std::min(duty, 1.0F - duty));
+      out_density = sampledDensity(change, duty, active_edges, period, 1.0);
+      // ---- OpenROAD fork: clock gated register sampling (end) ----
       // The state has no activity yet when next_state refers to it (e.g.
       // "(D&DE) | (IQ&!DE)"), so solve the hold loop instead.
-      evalRegHoldActivity(reg, seq, clk_density, out_density, out_duty);
+      evalRegHoldActivity(reg, seq, clk_density, period, out_density,
+                          out_duty);
     }
     else if (in_density > clk_density / 2 && seq.isLatch()) {
       PwrActivity clk_activity = evalActivity(seq.clock(), reg);
@@ -1287,6 +1325,33 @@ Power::seedRegOutputActivities(const Instance *reg,
   }
 }
 
+// ---- OpenROAD fork: clock gated register sampling (begin) ----
+// Changes per unit time of a register that samples a two state Markov
+// input (change changes per clock period, duty) at the active_edges per
+// unit time, each enabled with probability p_en. The input changes seen
+// between two samples are those of a random input, 2 * duty * (1 - duty),
+// times a factor that depends on how random the input is (u = 1). An
+// input that changes more than a random one (u > 1) is not attenuated,
+// which errs high when the enable is bursty.
+float
+Power::sampledDensity(float change,
+                      float duty,
+                      float active_edges,
+                      float period,
+                      float p_en)
+{
+  float random_change = 2.0F * duty * (1.0F - duty);
+  float density = 0.0;
+  if (change > 0.0 && random_change > 0.0 && p_en > 0.0) {
+    float u = std::min(change / random_change, 1.0F);
+    // Probability that a clock period has an enabled active edge.
+    float p = std::min(active_edges * period * p_en, 1.0F);
+    density = active_edges * p_en * change / (p + (1.0F - p) * u);
+  }
+  return density;
+}
+// ---- OpenROAD fork: clock gated register sampling (end) ----
+
 // For a next_state that refers to the register's own state, each active
 // clock edge sets the state with probability u = P(next_state | IQ=0) and
 // clears it with probability v = P(!next_state | IQ=1). As a two-state
@@ -1299,6 +1364,7 @@ bool
 Power::evalRegHoldActivity(const Instance *reg,
                            const Sequential &seq,
                            float clk_density,
+                           float period,
                            // Return values.
                            float &density,
                            float &duty)
@@ -1312,6 +1378,7 @@ Power::evalRegHoldActivity(const Instance *reg,
   DdManager *mgr = bdd_.cuddMgr();
   DdNode *bdd = bdd_.funcBdd(data);
   float state_duty[2];
+  DdNode *state_next[2];
   for (int value : {0, 1}) {
     DdNode *node = bdd;
     Cudd_Ref(node);
@@ -1329,16 +1396,64 @@ Power::evalRegHoldActivity(const Instance *reg,
       }
     }
     state_duty[value] = evalBddDuty(node, reg);
-    Cudd_RecursiveDeref(mgr, node);
+    state_next[value] = node;
   }
-  Cudd_RecursiveDeref(mgr, bdd);
-  bdd_.clearVarMap();
   float set = state_duty[0];
   float clear = 1.0 - state_duty[1];
+  // ---- OpenROAD fork: clock gated register sampling (begin) ----
+  // The inputs toggle the state (next_state = !IQ), load data (next_state
+  // does not depend on IQ) or hold it. Every toggle changes the state. The
+  // loads sample the data as a clock gate does, so the data is a two state
+  // Markov input sampled at the load edges; its duty and changes between
+  // consecutive periods are conditional on loading in both.
+  DdNode *toggle = Cudd_bddAnd(mgr, state_next[0], Cudd_Not(state_next[1]));
+  Cudd_Ref(toggle);
+  DdNode *load = Cudd_bddXnor(mgr, state_next[0], state_next[1]);
+  Cudd_Ref(load);
+  DdNode *load_data = Cudd_bddAnd(mgr, state_next[0], Cudd_Not(toggle));
+  Cudd_Ref(load_data);
+  float p_toggle = evalBddDuty(toggle, reg);
+  float p_load = evalBddDuty(load, reg);
+  float p_data = evalBddDuty(load_data, reg);
+  float sampled_density = -1.0;
+  std::vector<float> probs;
+  float data_period;
+  if (period > 0.0
+      && evalBddChangeProbs({{load_data, load_data}, {load_data, load},
+                             {load, load_data}, {load, load}},
+                            reg, probs, data_period)) {
+    // P(load_data changes) counts the periods with a load in both, with
+    // the data differing, plus those with a load in only one and data 1.
+    float data_only_prev = (p_data - p_load + probs[1]) / 2.0F;
+    float data_only_curr = (p_data - p_load + probs[2]) / 2.0F;
+    float data_change = probs[0] - data_only_prev - data_only_curr;
+    float load_both = p_load - probs[3] / 2.0F;
+    float data_duty = p_load > 0.0 ? std::clamp(p_data / p_load, 0.0F, 1.0F)
+      : 0.0F;
+    float change = load_both > 0.0
+      ? std::clamp(data_change / load_both, 0.0F,
+                   2.0F * std::min(data_duty, 1.0F - data_duty))
+      : 0.0F;
+    float active_edges = clk_density / 2.0F;
+    sampled_density = active_edges * p_toggle
+      + sampledDensity(change, data_duty, active_edges, period, p_load);
+  }
+  Cudd_RecursiveDeref(mgr, toggle);
+  Cudd_RecursiveDeref(mgr, load);
+  Cudd_RecursiveDeref(mgr, load_data);
+  // ---- OpenROAD fork: clock gated register sampling (end) ----
+  Cudd_RecursiveDeref(mgr, state_next[0]);
+  Cudd_RecursiveDeref(mgr, state_next[1]);
+  Cudd_RecursiveDeref(mgr, bdd);
+  bdd_.clearVarMap();
   if (set + clear > 0.0) {
     duty = set / (set + clear);
     // There are clk_density / 2 active edges.
-    density = std::min(density, set * clear / (set + clear) * clk_density);
+    // OpenROAD fork: clock gated register sampling.
+    if (sampled_density >= 0.0)
+      density = sampled_density;
+    else
+      density = std::min(density, set * clear / (set + clear) * clk_density);
   }
   else {
     // The state never changes; its value is unknown.
@@ -1414,6 +1529,30 @@ Power::seedSimulationActivities(BfsFwdIterator &bfs)
   }
 }
 // ---- OpenROAD fork: power activity simulation (end) ----
+
+// ---- OpenROAD fork: clock gated register sampling (begin) ----
+// Period of the fastest clock on the clock pin of reg, zero if none.
+float
+Power::regClkPeriod(const Instance *reg,
+                    const Sequential &seq)
+{
+  float period = 0.0;
+  FuncExpr *clk_func = seq.clock();
+  if (clk_func && clk_func->op() == FuncExpr::Op::not_)
+    clk_func = clk_func->left();
+  if (clk_func && clk_func->op() == FuncExpr::Op::port) {
+    const Pin *clk_pin = network_->findPin(reg, clk_func->port());
+    const ClockSet *clks = clk_pin
+      ? scene_->mode()->clkNetwork()->clocks(clk_pin) : nullptr;
+    if (clks) {
+      for (const Clock *clk : *clks)
+        if (period == 0.0 || clk->period() < period)
+          period = clk->period();
+    }
+  }
+  return period;
+}
+// ---- OpenROAD fork: clock gated register sampling (end) ----
 
 // Period of the fastest clock launching paths through pin, or of the
 // fastest clock in the design if none does. Zero if there are no clocks.
