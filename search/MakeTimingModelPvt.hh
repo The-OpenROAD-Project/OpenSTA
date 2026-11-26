@@ -25,6 +25,7 @@
 #pragma once
 
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <string_view>
 
@@ -55,6 +56,8 @@ public:
 
 using ClockEdgeDelays = std::map<const ClockEdge*, RiseFallMinMax>;
 using OutputPinDelays = std::map<const Pin *, OutputDelays>;
+using InputMargins = std::unordered_map<const Pin *, ClockEdgeDelays>;
+using InputOutputDelays = std::unordered_map<const Pin *, OutputPinDelays>;
 
 class MakeTimingModel : public StaState
 {
@@ -77,7 +80,7 @@ private:
                      LibertyPort *lib_port);
   void checkClock(Clock *clk);
   void findTimingFromInputs();
-  void findTimingFromInput(Port *input_port);
+  void findTimingFromInput(const Pin *input_pin);
   void findClkedOutputPaths();
   void findClkTreeDelays();
   void makeClkTreePaths(LibertyPort *lib_port,

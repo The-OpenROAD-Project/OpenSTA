@@ -26,12 +26,19 @@
 #include "MakeTimingModelPvt.hh"
 
 #include <algorithm>
+#include <atomic>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <functional>
 #include <cstddef>
 #include <limits>
 #include <map>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -41,8 +48,11 @@
 #include "ContainerHelpers.hh"
 #include "Debug.hh"
 #include "Delay.hh"
+#include "DelayScalar.hh"
 #include "DispatchQueue.hh"
+#include "ExceptionPath.hh"
 #include "FuncExpr.hh"
+#include "Fuzzy.hh"
 #include "Graph.hh"
 #include "GraphClass.hh"
 #include "GraphDelayCalc.hh"
@@ -59,10 +69,12 @@
 #include "Sdc.hh"
 #include "SdcClass.hh"
 #include "Search.hh"
+#include "SearchPred.hh"
 #include "Sim.hh"
 #include "Sta.hh"
 #include "StaState.hh"
 #include "TableModel.hh"
+#include "Tag.hh"
 #include "TimingArc.hh"
 #include "TimingRole.hh"
 #include "Transition.hh"
@@ -426,6 +438,799 @@ MakeEndTimingArcs::mergeMargins(const MakeEndTimingArcs &other)
   }
 }
 
+////////////////////////////////////////////////////////////////
+
+// The inputs' timing on a flat copy of the search graph. After delay
+// calculation an arc's delay does not depend on the path that reaches
+// it, so the arrival the search keeps for one input's tag at a vertex
+// is a sum of fixed arc delays: the candidates of the fanin edges and
+// their arcs, offered in the order the search offers them and kept by
+// the same fuzzy comparison, without tags, paths or tag groups. The
+// checks and output delays are read back as MakeEndTimingArcs and
+// findOutputDelays read them from the search.
+struct FlatEndTerm
+{
+  uint8_t rf;
+  uint8_t path_mm;
+  const MinMax *end_mm;
+  const ClockEdge *clk_edge;
+  Delay clk_latency;
+  Delay check_margin;
+};
+
+class FlatTimingModel : public StaState
+{
+public:
+  FlatTimingModel(const Scene *scene,
+                  size_t thread_count,
+                  const StaState *sta);
+  // False when the flat graph does not stand for the search of these
+  // inputs. Inputs whose cone reaches a latch are left to the search,
+  // in fallback_pins. Inputs arrive on the default arrival clock.
+  bool findTiming(const PinSeq &input_pins,
+                  InputMargins &margins,
+                  InputOutputDelays &output_delays,
+                  PinSeq &fallback_pins);
+
+private:
+  struct Cand
+  {
+    uint32_t from;
+    uint8_t from_rf;
+    uint8_t to_rf;
+    uint8_t valid;
+    float delay[MinMax::index_count];
+  };
+  struct Worker
+  {
+    std::vector<uint32_t> mark;
+    std::vector<uint32_t> local;
+    uint32_t gen{0};
+    std::vector<uint32_t> cone;
+    std::vector<uint32_t> added;
+    std::vector<float> arrivals;
+    InputMargins margins;
+    InputOutputDelays output_delays;
+  };
+
+  bool staticEdge(Edge *edge,
+                  Vertex *from_vertex,
+                  Vertex *to_vertex) const;
+  bool exceptionsUniform(const PinSeq &input_pins) const;
+  bool findSeeds(const PinSeq &input_pins);
+  void findUnion();
+  bool findCands();
+  bool findEndTerms();
+  void findInputs(std::vector<size_t> &flat_inputs,
+                  PinSeq &fallback_pins);
+  void findGroup(const std::vector<size_t> &group,
+                 Worker &worker);
+  void addCone(size_t input,
+               Worker &worker);
+  void findBatch(const std::vector<size_t> &batch,
+                 Worker &worker);
+  bool checkDesignArrivals(const PinSeq &fallback_pins);
+  void forEach(size_t count,
+               const std::function<void(size_t,
+                                        size_t)> &fn);
+
+  const Scene *scene_;
+  const Mode *mode_;
+  const Sdc *sdc_;
+  size_t threads_;
+  DcalcAPIndex dcalc_ap_[MinMax::index_count];
+
+  PinSeq inputs_;
+  // Seed arrivals by input, rf, min/max; NaN where there is none.
+  std::vector<float> seeds_;
+  std::vector<uint32_t> input_ui_;
+  std::vector<bool> input_has_seed_;
+  // Vertices the inputs reach, in level order, and their index there.
+  std::vector<Vertex *> verts_;
+  std::vector<uint32_t> ui_of_;
+  std::vector<uint64_t> cand_begin_;
+  std::vector<Cand> cands_;
+  std::vector<uint64_t> fanout_begin_;
+  std::vector<uint32_t> fanouts_;
+  std::vector<int32_t> end_index_;
+  std::vector<std::vector<FlatEndTerm>> end_terms_;
+  std::vector<bool> is_output_;
+  std::vector<bool> reaches_latch_;
+  // Extremes over the inputs by vertex, rf, min/max, as float bits.
+  std::unique_ptr<std::atomic<uint32_t>[]> extremes_;
+  std::vector<Worker> workers_;
+  size_t batch_bytes_{size_t(256) << 20};
+};
+
+static constexpr uint32_t flat_none = std::numeric_limits<uint32_t>::max();
+
+static uint32_t
+floatBits(float value)
+{
+  uint32_t bits;
+  std::memcpy(&bits, &value, sizeof(bits));
+  return bits;
+}
+
+static float
+bitsFloat(uint32_t bits)
+{
+  float value;
+  std::memcpy(&value, &bits, sizeof(value));
+  return value;
+}
+
+FlatTimingModel::FlatTimingModel(const Scene *scene,
+                                 size_t thread_count,
+                                 const StaState *sta) :
+  StaState(sta),
+  scene_(scene),
+  mode_(scene->mode()),
+  sdc_(scene->sdc()),
+  threads_(std::max(thread_count,
+                    size_t(1)))
+{
+  for (const MinMax *mm : MinMax::range())
+    dcalc_ap_[mm->index()] = scene->dcalcAnalysisPtIndex(mm);
+}
+
+void
+FlatTimingModel::forEach(size_t count,
+                         const std::function<void(size_t,
+                                                  size_t)> &fn)
+{
+  if (threads_ == 1 || dispatch_queue_ == nullptr) {
+    for (size_t i = 0; i < count; i++)
+      fn(i, 0);
+  }
+  else {
+    for (size_t i = 0; i < count; i++)
+      dispatch_queue_->dispatch([&fn, i](size_t thread) { fn(i, thread); });
+    dispatch_queue_->finishTasks();
+  }
+}
+
+// The edges a data path from an input is propagated over: those of
+// PathVisitor::visitFaninPaths, visitEdge's search predicates and the
+// data branch of visitFromPath. A path from an input does not pass a
+// register's clock to output arc; latch inputs are left to the search.
+bool
+FlatTimingModel::staticEdge(Edge *edge,
+                            Vertex *from_vertex,
+                            Vertex *to_vertex) const
+{
+  const TimingRole *role = edge->role();
+  if (role->isTimingCheck() || role == TimingRole::latchDtoQ()
+      || role->genericRole() == TimingRole::regClkToQ())
+    return false;
+  const SearchPred *pred = search_->evalPred();
+  return pred->searchFrom(from_vertex, mode_) && pred->searchThru(edge, mode_)
+      && pred->searchTo(to_vertex, mode_)
+      && !sdc_->isPathDelayInternalFromBreak(to_vertex->pin())
+      && !sdc_->isPathDelayInternalToBreak(from_vertex->pin());
+}
+
+// An exception that starts at some of the inputs and not at others
+// gives them different tags; only a false path from inputs, which
+// leaves them without paths, is allowed.
+bool
+FlatTimingModel::exceptionsUniform(const PinSeq &input_pins) const
+{
+  std::unordered_set<const Pin *> inputs(input_pins.begin(), input_pins.end());
+  for (ExceptionPath *exception : sdc_->exceptions()) {
+    if (exception->isFilter())
+      continue;
+    if (exception->isLoop() || (exception->thrus() && !exception->thrus()->empty()))
+      return false;
+    ExceptionFrom *from = exception->from();
+    if (from) {
+      InstanceSet *insts = from->instances();
+      if (insts && !insts->empty())
+        return false;
+      PinSet *pins = from->pins();
+      if (pins && !pins->empty()) {
+        if (from->transition() != RiseFallBoth::riseFall())
+          return false;
+        size_t count = 0;
+        for (const Pin *pin : *pins) {
+          if (inputs.contains(pin))
+            count++;
+        }
+        if (count != 0 && count != inputs.size()
+            && !(exception->isFalse() && exception->to() == nullptr))
+          return false;
+      }
+    }
+  }
+  return true;
+}
+
+// An input's seeds are the design's paths at it on the default arrival
+// clock, which the search retags with the input's own clocks.
+bool
+FlatTimingModel::findSeeds(const PinSeq &input_pins)
+{
+  inputs_ = input_pins;
+  size_t count = inputs_.size();
+  seeds_.assign(count * 4, std::numeric_limits<float>::quiet_NaN());
+  input_has_seed_.assign(count, false);
+  const Clock *default_clk = sdc_->defaultArrivalClock();
+  for (size_t i = 0; i < count; i++) {
+    const Pin *pin = inputs_[i];
+    if (network_->direction(pin)->isBidirect())
+      return false;
+    Vertex *vertex = graph_->pinDrvrVertex(pin);
+    if (vertex == nullptr)
+      continue;
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    if (edge_iter.hasNext())
+      return false;
+    VertexPathIterator path_iter(vertex, this);
+    while (path_iter.hasNext()) {
+      Path *path = path_iter.next();
+      if (path->clock(this) == default_clk && !path->isClock(this)
+          && path->scene(this) == scene_ && !path->tag(this)->isSegmentStart()) {
+        size_t k = i * 4 + path->transition(this)->index() * 2
+            + path->minMax(this)->index();
+        if (!std::isnan(seeds_[k]))
+          return false;
+        seeds_[k] = delayAsFloat(path->arrival());
+        input_has_seed_[i] = true;
+      }
+    }
+  }
+  return true;
+}
+
+void
+FlatTimingModel::findUnion()
+{
+  size_t vertex_max = 0;
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext())
+    vertex_max = std::max(vertex_max, size_t(graph_->id(vertex_iter.next())) + 1);
+  ui_of_.assign(vertex_max, flat_none);
+  std::vector<Vertex *> queue;
+  for (size_t i = 0; i < inputs_.size(); i++) {
+    if (input_has_seed_[i]) {
+      Vertex *vertex = graph_->pinDrvrVertex(inputs_[i]);
+      VertexId id = graph_->id(vertex);
+      if (ui_of_[id] == flat_none) {
+        ui_of_[id] = 0;
+        queue.push_back(vertex);
+      }
+    }
+  }
+  for (size_t q = 0; q < queue.size(); q++) {
+    Vertex *from_vertex = queue[q];
+    VertexOutEdgeIterator edge_iter(from_vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      VertexId id = graph_->id(to_vertex);
+      if (ui_of_[id] == flat_none && staticEdge(edge, from_vertex, to_vertex)) {
+        ui_of_[id] = 0;
+        queue.push_back(to_vertex);
+      }
+    }
+  }
+  std::sort(queue.begin(), queue.end(), [this](Vertex *v1, Vertex *v2) {
+    Level level1 = v1->level();
+    Level level2 = v2->level();
+    return level1 < level2 || (level1 == level2 && graph_->id(v1) < graph_->id(v2));
+  });
+  verts_ = std::move(queue);
+  for (size_t ui = 0; ui < verts_.size(); ui++)
+    ui_of_[graph_->id(verts_[ui])] = ui;
+  input_ui_.assign(inputs_.size(), flat_none);
+  for (size_t i = 0; i < inputs_.size(); i++) {
+    if (input_has_seed_[i])
+      input_ui_[i] = ui_of_[graph_->id(graph_->pinDrvrVertex(inputs_[i]))];
+  }
+}
+
+// Each vertex's candidates in the order ArrivalVisitor offers them:
+// the fanin edges, the fanin's paths by transition, the arcs from it.
+bool
+FlatTimingModel::findCands()
+{
+  size_t count = verts_.size();
+  size_t chunk = 4096;
+  size_t chunks = (count + chunk - 1) / chunk;
+  std::vector<std::vector<Cand>> chunk_cands(chunks);
+  std::vector<std::vector<uint32_t>> chunk_counts(chunks);
+  std::atomic<bool> ok{true};
+  forEach(chunks, [&](size_t c, size_t) {
+    std::vector<Cand> &cands = chunk_cands[c];
+    std::vector<uint32_t> &counts = chunk_counts[c];
+    size_t end = std::min(count, (c + 1) * chunk);
+    for (size_t ui = c * chunk; ui < end; ui++) {
+      Vertex *to_vertex = verts_[ui];
+      size_t begin = cands.size();
+      VertexInEdgeIterator edge_iter(to_vertex, graph_);
+      while (edge_iter.hasNext()) {
+        Edge *edge = edge_iter.next();
+        Vertex *from_vertex = edge->from(graph_);
+        uint32_t from_ui = ui_of_[graph_->id(from_vertex)];
+        if (from_ui == flat_none || !staticEdge(edge, from_vertex, to_vertex))
+          continue;
+        if (from_vertex->level() >= to_vertex->level())
+          ok = false;
+        TimingArcSet *arc_set = edge->timingArcSet();
+        for (const RiseFall *from_rf : RiseFall::range()) {
+          TimingArc *arcs[2];
+          arc_set->arcsFrom(from_rf, arcs[0], arcs[1]);
+          for (TimingArc *arc : arcs) {
+            if (arc == nullptr)
+              continue;
+            const RiseFall *to_rf = arc->toEdge()->asRiseFall();
+            if (to_rf == nullptr
+                || !searchThru(from_vertex, from_rf, edge, to_vertex, to_rf, mode_))
+              continue;
+            Cand cand{from_ui,
+                      uint8_t(from_rf->index()),
+                      uint8_t(to_rf->index()),
+                      0,
+                      {0.0, 0.0}};
+            for (const MinMax *mm : MinMax::range()) {
+              ArcDelay delay = search_->deratedDelay(
+                  from_vertex, arc, edge, false, mm, dcalc_ap_[mm->index()], sdc_);
+              if (!delayInf(delay, this)) {
+                cand.delay[mm->index()] = delayAsFloat(delay);
+                cand.valid |= 1 << mm->index();
+              }
+            }
+            if (cand.valid)
+              cands.push_back(cand);
+          }
+        }
+      }
+      counts.push_back(cands.size() - begin);
+    }
+  });
+  if (!ok)
+    return false;
+  cand_begin_.assign(count + 1, 0);
+  size_t ui = 0;
+  for (size_t c = 0; c < chunks; c++) {
+    for (uint32_t n : chunk_counts[c]) {
+      cand_begin_[ui + 1] = cand_begin_[ui] + n;
+      ui++;
+    }
+  }
+  cands_.reserve(cand_begin_[count]);
+  for (size_t c = 0; c < chunks; c++) {
+    cands_.insert(cands_.end(), chunk_cands[c].begin(), chunk_cands[c].end());
+    std::vector<Cand>().swap(chunk_cands[c]);
+  }
+  fanout_begin_.assign(count + 1, 0);
+  for (const Cand &cand : cands_)
+    fanout_begin_[cand.from + 1]++;
+  for (size_t i = 0; i < count; i++)
+    fanout_begin_[i + 1] += fanout_begin_[i];
+  fanouts_.resize(cands_.size());
+  std::vector<uint64_t> fill(fanout_begin_.begin(), fanout_begin_.end() - 1);
+  for (size_t to = 0; to < count; to++) {
+    for (uint64_t k = cand_begin_[to]; k < cand_begin_[to + 1]; k++)
+      fanouts_[fill[cands_[k].from]++] = to;
+  }
+  // Whether a vertex reaches a latch input, from the last level back.
+  reaches_latch_.assign(count, false);
+  for (size_t i = count; i-- > 0;) {
+    if (network_->isLatchData(verts_[i]->pin()))
+      reaches_latch_[i] = true;
+    if (reaches_latch_[i]) {
+      for (uint64_t k = cand_begin_[i]; k < cand_begin_[i + 1]; k++)
+        reaches_latch_[cands_[k].from] = true;
+    }
+  }
+  return true;
+}
+
+// The capture terms of each endpoint, from the path ends of the
+// design's paths on the default arrival clock: every input's paths
+// carry the same exception states and differ only in arrival.
+class FlatEndTerms : public PathEndVisitor
+{
+public:
+  FlatEndTerms(const Clock *default_clk,
+               const StaState *sta) :
+    default_clk_(default_clk),
+    sta_(sta)
+  {
+  }
+  PathEndVisitor *copy() const override { return new FlatEndTerms(*this); }
+  void visit(PathEnd *path_end) override
+  {
+    Path *src_path = path_end->path();
+    const ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
+    if (src_path->clock(sta_) == default_clk_ && !src_path->isClock(sta_)
+        && tgt_clk_edge) {
+      size_t rf = src_path->transition(sta_)->index();
+      size_t mm = src_path->minMax(sta_)->index();
+      const Path *&path = paths_[rf][mm];
+      if (path && path != src_path)
+        ambiguous_ = true;
+      path = src_path;
+      terms_.push_back({uint8_t(rf), uint8_t(mm), path_end->minMax(sta_),
+                        tgt_clk_edge, path_end->targetClkDelay(sta_),
+                        path_end->margin(sta_)});
+    }
+  }
+  std::vector<FlatEndTerm> terms_;
+  bool ambiguous_{false};
+
+private:
+  const Clock *default_clk_;
+  const Path *paths_[RiseFall::index_count][MinMax::index_count]{};
+  const StaState *sta_;
+};
+
+bool
+FlatTimingModel::findEndTerms()
+{
+  size_t count = verts_.size();
+  is_output_.assign(count, false);
+  end_index_.assign(count, -1);
+  std::vector<uint32_t> ends;
+  for (size_t ui = 0; ui < count; ui++) {
+    Vertex *vertex = verts_[ui];
+    const Pin *pin = vertex->pin();
+    if (network_->isTopLevelPort(pin) && network_->direction(pin)->isOutput())
+      is_output_[ui] = true;
+    if (search_->isEndpoint(vertex)) {
+      end_index_[ui] = ends.size();
+      ends.push_back(ui);
+    }
+  }
+  end_terms_.assign(ends.size(), {});
+  std::atomic<bool> ok{true};
+  SceneSet scenes;
+  scenes.insert(scene_);
+  const Clock *default_clk = sdc_->defaultArrivalClock();
+  size_t chunk = 256;
+  forEach((ends.size() + chunk - 1) / chunk, [&](size_t c, size_t) {
+    VisitPathEnds visit_ends(this);
+    size_t end = std::min(ends.size(), (c + 1) * chunk);
+    for (size_t e = c * chunk; e < end; e++) {
+      FlatEndTerms visitor(default_clk, this);
+      visit_ends.visitPathEnds(verts_[ends[e]], scenes, MinMaxAll::all(), false,
+                               &visitor);
+      if (visitor.ambiguous_)
+        ok = false;
+      end_terms_[e] = std::move(visitor.terms_);
+    }
+  });
+  return ok;
+}
+
+void
+FlatTimingModel::addCone(size_t input,
+                         Worker &worker)
+{
+  worker.added.clear();
+  uint32_t start = input_ui_[input];
+  if (worker.mark[start] != worker.gen) {
+    worker.mark[start] = worker.gen;
+    worker.added.push_back(start);
+  }
+  for (size_t q = 0; q < worker.added.size(); q++) {
+    uint32_t from = worker.added[q];
+    for (uint64_t k = fanout_begin_[from]; k < fanout_begin_[from + 1]; k++) {
+      uint32_t to = fanouts_[k];
+      if (worker.mark[to] != worker.gen) {
+        worker.mark[to] = worker.gen;
+        worker.added.push_back(to);
+      }
+    }
+  }
+}
+
+// Inputs join a batch while its arrivals stay within batch_bytes_; the
+// result of an input does not depend on the batch it is found in.
+void
+FlatTimingModel::findGroup(const std::vector<size_t> &group,
+                           Worker &worker)
+{
+  if (worker.mark.empty()) {
+    worker.mark.assign(verts_.size(), 0);
+    worker.local.assign(verts_.size(), 0);
+  }
+  std::vector<size_t> batch;
+  auto newBatch = [&]() {
+    batch.clear();
+    worker.cone.clear();
+    if (++worker.gen == 0) {
+      std::fill(worker.mark.begin(), worker.mark.end(), 0);
+      worker.gen = 1;
+    }
+  };
+  newBatch();
+  for (size_t input : group) {
+    addCone(input, worker);
+    size_t cone = worker.cone.size() + worker.added.size();
+    size_t bytes = cone * 4 * 2 * (batch.size() + 1) * sizeof(float);
+    if (!batch.empty() && bytes > batch_bytes_) {
+      for (uint32_t ui : worker.added)
+        worker.mark[ui] = 0;
+      findBatch(batch, worker);
+      newBatch();
+      addCone(input, worker);
+    }
+    worker.cone.insert(worker.cone.end(), worker.added.begin(), worker.added.end());
+    batch.push_back(input);
+  }
+  if (!batch.empty())
+    findBatch(batch, worker);
+}
+
+void
+FlatTimingModel::findBatch(const std::vector<size_t> &batch,
+                           Worker &worker)
+{
+  std::vector<uint32_t> &cone = worker.cone;
+  std::sort(cone.begin(), cone.end());
+  for (size_t l = 0; l < cone.size(); l++)
+    worker.local[cone[l]] = l;
+  size_t sources = batch.size() * 2;
+  std::vector<float> &arrivals = worker.arrivals;
+  arrivals.assign(cone.size() * 4 * sources,
+                  std::numeric_limits<float>::quiet_NaN());
+  auto slot = [sources](size_t l, size_t rf, size_t mm) {
+    return (l * 4 + rf * 2 + mm) * sources;
+  };
+  for (size_t j = 0; j < batch.size(); j++) {
+    size_t input = batch[j];
+    size_t l = worker.local[input_ui_[input]];
+    for (size_t rf = 0; rf < 2; rf++) {
+      for (size_t mm = 0; mm < 2; mm++)
+        arrivals[slot(l, rf, mm) + j * 2 + rf] = seeds_[input * 4 + rf * 2 + mm];
+    }
+  }
+  const size_t mm_max = MinMax::max()->index();
+  for (size_t l = 0; l < cone.size(); l++) {
+    uint32_t ui = cone[l];
+    for (uint64_t k = cand_begin_[ui]; k < cand_begin_[ui + 1]; k++) {
+      const Cand &cand = cands_[k];
+      if (worker.mark[cand.from] != worker.gen)
+        continue;
+      size_t from_l = worker.local[cand.from];
+      for (size_t mm = 0; mm < 2; mm++) {
+        if (!(cand.valid & (1 << mm)))
+          continue;
+        float delay = cand.delay[mm];
+        const float *from = &arrivals[slot(from_l, cand.from_rf, mm)];
+        float *to = &arrivals[slot(l, cand.to_rf, mm)];
+        if (mm == mm_max) {
+          for (size_t s = 0; s < sources; s++) {
+            float arrival = from[s];
+            if (!std::isnan(arrival)) {
+              float to_arrival = arrival + delay;
+              float &keep = to[s];
+              if (std::isnan(keep) || fuzzyGreater(to_arrival, keep))
+                keep = to_arrival;
+            }
+          }
+        }
+        else {
+          for (size_t s = 0; s < sources; s++) {
+            float arrival = from[s];
+            if (!std::isnan(arrival)) {
+              float to_arrival = arrival + delay;
+              float &keep = to[s];
+              if (std::isnan(keep) || fuzzyLess(to_arrival, keep))
+                keep = to_arrival;
+            }
+          }
+        }
+      }
+    }
+    for (size_t rf = 0; rf < 2; rf++) {
+      for (size_t mm = 0; mm < 2; mm++) {
+        const float *values = &arrivals[slot(l, rf, mm)];
+        float extreme = std::numeric_limits<float>::quiet_NaN();
+        for (size_t s = 0; s < sources; s++) {
+          float value = values[s];
+          if (!std::isnan(value)
+              && (std::isnan(extreme)
+                  || (mm == mm_max ? value > extreme : value < extreme)))
+            extreme = value;
+        }
+        if (!std::isnan(extreme)) {
+          std::atomic<uint32_t> &bits = extremes_[ui * 4 + rf * 2 + mm];
+          uint32_t old_bits = bits.load(std::memory_order_relaxed);
+          while (true) {
+            float old = bitsFloat(old_bits);
+            if (!(std::isnan(old) || (mm == mm_max ? extreme > old : extreme < old)))
+              break;
+            if (bits.compare_exchange_weak(old_bits, floatBits(extreme),
+                                           std::memory_order_relaxed))
+              break;
+          }
+        }
+      }
+    }
+    int32_t end = end_index_[ui];
+    if (end >= 0) {
+      for (const FlatEndTerm &term : end_terms_[end]) {
+        const float *values = &arrivals[slot(l, term.rf, term.path_mm)];
+        for (size_t s = 0; s < sources; s++) {
+          float arrival = values[s];
+          if (std::isnan(arrival))
+            continue;
+          const Pin *input_pin = inputs_[batch[s / 2]];
+          const RiseFall *input_rf = RiseFall::find(s % 2);
+          Delay data_delay(arrival);
+          Delay margin = (term.end_mm == MinMax::max())
+              ? delaySum(delayDiff(data_delay, term.clk_latency, this),
+                         term.check_margin, this)
+              : delaySum(delayDiff(term.clk_latency, data_delay, this),
+                         term.check_margin, this);
+          float delay1 = delayAsFloat(margin, MinMax::max(), this);
+          RiseFallMinMax &margins = worker.margins[input_pin][term.clk_edge];
+          float max_margin;
+          bool max_exists;
+          margins.value(input_rf, term.end_mm, max_margin, max_exists);
+          // Always max margin, even for min/hold checks.
+          margins.setValue(input_rf, term.end_mm,
+                           max_exists ? std::max(max_margin, delay1) : delay1);
+        }
+      }
+    }
+    if (is_output_[ui]) {
+      const Pin *output_pin = verts_[ui]->pin();
+      for (size_t rf = 0; rf < 2; rf++) {
+        const RiseFall *output_rf = RiseFall::find(rf);
+        for (const MinMax *mm : MinMax::range()) {
+          const float *values = &arrivals[slot(l, rf, mm->index())];
+          for (size_t s = 0; s < sources; s++) {
+            float arrival = values[s];
+            if (std::isnan(arrival))
+              continue;
+            const Pin *input_pin = inputs_[batch[s / 2]];
+            OutputDelays &delays = worker.output_delays[input_pin][output_pin];
+            delays.delays.mergeValue(output_rf, mm, arrival);
+            delays.rf_path_exists[s % 2][rf] = true;
+          }
+        }
+      }
+    }
+  }
+}
+
+void
+FlatTimingModel::findInputs(std::vector<size_t> &flat_inputs,
+                            PinSeq &fallback_pins)
+{
+  for (size_t i = 0; i < inputs_.size(); i++) {
+    if (!input_has_seed_[i])
+      continue;
+    if (reaches_latch_[input_ui_[i]])
+      fallback_pins.push_back(inputs_[i]);
+    else
+      flat_inputs.push_back(i);
+  }
+}
+
+// The extremes over the inputs are the design's own arrivals on the
+// default arrival clock, but for the order the search merged them in.
+bool
+FlatTimingModel::checkDesignArrivals(const PinSeq &fallback_pins)
+{
+  std::vector<bool> skip(verts_.size(), false);
+  std::vector<uint32_t> queue;
+  for (const Pin *pin : fallback_pins) {
+    uint32_t ui = ui_of_[graph_->id(graph_->pinDrvrVertex(pin))];
+    if (!skip[ui]) {
+      skip[ui] = true;
+      queue.push_back(ui);
+    }
+  }
+  for (size_t q = 0; q < queue.size(); q++) {
+    uint32_t from = queue[q];
+    for (uint64_t k = fanout_begin_[from]; k < fanout_begin_[from + 1]; k++) {
+      uint32_t to = fanouts_[k];
+      if (!skip[to]) {
+        skip[to] = true;
+        queue.push_back(to);
+      }
+    }
+  }
+  std::vector<Vertex *> vertices;
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext())
+    vertices.push_back(vertex_iter.next());
+  const Clock *default_clk = sdc_->defaultArrivalClock();
+  std::atomic<bool> ok{true};
+  size_t chunk = 4096;
+  forEach((vertices.size() + chunk - 1) / chunk, [&](size_t c, size_t) {
+    size_t end = std::min(vertices.size(), (c + 1) * chunk);
+    for (size_t v = c * chunk; v < end && ok; v++) {
+      Vertex *vertex = vertices[v];
+      uint32_t ui = ui_of_[graph_->id(vertex)];
+      if (ui != flat_none && skip[ui])
+        continue;
+      float design[4];
+      std::fill(design, design + 4, std::numeric_limits<float>::quiet_NaN());
+      VertexPathIterator path_iter(vertex, this);
+      while (path_iter.hasNext()) {
+        Path *path = path_iter.next();
+        if (path->clock(this) == default_clk && !path->isClock(this)
+            && path->scene(this) == scene_ && !path->tag(this)->isSegmentStart()) {
+          size_t k =
+              path->transition(this)->index() * 2 + path->minMax(this)->index();
+          if (!std::isnan(design[k]))
+            ok = false;
+          design[k] = delayAsFloat(path->arrival());
+        }
+      }
+      for (size_t k = 0; k < 4; k++) {
+        float flat = ui == flat_none
+            ? std::numeric_limits<float>::quiet_NaN()
+            : bitsFloat(extremes_[ui * 4 + k].load(std::memory_order_relaxed));
+        if (std::isnan(flat) != std::isnan(design[k]))
+          ok = false;
+        else if (!std::isnan(flat)
+                 && std::abs(flat - design[k])
+                     > 1e-4F * std::max(std::abs(flat), std::abs(design[k])))
+          ok = false;
+      }
+    }
+  });
+  return ok;
+}
+
+bool
+FlatTimingModel::findTiming(const PinSeq &input_pins,
+                            InputMargins &margins,
+                            InputOutputDelays &output_delays,
+                            PinSeq &fallback_pins)
+{
+  if (dynamic_cast<const DelayOpsScalar *>(delayOps()) == nullptr
+      || variables_->dynamicLoopBreaking() || !exceptionsUniform(input_pins)
+      || !findSeeds(input_pins))
+    return false;
+  findUnion();
+  if (!findCands() || !findEndTerms())
+    return false;
+  size_t count = verts_.size();
+  extremes_ = std::make_unique<std::atomic<uint32_t>[]>(count * 4);
+  uint32_t nan_bits = floatBits(std::numeric_limits<float>::quiet_NaN());
+  for (size_t k = 0; k < count * 4; k++)
+    extremes_[k].store(nan_bits, std::memory_order_relaxed);
+  std::vector<size_t> flat_inputs;
+  findInputs(flat_inputs, fallback_pins);
+  constexpr size_t group_size = 64;
+  std::vector<std::vector<size_t>> groups;
+  for (size_t begin = 0; begin < flat_inputs.size(); begin += group_size) {
+    size_t end = std::min(begin + group_size, flat_inputs.size());
+    groups.emplace_back(flat_inputs.begin() + begin, flat_inputs.begin() + end);
+  }
+  workers_.resize(threads_);
+  forEach(groups.size(),
+          [&](size_t g, size_t thread) { findGroup(groups[g], workers_[thread]); });
+  for (Worker &worker : workers_) {
+    std::vector<uint32_t>().swap(worker.mark);
+    std::vector<uint32_t>().swap(worker.local);
+    std::vector<float>().swap(worker.arrivals);
+  }
+  bool ok = checkDesignArrivals(fallback_pins);
+  debugPrint(debug_, "make_timing_model", 1,
+             "flat graph {} vertices {} candidates, {} inputs flat, "
+             "{} searched, design arrivals {}",
+             count, cands_.size(), flat_inputs.size(), fallback_pins.size(),
+             ok ? "match" : "differ");
+  if (!ok)
+    return false;
+  for (Worker &worker : workers_) {
+    for (auto &[pin, clk_margins] : worker.margins)
+      margins[pin] = std::move(clk_margins);
+    for (auto &[pin, pin_delays] : worker.output_delays)
+      output_delays[pin] = std::move(pin_delays);
+  }
+  return true;
+}
+
 // input -> register setup/hold
 // input -> output combinational paths
 // Use default input arrival (set_input_delay with no clock) from inputs
@@ -437,21 +1242,60 @@ MakeTimingModel::findTimingFromInputs()
 
   Instance *top_inst = network_->topInstance();
   Cell *top_cell = network_->cell(top_inst);
+  PinSeq input_pins;
   CellPortBitIterator *port_iter = network_->portBitIterator(top_cell);
   while (port_iter->hasNext()) {
     Port *input_port = port_iter->next();
-    if (network_->direction(input_port)->isInput())
-      findTimingFromInput(input_port);
+    if (network_->direction(input_port)->isInput()) {
+      Pin *input_pin = network_->findPin(top_inst, input_port);
+      if (!sdc_->isClock(input_pin))
+        input_pins.push_back(input_pin);
+    }
   }
   delete port_iter;
+  if (input_pins.empty())
+    return;
+
+  InputMargins margins;
+  InputOutputDelays output_delays;
+  PinSeq fallback_pins;
+  bool flat_ok = false;
+  if (scenes_.size() == 1) {
+    // Every input arrives at 0 on the default arrival clock, as the
+    // input delay findTimingFromInput sets does, for the whole search.
+    bool use_default_arrival_clock = variables_->useDefaultArrivalClock();
+    variables_->setUseDefaultArrivalClock(true);
+    search_->arrivalsInvalid();
+    search_->findAllArrivals();
+    FlatTimingModel flat(*scenes_.begin(), thread_count_, this);
+    flat_ok = flat.findTiming(input_pins, margins, output_delays, fallback_pins);
+    variables_->setUseDefaultArrivalClock(use_default_arrival_clock);
+    search_->arrivalsInvalid();
+    search_->findAllArrivals();
+  }
+  std::unordered_set<const Pin *> searched;
+  if (flat_ok)
+    searched.insert(fallback_pins.begin(), fallback_pins.end());
+  else
+    searched.insert(input_pins.begin(), input_pins.end());
+  for (const Pin *input_pin : input_pins) {
+    if (searched.contains(input_pin))
+      findTimingFromInput(input_pin);
+    else {
+      auto margins_itr = margins.find(input_pin);
+      if (margins_itr != margins.end())
+        makeSetupHoldTimingArcs(input_pin, margins_itr->second);
+      else
+        makeSetupHoldTimingArcs(input_pin, ClockEdgeDelays());
+      makeInputOutputTimingArcs(input_pin, output_delays[input_pin]);
+    }
+  }
 }
 
 void
-MakeTimingModel::findTimingFromInput(Port *input_port)
+MakeTimingModel::findTimingFromInput(const Pin *input_pin)
 {
-  Instance *top_inst = network_->topInstance();
-  Pin *input_pin = network_->findPin(top_inst, input_port);
-  if (!sdc_->isClock(input_pin)) {
+  {
     MakeEndTimingArcs end_visitor(sta_);
     OutputPinDelays output_delays;
     for (const RiseFall *input_rf : RiseFall::range()) {
@@ -538,7 +1382,20 @@ void
 MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
                                          const ClockEdgeDelays &clk_margins)
 {
-  for (const auto &[clk_edge, margins] : clk_margins) {
+  // ClockEdgeDelays is keyed by pointer; write the arcs in clock and
+  // edge order so the model does not depend on allocation addresses.
+  std::vector<std::pair<const ClockEdge *, const RiseFallMinMax *>> edges;
+  for (const auto &[clk_edge, margins] : clk_margins)
+    edges.emplace_back(clk_edge, &margins);
+  std::sort(edges.begin(), edges.end(), [](const auto &a, const auto &b) {
+    int clk_a = a.first->clock()->index();
+    int clk_b = b.first->clock()->index();
+    if (clk_a != clk_b)
+      return clk_a < clk_b;
+    return a.first->transition()->index() < b.first->transition()->index();
+  });
+  for (const auto &[clk_edge, margins_ptr] : edges) {
+    const RiseFallMinMax &margins = *margins_ptr;
     for (const MinMax *min_max : MinMax::range()) {
       bool setup = (min_max == MinMax::max());
       TimingArcAttrsPtr attrs = nullptr;
