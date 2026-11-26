@@ -85,6 +85,7 @@ sta_module_tests("search"
     timing_model_deep
     timing_model_io
     timing_model_readback
+    timing_model_wide
     worst_slack_sta
     write_sdf_model
 )
