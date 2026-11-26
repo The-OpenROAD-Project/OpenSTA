@@ -1089,8 +1089,7 @@ FlatTimingModel::findBatch(const std::vector<size_t> &batch,
               continue;
             const Pin *input_pin = inputs_[batch[s / 2]];
             OutputDelays &delays = worker.output_delays[input_pin][output_pin];
-            delays.delays.mergeValue(output_rf, mm,
-                                     delayAsFloat(Delay(arrival), mm, this));
+            delays.delays.mergeValue(output_rf, mm, arrival);
             delays.rf_path_exists[s % 2][rf] = true;
           }
         }
@@ -1284,9 +1283,10 @@ MakeTimingModel::findTimingFromInputs()
       findTimingFromInput(input_pin);
     else {
       auto margins_itr = margins.find(input_pin);
-      makeSetupHoldTimingArcs(
-          input_pin,
-          margins_itr == margins.end() ? ClockEdgeDelays() : margins_itr->second);
+      if (margins_itr != margins.end())
+        makeSetupHoldTimingArcs(input_pin, margins_itr->second);
+      else
+        makeSetupHoldTimingArcs(input_pin, ClockEdgeDelays());
       makeInputOutputTimingArcs(input_pin, output_delays[input_pin]);
     }
   }
