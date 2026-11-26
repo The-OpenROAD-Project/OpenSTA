@@ -1382,7 +1382,20 @@ void
 MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
                                          const ClockEdgeDelays &clk_margins)
 {
-  for (const auto &[clk_edge, margins] : clk_margins) {
+  // ClockEdgeDelays is keyed by pointer; write the arcs in clock and
+  // edge order so the model does not depend on allocation addresses.
+  std::vector<std::pair<const ClockEdge *, const RiseFallMinMax *>> edges;
+  for (const auto &[clk_edge, margins] : clk_margins)
+    edges.emplace_back(clk_edge, &margins);
+  std::sort(edges.begin(), edges.end(), [](const auto &a, const auto &b) {
+    int clk_a = a.first->clock()->index();
+    int clk_b = b.first->clock()->index();
+    if (clk_a != clk_b)
+      return clk_a < clk_b;
+    return a.first->transition()->index() < b.first->transition()->index();
+  });
+  for (const auto &[clk_edge, margins_ptr] : edges) {
+    const RiseFallMinMax &margins = *margins_ptr;
     for (const MinMax *min_max : MinMax::range()) {
       bool setup = (min_max == MinMax::max());
       TimingArcAttrsPtr attrs = nullptr;
