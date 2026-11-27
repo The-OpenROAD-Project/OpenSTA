@@ -159,15 +159,32 @@ size_t
 ReportTcl::printTcl(Tcl_Channel channel,
                     const char *buffer,
                     size_t length)
-{
+{  
   const Tcl_ChannelType *ch_type = Tcl_GetChannelType(channel);
   Tcl_DriverOutputProc *output_proc = Tcl_ChannelOutputProc(ch_type);
-  int error_code;
   ClientData clientData = Tcl_GetChannelInstanceData(channel);
-  return output_proc(clientData,
-                     const_cast<char *>(buffer),
-                     length,
-                     &error_code);
+  int error_code;
+
+  Tcl_DString enc_name;
+  Tcl_DStringInit(&enc_name);
+  Tcl_GetChannelOption(interp_, channel, "-encoding", &enc_name);
+  Tcl_Encoding encoding = Tcl_GetEncoding(interp_, Tcl_DStringValue(&enc_name));
+  Tcl_DStringFree(&enc_name);
+
+  if (encoding == nullptr)  
+    return output_proc(clientData, const_cast<char *>(buffer),
+                       static_cast<int>(length), &error_code);
+
+  Tcl_DString encoded;
+  Tcl_DStringInit(&encoded);
+  Tcl_UtfToExternalDString(encoding, buffer, static_cast<int>(length), &encoded);
+  int written = output_proc(clientData,
+                            Tcl_DStringValue(&encoded),
+                            Tcl_DStringLength(&encoded),
+                            &error_code);
+  Tcl_DStringFree(&encoded);
+  Tcl_FreeEncoding(encoding);
+  return written;
 }
 
 void
