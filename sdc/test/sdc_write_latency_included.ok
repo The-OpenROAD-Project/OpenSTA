@@ -1,0 +1,21 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design sdc_test2
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk1 -period 10.0000 [get_ports {clk1}]
+set_clock_latency 0.5000 [get_clocks {clk1}]
+set_clock_latency -source 2.0000 [get_clocks {clk1}]
+set_input_delay 1.0000 -clock [get_clocks {clk1}] -add_delay -source_latency_included [get_ports {in1}]
+set_input_delay 1.0000 -clock [get_clocks {clk1}] -add_delay -network_latency_included [get_ports {in2}]
+set_input_delay 1.0000 -clock [get_clocks {clk1}] -clock_fall -add_delay -source_latency_included -network_latency_included [get_ports {in3}]
+set_output_delay 1.0000 -clock [get_clocks {clk1}] -add_delay -source_latency_included -network_latency_included [get_ports {out1}]
+set_output_delay 1.0000 -clock [get_clocks {clk1}] -add_delay [get_ports {out2}]
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################
