@@ -102,8 +102,7 @@ set_false_path\
 set_false_path\
     -from [list [get_ports {in1}]\
            [get_ports {in2}]]\
-    -to [list [get_ports {out1}]\
-           [get_ports {out2}]]
+    -to [all_outputs]
 set_false_path\
     -through [get_nets {n1}]\
     -to [get_ports {out1}]

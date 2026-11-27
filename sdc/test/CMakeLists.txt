@@ -40,6 +40,8 @@ sta_module_tests("sdc"
     write_options
     write_read
     write_rise_fall_min_max
+    write_collections
+    write_collections_wide
     write_roundtrip
     write_roundtrip_full
 )

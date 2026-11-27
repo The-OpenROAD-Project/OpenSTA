@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -120,6 +121,13 @@ public:
                             std::string_view from_to_key,
                             bool map_hpin_to_drvr) const;
   void writeExceptionThru(ExceptionThru *thru) const;
+  // all_registers, all_inputs [-no_clocks] or all_outputs when from_to
+  // names exactly its objects, else empty.
+  std::string_view standardCollection(ExceptionFromTo *from_to) const;
+  const InstanceSet &allRegisters() const;
+  const PinSet &allInputPins(bool no_clks) const;
+  const PinSet &allOutputPins() const;
+  std::unique_ptr<PinSet> topPins(const PortSeq &ports) const;
   void mapThruHpins(ExceptionThru *thru,
                     PinSeq &pins) const;
   void writeDataChecks() const;
@@ -277,6 +285,11 @@ protected:
   size_t instance_name_length_;
   Cell *cell_;
   gzFile stream_;
+  // The standard collections, made on first use.
+  mutable std::unique_ptr<InstanceSet> all_registers_;
+  mutable std::unique_ptr<PinSet> all_inputs_;
+  mutable std::unique_ptr<PinSet> all_inputs_no_clks_;
+  mutable std::unique_ptr<PinSet> all_outputs_;
 };
 
 } // namespace sta

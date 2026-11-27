@@ -15,8 +15,7 @@ set_output_delay 3.000000 -clock [get_clocks {clk1}] -add_delay [get_ports {out1
 set_output_delay 3.000000 -clock [get_clocks {clk2}] -add_delay [get_ports {out2}]
 group_path -name grp_a\
     -from [get_ports {in1}]\
-    -to [list [get_ports {out1}]\
-           [get_ports {out2}]]
+    -to [all_outputs]
 group_path -name grp_inst\
     -from [get_ports {in1}]\
     -through [get_cells {and1}]\
@@ -31,8 +30,7 @@ group_path -name grp_net\
     -to [get_ports {out1}]
 group_path -default\
     -from [get_ports {in3}]\
-    -to [list [get_ports {out1}]\
-           [get_ports {out2}]]
+    -to [all_outputs]
 set_multicycle_path -hold\
     -from [list [get_ports {in1}]\
            [get_ports {in2}]]\

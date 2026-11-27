@@ -1,0 +1,28 @@
+###############################################################################
+# Created by write_sdc
+###############################################################################
+current_design wide64
+###############################################################################
+# Timing Constraints
+###############################################################################
+create_clock -name clk -period 2.0000 [get_ports {clk}]
+group_path -name io\
+    -from [all_inputs]\
+    -to [all_outputs]
+set_max_delay\
+    -from [all_registers]\
+    -to [all_outputs] 1.2000
+set_max_delay\
+    -from [all_inputs -no_clocks]\
+    -to [all_registers] 1.5000
+###############################################################################
+# Environment
+###############################################################################
+###############################################################################
+# Design Rules
+###############################################################################
+re-read timing equal: 1
+re-written sdc equal: 1
+width 64: 23 lines with collections, +65 lines for a register list
+width 256: 23 lines with collections, +257 lines for a register list
+width 1024: 23 lines with collections, +1025 lines for a register list
