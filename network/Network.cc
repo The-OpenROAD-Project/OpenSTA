@@ -72,11 +72,14 @@ Network::findPortsMatching(const Cell *cell,
   int from, to;
   parseBusName(pattern->pattern(), '[', ']', '\\',
                is_bus, is_range, bus_name, from, to, subscript_wild);
+  // A pattern without wildcards names at most one port (or bus), so
+  // look it up by name instead of matching the name of every port.
+  // The scan still runs if the lookup misses.
+  const bool literal =
+      !pattern->isRegexp() && !pattern->nocase() && !pattern->hasWildcards();
   if (is_bus) {
     PatternMatch bus_pattern(bus_name, pattern);
-    CellPortIterator *port_iter = portIterator(cell);
-    while (port_iter->hasNext()) {
-      Port *port = port_iter->next();
+    auto match_bus = [&](const Port *port) {
       if (isBus(port)
           && bus_pattern.match(name(port))) {
         if (is_range) {
@@ -105,10 +108,25 @@ Network::findPortsMatching(const Cell *cell,
           }
         }
       }
+    };
+    const Port *bus = literal ? findPort(cell, bus_name) : nullptr;
+    if (bus && isBus(bus) && name(bus) == bus_name)
+      match_bus(bus);
+    else {
+      CellPortIterator *port_iter = portIterator(cell);
+      while (port_iter->hasNext())
+        match_bus(port_iter->next());
+      delete port_iter;
     }
-    delete port_iter;
   }
   else {
+    if (literal) {
+      Port *port = findPort(cell, pattern->pattern());
+      if (port && name(port) == pattern->pattern()) {
+        matches.push_back(port);
+        return matches;
+      }
+    }
     CellPortIterator *port_iter = portIterator(cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();

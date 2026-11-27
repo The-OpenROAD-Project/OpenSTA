@@ -9,6 +9,7 @@ sta_module_tests("network"
     escaped_names
     fanin_fanout
     find_cells_regex
+    find_ports_literal
     gcd_traversal
     hier_pin_query
     hierarchy

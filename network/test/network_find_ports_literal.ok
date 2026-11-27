@@ -1,0 +1,46 @@
+get_ports in0: 1 in0
+get_ports in1999: 1 in1999
+get_ports out17: 1 out17
+get_ports clk: 1 clk
+get_ports CLK: 1 CLK
+get_ports d: 8 {d[0]} {d[1]} {d[2]} {d[3]} {d[4]} {d[5]} {d[6]} {d[7]}
+get_ports q: 8 {q[0]} {q[1]} {q[2]} {q[3]} {q[4]} {q[5]} {q[6]} {q[7]}
+get_ports {d[3]}: 1 {d[3]}
+get_ports {d[5:2]}: 4 {d[2]} {d[3]} {d[4]} {d[5]}
+get_ports {d[2:5]}: 4 {d[2]} {d[3]} {d[4]} {d[5]}
+get_ports {d[*]}: 8 {d[0]} {d[1]} {d[2]} {d[3]} {d[4]} {d[5]} {d[6]} {d[7]}
+Warning 366: network_find_ports_literal.tcl line 1, port 'd[9]' not found.
+get_ports {d[9]}: 0 
+get_ports {esc\[3\]}: 1 {esc[3]}
+get_ports {esc[3]}: 1 {esc[3]}
+Warning 366: network_find_ports_literal.tcl line 1, port 'a/b' not found.
+get_ports a/b: 0 
+Warning 366: network_find_ports_literal.tcl line 1, port 'a/b_out' not found.
+get_ports a/b_out: 0 
+get_ports {a\/b}: 1 a/b
+get_ports {a\/b_out}: 1 a/b_out
+get_ports -quiet nosuch: 0 
+Warning 366: network_find_ports_literal.tcl line 1, port 'nosuch' not found.
+get_ports nosuch: 0 
+get_ports -quiet {nosuch[0]}: 0 
+get_ports -quiet {in3[0]}: 0 
+get_ports in1?: 10 in10 in11 in12 in13 in14 in15 in16 in17 in18 in19
+get_ports in199*: 11 in199 in1990 in1991 in1992 in1993 in1994 in1995 in1996 in1997 in1998 in1999
+Warning 366: network_find_ports_literal.tcl line 1, port 'in1[0-9]' not found.
+get_ports {in1[0-9]}: 0 
+get_ports -regexp {in1[0-9]0}: 10 in100 in110 in120 in130 in140 in150 in160 in170 in180 in190
+get_ports -regexp in17: 1 in17
+get_ports -regexp -nocase clk: 2 CLK clk
+Warning 358: network_find_ports_literal.tcl line 1, -nocase ignored without -regexp.
+get_ports -nocase clk: 1 clk
+get_ports {in3 out3 d[0]}: 3 {d[0]} in3 out3
+in0: same
+in1234: same
+out1999: same
+clk: same
+CLK: same
+d[0]: same
+d[7]: same
+q[3]: same
+esc[3]: same
+a/b: same
