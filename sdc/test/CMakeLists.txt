@@ -37,6 +37,7 @@ sta_module_tests("sdc"
     variables
     write_comprehensive
     write_disabled_groups
+    write_latency_included
     write_options
     write_read
     write_rise_fall_min_max

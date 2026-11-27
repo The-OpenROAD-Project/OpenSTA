@@ -804,6 +804,10 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
   sta::print(stream_, "{}{} -add_delay ",
              transRiseFallFlag(rf),
              minMaxFlag(min_max));
+  if (port_delay->sourceLatencyIncluded())
+    sta::print(stream_, "-source_latency_included ");
+  if (port_delay->networkLatencyIncluded())
+    sta::print(stream_, "-network_latency_included ");
   const Pin *ref_pin = port_delay->refPin();
   if (ref_pin) {
     sta::print(stream_, "-reference_pin ");
